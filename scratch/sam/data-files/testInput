@@ -1,0 +1,7 @@
+Foo {
+  str = "bar;
+baz;
+bat;";
+
+  str2 = "123\n456";
+}

@@ -1,0 +1,120 @@
+/**
+@page contributors G3D Developer Credits
+
+ <b>10.00 Release Team</b>
+
+ <br>Morgan McGuire [Williams College and NVIDIA] - Project Manager
+ <br>Michael Mara [NVIDIA] - Developer
+ <br>Daniel Evangelakos [Williams College] - Developer
+ <br>Sam Donow [Williams College] - Developer
+ <br>Cyril Crassin [NVIDIA]
+ <br>Kelly Wang [Williams College] - Developer
+ <br>Jamie Lesser [Williams College] - Developer
+
+ <b>Credits for Previous Contributors and Cited Sources</b> 
+ 
+ <br>This library
+ contains code and resources contributed by the following people, or
+ based open code and articles by them.  Starred (*) developers are
+ current or previous members of a %G3D release team.  Institutions reflect the 
+ current (or latest known) institution.
+
+   <BR>Tomas Akenine-M&ouml;ller
+   <BR>David Baszucki, ROBLOX
+   <BR>Bill Baxter
+   <BR>Seth Block, Brown University
+   <BR>Nicholas Bray
+   <BR>Nick Capens
+   <BR>Erik Cassel, ROBLOX
+   <BR>Matthaeus Chajdas
+   <BR>John Chisholm*, Curl Corporation
+   <br>Zina Cigolle, Williams College
+   <br>Cyril Crassin, NVIDIA
+   <BR>Jauhn Dabz
+   <BR>Erik de Castro Lopo 
+   <br>Rich Deeson*
+   <BR>Chris Demetriou, Google
+   <BR>L. Peter Deutsch
+   <br>Dmitri*
+   <BR>Sam Donow, Williams College
+   <br>Duarte Duarte
+   <BR>Dave Eberly
+   <BR>Kevin Egan*, Rhythm and Hues (now NYU)
+   <BR>Martin Eisemann
+   <BR>Daniel Evangelakos, Williams College
+   <BR>Cass Everitt, NVIDIA
+   <BR>Dan Fast*, Williams College
+   <BR>Andi Fein, Brown University
+   <BR>Jakob Fischer
+   <BR>Thorsten Grosch
+   <br>John F. Hughes
+   <br>Bret Jackson, University of Minnesota
+   <BR>Dan Keefe*, University of Minnesota
+   <BR>Harishabd Khalsa, Brown University
+   <BR>Nicolai Haehnle
+   <BR>Michael Herf
+   <br/>Sebastian Herholz
+   <br>Daniel Hilferty*, US Airforce
+   <BR>Pete Hopkins
+   <br>Danny Yuxing Huang*, Williams College
+   <BR>Peter Hunt, Cornell University
+   <BR>Robert Hunter, Brown University
+   <BR>Ed Johnson
+   <BR>Benjamin Jurke
+   <BR>Chris Kern
+   <BR>Independent JPEG Group
+   <BR>Darius Jazayeri, MIT
+   <br>Chuan Ji, Williams College
+   <br/>Chad Layton, Vicarious Visions
+   <br/>Brett Lajzer, Vicarious Visions
+   <BR>Ben Landon*, Lincoln Labs
+   <BR>Thomas G. Lane
+   <BR>Ray Larabie
+   <br>Axel Lewenhaupt
+   <BR>Jukka Liimatta
+   <br>Dan Lipsa
+   <br>Thomas Lotgering
+   <BR>Marcus Magnor
+   <BR>Giulio Mainardi
+   <br>Michael Mara, NVIDIA (formerly Williams College)
+   <BR>Jeff Marsceill, Williams College
+   <BR>Max McGuire, Unknown Worlds Entertainment
+   <BR>Morgan McGuire*, Williams College
+   <br>David Milaenen
+   <BR>Justin Miller
+   <BR>Kurt Miller
+   <BR>Nate Miller
+   <BR>Stefan Müller
+   <BR>Eric Muller*, Williams College
+   <BR>Nick Musurca, Brown University
+   <BR>Akita Noek
+   <BR>Trevor O'Brien, Brown University
+   <BR>Casey O'Donnell*, Georgia Tech
+   <BR>James O'Sullivan*
+   <BR>Aaron Orenstein
+   <BR>Jordan Parker
+   <br>Edward Powell, Vectric
+   <br/>Jaromír Pufler
+   <BR>Edward Resnick
+   <BR>Alex Rice
+   <BR>Jack Ritter
+   <BR>Nate Robbins
+   <BR>Joshua Schpok*
+   <BR>Sebastian Schubert
+   <BR>SGI
+   <BR>Ben Shine*, Brown University
+   <BR>Peter Sibley*, Brown University
+   <BR>Gabe Taubman*, Brown University
+   <BR>Corey Taylor*
+   <BR>Pierre Terdiman
+   <br/>Kevin Todisco, Vicarious Visions
+   <BR>Ben Trumbore
+   <BR>Kelly Wang, Williams College
+   <BR>Matthew Welch
+   <br/>James Wilcox, NVIDIA and University of Washington
+   <BR>Simon Winkelbach
+   <BR>Laura Wollstadt
+   <BR>Andrew Woo
+   <BR>Shawn Yarbrough*, weaponizedgames.com
+   <BR>Hai Zhou, Williams College
+*/

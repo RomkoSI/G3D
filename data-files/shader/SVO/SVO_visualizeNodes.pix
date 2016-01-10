@@ -1,0 +1,13 @@
+#version 420
+
+uniform vec4 color;
+
+in vec4 vertColor;
+out vec4 outColor;
+
+void main() {
+	outColor = vertColor/2.0f;
+    //outColor = color;
+
+	outColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+}

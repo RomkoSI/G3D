@@ -1,0 +1,83 @@
+/** \mainpage 
+
+\htmlonly
+<table border=0 width=100% >
+<tr align=top >
+<td valign=top >
+<font size="4" face="Arial" >
+\endhtmlonly
+<ol start=1>
+<li><p><a href="readme.md">Installing %G3D</a>
+
+<li> <p>Welcome to %G3D
+\htmlonly
+<font size="3" >
+\endhtmlonly
+<ol>
+  <li>  \link guideoverview %G3D Overview \endlink
+  <li>  \link guideconcepts API Concepts \endlink
+  <li>  \link guidedemos Sample Programs \endlink
+</ol>
+  \htmlonly
+</font>
+\endhtmlonly
+<p>
+
+<li> <p> Reference Documentation
+\htmlonly
+<font size="3" >
+\endhtmlonly
+  <ol>
+     <li> <a class="el" href="apiindex.html">APIs by Abstraction Level</a>
+     <li> <a class="el" href="topicindex.html">APIs by Task</a>
+     <li> <a class="el" href="dataindex.html">Data</a></p>
+  </ol>
+  \htmlonly
+</font>
+\endhtmlonly
+</p>
+
+<li> <p> <a class="el" href="icompile-manual.html" >iCompile Manual</a> (Unix)</p>
+
+<li> <p> About G3D
+<table width=250>
+<tr><td width=10%></td><td width=45%><a class="el" href="license.txt">License</a></td><td></td></tr>
+<tr><td width=10%></td><td width=45%><a class="el" href="contributors.html">Credits</a></td><td></td></tr>
+<tr><td width=10%></td><td width=45%><a class="el" href="changelog.html">Change Log</a></td><td></td></tr>
+</table></p>
+
+</ol>
+\htmlonly
+</font>
+</td>
+<td width=20 >
+</td>
+
+<td valign=top align=right>
+
+<img src="G3D.jpg">
+<br/>
+G3D Innovation Engine version 10.01
+
+</td>
+</tr>
+</table>
+\endhtmlonly
+
+<HR>
+Manual and Library source code
+<br>Copyright 2000-2015, Morgan McGuire.
+<br>All rights reserved.
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+*/
+

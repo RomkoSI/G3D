@@ -1,0 +1,72 @@
+/** @page guideunix Installing %G3D on Linux and FreeBSD
+
+The following sections give step-by-step instructions for downloading,
+building, and installing the 8.00 version of %G3D on OS X and Linux.
+
+The short version of these instructions is simple:
+
+\htmlonly
+<ol>
+<li> Unzip <a
+href="http://prdownloads.sourceforge.net/g3d/G3D-8.00-src.zip?download">G3D-8.00-src.zip</a>
+<li> Type <code>buildg3d --install /usr/local update</code> to build the library
+<li> Set your G3D9DATA environment variable to the <code>/usr/local/G3D/data</code> directory
+<li> See <code><a href="file:///usr/local/G3D/samples/starter/">/usr/local/G3D/samples/starter/</A></code> for a simple application framework
+</ol>
+\endhtmlonly
+</p>
+<hr>
+
+\section full Full Unix (Linux and OS X) installation instructions
+\htmlonly
+
+<ol>
+<li>Execute the following commands at the terminal prompt on your local machine to download, build, and install G3D:
+
+<pre>
+pushd /tmp
+curl http://prdownloads.sourceforge.net/g3d/G3D-8.00-src.zip?download > G3D-8.00-src.zip
+unzip G3D-8.00-src.zip
+pushd G3D
+chmod u+x buildg3d
+sudo ./buildg3d --install /usr/local update
+popd
+rm -rf G3D
+popd
+</pre>
+
+<p>
+<li>You probably want to bookmark the local G3D documentation at
+<code>/usr/local/G3D/html/index.html</code>.  Sample projects and
+data files can be found at <code>/usr/local/G3D/data</code> and
+<code>/usr/local/G3D/demos</code>.
+</p>
+
+<p>
+<li>G3D comes with a build tool called iCompile that automatically compiles and links programs using g++ on Linux and OS X.  This is a replacement for Makefiles. 
+ If you choose to use it and installed G3D to a path that is not already in your
+INCLUDE and LIBRARY variables, then you need to edit your <code>~/.icompile</code> file to work with G3D.  See the <a
+href="icompile-manual.html" >iCompile Manual</a> for details.  A sample .icompile file that assumes you built in your home directory and never installed to the system is:
+
+<pre>
+<font size=2>
+[GLOBAL]
+defaultinclude:  $(INCLUDE);/usr/include;/usr/X11R6/include;/usr/local/include;/usr/local/include/SDL11;/usr/include/SDL;/Volumes/Home/Projects/G3D/build/linux-i386-g++-4.0/include
+defaultlibrary:  $(LIBRARY);$(LD_LIBRARY_PATH);/usr/lib;/usr/X11R6/lib;/usr/local/lib;/Volumes/Home/Projects/G3D/build/linux-i386-g++-4.0/lib
+defaultcompiler: <NEWESTGCC>
+defaultexclude:  <EXCLUDE>
+beep:            True
+tempdir:         tmp
+builddir:        build
+
+[DEBUG]
+
+[RELEASE]
+</font>
+</pre>
+</ol>
+
+</p>
+\endhtmlonly
+
+*/

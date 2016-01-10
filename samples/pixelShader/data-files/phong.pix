@@ -1,0 +1,77 @@
+#version 330 // -*- c++ -*-
+/**
+ Per-pixel Phong Shading
+
+ This is an example of how to use shaders with GLSL and G3D, not an example of the best
+ shader that you can write.  See data-files/SuperShader/SS_* for a more 
+ sophisticated physically-based shader.  
+
+ \file phong.pix
+ \author Morgan McGuire, http://graphics.cs.williams.edu
+ */
+
+/////////////////////////////////////////////////////////////
+// "Uniform" constants passed from C++
+
+/** Intensity of the lambertian term. */
+uniform float   lambertianScalar;
+
+/** Lambertian/ambient surface color */
+uniform vec3    lambertianColor;
+
+/** Intensity of the glossy term. */
+uniform float   glossyScalar;
+
+/** Glossy surface color.  Used for both glossy and perfect reflection. */
+uniform vec3    glossyColor;
+
+/** Smoothness of the microfacet surface. 0 = rough, 1 = mirror */
+uniform float   smoothness;
+
+/** Intensity of perfect reflections */
+uniform float   reflectScalar;
+
+/** Unit world space direction to the (infinite, directional) light source */
+uniform vec3    wsLight;
+
+/** Color of the light source */
+uniform vec3    lightColor;
+
+/** Ambient light term. */
+uniform vec3    ambient;
+
+/** Environment cube map used for reflections */
+uniform samplerCube environmentMap;
+
+/////////////////////////////////////////////////////////////
+// "Varying" variables passed from the vertex shader
+
+in vec3    wsInterpolatedNormal;
+in vec3    wsInterpolatedEye;
+
+out vec3 g3d_FragColor;
+
+void main() {
+
+    // Unit normal in world space
+    vec3 wsNormal = normalize(wsInterpolatedNormal);
+
+    // Unit vector from the pixel to the eye in world space
+    vec3 wsEye = normalize(wsInterpolatedEye);
+
+    // Unit vector giving the direction of perfect reflection into the eye
+    vec3 wsReflect = 2.0 * dot(wsEye, wsNormal) * wsNormal - wsEye;
+
+    // The "reflect" function is part of the GLSL specification but
+    // some drivers do not include it.  If you wanted to use
+    // that function, you could use the following line:
+
+    // vec3 wsReflect = -reflect(wsEye, wsNormal);
+    
+    float shine = pow(1e4, smoothness);
+
+    g3d_FragColor =
+        lambertianScalar * lambertianColor * (ambient + (max(dot(wsNormal, wsLight), 0.0) * lightColor)) +
+        glossyScalar * glossyColor * (8.0 + shine) / 8.0 * pow(max(dot(wsReflect, wsLight), 0.0), shine) * lightColor +
+        reflectScalar * glossyColor * texture(environmentMap, wsReflect).rgb;
+}

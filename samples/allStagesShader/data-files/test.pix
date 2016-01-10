@@ -1,0 +1,8 @@
+#extension GL_EXT_gpu_shader4 : enable
+#version 330 or 400 or 130
+
+
+void main(void) {
+
+    gl_FragColor.xyz = vec3(1.0);//(n + vec3(1.0)) * 0.5;//vec3(0.0);//vec3((texCoord + vec2(1.0)) * 0.5, 0.0);//max(abs(ws_normal.x), max(abs(ws_normal.y), abs(ws_normal.z))));//(n + 1.0) * 0.5;
+}

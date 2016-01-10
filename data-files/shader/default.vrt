@@ -1,0 +1,19 @@
+// Intentionally no #version... added by G3D
+
+// -*- c++ -*-
+/**
+  \file default.vrt
+
+  Default shader... mostly used for full-screen passes.
+ */
+in vec4 g3d_Vertex;
+in vec2 g3d_TexCoord0;
+
+out vec2 g3d_TexCoord;
+
+uniform mat4 g3d_ObjectToScreenMatrixTranspose;
+
+void main() {
+    g3d_TexCoord = g3d_TexCoord0.xy;
+    gl_Position = g3d_Vertex * g3d_ObjectToScreenMatrixTranspose;
+}

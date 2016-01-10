@@ -1,0 +1,44 @@
+// -*- c++ -*-
+{ 
+    name = "Camera"; 
+
+    entities = { 
+ 
+        // Camera options chosen for performance
+        camera = Camera { 
+            depthOfFieldSettings = DepthOfFieldSettings { 
+                enabled = false; 
+            }; 
+            
+            filmSettings = FilmSettings { 
+                antialiasingEnabled = true; 
+                antialiasingFilterRadius = 0; 
+                antialiasingHighQuality = false;
+                bloomRadiusFraction = 0.009; 
+                bloomStrength = 0.0; 
+                gamma = 2.2; 
+                sensitivity = 1; 
+                
+                vignetteBottomStrength = 0.05; 
+                vignetteSizeFraction = 0.5; 
+                vignetteTopStrength = 0.5; 
+            }; 
+            
+            frame = CFrame::fromXYZYPRDegrees( -6.7f,   3.4f,  -3.3f,  165.9f,  10.3f,   0.0f);
+
+            motionBlurSettings = MotionBlurSettings { 
+                enabled = false; 
+            }; 
+            
+            projection = Projection { 
+                farPlaneZ = -150; 
+                fovDegrees = 60; 
+                fovDirection = "VERTICAL"; 
+                nearPlaneZ = -0.1; 
+                pixelOffset = Vector2(0, 0 ); 
+            }; 
+            
+            visualizationScale = 1; 
+        }; 
+    }; 
+}

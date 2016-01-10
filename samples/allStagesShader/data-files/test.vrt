@@ -1,0 +1,13 @@
+#version 420 : compatability
+in vec3 Position;
+
+
+
+#extension GL_EXT_gpu_shader4 : enable
+void main() {
+    //gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    gl_Position = g3d_ModelViewProjectionMatrix * vec4(Position, 1.0);
+
+}
+
+//#       version 330

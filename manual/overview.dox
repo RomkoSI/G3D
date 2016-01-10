@@ -1,0 +1,232 @@
+/** 
+\page guideoverview G3D Overview
+
+<IMG SRC="3dengine.jpg" style="float: right;" >
+%G3D is a commercial-grade 3D Engine available as Open Source (BSD License).
+It is used in games, tech demos, research papers, military simulators, and
+university courses.  It provides a set of routines and structures so common
+that they are needed in almost every graphics program.  It makes low-level
+libraries like OpenGL and sockets easier to use without limiting functionality
+or performance.  %G3D gives you a rock-solid, highly optimized base from which
+to build your application.
+
+%G3D contains only lightweight scene graphs and GUI routines.  Because
+of this, you have much more flexibility in how you structure your
+programs.  The tradeoff is that you have to know more about 3D
+programming.  %G3D is intended for users who are already familiar with
+C++ and DirectX or OpenGL.  We recommend using wxWidgets or another 
+GUI library with %G3D if your project has extensive UI needs beyond the
+controls provided by G3D::GuiPane.
+
+This manual begins with a \link guidenewuser New User Guide \endlink that help
+programmers who know C++ but are either new to 3D or starting without
+a base of 3D code get up and running quickly.  The demos directory contains
+a <a href="../samples/starter">starter</a> project(it is how the %G3D development team usually
+start new projects in their own work).
+
+The library also provides lower-level interfaces that programmers who are
+already working with OpenGL and existing code may prefer.  See the
+Notes for Expert Users at the end of this chapter for more information.
+
+
+\section documentation Documentation and Support 
+
+This guide gives a brief introduction to help you decide if %G3D is
+right for your project and introduce you to the major features.  The
+individual entry points are extensively documented and can be accessed
+through the links at the top of this page.  The source code for the
+entire library is available
+(http://cvs.sourceforge.net/viewcvs.py/g3d/G3D/) and can often
+help resolve ambiguities.
+
+Post questions and feedback on the User Forum 
+(http://groups.google.com/group/g3d-users/topics) and consider subscribing to 
+it to receive all posts via e-mail.  Don't be afraid to post if you are a new or 
+inexperienced user-- the User Forum is our primary support path.  You can also read
+the Developers Google Group (http://groups.google.com/group/g3d-developers) to keep 
+abreast of changes coming in future releases and download Beta releases 
+from the G3D website to provide feedback.
+
+%G3D provides several demos with source that show different ways of structuring your 3D program 
+and how to use some of the most popular features in <A HREF="../demos">samples/</A>.
+
+The official support team and community respond to most user posts within
+hours and patches for critical user-discovered bugs are given top priority.  
+
+The latest version library is always available on the homepage,
+<A HREF="http://g3d.codeplex.com">http://g3d.codeplex.com</A>.
+
+@section platform Platform and Functionality
+
+<IMG SRC="platforms.png" ALIGN=RIGHT>
+%G3D allows you to write code once that will compile and run on Windows, 
+Linux, and OS X without <CODE>ifdef</CODE>s or modifications.  
+It supports all OpenGL implementations, from software 
+rasterization under Mesa to the latest GeForce and Radeon hardware accelerator 
+cards.
+
+%G3D is built on OpenGL because it is platform independent and allows access
+to newer features than DirectX.  Many top games (including Doom 3) are written with 
+OpenGL.  There are advantages to both APIs, but in the end they are equivalent except 
+for the platform issue.  <B>You can implement any effect from any game in %G3D</B>. Unlike
+higher level engines %G3D does not restrict access to low-level features-- every graphics
+card function in OpenGL is exposed under %G3D, even if it isn't wrapped by a higher level
+API.  This means you can always drop down to raw OpenGL calls if needed.
+
+@section philosophy Design Philosophy
+Our philosophy is simple. The library should have the following properties:
+
+  <UL>
+    <LI> Easy to use!
+    <LI> Only contains code needed for every 3D project.
+    <LI> It is hard to write bugs...
+    <LI> and easy to find them.
+    <LI> You can use pieces of the library without the whole.
+    <LI> Defaults are safe and fast.
+    <LI> The license encourages both commercial and non-commercial use.
+    <LI> It is easy to build the library and link against it.
+    <LI> Provides access to popular data formats.
+    <LI> The same source code runs on all operating systems and graphics cards.
+    <LI> Manages resources for the user.
+  </UL>
+
+
+@section formats Data Formats 
+
+%G3D supports images in PNG, TGA, BMP, JPG, PCX, PPM, PGM, PBM, DDS,
+and ICO format through the G3D::Texture, G3D::Image3, G3D::GImage classes.  %G3D
+has loaders for the BSP, PLY2, IFS, OFF, 3DS, OBJ, and MD2 mesh formats.  %G3D
+uses its own font format (FNT) to avoid legal issues with TrueType.
+Over 30 popular fonts are provided in this format and the code
+contains a routine to help you make more from your TrueType fonts.
+G3D::GuiTheme skins are in open source SKN format, which is
+implicitly documented by the G3D::GuiTheme class source code and will
+be explicitly documented in a future release (the format is currently
+under development).
+
+Download the %G3D data module for over 100 MB of models and other 3D data supported by %G3D.
+
+@section team Team
+The library contains code, documentation, and demos from over 30 
+\link contributors contributors \endlink.  The team leads are:
+
+<B>Dr. Morgan McGuire</B> has been the %G3D project manager and
+Windows team lead since 2000.  He is an assistant professor of
+computer science at Williams College and 3D software consultant.  He
+holds a Masters degree in electrical engineering from MIT and a PhD in
+computer graphics from Brown University.  Morgan has been a senior
+architect at several companies in the graphics industry, worked on
+several commercial games including IronLore's <I>Titan Quest</I> and
+Activision's <i>Marvel Ultimate Alliance 2</i>, and published
+award-winning research papers.
+
+<B>Corey Taylor</b> has been the %G3D assistant project manager and
+Linux team lead since 2004.  He is a software developer at Electronic
+Arts, where he has worked on several games including <i>Superman
+Returns</i>.
+  
+<B>Dr. Casey O'Donnell</B> is the %G3D OS X advisor.
+Casey a professor at the University of Georgia. His work
+looks at the politics and economics of the video game industry, and in particular the console game industry. Though
+his methods are largely anthropological, he still spends a significant amount of his time playing with code.
+Casey's undergraduate degree was from Drake University in Des Moines, Iowa, where he recieved was a computer science
+and mathematics major (and a sociology minor and women's studies concentration).
+
+%G3D is supported by donations from users
+(http://sourceforge.net/project/project_donations.php?group_id=76879),
+and by hardware, software, and technical support from Autodesk,
+NVIDIA, and AMD.
+
+@section otherlibs Working With Other Libraries
+%G3D is compatible with most other libraries.  
+
+Although %G3D provides its own native window management, you can use the G3D::OSWindow API 
+to replace that with GUI libraries, likw wxWindows and Qt.
+
+It is possible to use DirectX instead of OpenGL.  The easiest way is to link 
+against %G3D.lib only and use DirectX calls instead of the GLG3D equivalents.  A more 
+full-featured solution is to replace the RenderDevice and Texture implementations with 
+DirectX versions and rebuild the entire library.  We have not investigated the latter.  
+
+To avoid memory leaks, ensure that all libraries you use have been compiled against 
+the same version of the C++ standard library.  %G3D expects to be compiled with run-time
+type checking (RTTI), C++ exceptions, and a multithreaded, dynamically linked runtime.
+
+%G3D uses <b>ffmpeg</b>, <b>zlib</b>, <b>libpng</b>, <b>libzip</b>,
+and <b>libjpeg</b>, which are distributed as part of %G3D (as headers
+and a windows .libs).  These are automatically built into %G3D and
+your program--you don't have to do anything special to use them.
+
+On Linux and FreeBSD, G3D::SDLWindow uses SDL. SDL is not included
+with the %G3D installation and must be downloaded separately from
+http://libsdl.org if it is not installed on your machine already.
+
+In addition to those mentioned above, you may be interested in using
+the following libraries to complement %G3D:
+
+<UL>
+    <LI>Image Magick's Magick Wand (http://www.imagemagick.org/)
+    <LI>Free Type2 (http://freetype.sourceforge.net/index2.html)
+    <LI>STLport (http://www.stlport.org/download.html)
+</UL>
+
+@section b1 Release Schedule
+
+%G3D has a stable, backwards compatible API.  Most changes between versions add 
+functionality and fix bugs.  Point releases are backwards compatible
+to the last major release, except where critical bugs necessitate small API 
+changes.  Point releases occur about once every two months and are announced 
+on the <A HREF="http://sourceforge.net/forum/forum.php?forum_id=262426">User Forum</A>.
+
+Major releases may break source compatibility to fix critical bugs, match the 
+changing hardware standards, and streamline the API.  Incompatible changes are marked
+in the \link changelog Change Log \endlink and an upgrade path is recommended.
+Major releases occur about once a year and are announced well in advance.
+Migrating code across major releases generally takes a few hours of work for a 100,000 
+line program.  We try to design changes so they will trigger compiler errors for 
+older code instead of failing silently.
+
+Beta releases occur between point releases to allow users to access new functionality
+and provide feedback.  Beta releases are frequently Windows-only and are neither
+supported nor guaranteed to be stable.  Any APIs in a Beta release may change without
+notice.
+
+@section beta Beta and Deprecated APIs
+
+Even in official releases, some parts of %G3D are marked as Beta in the documentation. 
+These are previews of new APIs that are still under construction but are stable enough
+to use.  They will likely change in small ways before becoming official APIs-- use at
+your own risk.
+
+<A HREF="deprecated.html">Deprecated API</A>s have been replaced by some newer functionality but are supported and
+guaranteed to be present until the next major release, at which point they will be 
+removed. Avoid writing new code to deprecated APIs and consider migrating existing 
+code away from them.
+
+@section experts Notes for Expert Users
+
+%G3D is designed so that you can use as much or as little as you want.  You are
+welcome to rip out the source code for a single class like G3D::Texture and use 
+it standalone in your project, link against the library and use our main G3D::RenderDevice
+class, or let G3D::GApp provide the entire structure for your program.  For example,
+you might want to use the G3D::Vector3 and other low-level classes but provide your
+own rendering state abstraction, or use DirectX instead of OpenGL.
+
+Most %G3D programs need not access OpenGL directly.  However, you can
+always execute OpenGL functions directly and mix them with
+RenderDevice calls. To ensure that the G3D::RenderDevice is properly
+synchronized, wrap this code in G3D::RenderDevice::beginOpenGL,
+G3D::RenderDevice::endOpenGL.  Most classes, like Texture, expose the
+relevant OpenGL handles so you can work with them directly as needed.
+
+The routines are packaged as two static libraries, %G3D and GLG3D, so
+that you can use the low-level vector math without bringing in any of
+the OpenGL code.
+
+You may find it easier (particularly on Windows) to debug code if you
+build %G3D on your own machine so that you can step into the %G3D
+routines and set breakpoints and watch variables.  On Windows you
+should change the Debug Info level to Program Database from Line
+Numbers Only.
+
+*/

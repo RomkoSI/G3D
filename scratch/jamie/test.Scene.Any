@@ -1,0 +1,113 @@
+
+/* -*- c++ -*- */
+{ 
+    entities = { 
+        box = VisibleEntity { 
+            model = "boxModel"; 
+            visible = true; 
+        }; 
+        
+        camera = Camera { 
+            depthOfFieldSettings = DepthOfFieldSettings { 
+                enabled = false; 
+                farBlurRadiusFraction = 0.005; 
+                farBlurryPlaneZ = -100; 
+                farSharpPlaneZ = -40; 
+                focusPlaneZ = -10; 
+                lensRadius = 0.01; 
+                model = "NONE"; 
+                nearBlurRadiusFraction = 0.015; 
+                nearBlurryPlaneZ = -0.25; 
+                nearSharpPlaneZ = -1; 
+            }; 
+            
+            filmSettings = FilmSettings { 
+                antialiasingEnabled = true; 
+                antialiasingFilterRadius = 0; 
+                bloomRadiusFraction = 0.009; 
+                bloomStrength = 0.2; 
+                debugZoom = 1; 
+                gamma = 2.2; 
+                sensitivity = 1; 
+                toneCurve = Spline { 
+                    control = ( 0, 0.1, 0.2, 0.5, 1 ); 
+                    extrapolationMode = "LINEAR"; 
+                    finalInterval = -1; 
+                    interpolationMode = "CUBIC"; 
+                    time = ( 0, 0.1, 0.2, 0.5, 1 ); 
+                }; 
+                
+                vignetteBottomStrength = 0.05; 
+                vignetteSizeFraction = 0.17; 
+                vignetteTopStrength = 0.5; 
+            }; 
+            
+            frame = CFrame::fromXYZYPRDegrees(0, 1, 6, 0, 0, 0 ); 
+            motionBlurSettings = MotionBlurSettings { 
+                cameraMotionInfluence = 0.5; 
+                enabled = false; 
+                exposureFraction = 0.75; 
+                maxBlurDiameterFraction = 0.1; 
+                numSamples = 27; 
+            }; 
+            
+            projection = Projection { 
+                farPlaneZ = -200; 
+                fovDegrees = 25; 
+                fovDirection = "VERTICAL"; 
+                nearPlaneZ = -0.1; 
+                pixelOffset = Vector2(0, 0 ); 
+            }; 
+            
+            visualizationScale = 1; 
+        }; 
+        
+        light1 = 
+            Light { 
+                attenuation = ( 0.0001, 0, 1 ); 
+                bulbPower = Power3(60 ); 
+                castsShadows = true; 
+                enabled = true; 
+                extent = Vector2(0.75, 0.75 ); 
+                frame = CFrame::fromXYZYPRDegrees(0, 1.92, 0, 0, -90, 0 ); 
+                producesDirectIllumination = true; 
+                producesIndirectIllumination = true; 
+                shadowMapSize = Vector2int16(1024, 1024 ); 
+                spotHalfAngleDegrees = 58;
+                spotSquare = true; 
+                type = "SPOT"; 
+            }; 
+    }; 
+    
+    lightingEnvironment = LightingEnvironment { 
+        ambientOcclusionSettings = AmbientOcclusionSettings { 
+            bias = 0; 
+            blurRadius = 3; 
+            blurStepSize = 2; 
+            depthPeelSeparationHint = 0.0604059; 
+            edgeSharpness = 1; 
+            enabled = true; 
+            intensity = 2.18812; 
+            monotonicallyDecreasingBilateralWeights = false; 
+            numSamples = 36; 
+            radius = 0.526345; 
+            useDepthPeelBuffer = true; 
+            useNormalBuffer = true; 
+            useNormalsInBlur = true; 
+        }; 
+        
+        
+        environmentMap = "cubemap/whiteroom/whiteroom-*.png"; 
+        
+        
+    }; 
+    
+    models = { 
+        boxModel = ArticulatedModel::Specification {
+            filename = "box2texcoords.fbx";
+            scale = 0.1;
+        }; 
+    }; 
+    
+    name = "Test"; 
+} 

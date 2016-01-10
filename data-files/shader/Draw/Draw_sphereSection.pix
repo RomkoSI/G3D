@@ -1,0 +1,15 @@
+#version 330 // -*- c++ -*-
+/**
+  \file Draw_sphereSection.pix
+ */
+
+uniform vec4      color;
+
+// Unused for now
+in vec3 normal;
+
+out vec4 result;
+
+void main() {
+    result = color;
+}

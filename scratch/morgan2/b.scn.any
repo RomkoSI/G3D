@@ -1,0 +1,112 @@
+// -*- c++ -*-
+// You can extend this sample scene file format with your own fields.
+// Edit the scene parsing in Scene.cpp.
+{
+    name = "B",
+   
+    models = {
+       groundModel = ArticulatedModel::Specification {
+            filename = "ifs/squarex8.ifs";
+            scale = 12.0f;
+            preprocess = (
+                setCFrame(root(), CFrame::fromXYZYPRDegrees(0,0,0,0,-90,0));
+
+                // Refer to parts and meshes by ID, name, root(), all(), or 0.
+                setTwoSided("root", "mesh", true);
+            );
+       };
+
+       teapotModel = ArticulatedModel::Specification {
+           filename = "model/teapot/teapot.obj";
+           scale = 0.01;
+           preprocess = {
+               setMaterial(root(), all(), Color3(1, 0, 0));
+            };
+       };
+        
+       crateModel = ArticulatedModel::Specification {
+            filename = "model/crate/crate.obj";
+       };
+    };
+    
+	localLightingEnvironment = 
+		LocalLightingEnvironment {
+			environmentMap = {
+				constant = 1.5;
+				texture  = 
+					Texture::Specification {
+						filename = "cubemap/hipshot_m9_sky/16_*.png";
+						desiredFormat = "SRGB8";
+					};
+		};
+	};
+    
+    entities = {
+        spawn = MarkerEntity {
+            frame = CFrame::fromXYZYPRDegrees(0, 2, 0);
+            color = Color3(0, 1, 0);
+            osBoxArray = [
+                AABox(Point3(-1,-1,-1), Point3(1,1,1));
+            ];
+        };
+
+        sun = Light {
+            type = "SPOT";
+            frame = CFrame::fromXYZYPRDegrees(0, 10, 0, 9, -90, 0 ) ;
+           
+            bulbPower = Power3(3e3, 3e3, 0);
+            spotHalfAngleDegrees = 25;
+            nearPlaneZLimit = -0.1;
+            shadowMapBias = 0.02;
+            spotSquare = false;
+            enabled = true;
+            shadowMapSize = Vector2int16(2048, 2048);
+        };
+        /*
+        fillLight = Light {
+            type = "DIRECTIONAL";
+            biradiance = Biradiance3::fromARGB(0x85816f);
+            frame = CFrame::fromXYZYPRDegrees(inf, inf, inf, -30, 45, 0);
+            castsShadows = false;
+        };
+        */
+        
+        crate0 = VisibleEntity {
+            model = "crateModel";
+            frame = CFrame::fromXYZYPRDegrees( -0.907395, 0.5, -0.929706, 63.1677 ) ;
+        };
+
+        crate1 = VisibleEntity {
+            model    = "crateModel";
+            frame = CFrame::fromXYZYPRDegrees( 1.87553, 0.5, 0.52729, -59.9654 );
+        };
+
+        teapot = VisibleEntity {
+            model = "teapotModel";
+            frame = CFrame::fromXYZYPRDegrees( 2.50425, 0.5, 2.35944, -103.2 ) ;
+        };
+
+        ground = VisibleEntity {
+            model    = "groundModel";
+            frame = CFrame::fromXYZYPRDegrees(0, -0.01, 0, 45);
+        };
+
+        camera = Camera {
+            frame = CFrame::fromXYZYPRDegrees(0.632912, 4.96049, 7.07624, 7.54394, -32.1014 ) ;
+        
+            depthOfFieldSettings = DepthOfFieldSettings {
+                enabled = false;
+                model = "ARTIST";
+                nearSharpPlaneZ = -1.5;
+            };
+
+            projection = Projection {
+                nearPlaneZ = -0.1;
+                farPlaneZ = -200;
+                fovDirection = "VERTICAL";
+                fovDegrees = 60;
+            }
+        };
+    };
+        
+}

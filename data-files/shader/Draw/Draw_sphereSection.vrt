@@ -1,0 +1,18 @@
+#version 330 // -*- c++ -*-
+/**
+  \file Draw_sphereSection.vrt
+ */
+
+in vec3 g3d_Vertex;
+out vec3 normal;
+void main() {
+#if BOTTOM
+    //Flip to negative Y hemisphere, and then fix winding direction by flipping X coordinate as well
+    vec4 vertex = vec4(-g3d_Vertex.x, -g3d_Vertex.y, g3d_Vertex.z, 1); 
+#else
+    vec4 vertex = vec4(g3d_Vertex, 1);
+#endif
+
+    normal = vec3(g3d_ObjectToWorldMatrix * vertex);
+    gl_Position = vertex * g3d_ObjectToScreenMatrixTranspose;
+}

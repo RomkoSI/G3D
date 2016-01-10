@@ -1,0 +1,37 @@
+################################################################
+[GLOBAL]
+
+compiler: %(defaultcompiler)s
+
+include: %(defaultinclude)s
+
+library: %(defaultlibrary)s
+
+exclude: %(defaultexclude)s
+
+builddir: ../build
+
+tempdir: ../temp
+
+# Colon-separated list of libraries on which this project depends.  If
+# a library is specified (e.g., png.lib) the platform-appropriate 
+# variation of that name is added to the libraries to link against.
+# If a directory containing an iCompile ice.txt file is specified, 
+# that project will be built first and then added to the include 
+# and library paths and linked against.
+uses:
+
+################################################################
+[DEBUG]
+
+compileoptions: $eval(getoutput("pkg-config --cflags --libs gtk+-3.0") if linux else '')
+
+linkoptions: 
+
+################################################################
+[RELEASE]
+
+compileoptions: $eval(getoutput("pkg-config --cflags --libs gtk+-3.0") if linux else '')
+
+linkoptions: 
+

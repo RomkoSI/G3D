@@ -1,0 +1,98 @@
+#version 330 // -*- c++ -*-
+/** \file DefaultRenderer_deferredShade.pix */
+#extension GL_ARB_texture_query_lod : enable
+#include <compatibility.glsl>
+#include <g3dmath.glsl>
+#include <LightingEnvironment/LightingEnvironment_uniforms.glsl>
+#include <Light/Light.glsl>
+#include <Texture/Texture.glsl>
+#include <GBuffer/GBuffer.glsl>
+#include <reconstructFromDepth.glsl>
+
+// Declare a GBuffer with no prefix
+uniform_GBuffer(gbuffer_);
+
+
+uniform_Texture(sampler2D, ambientOcclusion_);
+uniform ivec2       ambientOcclusion_offset;
+
+
+out Color3 result;
+
+void main() {
+    // Screen-space point being shaded
+    ivec2 C = ivec2(gl_FragCoord.xy);
+    
+    // Surface normal
+    Vector3 csN = texelFetch(gbuffer_CS_NORMAL_buffer, C, 0).xyz;
+    Vector3 wsN;
+    if (dot(csN, csN) < 0.01) {
+        // This is a background pixel, not part of an object
+        discard;
+    } else {
+        wsN = normalize(mat3x3(gbuffer_camera_frame) * (csN * gbuffer_CS_NORMAL_readMultiplyFirst.xyz + gbuffer_CS_NORMAL_readAddSecond.xyz));
+    }
+
+    // Point being shaded
+    float csZ = reconstructCSZ(texelFetch(gbuffer_DEPTH_buffer, C, 0).r, gbuffer_camera_clipInfo);
+    Point3 csPosition = reconstructCSPosition(gl_FragCoord.xy, csZ, gbuffer_camera_projInfo);
+    Point3 wsPosition = (gbuffer_camera_frame * vec4(csPosition, 1.0)).xyz;
+        //texelFetch(WS_POSITION_buffer, C, 0).xyz * WS_POSITION_readScaleBias.x + WS_POSITION_readScaleBias.y;
+    
+    // View vector
+    Vector3 w_o = normalize(gbuffer_camera_frame[3] - wsPosition);
+
+    // Lambertian coefficient in BSDF
+    Color3 lambertianColor;
+#   ifdef gbuffer_LAMBERTIAN_notNull    
+        lambertianColor = texelFetch(gbuffer_LAMBERTIAN_buffer, C, 0).rgb * invPi;
+#   else
+        lambertianColor = Color3(0);
+#   endif
+
+    // Glossy coefficient in BSDF (this code unpacks
+    // G3D::UniversalBSDF's encoding)
+    Color4  F0;
+#   ifdef gbuffer_GLOSSY_notNull
+        F0 = texelFetch(gbuffer_GLOSSY_buffer, C, 0);
+#   else
+        F0 = Color4(0);
+#   endif
+    float glossyExponent = unpackGlossyExponent(F0.a);
+    
+    float cos_o = dot(wsN, w_o);
+    Color3 F = schlickFresnel(F0.rgb, max(0.0, cos_o), F0.a);
+    lambertianColor *= 1.0 - F;
+    // G = F * (s_X + 8) / (8 pi)
+    Color3 glossyColor = F * (glossyExponent * (1.0 / (8.0 * pi)) + invPi);
+    
+    // Incoming reflection vector
+    Vector3 w_mi = normalize(wsN * (2.0 * cos_o) - w_o);
+
+    Color3 E_lambertianAmbient = computeLambertianEnvironmentMapLighting(wsN);
+    Color3 E_glossyAmbient     = computeGlossyEnvironmentMapLighting(w_mi, (F0.a == 1.0), glossyExponent) 
+        * ((8.0 * pi) / (glossyExponent + 8.0));
+
+    Color3 E_glossy            = Color3(0);
+    Color3 E_lambertian        = Color3(0);
+    computeDirectLighting(wsN, wsN, w_o, wsN, 1.0, wsPosition, glossyExponent, E_lambertian, E_glossy);
+   
+    float AO = (0.95 * texelFetch(ambientOcclusion_buffer, min(ivec2(gl_FragCoord.xy) + ambientOcclusion_offset, ivec2(ambientOcclusion_size.xy) - ivec2(1, 1)), 0).r + 0.05);
+
+    Color3 emissiveColor;
+#   ifdef gbuffer_EMISSIVE_notNull
+        emissiveColor = texelFetch(gbuffer_EMISSIVE_buffer, C, 0).rgb * gbuffer_EMISSIVE_readMultiplyFirst.rgb + gbuffer_EMISSIVE_readAddSecond.rgb;
+#   else
+        emissiveColor = Color3(0);
+#   endif
+
+    // How much ambient occlusion to apply to direct illumination (sort of approximates area lights,
+    // more importantly: NPR term that adds local contrast)
+    const float aoInfluenceOnDirectIllumination = 0.65;
+    float directAO = lerp(1.0, AO, aoInfluenceOnDirectIllumination);
+
+    result =
+            emissiveColor +
+           + (E_lambertian * directAO + E_lambertianAmbient * AO) * lambertianColor
+           + (E_glossy     * directAO + E_glossyAmbient     * AO) * glossyColor;
+}

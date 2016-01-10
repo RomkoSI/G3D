@@ -1,0 +1,50 @@
+/* -*- c++ -*- */
+{ 
+    entities = { 
+
+        ground = VisibleEntity {
+            model = "groundModel";
+            frame = CFrame::fromXYZYPRDegrees(0,0,0,0,-90,0);
+        };
+
+        camera = 
+        Camera {             
+            frame = CFrame::fromXYZYPRDegrees(  9.2f,   1.8f,  -1.2f,  87.4f,  -3.3f,   0.0f); 
+            
+            projection = Projection { 
+                farPlaneZ = -inf; 
+                fovDegrees = 50; 
+                fovDirection = "VERTICAL"; 
+                nearPlaneZ = -0.1; 
+            }; 
+        }; 
+        
+        skybox = Skybox { 
+            texture = "cubemap/noonclouds/noonclouds_*.png"; 
+        }; 
+        
+        sun = Light { 
+            attenuation = ( 0, 0, 1 ); 
+            bulbPower = Power3(1e+006 ); 
+            castsShadows = true; 
+			shadowMapBias = 0.01;
+            track = lookAt(Point3(-15, 200, 40), Point3(0, 0, 0));
+            shadowMapSize = Vector2int16(2048, 2048 ); 
+            spotHalfAngleDegrees = 4; 
+            spotSquare = true; 
+            type = "SPOT"; 
+        }; 
+        
+    }; 
+    
+    
+    models = { 
+        groundModel = ArticulatedModel::Specification { 
+            filename = "square.ifs"; 
+            scale = 20; 
+        }; 
+        
+    }; 
+    
+    name = "Ground"; 
+} 

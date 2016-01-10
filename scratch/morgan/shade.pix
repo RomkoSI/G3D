@@ -1,0 +1,15 @@
+#version 120 // -*- c++ -*-
+
+
+uniform samplerCube cubemap;
+varying vec3 normal;
+
+float max(vec3 a) {
+    return max(max(a.x, a.y), a.z);   
+}
+
+void main() {
+    vec3 n = normalize(normal);
+    float bias = 6.0;
+    gl_FragColor.rgb = textureCubeLod(cubemap, n, max(abs(fwidth(n))) + bias).rgb;
+}

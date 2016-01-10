@@ -1,0 +1,16 @@
+GLG3DVR.lib is experimental support for consumer VR HMDs. It currently supports 
+only Oculus DK2. As soon as other hardware is widely available, we will extend 
+the API.
+
+This library is only supported on Windows.
+
+Building GLG3DVR requires installing the Oculus SDK, setting an OVRSDKROOT environment variable
+and setting your VC++ Include Directories:
+
+- $(OVRSDKROOT)\LibOVRKernel\Src;$(OVRSDKROOT)\LibOVR\Include;$(IncludePath)
+
+GLG3DVR provides pre-compiled binaries of the Oculus SDK .lib files for ovr and ovrkernel because
+the ones provided by Oculus are not compatible with VS 2015 or the multithreaded runtime. You 
+can build your own binaries for these from the Oculus-distributed sources.
+
+(This library is not called VRGLG3D because there is already a VRG3D library for CAVE-like VR.) 

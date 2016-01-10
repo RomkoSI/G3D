@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{10fcd37b-242b-498d-8243-15a89ae7e2fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{68792bc5-1808-48c9-965a-d487cf1bab58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files">
+      <UniqueIdentifier>{2d0d3517-78dd-48d9-9039-ad52d7284aa7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene Files">
+      <UniqueIdentifier>{c2c0c6a1-812f-4e71-974b-3906eb754599}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\DeepGBufferRadiosity">
+      <UniqueIdentifier>{f1668283-7013-404e-9513-f3aae7ebf5a3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\samples\deepGBufferRadiosity\source\App.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\samples\deepGBufferRadiosity\source\DeepGBufferRadiosity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\samples\deepGBufferRadiosity\source\DeepGBufferRadiositySettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\samples\deepGBufferRadiosity\source\App.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\samples\deepGBufferRadiosity\source\DeepGBufferRadiosity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\samples\deepGBufferRadiosity\source\DeepGBufferRadiositySettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\DeepGBufferRadiosity\DeepGBufferRadiosity_reconstructCSZ.pix">
+      <Filter>Shader Files\DeepGBufferRadiosity</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\DeepGBufferRadiosity\DeepGBufferRadiosity_blur.pix">
+      <Filter>Shader Files\DeepGBufferRadiosity</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\DeepGBufferRadiosity\DeepGBufferRadiosity_constants.glsl">
+      <Filter>Shader Files\DeepGBufferRadiosity</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\DeepGBufferRadiosity\DeepGBufferRadiosity_DeepGBufferRadiosity.pix">
+      <Filter>Shader Files\DeepGBufferRadiosity</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\DeepGBufferRadiosity\DeepGBufferRadiosity_minify.pix">
+      <Filter>Shader Files\DeepGBufferRadiosity</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\DeepGBufferRadiosity\DeepGBufferRadiosity_nextBounce.pix">
+      <Filter>Shader Files\DeepGBufferRadiosity</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\aoVisualization.pix">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\colorBoost.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\deferred.pix">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\lambertianOnly.pix">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\oct.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\utilities.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\verticalSplitScreen.pix">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\scene\sponza-statue.Scene.Any">
+      <Filter>Scene Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

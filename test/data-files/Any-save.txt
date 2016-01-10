@@ -1,0 +1,13 @@
+{ 
+    position = Vector3(1, -1, 0 ), 
+    radius = 
+    /* in meters */
+    3.7, 
+    
+    shape = "round", 
+    texture = { 
+        format = "RGB8", 
+        size = ( 320, 200 ), 
+    }, 
+    
+} 

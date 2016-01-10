@@ -1,0 +1,255 @@
+/** 
+\page guidedemos Tools and Sample Programs
+
+<table width=100% border=0 cellpadding=2 cellspacing=2>
+
+<tr><td colspan=2>Viewer (<a href="../bin/viewer">bin/viewer</a>; <a href="../tools/viewer">tools/viewer</a> in the source distribution)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="tool-viewer.png" width=250 >\endhtmlonly
+</td>
+<td>
+Loads most data files supported by G3D, e.g., 3DS, OBJ, IFS, GTM, MP4, PNG, JPG, FNT, etc.
+and displays them in an appropriate manner.  Use this for previewing objects, discovering
+font characters, and debugging data files.
+</td>
+</tr>
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>Starter (<a href="../samples/starter">samples/starter</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly <IMG SRC="demo-starter.png" width=250 > \endhtmlonly
+</td>
+<td>
+A good starting point for building your own G3D programs. (This is the program that iCompile creates for you in an empty directory.)
+<ul>
+ <li> G3D::Scene
+ <li> G3D::Entity
+ <li> G3D::GApp
+ <li> G3D::ArticulatedModel
+ <li> G3D::Lighting
+ <li> G3D::Draw
+ <li> G3D::DepthOfField
+ <li> G3D::MotionBlur
+ <li> G3D::AmbientOcclusion
+</ul>
+</td>
+</tr>
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>Real Time Ray Trace (<a href="../samples/realTimeRayTrace">samples/realTimeRayTrace</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-rayTrace.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> Ray tracing
+ <li> CPU rendering
+ <li> G3D::GThread
+ <li> G3D::GuiRadioButton
+ <li> G3D::GuiNumberBox
+ <li> G3D::GuiButton
+ <li> G3D::TriTree 
+ <li> G3D::UniversalBSDF
+</ul>
+</td>
+</tr>
+
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>All Stages Shader (<a href="../samples/allStagesShader">samples/allStagesShader</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-allstagesshader.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> G3D::Shader
+ <li> Tessellation, hull, geometry, vertex, and pixel shader
+</ul>
+</td>
+</tr>
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>irrKlangAudio (<a href="../samples/irrKlangAudio">samples/irrKlangAudio</a>)</td></tr>
+<tr valign=top>
+<td>
+This sample uses <a href="http://www.ambiera.com/irrklang/">irrKlang</a> to show how to integrate
+32-bit audio into a G3D app.  Due to license restrictions on irrKlang,
+we cannot distribute their (free) binaries with G3D directly.
+</td>
+<td>
+<ul>
+ <li> AudioDevice
+ <li> G3D::GEvent
+</ul>
+</td>
+</tr>
+
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>Shader (<a href="../samples/pixelShader">samples/pixelShader</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-shader.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> G3D::Shader
+ <li> G3D::ThirdPersonManipulator
+ <li> G3D::GuiDropDownList
+ <li> G3D::GuiSlider
+</ul>
+</td>
+</tr>
+
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>Photon map (<a href="../samples/photonMap">samples/photonMap</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-photon.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> G3D::TriTree
+ <li> G3D::FastPointHashMap
+ <li> G3D::Surfel
+</ul>
+</td>
+</tr>
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>Geometry Shader (<a href="../samples/geometry">samples/geometry</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly <IMG SRC="demo-geometry.png" width=250 > \endhtmlonly
+</td>
+<td>
+<ul>
+ <li> OpenGL 3.x / GLSL 1.5
+ <li> G3D::Shader
+</ul>
+</td>
+</tr>
+
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>FPS Game (<a href="../samples/simpleGame">samples/simpleGame</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly <IMG SRC="demo-simplegame.png" width=250 > \endhtmlonly
+</td>
+<td>
+<ul>
+ <li> G3D::TriTree
+ <li> G3D::Scene
+ <li> G3D::Entity
+ <li> G3D::debugDraw
+</ul>
+</td>
+</tr>
+
+<tr><td colspan=2 height=10> </td></tr>
+<tr><td colspan=2>Compute Server Discovery (<a href="../samples/computeDiscovery">samples/computeDiscovery</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly <IMG SRC="demo-network.png" width=250 > \endhtmlonly
+</td>
+<td>
+<ul>
+ <li> G3D::Discovery::Client
+ <li> G3D::Discovery::Server
+</ul>
+</td>
+</tr>
+
+
+
+<tr><td colspan=2 height=10> </td></tr>
+<tr><td colspan=2>Deferred Shading (<a href="../samples/deferredShading">samples/deferredShading</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly <IMG SRC="demo-deferred.png" width=250 > \endhtmlonly
+</td>
+<td>
+<ul>
+ <li> G3D::GBuffer
+ <li> G3D::GuiTextureBox
+</ul>
+</td>
+</tr>
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>Remote Rendering (<a href="../samples/remoteRender">samples/remoteRender</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly <IMG SRC="remote.png" width=250 > \endhtmlonly
+</td>
+<td>
+ <ul>
+ <li> HTML/HTTP client code and HTTP server (civetweb)
+ <li> Javascript
+ <li> websockets
+ <li> G3D::NetAddress
+ <li> G3D::Any
+</ul>
+</td>
+</tr>
+
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>Multiple Views (<a href="../samples/multiview">samples/multiview</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly <IMG SRC="demo-multiview.png" width=250 > \endhtmlonly
+</td>
+<td>
+Rendering to multiple viewports to create a CAD-like application
+<ul>
+ <li> G3D::RenderDevice::setViewport
+ <li> G3D::Surface::renderWireframe
+ <li> G3D::GuiWindow
+ <li> G3D::IconSet
+ <li> G3D::Draw
+</ul>
+</td>
+</tr>
+
+
+<tr><td colspan=2> </td></tr>
+
+<tr><td colspan=2>Raw OpenGL (<a href="../samples/rawOpenGL">samples/rawOpenGL</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly <IMG SRC="demo-rawOpenGL.png" width=250 > \endhtmlonly
+</td>
+<td>
+<ul>
+ <li> How to use G3D without G3D::GApp or G3D::RenderDevice
+ <li> OpenGL 2.x
+ <li> glBegin...glEnd
+ <li> glVertex3f
+ <li> glColor3f
+ <li> glTranslatef
+ <li> glRotatef
+</ul>
+</td>
+</tr>
+
+
+</table>
+
+*/

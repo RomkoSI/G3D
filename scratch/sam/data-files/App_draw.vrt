@@ -1,0 +1,5 @@
+#version 120
+in vec4 points;
+void main(void) {
+    gl_Position   = points * gl_ModelViewProjectionMatrixTranspose;
+}

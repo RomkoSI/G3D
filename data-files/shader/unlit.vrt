@@ -1,0 +1,21 @@
+#version 330 // -*- c++ -*-
+/**
+  \file unlit.pix
+
+  Apply a color and texture.
+ */
+#expect HAS_TEXTURE "1 or 0"
+
+#if HAS_TEXTURE
+    in vec2 g3d_TexCoord0;
+    out vec2 texCoord;
+#endif
+
+in vec4 g3d_Vertex;
+
+void main() {
+#   if HAS_TEXTURE
+        texCoord = g3d_TexCoord0.xy;
+#   endif
+    gl_Position = g3d_Vertex * g3d_ObjectToScreenMatrixTranspose;
+}

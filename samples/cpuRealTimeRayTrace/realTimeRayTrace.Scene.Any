@@ -1,0 +1,201 @@
+
+/* -*- c++ -*- */
+{ 
+    entities = { 
+        building = 
+        /* Each entity has a name and is an instance of a model.  The instantiation syntax accepts        two (optional) arguments: a position spline (which can be a single position), and a        pose spline (which can be a single pose). */
+        VisibleEntity { 
+            model = "buildingModel"; 
+            visible = true; 
+        }; 
+        
+        camera = 
+        /* fillLight = Light {                        type = "DIRECTIONAL";                        frame = CFrame::fromXYZYPRDegrees(inf, inf, inf, 15, 85, 15);                        biradiance = Biradiance3::fromARGB(0x1e324d);                        producesIndirectIllumination = false;                        castsShadows = false;                        }; */
+        Camera { 
+            depthOfFieldSettings = DepthOfFieldSettings { 
+                enabled = true; 
+                farBlurRadiusFraction = 0.01; 
+                farBlurryPlaneZ = -120; 
+                farSharpPlaneZ = -11; 
+                focusPlaneZ = -10; 
+                lensRadius = 0.01; 
+                model = "ARTIST"; 
+                nearBlurRadiusFraction = 0.01; 
+                nearBlurryPlaneZ = -0.1; 
+                nearSharpPlaneZ = -1; 
+            }; 
+            
+            filmSettings = FilmSettings { 
+                antialiasingEnabled = true; 
+                antialiasingFilterRadius = 0; 
+                antialiasingHighQuality = false; 
+                bloomRadiusFraction = 0.009; 
+                bloomStrength = 0.2; 
+                debugZoom = 1; 
+                gamma = 2.2; 
+                sensitivity = 1; 
+                toneCurve = Spline { 
+                    control = ( 0, 0.0787234, 0.306383, 0.808511, 0.925532 ); 
+                    extrapolationMode = "LINEAR"; 
+                    finalInterval = -1; 
+                    interpolationMode = "CUBIC"; 
+                    time = ( 0, 0.169565, 0.32174, 0.743478, 1 ); 
+                }; 
+                
+                vignetteBottomStrength = 0.05; 
+                vignetteSizeFraction = 0.17; 
+                vignetteTopStrength = 0.5; 
+            }; 
+            
+            frame = CFrame::fromXYZYPRDegrees(14.5, 6.3, -0.1, 63.4, -0.5, 0 ); 
+            motionBlurSettings = MotionBlurSettings { 
+                cameraMotionInfluence = 0.5; 
+                enabled = false; 
+                exposureFraction = 0.75; 
+                maxBlurDiameterFraction = 0.1; 
+                numSamples = 15; 
+            }; 
+            
+            projection = Projection { 
+                farPlaneZ = -150; 
+                fovDegrees = 60; 
+                fovDirection = "VERTICAL"; 
+                nearPlaneZ = -0.1; 
+                pixelOffset = Vector2(0, 0 ); 
+            }; 
+            
+            visualizationScale = 1; 
+        }; 
+        
+        light1 = Light { 
+            attenuation = ( 0.01, 0.01, 0.01 ); 
+            bulbPower = Power3(40 ); 
+            castsShadows = true; 
+            enabled = true; 
+            frame = CFrame::fromXYZYPRDegrees(-10, 16, -1.5 ); 
+            nearPlaneZLimit = -170; 
+            producesDirectIllumination = true; 
+            producesIndirectIllumination = true; 
+            shadowMapBias = 0.05; 
+            shadowMapSize = Vector2int16(2048, 2048 ); 
+            spotHalfAngleDegrees = 40; 
+            type = "OMNI"; 
+        }; 
+        
+        light2 = Light { 
+            attenuation = ( 0.01, 0.01, 0.01 ); 
+            bulbPower = Power3(40 ); 
+            castsShadows = true; 
+            enabled = true; 
+            frame = CFrame::fromXYZYPRDegrees(13, 9, 5.5 ); 
+            nearPlaneZLimit = -170; 
+            producesDirectIllumination = true; 
+            producesIndirectIllumination = true; 
+            shadowMapBias = 0.05; 
+            shadowMapSize = Vector2int16(2048, 2048 ); 
+            spotHalfAngleDegrees = 40; 
+            type = "OMNI"; 
+        }; 
+        
+        sphere = VisibleEntity { 
+            frame = CFrame::fromXYZYPRDegrees(9.6, 5.87, 0.4 ); 
+            model = "sphereModel"; 
+            visible = true; 
+        }; 
+        
+        sun = Light { 
+            attenuation = ( 0, 0, 1 ); 
+            bulbPower = Power3(4e+006 ); 
+            castsShadows = true; 
+            enabled = true; 
+            frame = CFrame::fromXYZYPRDegrees(-15.5767, 207.755, -41.952, -164.03, -76.7166, 76.514 ); 
+            nearPlaneZLimit = -170; 
+            producesDirectIllumination = true; 
+            producesIndirectIllumination = true; 
+            shadowMapBias = 0.05; 
+            shadowMapSize = Vector2int16(2048, 2048 ); 
+            spotHalfAngleDegrees = 5; 
+            spotSquare = true; 
+            type = "SPOT"; 
+        }; 
+        
+        teapot = VisibleEntity { 
+            frame = CFrame::fromXYZYPRDegrees(9.6, 5.57224, -1.17337, -57.8557 ); 
+            model = "teapotModel"; 
+            visible = true; 
+        }; 
+        
+    }; 
+    
+    lightingEnvironment = LightingEnvironment { 
+        ambientOcclusionSettings = AmbientOcclusionSettings { 
+            bias = 0.1; 
+            blurRadius = 4; 
+            blurStepSize = 2; 
+            depthPeelSeparationHint = 0.02; 
+            edgeSharpness = 1; 
+            enabled = true; 
+            intensity = 2; 
+            monotonicallyDecreasingBilateralWeights = false; 
+            numSamples = 11; 
+            radius = 1; 
+            temporalFilterSettings = TemporalFilter::Settings { 
+                alpha = 0; 
+                falloffEndDistance = 0.07; 
+                falloffStartDistance = 0.05; 
+            }; 
+            
+            temporallyVarySamples = false; 
+            useDepthPeelBuffer = true; 
+            useNormalBuffer = true; 
+            useNormalsInBlur = true; 
+        }; 
+        
+        environmentMap = Texture::Specification { 
+            encoding = Texture::Encoding { 
+                readMultiplyFirst = 0.6; 
+            }; 
+            
+            filename = "cubemap/uffizi/uffizi*.jpg"; 
+        }; 
+        
+    }; 
+    
+    models = { 
+        buildingModel = ArticulatedModel::Specification { 
+            alphaHint = "BINARY"; 
+            filename = "model/crytek_sponza/sponza.zip/sponza.obj"; 
+            scale = 0.011; 
+        }; 
+        
+        sphereModel = ArticulatedModel::Specification { 
+            filename = "sphere.ifs"; 
+            preprocess = ( 
+                setTwoSided(all(), true ); 
+                setMaterial(all(), UniversalMaterial::Specification { 
+                        etaReflect = 1; 
+                        etaTransmit = 1.3; 
+                        glossy = Color4(0.1, 0.1, 0.1, mirror() ); 
+                        lambertian = Color3(0 ); 
+                        transmissive = Color3(0.2, 0.5, 0.7 ); 
+                    } ) ); 
+            
+            scale = 0.3; 
+        }; 
+        
+        teapotModel = ArticulatedModel::Specification { 
+            filename = "teapot/teapot.obj"; 
+            preprocess = ( 
+                setMaterial(all(), UniversalMaterial::Specification { 
+                        glossy = Color4(0.2, 0.2, 0.2, mirror() ); 
+                        lambertian = Color3(0.7, 0.5, 0.1 ); 
+                    } ) ); 
+            
+            scale = 0.007; 
+            stripMaterials = true; 
+        }; 
+        
+    }; 
+    
+    name = "G3D Real Time Ray Trace"; 
+} 

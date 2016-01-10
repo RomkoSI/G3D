@@ -1,0 +1,79 @@
+#version 330 // -*- c++ -*-
+#extension GL_ARB_explicit_attrib_location : enable
+#include <reconstructFromDepth.glsl>
+#include <Texture/Texture.glsl>
+/**
+  Open Source under the "BSD" license: http://www.opensource.org/licenses/bsd-license.php
+
+  Copyright (c) 2011-2012, NVIDIA
+  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+#expect USE_PEELED_BUFFERS "binary"
+
+layout(location = 0) out vec3 color;
+layout(location = 1) out vec4 normal;
+
+#   if USE_PEELED_BUFFERS
+    layout(location = 2) out vec2 csz;
+#   else
+    layout(location = 2) out float csz;
+#   endif
+
+#   if USE_PEELED_BUFFERS
+    layout(location = 3) out vec3 peeledColor;
+    layout(location = 4) out vec4 peeledNormal;
+#   endif   
+
+uniform sampler2D DEPTH_AND_STENCIL_buffer;
+uniform_Texture(sampler2D, colorBuffer_);
+uniform_Texture(sampler2D, normal_);
+uniform vec3 clipInfo;
+#if USE_PEELED_BUFFERS
+    uniform sampler2D peeledDepthBuffer;
+    uniform sampler2D peeledColorBuffer;
+    uniform sampler2D peeledNormalBuffer;
+#endif
+
+#if USE_OCT16
+#include <oct.glsl>
+#endif
+
+vec4 fetchAndEncodeNormal(sampler2D normalBuffer, ivec2 texel) {
+#if USE_OCT16
+    return vec4(encode16(texelFetch(normalBuffer, texel, 0).rgb * 2.0 - 1.0) * 0.5 + 0.5, 0.0, 0.0);
+#else
+    return texelFetch(normalBuffer, texel, 0);
+#endif
+}
+
+void main() {
+    ivec2 ssP = ivec2(gl_FragCoord.xy);
+
+    color = texelFetch(colorBuffer_buffer, ssP, 0).rgb;
+    
+#   if USE_PEELED_BUFFERS
+        csz = vec2(  reconstructCSZ(texelFetch(DEPTH_AND_STENCIL_buffer, ssP, 0).r, clipInfo),
+                        reconstructCSZ(texelFetch(peeledDepthBuffer, ssP, 0).r, clipInfo) );
+#       if USE_OCT16
+            normal = vec4(fetchAndEncodeNormal(normal_buffer, ssP).xy, fetchAndEncodeNormal(peeledNormalBuffer, ssP).xy);
+#       else
+            normal          = fetchAndEncodeNormal(normal_buffer, ssP);
+            peeledNormal    = fetchAndEncodeNormal(peeledNormalBuffer, ssP);
+#       endif
+
+#   else
+        csz = reconstructCSZ(texelFetch(DEPTH_AND_STENCIL_buffer, ssP, 0).r, clipInfo);
+        normal = fetchAndEncodeNormal(normal_buffer, ssP);
+#   endif
+
+#   if USE_PEELED_BUFFERS
+        peeledColor = texelFetch(peeledColorBuffer, ssP, 0).rgb;
+#   endif
+    
+}

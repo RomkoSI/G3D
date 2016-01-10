@@ -1,0 +1,9 @@
+{
+   shape = "round",
+
+   // in meters
+   radius = 3.7,
+
+   position = Vector3(1.0, -1.0, 0.0),
+   texture = { format = "RGB8", size = (320, 200)}
+}

@@ -1,0 +1,8 @@
+#version 330// -*- c++ -*-
+
+uniform vec4 wireframeColor;
+out vec4 finalColor;
+
+void main() {
+    finalColor = wireframeColor;
+}

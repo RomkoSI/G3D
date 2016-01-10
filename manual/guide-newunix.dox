@@ -1,0 +1,44 @@
+/** @page guidenewunix Creating a New Project on OS X, Linux, and FreeBSD
+
+\htmlonly
+
+This page describes how to use the iCompile command-line tool to
+create new G3D projects on Unix-like operating systems: OS X, Linux,
+and FreeBSD.  We recommend iCompile because it makes the process
+extremely simple.  You can also use Makefiles or visual IDEs like
+Xcode, Eclipse, KDevelop, and Magic C++ of course.
+
+<ol>
+<li> <p> Create a new project directory.  If the project is a static library, end the name in '.lib' or '.a'.  If the project is a dynamic library, end the name in '.dll' or '.so'.  <i>Example:</i><code>mkdir game</code></p>
+
+<li> <p> Change the current directory to the new project directory.   <i>Example:</i><code>cd game</code></p>
+
+<li> <p> Run iCompile with no arguments.     <i>Example:</i><code>icompile</code></p>
+
+<li> <p> At the prompts answer: 
+   <ol> <li> Are you sure you want to compile... <b>Y</b>es
+        <li> Would you like to generate... <b>Y</b>es
+        <li> Select a project template... <b>G</b>3D
+   </ol></p>
+
+<li> <p> Your project has now been created and compiled.  (It matches
+the <code>G3D/samples/starter/</code> demo). To run an unoptimized debug
+build of your program, type <code>icompile --run</code></p>
+
+
+<li> <p>  When run,
+ the sample program will have the camera floating in space near a set of colored axes.  Hold down the <b>right mouse button</b> and use
+  the <b>mouse</b> to rotate the camera and the <b>W</b>, <b>A</b>, <b>S</b>, and <b>D</b> letter keys 
+  to translate the camera (these are standard first-person video game controls).  The Developer Window in the lower right corner of your
+  program's 3D window gives you additional debugging tools.  You can quit the program by pressing ESC at any time.<p>
+
+<li> <p> Edit your <code>App.cpp</code> file.  The comments in the file show you where to add code for rendering, input processing, network, and graphics.</p>
+
+<li> <p>Type <code>icompile --help</code> or refer to the <a
+href="icompile-manual.html" >iCompile Manual</a> for information about
+creating optimized builds, running your program under a debugger, and
+managing data files.</p>
+
+</ol>
+\endhtmlonly
+*/

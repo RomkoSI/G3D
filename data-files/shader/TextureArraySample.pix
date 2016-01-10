@@ -1,0 +1,16 @@
+#version 330 // -*- c++ -*-
+/**
+  \file textureArraySample.pix
+ */
+
+uniform float time;
+uniform sampler2DArray textureArray;
+uniform vec2 bounds;
+
+out vec4 result;
+
+void main() {
+    float depth = textureSize(textureArray, 0).z;
+    float access = mod(time, depth);
+    result = texture(textureArray,vec3(gl_FragCoord.x/bounds.x,gl_FragCoord.y/bounds.y,access),0);
+}

@@ -1,0 +1,16 @@
+This directory contains a redistribution of the FMOD Studio API, which
+the G3D Innovation Engine uses to implement cross-platform audio.
+Redistribution is in accordance with a licensing agreement signed between
+Firelight Technologies Pty Ltd and Morgan McGuire and 2014-05-15.
+
+FMOD Studio can be downloaded from http://www.fmod.org.
+
+Usage of the FMOD Studio API by programmers using the G3D Innovation Engine
+to build their own applications is governed by the FMOD license in fmod/LICENSE.tXT
+in the same directory as this file. If your application does not use audio,
+FMOD does not support your platform, or you do not agree to be bound by the 
+FMOD license, then you must exclude FMOD from the G3D build by defining the
+G3D_NO_FMOD macro when compiling G3D and your application. That macro directs the
+compiler to not use or link against FMOD.
+
+Commercial usage of FMOD products may require a separate license directly with Firelight Technologies. For details refer to www.fmod.com/files/public/LICENSE.TXT
