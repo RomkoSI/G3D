@@ -1,0 +1,439 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9EA37246-6A7B-4BCF-A524-21A7FF70E65C}</ProjectGuid>
+    <RootNamespace>G3D</RootNamespace>
+    <ProjectName>G3D.lib</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IntDir>$(ProjectDir)\..\temp\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetExt>.lib</TargetExt>
+    <IncludePath>$(ProjectDir)..\jpeg.lib\include;$(ProjectDir)..\png.lib\include;$(ProjectDir)..\zip.lib\include;$(ProjectDir)..\zlib.lib\include;$(ProjectDir)..\freeimage.lib\include;$(ProjectDir)..\G3D.lib\include;$(ProjectDir)..\GLG3D.lib\include;$(ProjectDir)..\glew.lib\include;$(ProjectDir)..\ffmpeg\windows\include;$(IncludePath)</IncludePath>
+    <OutDir>$(ProjectDir)\..\build\lib\</OutDir>
+    <TargetName>G3D_x64d</TargetName>
+    <LibraryPath>C:\g3d\code\G3D10\build\lib;$(VCInstallDir)lib\amd64;$(VCInstallDir)atlmfc\lib\amd64;$(WindowsSDK_LibraryPath_x64);</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)\..\build\lib\</OutDir>
+    <IntDir>$(ProjectDir)\..\temp\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
+    <TargetExt>.lib</TargetExt>
+    <IncludePath>$(ProjectDir)..\jpeg.lib\include;$(ProjectDir)..\png.lib\include;$(ProjectDir)..\zip.lib\include;$(ProjectDir)..\zlib.lib\include;$(ProjectDir)..\freeimage.lib\include;$(ProjectDir)..\G3D.lib\include;$(ProjectDir)..\GLG3D.lib\include;$(ProjectDir)..\glew.lib\include;$(ProjectDir)..\ffmpeg\windows\include;$(IncludePath)</IncludePath>
+    <TargetName>G3D_x64</TargetName>
+    <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalIncludeDirectories>$(ProjectDir)../enet.lib/include;$(ProjectDir)../zip.lib/include;$(ProjectDir)../zlib.lib/include;$(ProjectDir)../freeimage.lib/include;$(ProjectDir)../ffmpeg/windows/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <StringPooling>true</StringPooling>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)..\updateSVNInfo" 
+call "$(ProjectDir)..\ImageFormat.bat"
+call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectName)\include" "$(OutDir)\..\include"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Copying Headers and Updating SVN Information</Message>
+    </PreBuildEvent>
+    <Lib>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalOptions>/ignore:4221</AdditionalOptions>
+    </Lib>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>
+      </Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalIncludeDirectories>$(ProjectDir)../enet.lib/include;$(ProjectDir)../zip.lib/include;$(ProjectDir)../zlib.lib/include;$(ProjectDir)../freeimage.lib/include;$(ProjectDir)../ffmpeg/windows/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/Zi /d2Zi+ %(AdditionalOptions)</AdditionalOptions>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <BrowseInformation>true</BrowseInformation>
+      <StringPooling>true</StringPooling>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)..\updateSVNInfo" 
+call "$(ProjectDir)..\ImageFormat.bat"
+call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectName)\include" "$(OutDir)\..\include"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Copying Headers and Updating SVN Information</Message>
+    </PreBuildEvent>
+    <Lib>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalOptions>/ignore:4221</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\G3D.lib\source\AABox.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Any.cpp" />
+    <ClCompile Include="..\G3D.lib\source\AreaMemoryManager.cpp" />
+    <ClCompile Include="..\G3D.lib\source\BinaryFormat.cpp" />
+    <ClCompile Include="..\G3D.lib\source\BinaryInput.cpp" />
+    <ClCompile Include="..\G3D.lib\source\BinaryOutput.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Box.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Box2D.cpp" />
+    <ClCompile Include="..\G3D.lib\source\BumpMapPreprocess.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Capsule.cpp" />
+    <ClCompile Include="..\G3D.lib\source\CollisionDetection.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Color1.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Color1unorm8.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Color3.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Color3unorm8.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Color4.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Color4unorm8.cpp" />
+    <ClCompile Include="..\G3D.lib\source\CompassDirection.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Cone.cpp" />
+    <ClCompile Include="..\G3D.lib\source\constants.cpp" />
+    <ClCompile Include="..\G3D.lib\source\ConvexPolyhedron.cpp" />
+    <ClCompile Include="..\G3D.lib\source\CoordinateFrame.cpp" />
+    <ClCompile Include="..\G3D.lib\source\CPUPixelTransferBuffer.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Crypto.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Crypto_md5.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Cylinder.cpp" />
+    <ClCompile Include="..\G3D.lib\source\debugAssert.cpp" />
+    <ClCompile Include="..\G3D.lib\source\enumclass.cpp" />
+    <ClCompile Include="..\G3D.lib\source\FileSystem.cpp" />
+    <ClCompile Include="..\G3D.lib\source\fileutils.cpp" />
+    <ClCompile Include="..\G3D.lib\source\filter.cpp" />
+    <ClCompile Include="..\G3D.lib\source\float16.cpp" />
+    <ClCompile Include="..\G3D.lib\source\format.cpp" />
+    <ClCompile Include="..\G3D.lib\source\G3DAllocator.cpp" />
+    <ClCompile Include="..\G3D.lib\source\g3dfnmatch.cpp" />
+    <ClCompile Include="..\G3D.lib\source\g3dmath.cpp" />
+    <ClCompile Include="..\G3D.lib\source\G3DString.cpp" />
+    <ClCompile Include="..\G3D.lib\source\GThread.cpp" />
+    <ClCompile Include="..\G3D.lib\source\GUniqueID.cpp" />
+    <ClCompile Include="..\G3D.lib\source\HaltonSequence.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Image.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Image1.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Image1unorm8.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Image3.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Image3unorm8.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Image4.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Image4unorm8.cpp" />
+    <ClCompile Include="..\G3D.lib\source\ImageConvert.cpp" />
+    <ClCompile Include="..\G3D.lib\source\ImageFormat.cpp" />
+    <ClCompile Include="..\G3D.lib\source\ImageFormat_convert.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Image_utils.cpp" />
+    <ClCompile Include="..\G3D.lib\source\initG3D.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Intersect.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Journal.cpp" />
+    <ClCompile Include="..\G3D.lib\source\license.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Line.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Line2D.cpp" />
+    <ClCompile Include="..\G3D.lib\source\LineSegment.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Log.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Matrix.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Matrix2.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Matrix3.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Matrix3x4.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Matrix4.cpp" />
+    <ClCompile Include="..\G3D.lib\source\MemoryManager.cpp" />
+    <ClCompile Include="..\G3D.lib\source\MeshAlg.cpp" />
+    <ClCompile Include="..\G3D.lib\source\MeshAlgAdjacency.cpp" />
+    <ClCompile Include="..\G3D.lib\source\MeshAlgWeld.cpp" />
+    <ClCompile Include="..\G3D.lib\source\MeshBuilder.cpp" />
+    <ClCompile Include="..\G3D.lib\source\NetAddress.cpp" />
+    <ClCompile Include="..\G3D.lib\source\network.cpp" />
+    <ClCompile Include="..\G3D.lib\source\NetworkDevice.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Noise.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Parse3DS.cpp" />
+    <ClCompile Include="..\G3D.lib\source\ParseError.cpp" />
+    <ClCompile Include="..\G3D.lib\source\ParseMTL.cpp" />
+    <ClCompile Include="..\G3D.lib\source\ParseOBJ.cpp" />
+    <ClCompile Include="..\G3D.lib\source\ParsePLY.cpp" />
+    <ClCompile Include="..\G3D.lib\source\PhysicsFrame.cpp" />
+    <ClCompile Include="..\G3D.lib\source\PhysicsFrameSpline.cpp" />
+    <ClCompile Include="..\G3D.lib\source\PixelTransferBuffer.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Plane.cpp" />
+    <ClCompile Include="..\G3D.lib\source\PrecomputedRandom.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Projection.cpp" />
+    <ClCompile Include="..\G3D.lib\source\prompt.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Quat.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Random.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Ray.cpp" />
+    <ClCompile Include="..\G3D.lib\source\RayGridIterator.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Rect2D.cpp" />
+    <ClCompile Include="..\G3D.lib\source\ReferenceCount.cpp" />
+    <ClCompile Include="..\G3D.lib\source\RegistryUtil.cpp" />
+    <ClCompile Include="..\G3D.lib\source\SpeedLoad.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Sphere.cpp" />
+    <ClCompile Include="..\G3D.lib\source\SplineBase.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Stopwatch.cpp" />
+    <ClCompile Include="..\G3D.lib\source\stringutils.cpp" />
+    <ClCompile Include="..\G3D.lib\source\svnutils.cpp" />
+    <ClCompile Include="..\G3D.lib\source\svn_info.cpp" />
+    <ClCompile Include="..\G3D.lib\source\System.cpp" />
+    <ClCompile Include="..\G3D.lib\source\TextInput.cpp" />
+    <ClCompile Include="..\G3D.lib\source\TextOutput.cpp" />
+    <ClCompile Include="..\G3D.lib\source\ThreadSet.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Triangle.cpp" />
+    <ClCompile Include="..\G3D.lib\source\uint128.cpp" />
+    <ClCompile Include="..\G3D.lib\source\unorm16.cpp" />
+    <ClCompile Include="..\G3D.lib\source\UprightFrame.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Vector2.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Vector2int16.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Vector2int32.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Vector2uint32.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Vector2unorm16.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Vector3.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Vector3int16.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Vector3int32.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Vector4.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Vector4int16.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Vector4int8.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Vector4uint16.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Welder.cpp" />
+    <ClCompile Include="..\G3D.lib\source\WinMain.cpp" />
+    <ClCompile Include="..\G3D.lib\source\XML.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\G3D.lib\include\G3D\AABox.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Access.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Any.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\AreaMemoryManager.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Array.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\AtomicInt32.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\DepthFirstTreeBuilder.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\DepthReadMode.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\DoNotInitialize.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\float16.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\FrameName.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\G3DAllocator.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\G3DString.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Grid.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\HaltonSequence.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\InterpolateMode.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Journal.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Matrix3x4.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\OrderedTable.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Pathfinder.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\SmallTable.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\svnutils.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\svn_info.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\ThreadsafeQueue.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\BIN.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\BinaryFormat.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\BinaryInput.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\BinaryOutput.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\BoundsTrait.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Box.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Box2D.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\BumpMapPreprocess.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Capsule.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\CollisionDetection.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Color1.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Color1unorm8.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Color2unorm8.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Color3.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Color3unorm8.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Color4.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Color4unorm8.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\CompassDirection.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Cone.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\constants.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\ConvexPolyhedron.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\CoordinateFrame.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\CPUPixelTransferBuffer.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Crypto.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\CubeFace.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\CullFace.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Cylinder.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\debug.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\debugAssert.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\debugPrintf.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\enumclass.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\EqualsTrait.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\FastPODTable.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\FastPointHashGrid.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\FileNotFound.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\FileSystem.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\fileutils.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\filter.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\format.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Frustum.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\G3D.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\G3DAll.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\g3dfnmatch.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\G3DGameUnits.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\g3dmath.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\GMutex.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\GThread.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\GUniqueID.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\HashTrait.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Image.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Image1.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Image1unorm8.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Image3.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Image3unorm8.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Image4.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Image4unorm8.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\ImageConvert.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\ImageFormat.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Intersect.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\KDTree.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Line.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Line2D.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\LineSegment.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Log.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Map2D.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Matrix.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Matrix2.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Matrix3.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Matrix4.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\MemoryManager.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\MeshAlg.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\MeshBuilder.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\NetAddress.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\netheaders.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\network.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\NetworkDevice.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Noise.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Parse3DS.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\ParseError.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\ParseMTL.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\ParseOBJ.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\ParsePLY.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\PathDirection.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\PhysicsFrame.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\PhysicsFrameSpline.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\PixelTransferBuffer.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Plane.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\platform.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Pointer.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\PointHashGrid.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\PointKDTree.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\PositionTrait.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\PrecomputedRandom.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Projection.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\prompt.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Proxy.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Quat.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Queue.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Random.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Ray.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\RayGridIterator.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Rect2D.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\ReferenceCount.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\RegistryUtil.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\serialize.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Set.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\SmallArray.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\snorm16.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\snorm8.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\SpawnBehavior.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\SpeedLoad.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Sphere.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Spline.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\SplineExtrapolationMode.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\splinefunc.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Stopwatch.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\stringutils.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\System.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Table.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\TextInput.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\TextOutput.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\ThreadSet.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Triangle.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\typeutils.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\uint128.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\units.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\unorm16.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\unorm8.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\UprightFrame.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector2.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector2int16.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector2int32.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector2uint32.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector2unorm16.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector3.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector3int16.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector3int32.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector4.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector4int16.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector4int32.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector4int8.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector4uint16.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\vectorMath.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\WeakCache.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Welder.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\WrapMode.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\XML.h" />
+    <ClInclude Include="..\G3D.lib\source\eLut.h" />
+    <ClInclude Include="..\G3D.lib\source\toFloat.h" />
+    <ClInclude Include="..\G3D.lib\source\Vector4int32.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\G3D.lib\source\svn_info.tmpl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

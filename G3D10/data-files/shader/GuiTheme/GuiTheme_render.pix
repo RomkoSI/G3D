@@ -1,0 +1,15 @@
+#version 330 // -*- c++ -*-
+/**
+  \file GuiTheme_render.pix
+
+  Apply a color and texture.
+  */
+
+in vec2           texCoord;
+uniform sampler2D textureMap;
+
+out vec4 result;
+
+void main(void) {
+    result = texture(textureMap, texCoord);
+}

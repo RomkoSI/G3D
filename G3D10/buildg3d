@@ -1,0 +1,986 @@
+#!/usr/bin/env python
+# -*- python -*-
+#
+# Build system for G3D.  Run 'buildg3d help' for options.
+#
+
+import os, platform, subprocess, sys, time, getopt, errno
+try:
+  import urllib.request as urllib_request
+except ImportError:
+  import urllib as urllib_request
+import tarfile, stat
+from functools import reduce
+
+# To get access to icompile routines
+sys.path.append('bin')
+import ice.copyifnewer, ice.utils
+from ice.utils import run, runWithOutput, pathConcat, shell, mkdir, VisualStudio, _findWindowsBinary, safeWindowsName
+import ice.doxygen
+
+doxygen = 'doxygen'
+icompileConfig = []
+distribDir = None
+verbosity = '1' # for icompile
+
+# G3D version.  Update this when the library version changes.
+class Version:
+    major = '10'
+    minor = '01'
+    beta  = '00'
+    
+    def toString(self):
+        if (self.beta != ''):
+            return self.major + '.' + self.minor + '-b' + self.beta
+        else:
+            return self.major + '.' + self.minor
+
+g3dVersion = Version()
+windows = None
+freebsd = None
+linux   = None
+osx     = None
+unix    = None
+
+# e.g., win, osx
+osShortName  = None
+
+doInstall     = None
+libInstallDir = None
+docInstallDir = None
+
+# Location of binary (subdir of build)
+buildDir = None
+
+compiler = None
+
+detectedArch    = None
+detectedTuning  = None
+
+make     = None
+
+def initOS():
+    global windows, freebsd, linux, osx, unix, osShortName
+    global libInstallDir, docInstallDir, configFile
+    global doInstall, icompileConfig, compiler, make, detectedArch, detectedTuning
+
+    s = platform.system()
+    windows = (s == 'Windows') or (s == 'Microsoft')
+    freebsd = (s == 'FreeBSD')
+    linux   = (s == 'Linux')
+    osx     = (s == 'Darwin')
+    cygwin  = s.lower().startswith('cygwin')
+    unix    = freebsd or linux or osx or cygwin
+
+    osTable = \
+            {'Microsoft': 'win', # Vista
+             'Windows'  : 'win', # XP/NT
+             'Linux'    : 'linux',
+             'Darwin'   : 'osx',
+             'FreeBSD'  : 'freebsd',
+             'CYGWIN_NT-6.1-WOW64' : 'cygwin'
+            }
+    
+    osShortName = osTable[platform.system()]
+
+    if unix:
+        # Extract and remove config file from argument list
+        try:
+            i = sys.argv.index('--config')
+
+            if not os.path.exists(sys.argv[i + 1]):
+                raise Exception('--config file "' + sys.argv[i + 1] + '" not found.')
+
+            icompileConfig = sys.argv[i:i + 2]
+            del sys.argv[i:i + 2]
+
+        except ValueError:
+            filename = pathConcat(os.environ['HOME'], '.icompile-buildg3d')
+            if os.path.exists(filename):
+                icompileConfig = ['--config', filename]
+            else:
+                icompileConfig = []
+
+        icompileConfig += ['--verbosity', verbosity]
+        print('Adding iCompile options: ' + str(icompileConfig))
+
+    if windows:
+        installDir = 'c:/libraries'
+    else:
+        installDir = '/usr/local'
+
+        os.chdir('G3D.lib')
+        info = shell('../bin/icompile ' + ' '.join(icompileConfig + ['--info']), False)
+        infoCompiler = info
+
+        # extract platform name from iCompile
+        try:
+            i = info.index('\nplatform')
+            i = info.index('"', i) + 1
+            j = info.index('"', i)
+        except ValueError:
+            # Could not find the information!
+            raise Exception('icompile --info returned unparsable data: ' + info)
+
+        # extract compiler from iCompile
+        try:
+            i = info.index('\ncompiler')
+            i = info.index('"', i) + 1
+            j = info.index('"', i)
+            compiler = info[i:j]
+        except ValueError:
+            # Could not find the information!
+            raise Exception('icompile --info returned unparsable data: ' + info)
+
+        # extract architecture from iCompile
+        try:
+            i = info.index('\ndetectedArchitecture')
+            i = info.index('"', i) + 1
+            j = info.index('"', i)
+            detectedArch = info[i:j]
+        except ValueError:
+            # Could not find the information!
+            detectedArch = None
+
+        # extract tuning from iCompile
+        try:
+            i = info.index('\ndetectedTuning')
+            i = info.index('"', i) + 1
+            j = info.index('"', i)
+            detectedTuning = info[i:j]
+        except ValueError:
+            # Could not find the information!
+            detectedTuning = None
+
+        os.chdir('..')
+
+    # Extract and remove config file from argument list
+    try:
+        i = sys.argv.index('--install')
+        del sys.argv[i]
+
+        doInstall = True
+        # See if there is a directory
+        if len(sys.argv) > (i + 1):
+            installDir = sys.argv[i]
+            del sys.argv[i]
+            
+    except ValueError:
+        doInstall = False
+
+    if doInstall:
+        print(('Setting installation directory to: ' + installDir))
+
+    if windows:
+        libInstallDir = pathConcat(installDir, 'G3D')
+        docInstallDir = libInstallDir
+    else:
+        libInstallDir = installDir
+        docInstallDir = pathConcat(installDir, 'G3D')
+        # TODO: copy shared libraries on this platform
+
+    make = 'make'
+    if freebsd:
+        # FreeBSD ships with an ancient make version; switch
+        # to gmake
+        make = 'gmake'
+
+    if osx:
+        # OSX 10.4 can contain a broken version of make
+        v = ice.utils.getVersion(make)
+        if (v[0] < 3) or ((v[0] == 3) and (v[1] < 80)):
+            # This version of make has a bug that prevents it from
+            # compiling ffmpeg:
+            #
+            # http://lists.mplayerhq.hu/pipermail/ffmpeg-user/2008-May/015364.html
+            make = 'gmake'
+
+            # Ensure that gmake is on the system
+            if shell('which ' + make, False) == '':
+                raise Exception('The version of make in this computer has a known bug ' +
+                       'that prevents it from compiling FFMPEG correctly, but ' +
+                       'gmake was not found on this computer to use as a replacement. ' +
+                       'please install gmake (from ftp://ftp.gnu.org/gnu/make/ or MacPort) ' +
+                       'to compile G3D.')
+
+
+initOS()
+
+
+def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True, actuallyCopy = True):
+    if windows:
+        # Use the binary
+        print('copyifnewer %s %s' % (safeWindowsName(source), safeWindowsName(dest)))
+        return os.spawnv(os.P_WAIT, 'bin\\copyifnewer.exe', 
+                   ['bin\\copyifnewer.exe', '--super-exclusions', source, dest])
+    else:
+        # Use python commands
+        ice.copyifnewer.copyIfNewer(source, dest, echoCommands, echoFilenames, actuallyCopy)
+        return 0
+
+
+""" Runs iCompile in both debug and release mode (if debug succeeds) and returns
+    the error code from the last run. 
+"""
+def runicompile(dir):
+     os.chdir(dir)
+     x = run('../bin/icompile', icompileConfig + ['--noprompt'], True)
+
+     if (x == 0): 
+         x = run('../bin/icompile', icompileConfig + ['-O', '--noprompt'], True)
+
+     os.chdir('..')
+
+     return x
+
+##################################################################################
+
+# Called from libTarget on unix-platforms to build the ffmpeg libraries, which do not use icompile
+def buildNativeFFmpeg():
+    if windows: raise Exception('Cannot build FFmpeg directly on Windows.  Must use cross-compiler')
+
+    if linux:
+        # test that we can write to TMPDIR
+        TMPDIR = os.environ.get('TMPDIR')
+        f = 0
+        if TMPDIR == None:
+            TMPDIR = '/tmp'
+            os.environ['TMPDIR'] = TMPDIR
+
+        try:
+            testname = TMPDIR + '/G3D.test'
+            f = open(testname, 'wb')
+            f.close()
+            os.chmod(testname, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+            os.remove(testname)
+        except:
+            raise Exception('Compiling FFMPEG requires that environment variable TMPDIR refer to a writable directory.  Current value is $TMPDIR=' + TMPDIR)
+
+    if osx:
+        libs = ['libavutil.54.dylib', 'libavcodec.56.dylib', 'libavformat.56.dylib', 'libswscale.3.dylib',
+             'libswresample.1.dylib']
+    else:
+        libs = ['libavutil.54.so', 'libavcodec.56.so', 'libavformat.56.so', 'libswscale.3.so',
+             'libswresample.1.so']
+    print('----------------------------------------------------\n')
+    print(('Building ' + ', '.join(libs)))
+
+    buildLibPath = pathConcat('build', 'lib')
+    buildBinPath = pathConcat('build', 'bin')
+
+    # Check to see if any ffmpeg library needs to be built
+    outOfDate = [(not os.path.exists(pathConcat(buildLibPath, lib))) for lib in libs]
+#    print(' '.join(str(pathConcat(buildLibPath, lib)) for lib in libs))
+#    print(' '.join(str(e) for e in outOfDate))
+    needRebuild = reduce(lambda x,y: x or y, outOfDate, False)
+
+    if not needRebuild:
+        return 0
+
+    sourceDir = os.path.abspath('temp/ffmpeg/native')
+    installDir = os.path.abspath('temp/ffmpeg/native/install')
+
+    doClean = True
+    if doClean:
+        # remove old build
+        ice.utils.rmdir(os.path.abspath('temp/ffmpeg/native'), False)
+
+    # extract ffmpeg sources
+    ice.utils.mkdir(sourceDir, False)
+    tarname = 'ffmpeg/source/ffmpeg-20150218-git-8bc8001.tar'
+
+    if not os.path.exists(tarname):
+        print('\nDecompressing gzipped file')
+        ice.utils.shell('gunzip -c ' + tarname + '.gz' + ' > ' + tarname)
+
+    tarObject = tarfile.open(tarname)
+    ffmpegName = tarObject.next().name
+
+    if doClean:
+        print('\nExtracting tarfile')
+        os.chdir(sourceDir)
+        retVal = ice.utils.run('tar', ['-xvf', pathConcat('../../..', tarname)], False)
+        os.chdir('../../..')
+        tarObject.close()
+        tarObject = None
+
+        if retVal != 0:
+            print('Tar command failed')
+            return retVal
+
+    # find gcc compiler to match iCompile configuration
+    # we expect iCompile to use g++, so replace
+    # 'g++ with 'gcc' in the path
+    if 'clang++' in compiler:
+        compilerPath = compiler.replace('clang++', 'clang')
+    else:
+        gppIndex = compiler.rfind('g++')
+        if gppIndex == -1:
+            raise Exception('Unable to parse g++ compiler path - ' + compiler)
+        compilerPath = compiler[:gppIndex] + "gcc" + compiler[gppIndex + 3:]
+
+    # build ffmpeg 
+    oldcwd = os.getcwd()
+    os.chdir(pathConcat(sourceDir, ffmpegName))
+    
+    # Create architecture/cpu configure option
+    archOptions = '';
+    
+    if detectedArch != None:
+        archOptions += ' --arch=' + detectedArch + ' '
+        if osx and detectedArch == 'x86':
+            archOptions += ' --extra-cflags="-m32 -mdynamic-no-pic" --extra-ldflags="-arch i386" '
+    
+    if not osx and detectedTuning != None:
+        archOptions += ' --cpu=' + detectedTuning + ' '
+
+    if osx:
+      maybeDisableYasm = " --disable-yasm"
+    else:
+      maybeDisableYasm = ""
+    # Create FFmpeg configure command
+    ffmpegBuildScript = """
+    echo Running configure in """  + os.getcwd() + """
+    ./configure --enable-shared --disable-static --cc=""" + compilerPath + """ --prefix=""" + installDir + archOptions + maybeDisableYasm + """  --enable-network --disable-avdevice --disable-ffprobe --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug
+    echo Running make...
+    """ + make + """
+    echo Make install...
+    """ + make + """ install
+    """
+    
+    print('Compiling...')
+
+    # FreeBSD uses the PWD from the previous interactive command, so
+    # we have to explicitly set PWD to make the FFmpeg configure
+    # script work correctly.
+    retVal = ice.utils.run('sh', ['-c', ffmpegBuildScript], False, {'PWD' : os.getcwd()})
+    os.chdir(oldcwd)
+
+    if retVal == 0:
+        # ensure output directory exists
+        ice.utils.mkdir(buildLibPath)
+        ice.utils.mkdir(buildBinPath)
+ 
+        # copy the static libraries to the build directory
+        print('Copying libraries...')
+        for lib in libs:
+            libPath = pathConcat(installDir, 'lib', lib)
+            if osx:
+                ice.utils.run('install_name_tool', ['-id', '@loader_path/' + lib, libPath], True)
+                ice.utils.run('install_name_tool', ['-change', pathConcat(installDir, 'lib', lib), '@loader_path/' + lib, libPath], True)
+            ice.copyifnewer.copyIfNewer(libPath,
+                                        pathConcat(buildLibPath, lib))
+            ice.copyifnewer.copyIfNewer(libPath,
+                                        pathConcat(buildBinPath, lib))
+
+    print('----------------------------------------------------')
+    return retVal
+
+
+#################################################################################
+
+def libTarget():
+    x = 0
+
+    if windows:
+        copyIfNewer('ffmpeg/windows/bin64/*', 'build/bin/')
+        copyIfNewer('fmod/lib-windows/fmod*_vc.lib', 'build/lib/')
+        copyIfNewer('fmod/bin-windows/fmod64.dll', 'build/bin/')
+
+		# Oculus libraries use precompiled binaries currently,
+		# so just copy them directly. They are only built on Windows
+        copyIfNewer('LibOVR.lib/include/*', 'build/include/')
+        copyIfNewer('LibOVR.lib/lib64/*', 'build/lib/')
+        copyIfNewer('LibOVRKernel.lib/include/*', 'build/include/')
+        copyIfNewer('LibOVRKernel.lib/lib64/*', 'build/lib/')
+
+		# , 'External Libraries\\LibOVR.lib', 'External Libraries\\LibOVRKernel.lib'
+        x = VisualStudio('VisualStudio/G3D.sln', ['External Libraries\\freeimage.lib', 'External Libraries\\zlib.lib', 'External Libraries\\zip.lib', 'External Libraries\\civetweb.lib', 'External Libraries\\qrencode.lib', 'G3D.lib', 'GLG3D.lib', 'GLG3DVR.lib', 'External Libraries\\enet.lib', 'External Libraries\\glfw.lib', 'External Libraries\\glew.lib']);
+
+    else:
+        if (x == 0) and osx:
+          if not os.path.exists('build') : os.mkdir('build')
+          os.chdir('build')
+          if not os.path.exists('bin') : os.mkdir('bin')
+          if not os.path.exists('lib') : os.mkdir('lib')
+          os.chdir('..')
+          copyIfNewer('fmod/bin-osx/libfmod.dylib', 'build/bin/libfmod.dylib')
+          copyIfNewer('fmod/bin-osx/libfmod.dylib', 'build/lib/libfmod.dylib')
+
+        if osx or linux:
+            if x == 0: x = buildNativeFFmpeg()
+
+        if x == 0: x = runicompile('freeimage.lib')
+        
+        if osx or (ice.utils.shell("locate libzip.a") == ''):
+            if x == 0: x = runicompile('zip.lib')
+
+        if x == 0: x = runicompile('glfw.lib')
+
+        if x == 0: x = runicompile('glew.lib')
+
+        if x == 0: x = runicompile('civetweb.lib')
+
+        if x == 0: x = runicompile('qrencode.lib')
+
+        if x == 0: x = runicompile('enet.lib')
+
+        if x == 0: x = runicompile('assimp.lib')
+
+        if x == 0: x = runicompile('zlib.lib')
+
+        if x == 0: x = runicompile('nfd.lib')
+
+        if x == 0: x = run('python', ['updateSVNInfo'])
+
+        if x == 0: x = run('python', ['ImageFormat.py'])
+        
+        if x == 0: x = runicompile('G3D.lib')
+
+        if x == 0: x = runicompile('GLG3D.lib')
+
+
+    if x == 0:
+       copyIfNewer('data-files/shader', 'build/data/shader')
+         
+    copyIfNewer('fmod/include/*', 'build/include/')
+
+    return x
+
+##################################################################################
+ 
+def toolsTarget():
+    dest = 'build/bin'
+    copyIfNewer('bin', dest)
+    f = pathConcat(dest, 'PKZIP25.EXE')
+    if os.path.exists(f): os.remove(f)
+
+    if windows:
+        x = VisualStudio('VisualStudio/G3D.sln', ['viewer'])
+
+        if (x == 0):
+            copyIfNewer('tools/viewer/register.bat', 'build/bin/')
+            # The viewer knows how to run fine without the background images,
+            # and they are rarely used
+            # copyIfNewer('tools/viewer/data-files/', 'build/bin/')
+    else:
+        x = libTarget()
+     
+        if (x == 0):
+            os.chdir("tools/viewer")
+            x = run("../../bin/icompile", icompileConfig + ['--noprompt', '--opt'])
+            os.chdir("../..")
+            if x == 0:
+                copyIfNewer('temp/tools/viewer', pathConcat('build/bin'))
+
+    return x
+
+##################################################################################
+
+def cleanTarget():
+    ice.utils.rmdir('build')
+    ice.utils.rmdir('temp')
+
+    if windows:       
+       return 0
+
+    os.chdir("test")
+    run("../bin/icompile", icompileConfig + ['--clean'])
+    os.chdir("..")
+
+    print('viewer')
+    os.chdir("tools/viewer")
+    run("../../bin/icompile", icompileConfig + ['--clean'])
+    os.chdir("../..")
+
+    return 0
+
+##################################################################################
+    
+def testTarget():
+    
+    if windows:
+       x = VisualStudio('VisualStudio/G3D.sln', ['test']);
+       os.chdir("temp/testdata")
+       if x == 0:
+          x = run('testd.exe')
+          if x == 0:
+              run('test.exe')      
+       os.chdir("../..")       
+    else:
+        x = libTarget()
+        if x != 0:
+            return x
+
+        os.chdir("test")
+        x = run('../bin/icompile', icompileConfig + ['--noprompt', '--run']) 
+        if (x == 0):
+            x = run('../bin/icompile', icompileConfig + ['--noprompt', '-O', '--run'])
+        os.chdir('..')
+
+    return x
+
+##################################################################################
+    
+def docTarget():
+    version = 'version ' + g3dVersion.major + '.' + g3dVersion.minor
+    if (g3dVersion.beta != ''):
+        version += ' beta ' + g3dVersion.beta
+
+    version += ' - ' + time.strftime('%B %Y')
+
+    env = {'HEADER_FILE':    'manual/header.html',
+           'FOOTER_FILE':    'manual/footer.html',
+           'PROJECT_NUMBER': version}
+
+    copyIfNewer('doc-files/', 'build/manual/')
+    copyIfNewer('readme.md', 'build/manual/readme.md')
+    # Generate C++ docs
+    (code, out, err) = runWithOutput(doxygen, ['Doxyfile'], True, env)
+
+    # filter the output to remove warnings about undocumented parameters
+    for line in out.split('\n'):
+      if line.find("parameter") < 0:
+        print(line)
+    for line in err.split('\n'):
+      if line.find("parameter") < 0:
+        print(line)
+
+    if code != 0:
+      return code
+
+    # Generate Java docs
+    code = run(doxygen, ['Doxyfile-java'], True, env)
+    if code != 0:
+      return code
+
+    # replace reference counted pointer links in documentation
+    remapper = ice.doxygen.DoxygenRefLinkRemapper()
+    remapper.remap('build/manual', 'build/manual')
+    
+    copyIfNewer('license.txt', 'build/manual/')
+    return dataTarget()
+
+##################################################################################
+
+def dataTarget():
+    # Generate demos and support
+    copyIfNewer('samples', 'build/samples')
+    copyIfNewer('data-files', 'build/data')
+    copyIfNewer('../data10/common', 'build/data')
+    copyIfNewer('../data10/game', 'build/data')
+    copyIfNewer('../data10/research', 'build/data')
+
+    return 0
+
+##################################################################################
+
+def allTarget():
+    x = cleanTarget()
+    if x == 0: x = libTarget()
+    if x == 0:
+        # Pretend that jar always succeeds;
+        # it might fail for people who don't
+        # have java
+        jarTarget()
+    
+    if x == 0: x = dataTarget()
+    # if x == 0: x = testTarget()
+    if x == 0: x = toolsTarget()
+    if x == 0: x = docTarget()
+    
+    return x
+
+##################################################################################
+
+def updateTarget():
+    x = libTarget()
+    if x == 0:
+        # Pretend that jar always succeeds;
+        # it might fail for people who don't
+        # have java
+        jarTarget()
+    
+    if x == 0: x = toolsTarget()
+    if x == 0: x = docTarget()
+    
+    return x
+
+##################################################################################
+
+"""
+ Recursively zips the source into zipfile
+"""
+def zip(source, zipfile):
+    print(('Creating ' + zipfile))
+
+    if windows:
+        run('PKZIP25', ['-add', '-rec', '-lev=9', '-path=relative', zipfile, source])
+    else:
+        run('zip', ['-r', '-9', zipfile, source])
+
+
+def srczipTarget():
+    if windows:
+        raise Exception('src target must be run on a Unix platform')
+    
+    # First copy everything to the temp directory to remove
+    # .svn files
+    dest ='temp/src/G3D'
+    mkdir(dest)
+    copyIfNewer('.', dest, True, True, True)
+    
+    os.chdir('temp/src')
+    # Now produce the zipfile
+    zip('G3D', '../../build/' + 'G3D' + '-' + g3dVersion.toString() + '-src.zip')
+    os.chdir('../..')
+
+def sourceTarget():
+    if windows:
+        raise Exception('src target must be run on a Unix platform')
+    
+    dest ='build/source'
+    mkdir(dest)
+    copyIfNewer(os.getcwd(), dest)
+
+    return 0    
+
+    
+##################################################################################
+    
+def jarTarget():
+   print('Testing for javac and jar...')
+   if windows:
+       javac = _findWindowsBinary('javac')
+       jar = _findWindowsBinary('jar')
+       if not javac or not jar:
+           print('javac or jar not found on this machine, skipping .jar creation!')
+           return -1
+   else:
+       x = shell('javac', False)
+       y = shell('jar', False)
+       if len(x) < 200 or len(y) < 200:
+           print('javac or jar not found on this machine, skipping .jar creation!')
+           return -1
+       javac = 'javac'
+       jar = 'jar'
+
+   print('Building G3D.jar...')
+   mkdir('temp/G3D.jar/G3D')
+   mkdir('build')
+   
+   # We need the shell to do path expansion here and thus do not use run().
+   ret = subprocess.Popen(javac + ' -d temp/G3D.jar G3D.jar/G3D/*.java',
+                          shell = True).wait()
+   if ret == 0:
+       ret = run(jar, ['-cf', 'build/G3D.jar', '-C', 'temp/G3D.jar', 'G3D'])
+       if ret == 0:
+           print('Built build/G3D.jar')
+
+   return ret
+
+
+################################################################################
+def getTarFile(tarUrl, downloadDir):
+    tarName = tarUrl.split('/')[-1]
+
+    print(('Downloading ' + tarName + '...'))
+
+    ice.utils.mkdir(downloadDir, False)
+
+    tarPath = os.path.join(downloadDir, tarName)
+    urllib_request.urlretrieve(tarUrl, tarPath)
+
+    print('Completed.\n')
+
+    return tarPath
+
+################################################################################
+def extractTarFile(tarPath, extractDir, isLzma = False):
+    tarName = os.path.split(tarPath)[-1]
+
+    print(('Extracting ' + tarName + '...'))
+
+    ice.utils.mkdir(extractDir, False)
+
+    if isLzma:
+        # uncompress .lzma file to raw .tar first since tar doesn't natively support lzma
+        ice.utils.shell('lzma_alone d ' + tarPath + ' ' + tarPath[:-5])
+        tarPath = tarPath[:-5]
+
+    tarObject = tarfile.open(tarPath, 'r')
+
+    # the first entry might not be an actual directory
+    topDir = tarObject.next().name.split('/')[0]    
+
+    tarObject.extractall(extractDir)
+    tarObject.close()
+
+    print('Completed.\n')
+
+    return os.path.join(extractDir, topDir)
+    
+################################################################################
+def downloadMinGW(downloadDir, sourceDir, installDir):
+    # download binutils
+    binutilsTar = getTarFile('ftp://ftp.gnu.org/gnu/binutils/binutils-2.21.tar.gz', downloadDir)
+    binutilsDir = extractTarFile(binutilsTar, sourceDir)
+    
+    # download mingw components
+    mingwTar = getTarFile('http://heanet.dl.sourceforge.net/sourceforge/mingw/mingwrt-3.18-mingw32-dev.tar.gz', downloadDir)
+    mingwDir = extractTarFile(mingwTar, os.path.join(installDir, 'mingw32'))
+
+    w32apiTar = getTarFile('http://heanet.dl.sourceforge.net/sourceforge/mingw/w32api-3.15-1-mingw32-dev.tar.lzma', downloadDir)
+    w32apiDir = extractTarFile(w32apiTar, os.path.join(installDir, 'mingw32'), True)
+
+    # download gmp, mpfr and mpc
+    gmpTar = getTarFile('ftp://ftp.gnu.org/gnu/gmp/gmp-4.2.4.tar.bz2', downloadDir)
+    gmpDir = extractTarFile(gmpTar, sourceDir)
+
+    mpfrTar = getTarFile('ftp://ftp.gnu.org/gnu/mpfr/mpfr-2.4.1.tar.bz2', downloadDir)
+    mpfrDir = extractTarFile(mpfrTar, sourceDir)
+
+    mpcTar = getTarFile('http://www.multiprecision.org/mpc/download/mpc-0.8.2.tar.gz', downloadDir)
+    mpcDir = extractTarFile(mpcTar, sourceDir)
+
+    # download gcc core
+    gccTar = getTarFile('ftp://ftp.gnu.org/gnu/gcc/gcc-4.5.2/gcc-core-4.5.2.tar.bz2', downloadDir)
+    gccDir = extractTarFile(gccTar, sourceDir)
+    
+    gppTar = getTarFile('ftp://ftp.gnu.org/gnu/gcc/gcc-4.5.2/gcc-g++-4.5.2.tar.bz2', downloadDir)
+    gppDir = extractTarFile(gppTar, sourceDir)
+
+    # create symbolic link to gmp in gcc source
+    os.symlink(gmpDir, os.path.join(gccDir, 'gmp'))
+
+    # create symbolic link to mpfr in gcc source
+    os.symlink(mpfrDir, os.path.join(gccDir, 'mpfr'))
+
+    # create symbolic link to mpc in gcc source
+    os.symlink(mpcDir, os.path.join(gccDir, 'mpc'))    
+
+    # return the directories that need to be configured and built
+    return (binutilsDir, gmpDir, gccDir)
+
+
+################################################################################
+def ffmpegCCTarget():
+    # This builds the mingw cross-compiler
+    downloadDir = os.path.abspath('temp/mingw')
+    sourceDir = downloadDir + '/src'
+    installDir = downloadDir + '/cc'
+
+    oldcwd = os.getcwd()
+    
+    # clean out cross compiler
+    ice.utils.rmdir(downloadDir, False)
+
+    # download all files needed to build mingw
+    (binutilsDir, gmpDir, gccDir) = downloadMinGW(downloadDir, sourceDir, installDir)    
+    
+    # configure binutils
+    print('Building binutils...')
+    binutilsObjDir = os.path.join(sourceDir, 'binutils_obj')
+    ice.utils.mkdir(binutilsObjDir, False)
+    os.chdir(binutilsObjDir)
+    ice.utils.shell('../' + os.path.split(binutilsDir)[-1] + '/configure --prefix="' + installDir + '" --target=mingw32 --disable-nls --disable-shared --disable-werror', False)
+    
+    # build binutils
+    ice.utils.shell(make + ' CFLAGS="-fno-exceptions" LDFLAGS="-s"', False)
+    ice.utils.shell(make + ' install', False)
+    os.chdir(oldcwd)
+    print('Completed.\n')
+
+    # configure gcc core
+    print('Building gcc...')
+    gccObjDir = os.path.join(sourceDir, 'gcc_obj')
+    ice.utils.mkdir(gccObjDir, False)
+    os.chdir(gccObjDir)
+    ice.utils.shell('../' + os.path.split(gccDir)[-1] + '/configure --prefix="' + installDir + '" --target=mingw32 --with-headers="' + os.path.join(installDir, 'mingw32/include') + '" --disable-nls --enable-languages=c,c++ --disable-win32-registry --disable-shared --without-x --disable-libgomp --disable-libmudflap', False)
+    
+    # build gcc core
+    ice.utils.shell(make, False)
+    ice.utils.shell(make + ' install', False)
+    os.chdir(oldcwd)
+    print('Completed.')
+
+    print("Copying mingw32 gcc runtime libraries\n")
+    ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'lib/gcc/mingw32/4.4.1/libgcc.a'), 'ffmpeg/lib/win32/gcc.lib', False)
+    ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'mingw32/lib/libmingwex.a'), 'ffmpeg/lib/win32/mingwex.lib', False)
+
+    
+def ffmpegWinTarget():
+    #This target builds the pre-built windows .dll binaries with mingw
+    crossCompilerDir = os.path.abspath('temp/mingw/cc/bin')
+    sourceDir = os.path.abspath('temp/ffmpeg/mingw')
+    installDir = os.path.abspath('temp/ffmpeg/mingw/install')
+
+    # remove old build
+    ice.utils.rmdir(os.path.abspath('temp/ffmpeg/mingw'), False)
+
+    # extract ffmpeg sources
+    ice.utils.mkdir(sourceDir, False)
+    ffmpegDir = extractTarFile('ffmpeg/source/ffmpeg-0.6.1.tar.bz2', sourceDir)
+
+    #build ffmpeg with mingw cross-compiler
+    oldcwd = os.getcwd()
+    os.chdir(ffmpegDir)
+    ffmpegBuildScript = """
+    ./configure --enable-shared --prefix=""" + installDir + """ --cross-prefix=mingw32- --enable-cross-compile --target-os=mingw32 --arch=i686 --cpu=nocona --disable-ssse3 --enable-memalign-hack --enable-network --disable-indevs --disable-outdevs --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
+    """ + make + """
+    """ + make + """ install
+    """
+
+    ice.utils.run('sh', ['-c', ffmpegBuildScript], False, {'PATH' : os.getenv('PATH') + ':' + crossCompilerDir})
+    os.chdir(oldcwd)
+
+
+################################################################################
+
+def helpTarget():
+    print(("""
+buildg3d - Automated build system for G3D.
+
+Syntax: 
+    buildg3d [--config config-file] [--install [install-dir]] target
+
+    The targets are: help, all, lib, update, doc, clean, test, tools, etc.
+
+If you are installing G3D as a one-time event, then you want to run:
+
+    buildg3d --install all
+
+If you've just svn updated G3D and want an incremental build, then run:
+
+    buildg3d update
+
+or, if you're in a hurry and don't need to update the documentation:
+
+    buildg3d lib
+
+
+Full Options:
+--config <config-file>
+       By default, buildg3d tries to use ~/.icompile-buildg3d
+       as a configuration file. If it does not exist, it tries
+       .icompile.  This allows you to explicitly specify another
+       .icompile file to use on Unix. This
+       allows you to build G3D with different INCLUDE, LIBRARY,
+       and compiler settings than you normally use for writing
+       programs.  See the iCompile manual for more information.
+
+--install [<install-dir>]
+       After building, copy files to this location. The default
+       install-dir is """ + libInstallDir + """.  Note that installing
+       sets all files in the target directory to be all-readable
+       on Unix using chmod -R a+rx.
+       
+TARGET     DESCRIPTION
+
+all        clean + lib + jar + tools + doc
+
+update     lib + tools + doc + jar 
+           
+lib        Build all shared and static libraries and copy over headers and shaders. 
+           Also build all dependencies (e.g., zlib, freeimage)
+
+data       Copy over data-files (and ../data/, if you have it)
+
+doc        Generate documentation using Doxygen and copy over data-files
+           (and ../data/, if you have it)
+
+tools      Build viewer application and copy copyifnewer and icompile
+
+jar        Build G3D.jar, the Java version of network and
+           file access.
+
+test       Build test and testd and then run both
+
+clean      Delete all generated files
+
+help       Display this message
+
+
+DEVELOPER TARGETS (unsupported)
+
+source     Move the sources into the build directory
+
+srczip     Build a sources zipfile (Unix only)
+
+ffmpegWin  Build precompiled Windows libraries for ffmpeg using a Unix 
+           g++ MinGW cross-compiler.
+
+ffmpegCC   Build MinGW cross-compiler used during ffmpegWin target
+
+The return code of buildg3d is the return code of the last process it
+launched (i.e., you can expect 0 on success).
+"""))
+
+################################################################################
+
+""" Copy generated files to libInstallDir and docInstallDir """
+def install():
+
+    installBin     = pathConcat(libInstallDir, 'bin')
+    installInclude = pathConcat(libInstallDir, 'include')
+    installLib     = pathConcat(libInstallDir, 'lib')
+
+    copyIfNewer('build/bin',     installBin)
+    copyIfNewer('build/include', installInclude)
+    copyIfNewer('build/lib',     installLib)
+    copyIfNewer('build/G3D.jar', pathConcat(libInstallDir, 'lib/G3D.jar'))
+    
+    copyIfNewer('build/manual',  pathConcat(docInstallDir, 'manual'))
+    copyIfNewer('build/data',    pathConcat(docInstallDir, 'data'))
+    copyIfNewer('build/samples', pathConcat(docInstallDir, 'samples'))
+
+    if unix:
+        # Set file permissions to world-readable
+        for path in [installBin, installInclude, installLib, docInstallDir]:
+            shell('chmod -R a+rx ' + path)
+    
+    return 0
+
+
+################################################################################
+
+def dispatchOnTargets(targets, validTargets):
+    for target in targets:
+        found = False
+        for v in validTargets:      
+            if target == v.__name__:
+                code = v()
+                found = True
+                if code != 0:
+                    return code
+
+        if not found:
+            print(('"' + target[0:-6] + '" is not a valid build target (type "build help" to see all targets).'))
+            return -1
+
+    return 0
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        helpTarget()
+        sys.exit(-1)
+        
+    t0 = time.time()
+    
+    code = dispatchOnTargets([(x + 'Target') for x in sys.argv[1:]],
+        [libTarget, cleanTarget, testTarget,
+         docTarget, allTarget, srczipTarget, sourceTarget, toolsTarget,
+         jarTarget, helpTarget, updateTarget,
+         ffmpegWinTarget, ffmpegCCTarget, dataTarget])
+
+    if (code == 0) and (sys.argv[1] != 'help') and doInstall:
+        install()
+        
+    t1 = time.time()
+    print(('%ds' % (t1 - t0)))
+
+    if code != 0:
+      print('Note: build target failed with code ' + str(code))
+
+    sys.exit(code)

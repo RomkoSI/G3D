@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{31817edf-d706-46b4-929c-b61376b8570b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{55b3f2a0-f548-4c95-99cb-19f4f1408af8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Client Files">
+      <UniqueIdentifier>{15a8bb7e-1d62-4d7f-b711-fed2d12791a2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\samples\remoteRender\source\App.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\samples\remoteRender\source\qr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\samples\remoteRender\source\App.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\samples\remoteRender\data-files\www\dpad.png">
+      <Filter>Client Files</Filter>
+    </None>
+    <None Include="..\samples\remoteRender\data-files\www\favicon.ico">
+      <Filter>Client Files</Filter>
+    </None>
+    <None Include="..\samples\remoteRender\data-files\www\game.js">
+      <Filter>Client Files</Filter>
+    </None>
+    <None Include="..\samples\remoteRender\data-files\www\index.html">
+      <Filter>Client Files</Filter>
+    </None>
+    <None Include="..\samples\remoteRender\data-files\www\codeheart.js">
+      <Filter>Client Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

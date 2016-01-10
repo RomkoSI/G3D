@@ -1,0 +1,8 @@
+#version 120 // -*- c++ -*-
+
+varying vec3 normal;
+
+void main() {
+     normal = g3d_ObjectToWorldNormalMatrix * gl_Normal;
+     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+}

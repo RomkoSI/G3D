@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\glfw.lib\include\GLFW\glfw3.h" />
+    <ClInclude Include="..\glfw.lib\include\GLFW\glfw3native.h" />
+    <ClInclude Include="..\glfw.lib\src\glfw_config.h" />
+    <ClInclude Include="..\glfw.lib\src\internal.h" />
+    <ClInclude Include="..\glfw.lib\src\posix_time.h" />
+    <ClInclude Include="..\glfw.lib\src\posix_tls.h" />
+    <ClInclude Include="..\glfw.lib\src\wgl_context.h" />
+    <ClInclude Include="..\glfw.lib\src\win32_platform.h" />
+    <ClInclude Include="..\glfw.lib\src\win32_tls.h" />
+    <ClInclude Include="..\glfw.lib\src\winmm_joystick.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\glfw.lib\src\clipboard.c" />
+    <ClCompile Include="..\glfw.lib\src\context.c" />
+    <ClCompile Include="..\glfw.lib\src\init.c" />
+    <ClCompile Include="..\glfw.lib\src\input.c" />
+    <ClCompile Include="..\glfw.lib\src\joystick.c" />
+    <ClCompile Include="..\glfw.lib\src\monitor.c" />
+    <ClCompile Include="..\glfw.lib\src\time.c" />
+    <ClCompile Include="..\glfw.lib\src\wgl_context.c" />
+    <ClCompile Include="..\glfw.lib\src\win32_clipboard.c" />
+    <ClCompile Include="..\glfw.lib\src\win32_init.c" />
+    <ClCompile Include="..\glfw.lib\src\win32_monitor.c" />
+    <ClCompile Include="..\glfw.lib\src\win32_time.c" />
+    <ClCompile Include="..\glfw.lib\src\win32_tls.c" />
+    <ClCompile Include="..\glfw.lib\src\win32_window.c" />
+    <ClCompile Include="..\glfw.lib\src\window.c" />
+    <ClCompile Include="..\glfw.lib\src\winmm_joystick.c" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{145AA958-4FB6-4A12-8594-BB8FE0C40BD3}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>glfwlib</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>glfw_x64</TargetName>
+    <OutDir>$(ProjectDir)\..\build\lib\</OutDir>
+    <IntDir>$(ProjectDir)\..\temp\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\glfw.lib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>
+      </Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>"$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectName)\include" "$(OutDir)\..\include"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Copying Headers</Message>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

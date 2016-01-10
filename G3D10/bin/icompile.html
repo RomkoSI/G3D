@@ -1,0 +1,599 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+  <head>
+    <title>
+      iCompile
+    </title>
+    
+    <style type="text/css">
+      body {
+      color: black;
+      background-color: white;
+      font-family: "Times New Roman", Times, serif;
+      padding-left: 3em;
+      padding-right: 3em;
+      }
+
+      a:link {
+      color:   #005070;
+      text-decoration: none;
+      }
+
+      a:visited {
+      color:   #005070;
+      text-decoration: none;
+      }
+
+      h1 {
+      font-family: Helvetica, Geneva, Arial, SunSans-Regular, sans-serif;
+      border-bottom-style: solid;
+      text-transform: uppercase;
+      font-size: 150%;
+      color: gray;
+      padding-top: 25px;
+      }
+
+      h2 {
+      font-family: Helvetica, Geneva, Arial, SunSans-Regular, sans-serif;
+      font-size: 120%;
+      color: gray;
+      padding-top: 15px;
+      }
+
+      pre {
+      line-height: 80%;
+      }
+    </style>
+
+    <script type="text/javascript">
+      var isGray = false;
+
+      // See http://www.alanwood.net/demos/wgl4.html for HTML Unicode codes
+      function dirTree(src) {
+         var dst = src;
+         dst = dst.replace('|--', '&#9500;&#9472;&#9472;');
+         dst = dst.replace('`--', '&#9492;&#9472;&#9472;');
+         dst = dst.replace('|', '&#9474;');
+         dst = dst.replace('`', '&#9492;');
+         if (isGray) {
+            dst = dst.replace('[]', '<img src="http://ice.sf.net/grayfolder.png"/>');
+         } else {
+            dst = dst.replace('[]', '<img src="http://ice.sf.net/folder.png"/>');
+         }
+         document.write(dst + '\n');
+      }
+    </script>
+  </head>
+
+  <body>
+
+    <br/>
+    <TABLE WIDTH=100% CELLSPACING=0>
+      <TR valign=top>
+        <TD><A HREF="http://ice.sf.net">http://ice.sf.net</A></TD>
+
+        <TD VALIGN=TOP>
+          <CENTER>
+            <B style="font-family: Helvetica; font-size:150%;">
+              iCompile Manual
+            </B>
+          </CENTER>
+        </TD>
+
+        <TD VALIGN=BOTTOM ALIGN=RIGHT>
+          <FONT SIZE=2>
+            <I>Version 0.5.16
+              <BR>2011-03-22
+          </FONT>
+        </TD>
+    </TR>
+    </TABLE>
+
+    <br/>
+    <br/>
+
+    <TABLE CELLPADDING=0 cellspacing=0>
+      <TR>
+        <td valign=top>
+          <p>
+            <font FACE="Helvetica" color="gray">
+              <CENTER><B>CONTENTS</B></CENTER>
+            </font>
+          </p>
+          <P style="font-size:90%;">
+            <OL style="padding-left:1em;">
+              <LI><NOBR><A HREF="#installation">Installation</A></NOBR>
+              <LI><NOBR><A HREF="#program">Compile a Program</A></NOBR>
+              <LI><NOBR><A HREF="#library">Compile a Library</A></NOBR>
+              <LI><NOBR><A HREF="#customizing">Customizing Projects</A></NOBR>
+              <LI><NOBR><A HREF="#doticompile">Customizing System</A></NOBR>
+              <LI><NOBR><A HREF="#command">Command Line</A></NOBR>
+              <LI><NOBR><A HREF="#linking">Linking</A></NOBR>
+            </OL>
+          </p>
+        </TD>
+        <TD WIDTH=4%> </TD>
+        <TD WIDTH=1 BGCOLOR=999999></TD>
+        <TD WIDTH=4%> </TD>
+        <TD valign=top style="font-size: 90%;">
+          <p align=justify>
+            iCompile is a <b>zero-configuration</b> build system that
+            automates the creation of executables, static and shared
+            libraries, and HTML documentation for their source code.
+            iCompile is <B>easy to use</B>.  Unlike a Makefile
+            or <A HREF="#other">other build system</A>, it requires no
+            per-project configuration.  It finds your source code,
+            dynamically computes dependencies, and infers the correct
+            options for the compiler and linker.
+          </p>
+          <p>
+            Platforms and features:
+            <ul>
+              <li> Supports C, C++, ObjectiveC, and ObjectiveC++ (<code>c, h, cpp, hpp, c++, h++, cxx, i, ii, mm, m, mi, mii, dox</code>)</li>
+              <li> Supports gcc on OS X, Linux, FreeBSD, and other Unix operating systems </li>
+              <li> Full multithreaded compilation </li>
+              <li> Auto-generate documentation with <code>--doc</code> </li>
+              <li> Create full OS X applications distributable as <code>.dmg</code> files with <code>--deploy</code> </li>
+              <li> Manage runtime <code>data-files</code> </li>
+              <li> Run under a debugger with <code>--gdb</code> </li>
+              <li> Override defaults configuration using optional <code>ice.txt</code> and <code>~/.icompile</code> files
+            </ul>
+          </p>
+        </TD>
+      </TR>
+    </TABLE>
+
+    <p>
+      <CENTER>
+        <TABLE BGCOLOR=#DFDFDF WIDTH=100% BORDER=1 CELLPADDING=20 cellspacing=0>
+          <TR>
+            <TD>
+              <table>
+                <tr>
+                  <td width=10%>
+                  </td>
+                  <td>
+                <FONT COLOR="#00AA00"># Optionally set your custom INCLUDE and LIBRARY directories</FONT>
+                <CODE><BR/>setenv INCLUDE ~/morgan/libraries/libfun/include;$INCLUDE
+                  <BR>setenv LIBRARY ~morgan/libraries/libfun/lib;$LIBRARY
+                </CODE>
+
+                <P><CODE>cd homework/assign4</CODE>
+
+                <P><FONT COLOR="#00AA00"># Run iCompile to build (and document, and run) your program</FONT>
+                  <BR/><CODE>icompile --doc --run</CODE></p>
+                </td></tr>
+              </table>
+        </TD></TR></TABLE>
+      </CENTER>
+    </p>
+    
+    <A NAME="installation"/>
+    <H1>Installation</H1>
+    <p>
+      Download the latest version of iCompile
+      from <A HREF="http://ice.sf.net">http://ice.sf.net</A> and put
+      it in a directory (such as <CODE>/usr/bin</CODE>) that is listed in
+      your <CODE>PATH</CODE> environment variable.
+    </P>
+    <P>
+      iCompile is a Python script and requires at least 
+      <A HREF="http://www.python.org/">Python&nbsp;2.6</a> to
+      run.  You can check the version of your Python version using the
+      command "<CODE>python -V</CODE>".  If you are running an old
+      version of Python, iCompile will print the error "<CODE>Illegal
+      syntax</CODE>" for the "<CODE>-=</CODE>" operator.
+    </p>
+    <p>
+      If you use any libraries that are <I>not</I> installed in
+      <CODE>/usr/lib</CODE> and <CODE>/usr/include</CODE>, set the
+      <CODE>LIBRARY</CODE> and <CODE>INCLUDE</CODE> variables as shown in
+      the example at the top of this manual, or run iCompile once in an empty directory and
+      then edit the <code>~/.icompile</code> file
+      that it generates to contain those paths.
+    </p>
+    <p>
+      iCompile can generate HTML reference documentation for your program
+      automatically by reading your program structure and comments.
+      To do so, you must have <a href="http://doxygen.org">Doxygen</a>
+      installed.  To use equations within the generated documention
+      you must also install <a href="http://www.latex-project.org/">Latex</a>
+      and <a href="http://pages.cs.wisc.edu/~ghost/">Ghostscript</a>.
+    </p>
+
+    <A NAME="program"/>
+    <H1>Compile a Program</H1> 
+
+    <p>
+      To start a new project, create an empty
+      directory and run iCompile inside it with no arguments.  You will
+      be prompted to confirm the creation of the default main.cpp and
+      directories during project creation.  You can also
+      run iCompile on an existing project that previously used
+      a different build system.  In that case, iCompile will not create any
+      new directories or source files.
+    </p>
+
+    <p>
+      iCompile determines how to build your project by examining the
+      directory structure.  The name of the binary executable produced
+      by the build is the same as the name of the project directory.
+      If the project directory name has the
+      extension <CODE>.dll</CODE> or <CODE>.so</CODE>, a shared
+      library is created instead of an executable.  The
+      extensions <CODE>.lib</CODE> and <CODE>.a</CODE> create a static
+      library.
+    </p>
+    <P>
+      All source files (<CODE>.cpp</CODE>, <CODE>.c</CODE>,
+      <CODE>.cxx</CODE>, etc.) in the project directory and its
+      subdirectories are considered part of the project and will be compiled
+      during the build.  There are exceptions for temp directories and the
+      like discussed later.
+    </p>  
+    <P>
+      The first time it is run in a directory, iCompile generates
+      an <CODE>ice.txt</CODE> file telling the build system that this
+      is the root of a project and a <CODE>Doxygen</CODE> file for the
+      documentation generator.  All other generated files are written
+      to the <CODE>build</CODE> directory, which can safely be deleted
+      at any time by hand or using the
+      command <CODE>'icompile --clean'</CODE>.
+    </p>
+    <P>
+      Because the build directory could be deleted, keep any data files that
+      are part of your program's installation in the special directory named
+      <CODE>data-files</CODE>.  These will be copied into the distribution
+      directory during the build.  A sample directory tree for an executable
+      project is shown below.
+    </p>
+
+    <script type="text/javascript">
+      isGray = false;
+      document.write('<pre>');
+      dirTree('[] <B>hello/</B>                                                          ');
+      dirTree('|-- main.cpp              <FONT COLOR=#00AA00>CPP and H files may be at the top level</FONT>');
+      dirTree('|                         <FONT COLOR=#00AA00>or in subdirectories.</FONT>');
+      dirTree('|                                                                         ');
+      dirTree('|--[] <B>data-files/</B>         <FONT COLOR=#00AA00>Files needed at runtime (Optional)</FONT>');
+      dirTree('|  `-- config.txt         <FONT COLOR=#00AA00>Copied to build/ during compilation.</FONT>');
+      dirTree('|                                                                         ');
+      dirTree('|--[] <B>doc-files/</B>          <FONT COLOR=#00AA00>Files for generated documentation (Optional)</FONT>');
+      dirTree('<FONT COLOR=#AAAAAA>|</FONT>  `-- inheritance.png    <FONT COLOR=#00AA00>Copied to build/doc/ during doc compilation.</FONT>');
+      dirTree('<FONT COLOR=#AAAAAA>|');
+      isGray = true;
+      dirTree('|-- Doxyfile                                                              ');
+      dirTree('|-- ice.txt                                                               ');
+      dirTree('`--[] <B>build/</B>                                                       ');
+      dirTree('   |--[] <B>doc/</B>             <FONT COLOR=#00AA00>Optional generated documentation for programmers.</FONT>');
+      dirTree('   |  |-- format.html                                                     ');
+      dirTree('   |  `-- index.html                                                      ');
+      dirTree('   |                                                                      ');
+      dirTree('   |  <FONT COLOR=#00AA00>Files to distribute to users:</FONT>            ');
+      dirTree('   |-- config.txt                                                         ');
+      dirTree('   |-- hello              <FONT COLOR=#00AA00>Optimized executable.</FONT>');
+      dirTree('   `-- hellod             <FONT COLOR=#00AA00>Debug executable.</FONT>    ');
+      dirTree('</FONT>');
+     document.write('</pre>');
+    </script>
+
+    <I>Gray files and directories are automatically generated.</I>
+        
+
+    <A NAME="library"/>
+    <H1>Compile a Library</H1>
+    <p>
+      A project that builds a static library is in a directory ending with
+      '.lib' or '.a'.  Dynamic (shared) library projects are configured in
+      exactly the same manner except the root directory name ends with
+      '.dll' or '.so'.
+    </p>
+
+    <script type="text/javascript">
+      isGray = false;
+      document.write('<pre>');
+      dirTree('[] <B>format.lib/</B>');
+      dirTree('|-- format.cpp              <FONT COLOR=#00AA00>CPP and H files may be at the top level</FONT>');
+      dirTree('|-- stringhelper.h          <FONT COLOR=#00AA00>or in subdirectories.</FONT>');
+      dirTree('|                                                                         ');
+      dirTree('|--[] <B>doc-files/</B>            <FONT COLOR=#00AA00>Files needed by generated documentation (Optional).</FONT>');
+      dirTree('|                                                                         ');
+      dirTree('|--[] <B>include/</B>              <FONT COLOR=#00AA00>Headers to be distributed with the library (Optional).</FONT>');
+      dirTree('<FONT COLOR=#AAAAAA>|</FONT>  `-- format.h');
+      dirTree('<FONT COLOR=#AAAAAA>|');
+      isGray = true;
+      dirTree('|-- Doxyfile');
+      dirTree('|-- ice.txt');
+      dirTree('`--[] <B>build/</B>');
+      dirTree('   |--[] <B>doc/</B>               <FONT COLOR=#00AA00>Generated documentation for library users.</FONT>');
+      dirTree('   |  |-- format.html   ');
+      dirTree('   |  `-- index.html    ');
+      dirTree('   |                    ');
+      dirTree('   |--[] <B>include/</B>           <FONT COLOR=#00AA00>Headers for library users.</FONT>');
+      dirTree('   |  `-- format.h      ');
+      dirTree('   |                    ');
+      dirTree('   `--[] <B>lib/</B>    ');
+      dirTree('      |-- libformat.a       <FONT COLOR=#00AA00>Optimized library.</FONT>');
+      dirTree('      `-- libformatd.a      <FONT COLOR=#00AA00>Debug library.</FONT>');
+      dirTree('</FONT>');
+      document.write('</pre>');
+    </script>
+
+    <I>Gray files and directories are automatically generated.</I>
+          
+
+      
+      <A NAME="customizing"/>
+      <H1>Customizing Projects</H1>
+      <p>
+        The first time that you build a project, <CODE>ice.txt</CODE> is generated.
+        This file tells iCompile where the root of your project is (which also
+        allows it give you a warning if you try to build from the wrong
+        directory!).  <CODE>ice.txt</CODE> also contains setting information,
+        like include paths.  The default settings are fine for most projects
+        and you do not need to edit this file.
+      </p>
+       <P> However, you may want to set per-project paths, compiler options,
+         and link libraries.  To do this, open <CODE>ice.txt</CODE> in any text
+         editor.  The comments in the file explain what each of the settings is
+         for and how to modify them.  If you corrupt the file you can delete
+         it and iCompile will generate a new one for you.
+       </p>
+       <A NAME="doticompile"/>
+       <H1>Customizing System</H1>
+       <p>
+         The first time you run iCompile, the file <CODE>~/.icompile</CODE> is generated.
+         This file specifies the default compiler, paths, and some optional 
+         behavior like beeping after compilation succeeds.  The file contains
+         comments explaining each option.  Settings in <CODE>~/.icompile</CODE>
+         can be overridden by individual project <CODE>ice.txt</CODE> files.
+       </p>
+       <P>
+         The default files will work correctly for most projects and 
+         changing <CODE>~/.icompile</CODE> and <CODE>ice.txt</CODE> is not 
+         recommended.  It can be hard to debug the compiler and linker errors
+         that result from an improperly configured system.
+       </p>
+
+       <A NAME="command"/>
+       <H1>Command Line</H1>
+       <pre style="line-height: 100%;">
+iCompile: the zero-configuration build system
+
+icompile  [--doc] [--opt | --debug] [--clean] [--version]
+          [--config <custom .icompile>] [--verbosity n]
+          [--help] [--noprompt [--template &lt;tname&gt;]] [--info] 
+          [--deploy | --run <args> | --gdb <args>]
+
+iCompile can build most C++ projects without options or manual
+configuration.  Just type 'icompile' with no arguments.  Run in an
+empty directory to generate a set of starter files.
+
+Options:
+ --config &lt;file&gt;  Use &lt;file&gt; instead of ~/.icompile as the user configuration
+                  file.  This allows you to build certain projects with
+                  a different compiler or include paths without changing the
+                  project ice.txt file, e.g., when installing a 3rd party library
+                  
+ --debug          (Default) Create a debug executable (define _DEBUG,
+                  disable optimizations).
+
+ --deploy         Create a distributable application in the build directory.
+                  This should only be used for GUI applications, not command-line
+                  tools. Changes the target default to --opt.
+
+                  OS X Specific: data-files/icons.icns  will automatically become
+                  the application icon.  Your program will launch with Applications
+                  as the current working directory.  Look at argv[0] to change to
+                  the directory of your project.
+ 
+ --doc            Generate documentation before building.
+ 
+ --gdb            Run the program under gdb if compilation succeeds, passing all
+                  further arguments (...) to the program.  gdb will
+                  look in the directories in the ICE_EXTRA_SOURCE
+                  environment variable for library and other source
+                  files, in addition to the ones from your program.
+                  You can also just run gdb yourself after using
+                  iCompile.
+
+ --info           Read configuration files and command line options, but instead
+                  of building, print out information about where the generated
+                  file will go.
+
+ --noprompt       Run even if there is no ice.txt file, don't prompt the
+                  user for input.  This is handy for launching iCompile
+                  from automated build shell scripts.  If
+                  --template <tname> is specified as well, a default
+                  set of files will be built.  The only legal templates
+                  are 'hello', 'G3D', 'tinyG3D', and 'empty' (default).
+
+ --opt or -O      Generate an optimized executable.
+ 
+ --run            Run the program if compilation succeeds, passing all
+                  further arguments (...) to the program.
+
+ --verbosity n    Change the amount of information printed by icompile
+
+                  n   |   Result
+                  ----|---------------------------------------------------
+                  0   |   Quiet:  Only errors and prompts are displayed.
+                      |
+                  1   |   Normal (Default): Filenames and progress information
+                      |   are also displayed
+                  2   |   Verbose: Executed commands are also displayed
+                      |
+                  3   |   Trace: Additional debugging information is also
+                      |   displayed.
+
+
+Exclusive options:
+ --help           Print this information.
+ 
+ --clean          Delete all generated files (but not library generated files).
+ 
+ --version        Print the version number of iCompile.
+
+Special file and directory names:
+  build            Output directory
+  data-files       Files that will be needed at runtime
+  doc-files        Files needed by your documentation (Doxygen output)
+  tmp              Object files are put here
+  icon.*           Becomes the program icon on OS X
+  
+iCompile will not look for source files in directories matching:
+['^\\.', '^#', '~$', '^\\.svn$', '^\\.git$', '^CVS$', '^Debug$',
+'^Release$', '^graveyard$', '^tmp$', '^temp$', '^\\.icompile-temp$',
+'^\\.ice-tmp$', '^build$']
+
+Generated file ice-stats.csv contains a history of the size of your files at
+compilation times that is interesting for tracking development progress.
+
+For convenience, if run from the source or data-files directory, iCompile
+will automatically step up to the parent directory before compilation.
+
+Edit ice.txt and ~/.icompile if your project has specific configuration needs.
+See manual.html or http://ice.sf.net for full information. iCompile was created
+by Morgan McGuire with additional programming by Robert Hunter and Corey Taylor.
+       </pre>
+                  
+
+       <a name="linking"/>
+       <h1>Linking</h1>
+
+       iCompile automatically detects which libraries an executable must be linked against by:
+
+       <ul>
+         <li> Recognizing specific headers, such as <code>GL.h</code> </li>
+         <li> Recognizing specific unresolved symbols such as <code>glBegin</code> </li>
+         <li> Known dependencies of other libraries
+         <li> The presence of a <code>.dylib</code> or <code>.so</code> in the <code>data-files</code> directory </li>
+       </ul>
+
+       iCompile favors static linking.  However, any links to the following will be dynamic:
+       
+       <ul>
+         <li> The C++ Standard Library</li>
+         <li> OpenGL </li>
+         <li> Certain LGPL libraries, such as FFMPEG </li>
+         <li> Libraries only available in dynamic (.so, .dll, .dylib) format </li>
+         <li> Sibling directories ending in .so or .dll that contain an ice.txt file </li>
+         <li> Dynamic libraries found in the data-files subdirectory of the current project</li>
+       </ul>
+       
+       When iCompile dynamically links a <code>.dylib</code> on OS X, it
+       copies the <code>.dylib</code> file to the <code>build</code>
+       directory and rebases it using <code>install_name_tool</code> so that
+       the distribution will work on any computer--except for <code>libpthread.dylib</code>,
+       which is unstable when rebased.
+       
+       The following section gives a more detailed overview of linking.
+       
+       <H2>How Linking Works</H2>
+      <p>
+        Libraries can be linked statically or dynamically. Dynamic
+        libraries are loaded at runtime.  The primary drawback of
+        dynamic libraries is that the process for loading them is
+        fragile. If they cannot be found at runtime, or the wrong
+        version is found, then the program will malfunction or crash.
+        Both of these can happen due to incorrectly configured
+        end-user machines and are fairly common problems.  iCompile
+        prefers static linking because it leaves you with an
+        executable that is more likely to work on a different
+        computer.
+      </p>
+     <p>
+       <ul>
+         <li><code>.a</code> (Unix archive) or <code>.lib</code> (Windows
+           static library) files are statically linked.  The path to the
+           library must be known to iCompile at compile time. It most
+           commonly appears in the <code>LIBRARY</code> environment variable
+           but iCompile will also look in <code>LD_LIBRARY_PATH</code>, the
+           project directory, and sibling directories (if they are
+           libraries).  The names of archives on Unix must begin with "<code>lib</code>".
+         </li>
+         
+         <li><code>.so</code> (Unix shared object) files are dynamically
+           linked.  The files must be present at runtime.  The path to the
+           file is embedded in the executable that loads them, making them
+           machine specific, although it is possible to embed a relative
+           path.  See the
+           Unix <code>LD_LIBRARY_PATH</code>, <code>rpath</code>,
+           <code><a href="http://linux.die.net/man/1/chrpath">chrpath</a></code>,
+           and <code><a href="http://unixhelp.ed.ac.uk/CGI/man-cgi?ldd+1">ldd</a></code> documentation. 
+         
+         <li><code>.dll</code> (Windows dynamic link library) files are
+           dynamically linked.  They are always accompanied by a small .lib
+           file that is statically linked and manages the runtime process.
+           At runtime, Windows looks for the .dlls in locations specified by
+           the <code>PATH</code> environment variable.  iCompile does not
+           currently support Windows.</li>
+         
+         <li><p><code>.dylib</code> (OS X dynamic library) files are dynamically
+             linked, but are also needed at compile time for a preliminary
+             static linking process.  Both the <code>.dylib</code> and the executable that
+             uses it embed the path to the <code>.dylib</code> file.  
+             These files are also known as "frameworks" when they are stored within
+             a specific directory structure.
+             See also <a href="http://www.cocoadev.com/index.pl?ApplicationLinking">OS X Application Linking</a>,
+             <a href="http://osxbook.com/book/bonus/ancient/whatismacosx//programming.html">OS X Runtime information</a>, and 
+              <a href="http://developer.apple.com/library/mac/#documentation/Darwin/Reference/ManPages/man1/install_name_tool.1.html">install_name_tool</a>
+              documentation.
+           </p>
+         </li>
+         
+       </ul>
+     </p>
+<p>
+  Some libraries, such as OpenGL, can't be statically linked because
+  they are designed to be loaded like a plugin that provides different
+  implementations on different machines.  LGPL libraries like FFMPEG
+  are dynamically linked because that is required by the LGPL (the
+  alternative is releasing all of your own source code.)
+</p>
+<p>
+  The standard library is also dynamically linked.  This is
+  necessary so that other dynamically linked libraries will allocate
+  memory in the same memory space.  Your program will only work if the
+  user has installed these libraries and set their LD_LIBRARY_PATH to
+  point to them or updated /etc/ld.so.conf.  You can see what dynamic
+  libraries an executable needs with the Unix command "ldd".
+</p>
+
+
+<a NAME="other"/>
+<h1>Other Build Tools</h1>
+<BR><A HREF="http://www.cmake.org/">cmake</a>- Generates Makefiles and Visual Studio project files using its own language
+<BR><A HREF="http://freshmeat.net/projects/makescan/">makescan</A>- Generates Makefiles from sources
+<BR><A HREF="http://www.gnu.org/software/make/">gmake</A>- The GNU make utility
+<BR><A HREF="http://tinyurl.com/hmcr">nmake</A>- Microsoft's make
+<BR><A HREF="http://www.scri.fsu.edu/~dwyer/dmake.html">dmake</A>- Distributed version of make
+<BR><A HREF="http://www.dsmit.com/cons/">CONS</A>- A Perl module for helping you write your own build scripts
+<BR><A HREF="http://www.tildeslash.com/mmake/">mmake</A>- Java Makefile-maker
+<BR><A HREF="http://javamake.sourceforge.net/">jmake</A>- Java Makefile-maker
+<BR><A HREF="http://www.cskk.ezoshosting.com/cs/myke">Myke</A>- Superset of 'make'
+<BR><A HREF="http://search.cpan.org/author/NI-S/Make-1.00/pmake">pmake</A>- Make, written in Perl
+<BR><A HREF="http://ant.apache.org/">Ant</A>- A Java library for building Java projects
+<BR><A HREF="http://www.crufty.net/ftp/pub/sjg/help/bmake.html">bmake</A>- A NetBSD make that has useful defaults
+<BR><A HREF="http://www.engelschall.com/sw/smake/">smake</A>- Makefile-maker
+<BR><A HREF="http://sources.redhat.com/automake/">automake</A>- Makefile-maker
+<BR><A HREF="http://autoj.sourceforge.net/">autoj</A>-Automated build system for Java that runs on make
+<BR><A HREF="http://apollo.backplane.com/xmake/">XMAKE</A>- Make without default rules
+<BR><A HREF="http://www.cs.york.ac.uk/fp/nhc98/hmake/">hmake</A>- Make for Haskell
+<BR><A HREF="http://sourceforge.net/projects/cppbuild/">Build</A>-
+similar to iCompile, but written in C++ for DOS/Windows. iCompile offers more features and is Linux/OS X centric.
+
+
+<hr noshade/>
+
+<i>
+<BR>Manual Copyright 2003-2011, Morgan McGuire
+<BR>All rights reserved.
+<BR>Original iCompile concept by Morgan McGuire and Rob Hunter
+<BR>iCompile by Morgan McGuire, Corey Taylor, and Rob Hunter
+</i>
+</body>
+</html>
+
+
+

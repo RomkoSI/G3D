@@ -1,0 +1,3 @@
+From Eric Haines, exported with Mineways.
+This is a good test for alpha and transparency
+because it has objects for which there is no valid sort order.

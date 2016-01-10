@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+ <head>
+  <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+  <title>$title</title>
+  <link href="tabs.css" rel="stylesheet" type="text/css"/>
+  <link href="stylesheet.css" rel="stylesheet" type="text/css"/>
+  <link href="search/search.css" rel="stylesheet" type="text/css"/>
+  <script type="text/javaScript" src="search/search.js"></script>
+ </head>
+
+ <script>
+   function setTheme(t) {
+       localStorage['theme'] = t;
+       // Reload the page
+       history.go(0);
+   }
+
+
+   (function() {
+      var theme = localStorage['theme'] || 'Light';
+      var hour = new Date().getHours();
+
+      // Highlight the appropriate button
+      document.write("<style>");
+      switch (theme) {
+      case 'Dark':
+         document.write("button#DarkTheme");
+         break;
+      case 'Auto':
+         document.write("button#AutoTheme");
+         break;
+      default:
+         document.write("button#LightTheme");
+         break;
+      }
+      document.write("{border: 2px;}</style>");
+
+      if ((theme === 'Dark') || 
+          ((theme === 'Auto') && ((hour < 7) || (hour > 19)))) {
+         document.write("<link href='dark.css' rel='stylesheet' type='text/css'/>");
+      }
+    })();
+ </script>
+
+ <body style="width: 100%; margin: 0px;" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" onload='searchBox.OnSelectItem(0);'>
+  <table style="background-color: #EEE; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #B77B14;" width="100%" cellspacing="0" cellpadding="2">
+   <tr>      
+    <td width="50%">
+      <button class="theme" onclick="setTheme('Dark');" id="DarkTheme">Dark</button> <button class="theme" onclick="setTheme('Auto');" id="AutoTheme">Auto</button> <button class="theme" onclick="setTheme('Light');" id="LightTheme">Light</button> 
+    </td>
+    <td style="font-size: 80%;" nowrap="true" valign="bottom" align="right">
+       <a href="http://groups.google.com/group/g3d-users/topics">Support&nbsp;Forum</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <a href="http://sourceforge.net/p/g3d/code/HEAD/tree/G3D10/">Library&nbsp;Source</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <a href="http://sourceforge.net/projects/g3d/">SourceForge&nbsp;Page</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <a href="http://g3d.codeplex.com/">G3D&nbsp;Web&nbsp;Page</a> &nbsp;&nbsp;&nbsp;&nbsp;
+    </td>
+   </tr>
+  </table>
+
+  <div class="navigation" id="top">
+   <div class="tabs">
+    <ul class="tablist">
+     <li>
+      <a href="index.html">
+       <span>
+        &nbsp;
+        <img src="G3D-logo-small.png" border="0" align="left"/>
+       &nbsp;
+       &nbsp;
+       &nbsp;
+       &nbsp;
+       &nbsp;
+       &nbsp;
+       Contents</span>
+      </a>
+     </li>
+     <li>
+      <a href="dataindex.html">
+       <span>Data&nbsp;Files</span>
+      </a>
+     </li>
+     <li>
+      <a href="guidedemos.html">
+       <span>Sample&nbsp;Code</span>
+      </a>
+     </li>
+     <li>
+      <a href="immediatemode.html">
+       <span>GPU&nbsp;Calls</span>
+      </a>
+     </li>
+     <li>
+      <a href="classes.html">
+       <span>Class&nbsp;Index</span>
+      </a>
+     </li>
+     <li>
+      <a href="apiindex.html">
+       <span>API&nbsp;by&nbsp;Level</span>
+      </a>
+     </li>
+     <li>
+      <a href="topicindex.html">
+       <span>Topics</span>
+      </a>
+     </li>
+     <li id="searchli" style="background-image: url('tab_b.png');">
+      <div id="MSearchBox" class="MSearchBoxInactive">
+       <span class="left">
+        <img id="MSearchSelect" src="search/mag_sel.png"
+             onmouseover="return searchBox.OnSearchSelectShow()"
+             onmouseout="return searchBox.OnSearchSelectHide()"
+             alt=""/>
+        <input type="text" id="MSearchField" value="Search" accesskey="S"
+             onfocus="searchBox.OnSearchFieldFocus(true)"
+             onblur="searchBox.OnSearchFieldFocus(false)"
+             onkeyup="searchBox.OnSearchFieldChange(event)"/>
+       </span>
+       <span class="right">
+        <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()">
+         <img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/>
+        </a>
+       </span>
+      </div>
+     </li>
+     
+    </ul>
+   </div>
+  </div>
+  <!-- code goes here -->
+
+
+ 

@@ -1,0 +1,22 @@
+// -*- html -*-
+/** \file journal.dox
+\page Journal Development Journal
+
+<i>Newest entries are at the top</i>
+
+<hr><h2>DATE: Project started</h2>
+This file was created today.
+
+You can embed images in this file using the Doxygen commands:
+\verbatim
+\thumbnail{imagefilename}
+\thumbnail{imagefilename, caption}
+\video{videofilename, caption}
+\image html imagefilename
+\endverbatim
+
+The <code>imagefilename</code> does not need to include a path.  Put the images
+in the <code>journal/</code> or <code>doc-files/</code> directories.  They will
+automatically be copied to the <code>build/doc</code> directory when you run Doxygen.
+
+*/

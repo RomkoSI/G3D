@@ -1,0 +1,18 @@
+/**
+\page immediatemode %G3D 9 Immediate-Mode GPU Model
+
+\htmlonly
+<a href="immediatemode.png"><img src="immediatemode.png" width=100%></a>
+\endhtmlonly
+
+This diagram depicts the relationship between the OpenGL/GLSL and G3D
+APIs and the hardware graphics pipeline as implemented by a modern
+GPU.  The G3D calls correspond directly to OpenGL calls; they just
+abstract a lot of boilerplate that frequently changes with every GL
+version anyway, and add type safety.  
+
+The most interesting parts of the relationship are:
+- the specific mixture of fixed-function (purple) and programmable (blue) elements
+- where state (blue and purple) enters the pipeline
+- where control lines (black) affect the pipeline.
+*/

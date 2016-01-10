@@ -1,0 +1,75 @@
+/** @page guidenewwin32 Creating a New Project on Windows
+
+\htmlonly
+
+<table border=1>
+<tr><td>
+<b>The easiest way to create a new project is to just copy the <a href="../samples/starter">starter</a> project, which includes VS2010 .sln and .vcproj files.</b>
+The following instructions explain how to manually configure a new project (or an existing one that you're adding G3D to).
+</td></tr></table>
+
+<ol>
+<li> <p>Launch Visual Studio.</p>
+
+<li> <p>From the <b>File</b> menu, select the <b>New</b> menu.  From that menu, select <b>Project...</b>, as demonstrated in this image:
+
+<center><img src="vc8-new-project.png" border=0 align=top></center></p>
+
+<li> <p>The <b>New Project</b> dialog will appear, as shown below. Type the name of
+your project (this will be used as the directory name and the project
+file name) into the text box labelled <b>Name</b>.</p>
+
+<li> <p> Type the name of the <i>parent directory</i> of your project into the text box labelled <b>Location</b>.
+
+<center><img src="vc8-new-project-dialog.png" border=0 align=top></center></p>
+
+<li> <p> Press <b>Ok</b> to move on to the next dialog. </p>
+
+<li> <p> The <b>Win32 Application Wizard</b> dialog will appear.  Press <b>Next</b> (not Finish!)</p>
+
+<li> <p> Select the <b>Windows application</b> and <b>Empty project</b> options, as demonstrated in the image below.
+
+<center><img src="vc8-win32-application-wizard.png" border=0 align=top></center></p>
+
+<li> <p> Press <b>Finish</b>. </p>
+
+<li> <p> Using Explorer or the command line, copy the starter G3D sample
+program files to your project directory.  If you
+installed G3D to <code>c:\libraries</code>, the sample program files are in
+<code>c:\libraries\G3D\demos\starter</code>.<p>
+
+<li> <p> In Visual Studio, right-click on the project folder inside your project in the <b>Solution Explorer</b> window.  From the context menu, select <b>Add</b> and then <b>Existing Item...</b> as demonstrated in this image:
+
+<center><img src="vc8-add-existing.png" border=0 align=top></center></p>
+
+<li> <p> Select the <code>App.cpp</code>, <code>App.h</code>, <code>Scene.h</code>, and <code>Scene.cpp</code> files that you copied over and press <b>OK</b>.</p>
+
+<li> <p> In Visual Studio, right-click on the project folder inside your project in the <b>Solution Explorer</b> window.  From the context menu, select <b>Properties</b> and then the <b>All Configurations</b> dropdown, the <b>Linker</b> tree node and the <b>Advanced</b> item underneath it. 
+Set the <b>Randomized Base Address</b> to <b>Disable Randomization (/DYNAMICBASE:NO)</b> as demonstrated in this image:
+<center><img src="vc8-new-project-dynamicbase.png" border=0 align=top></center></p>
+
+<li> <p> Push <b>F5</b> to compile and run this default program.  If Visual Studio and G3D are installed 
+correctly, Visual Studio will automatically link your program against all libraries needed.  When run,
+ the sample program will have the camera floating in space near a set of colored axes.  Hold down the <b>right mouse button</b> and use
+  the <b>mouse</b> to rotate the camera and the <b>W</b>, <b>A</b>, <b>S</b>, and <b>D</b> letter keys 
+  to translate the camera (these are standard first-person video game controls).  The Developer Window in the lower right corner of your
+  program's 3D window gives you additional debugging tools.  You can quit the program by pressing ESC at any time.<p>
+
+<li> <p> Edit your <code>App.cpp</code> file.  The comments in the file show you where to add code for rendering, input processing, network, and graphics.</p>
+<hr>
+
+<li> <p> When you run your program, by default it will look for the files G3D needs in order to display its default GUI using G3D::System::findDataFile().  If those files aren't
+   in the current directory, it the library tries to look around in the directory specified by the G3D9DATA environment variable. You can also tell it explicitly where the data is stored by calling 
+   G3D::System::setAppDataDir or setting the GApp::Settings::dataDir field at the start of your program.  This behavior is specific to the defaults; you can change it so that
+   environment variables are not required on target machines.
+</p>
+
+<li><p>   When you're ready to deploy your program, look in the log.txt file that is written when it runs.  At the bottom is a list of all files
+   your program loaded.  If any of those are not in your program's directory, copy them into that directory for deployment. You also need to distribute the FFMPEG dll's from the bin dirtory of the G3D
+   installation.
+   </p> 
+
+<li><p>To create a Windows 64-bit target, see the additional instructions at <a href="http://msdn.microsoft.com/en-us/library/9yb4317s.aspx">http://msdn.microsoft.com/en-us/library/9yb4317s.aspx</a>.
+</ol>
+\endhtmlonly
+*/

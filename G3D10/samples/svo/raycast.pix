@@ -1,0 +1,301 @@
+#version 450
+#extension GL_NV_gpu_shader5 : enable
+
+
+
+#include <compatibility.glsl>
+#include <Texture/Texture.glsl>
+#include <g3dmath.glsl>
+#include <LightingEnvironment/LightingEnvironment_uniforms.glsl>
+
+
+// Disable for higher performance. Enable to adjust the interpolated alpha values
+// at each voxel to compensate for the multiple samples per step.
+#define CORRECT_ALPHA								1
+#define RENDER_ENABLE_SHADOWS						1
+
+#define SVO_RAYCASTING_ENABLED						1
+#define RENDER_STOCHASTIC_USE_ATOMIC_ACCUM			0
+#define RENDER_STOCHASTIC_GROUND_TRUTH				0
+#include <SVO/SVO.glsl>
+#include <SVO/SVO_sampling.glsl>
+
+uniform_Texture(sampler2D, depth_);
+uniform mat4x4			cameraToVoxelMatrix;
+uniform float			focalLength;
+uniform float			screenRatio;
+uniform vec2			renderRes;
+uniform float			raycastingConeFactor;
+uniform samplerCube		envMapTex;
+uniform ivec2			guardBand;
+uniform mat4x3          voxelToWorldMatrix;
+uniform mat4x3          worldToVoxelMatrix;
+
+uniform Point3			wsCameraPos;
+
+out Color4				finalColor;
+
+Point3 lightCenter = light0_position.xyz;
+Power3 lightPower = light0_color;
+float lightRadius = light0_radius;
+
+Radiance3 ambient = Radiance3(0.25);
+
+// Voxel space light position 
+Point3 vsLightCenter = worldToVoxelMatrix * vec4(lightCenter, 1);
+
+
+float svoTraceShadow
+(Ray ray, float tnear, float tfar,
+const float coneFactor,
+const float alphaThreshold,
+inout Point3 samplePosOut) {
+
+	vec3 samplePos = vec3(0.0);
+	vec4 finalColor = vec4(0.0f);
+
+	for (float t = tnear, tStep = 0.0f; (t < tfar) && (finalColor.a < alphaThreshold); t += tStep) {
+		samplePos = ray.direction * t + ray.origin;
+
+		float voxelSize = 0.0;
+		float targetDepthF = svoGetDepthFromDist(length(samplePos - ray.origin), coneFactor, voxelSize);
+
+		targetDepthF = clamp(targetDepthF, 1.0f, float(SVO_MAX_LEVEL));
+
+		float stepScale = 0.3f;
+		tStep = clamp(stepScale * voxelSize, SVO_MIN_VOXEL_SIZE * stepScale, (tfar - t) * 1.1f);
+
+		SampleStruct sampleStruct = svoSample(ray.direction, targetDepthF, samplePos, tStep);
+
+		// Shading
+		Color4 newCol = sampleStruct.lambertian;
+
+		if (newCol.a > 0.0f) {
+#			if CORRECT_ALPHA
+			newCol.rgb *= (1.0 / newCol.a);
+
+			// Beer-Lambert exponential absorption
+			float crtn = tStep * (1.0 / (VOXEL_TAU_BASE_DISTANCE*8.0f));
+			float aNew = 1.0f - pow(1.0f - newCol.a, crtn);
+
+			newCol.a = aNew;
+			newCol.rgb *= aNew;
+#			endif
+
+			// Porter-Duff UNDER compositing because we are accumulating from the eye into the scene
+			finalColor += newCol * (1.0f - finalColor.a);
+		}
+	} 
+
+	samplePosOut = samplePos;
+
+	return finalColor.a;
+}
+
+void svoTraceCone
+   (Ray ray, float tnear, float tfar,
+	const Point3 viewPos,
+	const float coneFactor,
+	const float alphaThreshold,
+	inout Point3 samplePosOut,
+	inout Color4 finalColor) {
+	
+	vec3 samplePos = vec3(0.0);
+
+	float shadowing = 1.0f;
+
+	int i=0;
+	float t = tnear; float tStep = 0.0f;
+	while( (t < tfar) && (finalColor.a < alphaThreshold) )
+	//for (float t = tnear, tStep = 0.0f; (t < tfar) && (finalColor.a < alphaThreshold); t += tStep) 
+	{
+
+#for (int i = 0; i < 1; ++i) //Test optimisation
+	{
+		samplePos = ray.direction * t + ray.origin;
+
+		float voxelSize = 0.0;
+		float targetDepthF = svoGetDepthFromDist(length(samplePos - viewPos), coneFactor, voxelSize);
+
+		targetDepthF = clamp(targetDepthF, 1.0f, float(SVO_MAX_LEVEL));
+
+		float stepScale = 0.5f;	//0.5
+		tStep = clamp(stepScale * voxelSize, SVO_MIN_VOXEL_SIZE * stepScale, (tfar - t) * 1.1f);
+
+		SampleStruct sampleStruct = svoSample(ray.direction, targetDepthF, samplePos, tStep);
+		
+		float alpha = sampleStruct.lambertian.a;
+		float invAlpha = 1.0 / alpha;
+
+		if (alpha > 0.0001f) {
+			Color4 newCol;
+			newCol.a = alpha;
+
+
+			// Shadowing
+			//float shadowing = 1.0f;
+
+#if RENDER_ENABLE_SHADOWS
+
+			if ( (finalColor.a < 0.5f) )	//Performance optimisation
+			{
+			
+				Ray shadowRay;
+				shadowRay.origin = samplePos;
+				shadowRay.direction = normalize(vsLightCenter - samplePos);
+
+				const AABB aabb = AABB(vec3(0.0001), vec3(0.999));
+
+				float shadowTnear, shadowTfar;
+				bool hitBounds = IntersectBox(shadowRay, aabb, shadowTnear, shadowTfar);
+				if(shadowTnear<0.0f)
+					shadowTnear = 0.0f;
+
+				shadowTnear += 1.0f/64.0f;
+				//shadowTfar = 0.25f;
+				const float shadowConeFactor = 1.0f/8.0f;
+
+				Point3 samplePosOutShadow;
+				shadowing = 1.0f -svoTraceShadow(shadowRay, shadowTnear, shadowTfar, shadowConeFactor, 0.99f, samplePosOut);
+			}
+#endif
+
+
+#if 1 //Shading
+			// All fields are premultipled by alpha
+			sampleStruct.lambertian.rgb *= invAlpha;
+			
+
+			// Shading
+			// World space point to shade
+			Point3 X = voxelToWorldMatrix * vec4(samplePos, 1);
+		
+			// Incoming light vector
+			Vector3 w_i = lightCenter - X;
+
+			// Distance to the light source
+			float distance = length(w_i);
+			w_i *= (1.0 / distance);
+
+			//////////////////////
+
+
+			// World-space normal
+			Vector3 n = normalize(sampleStruct.normal.xyz);
+
+			// Outgoing light direction
+			Vector3 w_o = normalize(wsCameraPos - X);
+
+			// Mirror direction
+			Vector3 w_m = normalize(n * (2.0 * dot(n, w_o)) - w_o);
+
+			// Simple Phong shading
+			newCol.rgb = sampleStruct.lambertian.rgb * (shadowing * max(0, dot(n, w_i)) * lightPower * (1 / (4 * pi * distance * distance)) + ambient);
+			
+#ifdef GBUFFER_CHANNEL_svo_GLOSSY
+			sampleStruct.glossy *= invAlpha;
+
+			float glossyExponent = unpackGlossyExponent(sampleStruct.glossy.a);
+			//newCol.rgb += sampleStruct.glossy.rgb * computeGlossyEnvironmentMapLighting(w_m, (sampleStruct.glossy.a == 1.0), glossyExponent) / ((glossyExponent + 8.0) / (8.0 * pi));
+			newCol.rgb += 0.02 * computeGlossyEnvironmentMapLighting(w_m, (sampleStruct.glossy.a == 1.0), glossyExponent);
+#endif
+
+			// Accumulation
+			newCol.rgb *= newCol.a;
+#else
+
+			newCol.rgb = sampleStruct.lambertian.rgb;
+
+#endif
+
+
+		
+#			if CORRECT_ALPHA
+				newCol.rgb *= (1.0 / newCol.a);
+
+				// Beer-Lambert exponential absorption
+				float crtn = tStep * (1.0 / VOXEL_TAU_BASE_DISTANCE );
+				float aNew = 1.0f - pow(1.0f - newCol.a, crtn);
+
+				newCol.a = aNew;
+				newCol.rgb *= aNew;
+#			endif
+
+			// Porter-Duff UNDER compositing because we are accumulating from the eye into the scene
+			finalColor += newCol * (1.0f - finalColor.a);
+
+			//if(i==2)
+			//	t = tfar;	//Break
+		}
+
+
+		t += tStep; //
+
+		i++;
+	}
+#endfor
+
+	} // t
+
+	samplePosOut = samplePos;
+}
+
+
+void main() {
+
+	// TODO: use texelFetch(depth_buffer, ivec2(gl_FragCoord.xy), 0).r to compute the tFar 
+
+	ivec2 pixelCoord = guardBand + ivec2(gl_FragCoord.xy);
+	vec2 pixelCoordF = vec2(pixelCoord.xy);
+
+	Ray eyeRay;
+	eyeRay.direction = getVolSpaceDirFromPix2(pixelCoordF + vec2(0.5f), renderRes, focalLength, screenRatio, mat3x3(cameraToVoxelMatrix));
+	eyeRay.direction = normalize(eyeRay.direction);
+
+	eyeRay.origin = cameraToVoxelMatrix[3].xyz;
+	//////////////////////////////
+
+	finalColor = Color4(0.0f, 0.0f, 0.0f, 0.0f);
+	const AABB aabb = AABB(vec3(0.0001), vec3(0.999));
+
+	float tnear, tfar;
+	bool hitBounds = IntersectBox(eyeRay, aabb, tnear, tfar);
+
+	if (hitBounds) {
+		float rayVecLength;
+		float pixelLength;
+		{
+			vec3 rayDirVec1 = getVolSpaceDirFromPix2(pixelCoordF, renderRes, focalLength, screenRatio, mat3x3(cameraToVoxelMatrix));
+			vec3 rayDirVec2 = getVolSpaceDirFromPix2(pixelCoordF + vec2(1.0f), renderRes, focalLength, screenRatio, mat3x3(cameraToVoxelMatrix));
+			pixelLength = length(rayDirVec2 - rayDirVec1);
+			rayVecLength = length(rayDirVec1);
+		}
+		float viewConeFactor = pixelLength / rayVecLength;
+
+
+		viewConeFactor *= raycastingConeFactor;
+
+
+		tnear = max(0.0, tnear);
+		Point3 samplePos = Point3(0.0f);
+
+		svoTraceCone
+			(eyeRay, tnear, tfar,
+			eyeRay.origin,
+			viewConeFactor,
+			1.0f,
+			samplePos,
+			finalColor);
+
+		if (finalColor.a == 0.0f) {
+			discard;
+		} else {
+			// Premultiplied alpha
+			finalColor.rgb *= finalColor.a;
+			// TODO: write output depth
+			// gl_FragDepth = ;
+		}
+	} else {
+		discard;
+	}
+}

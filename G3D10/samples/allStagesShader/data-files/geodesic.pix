@@ -1,0 +1,29 @@
+#version 420
+#include <compatibility.glsl>
+
+in float3 gFacetNormal;
+in float3 gTriDistance;
+in float3 gPatchDistance;
+in float  gPrimitive;
+
+out float4 FragColor;
+
+float amplify(float d, float scale, float offset){
+    d = scale * d + offset;
+    d = clamp(d, 0, 1);
+    d = 1 - exp2(-2*d*d);
+    return d;
+}
+
+
+void main() {
+    float3 N = normalize(gFacetNormal);
+    float3 color = (N + 1.0) * 0.5;
+
+    float d1 = min(min(gTriDistance.x, gTriDistance.y), gTriDistance.z);
+    float d2 = min(min(gPatchDistance.x, gPatchDistance.y), gPatchDistance.z);
+
+    color = amplify(d1, 40, -0.5) * amplify(d2, 60, -0.5) * color;
+
+    FragColor = float4(color, 1.0);
+}

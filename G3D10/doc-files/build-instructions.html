@@ -1,0 +1,264 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
+<TITLE>G3D Source Distribution</TITLE>
+</head><body>
+
+<FONT FACE="Arial">
+
+<FONT SIZE=+1><IMG SRC="G3D-small-shadow.jpg" ALIGN=RIGHT VALIGN=TOP>
+<A HREF="index.html#chapters">Manual Contents</A> | 
+<A HREF="http://sourceforge.net/forum/forum.php?forum_id=262426">User Forum</A> |
+<A HREF="http://cvs.sourceforge.net/viewcvs.py/g3d-cpp/cpp/">CVS</A> | 
+<A HREF="indexedbytopic.html">Topic Index</A> |
+<A HREF="frequent.html">Frequently Used</A>
+</FONT>
+
+<HR WIDTH=80% ALIGN=LEFT COLOR=#FFB143>
+
+<H1>Building G3D</H1>
+
+<A HREF="http://www.graphics3d.com"><SRC="G3D.gif" ALIGN=RIGHT BORDER=0></A>
+This document describes the structure of the source distribution for
+the G3D C++ library.  It is for programmers who need to modify the
+library itself.  
+
+<P>
+<B>For Win32 and Linux, you do not need to build the library to use it!  Precompiled Win32 and Linux binaries are provided at <A HREF="http://g3d-cpp.sf.net">http://g3d-cpp.sf.net</A>. For Mac OS X, you do need to build it, but it's relatively easy to build. </B>
+<P>
+
+This distribution contains two CVS modules: <B>cpp</B> and
+<B>data</B>.  Together these have all of the files you need to
+<I>build</I> and install the library on Windows or Linux.  They
+also contain some files for building on OS/X.  OS/X is not
+a supported platform, however.
+<P>
+It is assumed that you obtained this source by checking
+it out of SourceForge.net CVS for the "g3d-cpp" project (<A
+HREF="http://sf.net/projects/g3d-cpp">http://sf.net/projects/g3d-cpp</A>)
+or downloading a release zipfile.  To check out via anonymous CVS:
+
+<PRE>
+cvs -d:pserver:anonymous@cvs.sf.net:/cvsroot/g3d-cpp login 
+cvs -z3 -d:pserver:anonymous@cvs.sf.net:/cvsroot/g3d-cpp co cpp
+cvs -z3 -d:pserver:anonymous@cvs.sf.net:/cvsroot/g3d-cpp co data
+</PRE>
+
+
+<HR>
+<B><FONT SIZE=6><IMG SRC="win32.gif" VALIGN=CENTER> Windows 2000 or XP</FONT></B>
+<P>
+
+
+<P>
+<I> The Cygwin versions of doxygen and python do not execute correctly
+from a Windows command prompt, so you will have to download and
+install them separately if you have Cygwin.</I>
+
+<OL>
+
+<LI> Install Microsoft Visual Studio 6.0.
+<LI> Install the <A HREF="http://msdn.microsoft.com/vstudio/downloads/updates/sp/vs6/sp5/default.aspx">Visual Studio 6.0 Service Pack 5</A>.
+<LI> Install the <A HREF="http://msdn.microsoft.com/vstudio/downloads/tools/ppack/download.aspx">Visual Studio 6.0 Processor Pack for Service Pack 5</A>.
+<LI> Install the <A HREF="http://www.python.org/ftp/python/2.2.3/Python-2.2.3.exe">Python 2.2.3 tool</A>.
+<LI> Install the <A HREF="ftp://ftp.stack.nl/pub/users/dimitri/doxygen-1.3.2-setup.exe">Doxygen 1.3.2 tool</A>.
+<LI> Install the <A HREF="http://www.libsdl.org/release/SDL-devel-1.2.7-VC6.zip">SDL 1.2.7 Development Library</A> (G3D is not compatible with SDL 1.2.6).
+
+<LI> Add the paths for these tools to your PATH environment variable (Control Panel -> System -> Advanced -> Environment Variables).  These are usually <CODE>C:\Program Files\Microsoft Visual
+Studio\Common\MSDev98\Bin\;c:\doxygen;c:\python\bin</CODE>.
+<LI> Log out so all changes can take effect.
+<P>
+
+
+<LI>Run "<CODE>build install <I>libdir</I></CODE>" in the <CODE>cpp</CODE> directory, where <I>libdir</I> is the parent directory you want to install into (e.g. "<CODE>c:\libraries</CODE>")
+</OL>
+
+<HR>
+<B><FONT SIZE=6><IMG SRC="linux.gif" VALIGN=CENTER> Linux</FONT></B>
+<P>
+<OL>
+<LI> Install <A HREF="ftp://ftp.thewrittenword.com/packages/by-name/gcc-3.3/i686-pc-linux-gnu/gcc-3.3.rpm4.tar.Z">gcc 3.3</A>.
+<LI> Install the <A HREF="http://www.python.org/ftp/python/2.2.3/rpms/python-2.2.3-26.src.rpm">Python 2.2.3 tool</A>.
+<LI> Install the <A HREF="ftp://ftp.stack.nl/pub/users/dimitri/doxygen-1.3.2.linux.bin.tar.gz">Doxygen 1.3.2 tool</A>.
+<LI> Install the <A HREF="http://www.libsdl.org/release/SDL-devel-1.2.7-1.i386.rpm">SDL 1.2.7 Development Library</A>.
+<LI> Install the <A HREF="http://ftp.gnu.org/gnu/automake/automake-1.7.5.tar.gz">automake 1.7.5</A> tool (and the corresponding aclocal version).
+<LI> Install the <A HREF="http://ftp.gnu.org/gnu/autoconf/autoconf-2.57.tar.gz">autoconf 2.57</A> tool.
+<LI> Add the paths for these tools to your PATH environment variable (usually in your .cshrc, .tcshrc, or .bashrc file).
+
+<LI>TODO: set up LD_LIBRARY_PATH
+
+<LI> Log out so all changes can take effect.
+<P>
+<LI>Run "<CODE>chmod u+x build</CODE>" in the <CODE>cpp</CODE> directory.
+<LI>Run "<CODE>./build install <I>libdir</I></CODE>" in the <CODE>cpp</CODE> directory, where <I>libdir</I> is the parent directory you want to install into (e.g. "<CODE>/u/$USER/lib</CODE>")
+</OL>
+
+<HR>
+<B><FONT SIZE=6><IMG SRC="osx.gif" VALIGN=CENTER> Mac OS X</FONT></B>
+<P>
+<I>We recommend using Xcode 2.1 or 2.2 to build G3D, and then using the same version of Xcode to build your G3D programs, both using Xcode project files included in the source distribution, and from the command line. Here, we first give instructions to get prerequisites required to build either way, then directions to build with Xcode, then include the instructions for a more traditional, unix/command-line style build.</I>
+</P>
+<P>
+<B><FONT SIZE=5>Common Setup</FONT></B>
+</P>
+<OL>
+<LI>Install Apple's Xcode Development Environment 2.2, from <A HREF="http://developer.apple.com/tools/download/">Apple's Developer Site</A>. (It may seem like you have to pay for the privilege of joining the Apple Developer Connection (ADC), but in fact you can get a web-only membership for free.)</LI>
+<LI>Install the <A HREF="http://www.libsdl.org/release/SDL-devel-1.2.9.pkg.tar.gz">SDL 1.2.9 Development Library</A>.</LI>
+</OL>
+<P>
+<B><FONT SIZE=5>Building G3D with Xcode</FONT></B>
+</P>
+<OL>
+<LI>Get a copy of the source tree, either via <A HREF="http://sourceforge.net/cvs/?group_id=76879">cvs</A> or via the src zip, available on the <A HREF="http://sourceforge.net/project/showfiles.php?group_id=76879">downloads</A> page. Expand the zip.</LI>
+<LI>Double-click on <tt>G3D/cpp/G3DOSX/G3DOSX.xcodeproj</tt>. This will launch Xcode. </LI>
+<LI>In Xcode, locate the main toolbar. At the far left of the toolbar, set the active target to G3DTest. Hit "Build." </LI>
+<LI>Command-Shift-B brings up the "Build Results" window. The last line in the output in that window should be "Build succeeded."</LI>
+<LI>With the active target set to G3DTest, hit the "Run" button. The console should come up and give you lots of interesting information about G3D's performance on your machine. Congratulations, you have built G3D on Mac OS X.</LI>
+<LI>Having built G3D, you will probably want to run a demo. We recommend taking advantage of the <tt>*.xcodeproj</tt> files included in some of the demo directories. They work, if you leave them in their current directory. Open <tt>G3D/cpp/source/demos/VAR_Demo/VAR_Demo.xcodeproj</tt>. Hit "Build and Go", and you should see little purple and orange planes flying around in a circle.</LI>
+</OL>
+<P>
+<B><FONT SIZE=5>Building G3D from the command line</FONT></B>
+</P>
+<OL>
+<LI> Install <a href="http://www.doxygen.org">Doxygen</a>
+<LI> Add the path for Doxygen to your PATH environment variable (by adding <code>PATH=/Applications/Doxygen.app/Contents/Resources/:$PATH</code> to your ~/.bashrc file).
+<LI> TODO: set up LD_LIBRARY_PATH
+<LI> Type <code>source ~/.bashrc</code> or log out so all changes can take effect.
+<li> Execute <code>chmod u+x build</code> in the cpp directory.
+<li> Run <code>./build install <i>targetdir</i></code> in the cpp directory
+<li> The library and demos will compile into <i>targetdir</i>
+</ol>
+</P>
+<HR>
+<H1>Directories</H1>
+You are at the root of the directory tree for G3D (which is
+referred to as "cpp" in this document).  This is a CVS checkout
+of the <B>cpp</B> module.  The <CODE>../data</CODE> directory contains
+a checkout of the <B>data</B> directory.   The subdirectories have
+the following structure:
+
+<PRE>
+|-<CODE>cpp</CODE>                              <FONT COLOR="00700">The cpp module</FONT>
+|  |-<CODE>source</CODE>
+|  |  |-<CODE>data</CODE>                    
+|  |  |-<CODE>demos</CODE>                      <FONT COLOR="00700">A duplicate of some essential files from the data module</FONT>
+|  |  |  |-<CODE>font</CODE>
+|  |  |  ...
+|  |  |-<CODE>G3Dcpp</CODE>
+|  |  |-<CODE>GLG3Dcpp</CODE>
+|  |  |-<CODE>IJG</CODE>
+|  |  |-<CODE>html</CODE>
+|  |  |-<CODE>include</CODE>
+|  |  |  |-<CODE>G3D</CODE>
+|  |  |  |-<CODE>GLG3D</CODE>
+|  |  |  |-<CODE>glh</CODE>                     <FONT COLOR="00700">The latest GL extensions.  G3D doesn't use the system GL headers.</FONT>
+|  |  |  |  |-<CODE>extgen</CODE>
+|  |  |  |  '-<CODE>GL</CODE>
+|  |  |  '-<CODE>zlib</CODE>
+|  |  |-<CODE>lib</CODE>
+|  |  '-<CODE>test</CODE>
+|  |-<FONT COLOR="#C00000"><CODE>install</CODE></FONT>                       <FONT COLOR="#007000">The library ready for use (copy to the location of your choice)</FONT>
+|  |-<FONT COLOR="#C00000"><CODE>release</CODE></FONT>                       <FONT COLOR="#007000">Official G3D release zipfiles (only Morgan needs these)</FONT>
+|  '-<FONT COLOR="#C00000"><CODE>temp</CODE></FONT>
+'-<CODE>data</CODE>                             <FONT COLOR="00700">The data module</FONT>
+   |-<CODE>font</CODE>
+   |-<CODE>quake2</CODE>
+   ...
+</PRE>
+
+The red directories can be deleted; they are built from the
+source directory.  Some subdirectories are not shown.
+<P>
+
+In the distribution, the <CODE>cpp/data</CODE> directory is stored in
+g3d-data-M_mm.zip and the other (built) files are in g3d-cpp-M_mm.zip.
+They are separated because the data is so large.  Users who want
+source code can download it from CVS following the instructions 
+at <AHREF="http://sourceforge.net/cvs/?group_id=76879">http://sourceforge.net/cvs/?group_id=76879</A>
+
+<P>
+<H1>Meta-Build targets</H1>
+<H3>build install</H3>
+
+<I>Builds a local installation for using the library.  This is how
+Linux users generate the .so's to link against.</I>
+
+<H3>build release (Windows only)</H3> 
+
+<I>Builds install, then zips g3d-cpp-M_mm.zip and g3d-data-M_mm.zip 
+for uploading to Brown/G3D for users.  To make a release, you must
+have already done 'build install' on Linux and copied the binaries
+over.  Note that the demos go in the data zipfile, not the cpp zipfile.
+Also, note that the release process actually deletes the demos
+and data from the install directory.</I>
+
+<H3>build clean</H3>
+<OL>
+<LI>Remove <CODE>cpp/temp</CODE>
+<LI>Remove <CODE>cpp/install</CODE>
+<LI>Remove <CODE>cpp/release</CODE>
+</OL>
+
+<P>
+<H1>Build Targets</H1>
+
+The build script is a Python script that is executed from a shell
+script.  It accepts a single argument which is the name of the build
+target.  Specifications for the targets follow.  The next section of
+this document describes the meta-targets for making a release.
+
+<H3>lib</H3>
+<OL>
+<LI>Build <CODE>cpp/install/lib/G3D.lib</CODE>, 
+          <CODE>cpp/install/lib/G3D-debug.lib</CODE>,
+          <CODE>cpp/install/lib/GLG3D.lib</CODE>,
+          <CODE>cpp/install/lib/GLG3D-debug.lib</CODE> 
+          (or corresponding .a/.so files on Linux)
+<LI>Copy any out of date files from <CODE>cpp/source/lib</CODE> to <CODE>cpp/install/lib</CODE>
+</OL>
+
+
+<H3>doc</H3>
+<OL>
+<LI>Execute doxygen in <CODE>cpp/source</CODE>
+<LI>Copy any out of date files from cpp/source/html to cpp/build/html
+</OL>
+
+<H3>test</H3>
+<OL>
+<LI>Compile cpp/source/test/*.cpp to cpp/temp/test/Debug/Test.exe
+<LI>Execute cpp/temp/test/Debug/Test.exe
+<LI>Complain if the exit code was non-zero
+</OL>
+
+
+<HR WIDTH=50%>
+<P>
+<A NAME="#ALLFILES"></A><B>*</B> "All files" refers to
+any file <I>except</I> those matching the following regular expressions:
+<P>
+<CODE>
+    '\.ncb$', 
+    '\.opt$', 
+    '\.ilk$', 
+    '\.pdb$', 
+    '\.bsc$', 
+    '\.o$', 
+    '\.obj$', 
+    '\.pyc$', 
+    '\.plg$', 
+    '^#.*#$', 
+    '~$', 
+    '^log.txt$', 
+    '^stderr.txt$', 
+    '^stdout.txt$', 
+    '\.log$', 
+    '^graveyard$', 
+    '^CVS$', 
+     '^Debug$', 
+    '^Release$' </CODE>
+</UL>
+
+<P>
+
+</BODY>
+

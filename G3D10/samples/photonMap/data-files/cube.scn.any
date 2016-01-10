@@ -1,0 +1,39 @@
+// -*- c++ -*-
+// You can extend this sample scene file format with your own fields.
+// Edit the scene parsing in Scene.cpp.
+{
+    name = "Cube",
+   
+    models = {
+        cubeModel = ArticulatedModel::Specification {
+            filename = "model/cube/cube.obj";
+            stripMaterials = true;
+            preprocess = (
+               setMaterial(all(), Color3(1, 0, 0));  
+            );
+       };
+    };
+    
+    skybox = {
+        texture  = "cubemap/whiteroom/whiteroom-*.png";
+    };
+    
+    entities = {
+        light0 = Light {
+            type     = "SPOT";
+            frame = CFrame::fromXYZYPRDegrees(10, 10, 10, 0, 90, 45);
+            spotHalfAngleDegrees = 30;
+            bulbPower    = Power3(10);
+        };
+
+        cube0 = VisibleEntity {
+            model = "cubeModel";
+            frame = CFrame::fromXYZYPRDegrees( 0, 0, 0, 0, 0, 0);
+        };
+
+        camera = Camera {
+            frame = CFrame::fromXYZYPRDegrees( 0, 0, 5);
+        };
+    };
+        
+}

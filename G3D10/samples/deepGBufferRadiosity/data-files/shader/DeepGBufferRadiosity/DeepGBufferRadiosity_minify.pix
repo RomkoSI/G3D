@@ -1,0 +1,67 @@
+#version 330// -*- c++ -*-
+#extension GL_ARB_explicit_attrib_location : enable
+#include <Texture/Texture.glsl>
+
+
+/**
+ \file AmbientOcclusion_minify.pix
+ \author Morgan McGuire and Michael Mara, NVIDIA Research
+ 
+  Open Source under the "BSD" license: http://www.opensource.org/licenses/bsd-license.php
+
+  Copyright (c) 2011-2012, NVIDIA
+  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+  */
+uniform int       previousMIPNumber;  
+
+uniform sampler2D CS_Z_buffer;
+uniform_Texture(sampler2D, colorBuffer_);
+uniform sampler2D normal_buffer;
+
+layout(location = 0) out vec3 color;
+layout(location = 1) out vec4 normal;
+#if  HAS_PEELED_BUFFER
+    layout(location = 2) out vec2 csz;
+#   else
+    layout(location = 2) out float csz;
+#endif
+#if  HAS_PEELED_BUFFER
+    uniform sampler2D peeledColorBuffer;
+    uniform sampler2D peeledNormalBuffer;
+
+    layout(location = 3) out vec3 peeledColor;
+    layout(location = 4) out vec3 peeledNormal;
+#endif
+
+
+
+void main() {
+    ivec2 ssP = ivec2(gl_FragCoord.xy);
+
+    ivec2 coordinate = clamp(ssP * 2 + ivec2(ssP.y & 1, ssP.x & 1), ivec2(0), textureSize(CS_Z_buffer, previousMIPNumber) - ivec2(1));
+    // Rotated grid subsampling to avoid XY directional bias or Z precision bias while downsampling.
+    // On DX9, the bit-and can be implemented with floating-point modulo
+    
+    vec3 colorResult = texelFetch(colorBuffer_buffer, coordinate, previousMIPNumber).rgb;
+
+    normal = texelFetch(normal_buffer, coordinate, previousMIPNumber).rgba;
+    color  = colorResult;
+#   if  HAS_PEELED_BUFFER
+        csz = texelFetch(CS_Z_buffer, coordinate, previousMIPNumber).rg;
+#   else
+        csz = texelFetch(CS_Z_buffer, coordinate, previousMIPNumber).r;
+#   endif
+#   if  HAS_PEELED_BUFFER
+#       if !USE_OCT16
+            peeledNormal = texelFetch(peeledNormalBuffer, coordinate, previousMIPNumber).rgb;
+#       endif
+        peeledColor = texelFetch(peeledColorBuffer, coordinate, previousMIPNumber).rgb;  
+#   endif
+}

@@ -1,0 +1,140 @@
+/** \page guidewin32 Installing G3D on Windows
+
+The following sections give step-by-step instructions for installing
+the 9.00 version of %G3D on Windows XP, Vista, and 7.
+
+<p>For experienced Visual Studio developers, the short version of these instructions is simple:
+
+\htmlonly
+<ol>
+<li> Unzip <a
+href="http://prdownloads.sourceforge.net/g3d/G3D-9.00-win32.zip?download">G3D-9.00-win32.zip</a> and configure Visual Studio's Include and Library paths.
+<li> Set your G3D9DATA environment variable to the G3D/data directory.
+<li> Add G3D/bin to your PATH environment variable (or remember to put the DLLs in each project, or rebuild G3D to statically link FFMPEG)
+<li> See <code><a href="../samples/starter">G3D9\demos\starter</a></code> for a simple application framework.
+</ol>
+\endhtmlonly
+</p>
+
+
+<hr>
+@section vs10install Visual Studio 2010 (VC++ 10.0) Installation
+
+<p>
+\htmlonly
+Visual Studio 2010 (officially known as Visual C++ 2010 Express Edition)
+is available as a free download from Microsoft.
+For 64-bit application development, you will also need to install the free Windows SDK.
+Note that there is also a professional
+edition of Visual Studio 2010 that can be purchased and includes 64-bit support directly.
+
+<ul>
+<li> Visual Studio 2010: <a href="http://www.microsoft.com/express/download/#webInstall">http://www.microsoft.com/express/download/#webInstall</a></li>
+<li> If you have Visual Studio 2010 Service Pack 1 (SP1) installed, you must uninstall it from the Control Panel before installing the Windows SDK 7.1 because
+of a bug in Microsoft's installer.  They have the wrong version numbers on the SDK and using SP1 will force you to use the old SDK, which is incompatible with G3D.
+See this <a href="http://stackoverflow.com/questions/10833852/compiling-fftw-source-in-visual-studio">Stackoverflow</a> post and 
+<a href="http://msmvps.com/blogs/carlosq/archive/2011/04/12/uninstalling-visual-studio-2010-sp1.aspx">this blog</a> for more information.</li>
+<li> Windows SDK 7.1: <a href="http://msdn.microsoft.com/en-us/windows/bb980924">http://msdn.microsoft.com/en-us/windows/bb980924</a></li>
+<li> Windows SDK patch: (may not be needed; only install if you see the error "Error: The "ConfigurationGeneral" rule is missing from the project.") <a href="http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=4422">http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=4422</a></li>
+</ul>
+
+After installing the Windows SDK 7.1, any previous projects will still continue to use the old SDK.  You can fix this by changing the project's
+Configuration Properties\General\Platform Toolset as shown below:
+
+<center><img src="vc-change-toolset.png" border=0 align=top></center></p>
+
+All of the project files that come with G3D already have this done.  
+
+\endhtmlonly
+</p>
+
+<hr>
+@section g3dinstall G3D Installation
+\htmlonly
+<ol>
+<li> <p>
+
+Download <a
+href="http://prdownloads.sourceforge.net/g3d/G3D-9.00-b03-win.zip?download">G3D-9.00-b03-win.zip</a>
+and unzip it into a directory like <code>c:\libraries</code>. This
+will create the directories <b><code>c:\libraries\G3D9</code></b>,
+<code>c:\libraries\G3D9\manual</code>, etc.
+
+</p>
+
+<li> <p>Run Visual Studio 2010</p>
+
+<li> Do one of the following to set global directories:
+  <ul>
+    <li> <b>Use the Property Manager</b>
+     <ol>
+	    <li> Open <i>any</i> VC10 project, for example C:\libraries\G3D9\samples\starter\starter.sln
+	    <li> Select View -&gt; Property Manager, as shown below:
+		<center><a href="vc10-property-menu.png"><img src="vc10-property-menu.png" border=1 align=top></a></center></p>
+		<li> Select Debug | Win32 \&gt; Microsoft.Cpp.Win32.user in the Property Manager.
+		<li> Select Common Properties -&gt; VC++ Directories as shown below:
+		<center><a href="vc10-directories.png"><img src="vc10-directories.png" border=1 align=top width=50%></a></center></p>
+		<li> Add the G3D include directory (e.g., C:\libraries\G3D9\include) to the Include Directories
+		<li> Add the G3D lib directory (e.g., C:\libraries\G3D9\lib) to the Library Directories
+		<li> Press OK
+     </ol>
+    <li> <b>Edit XML Manually</b>
+      <ol>
+       <li> Open <code>Microsoft.Cpp.Win32.user.props</code> in Visual Studio.  The default location in Windows XP is
+<pre>
+C:\Documents and Settings\%USERNAME%\Local Settings\Application Data\Microsoft\MSBuild\v4.0\Microsoft.Cpp.Win32.user.props
+</pre>
+The default location in Windows Vista is:
+<pre>
+C:\Users\%USERNAME%\AppData\Local\Microsoft\MSBuild\v4.0
+</pre>
+where <code>%USERNAME%</code> is your Windows login name.
+
+      <li> Add IncludePath and LibraryPath entries that refer to your G3D install location.  For example,
+<pre>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"&gt;
+
+  &lt;PropertyGroup&gt;
+    &lt;IncludePath&gt;&#36;(IncludePath);C:\libraries\G3D9\include&lt;/IncludePath&gt;
+    &lt;LibraryPath&gt;&#36;(LibraryPath);C:\libraries\G3D9\lib&lt;/LibraryPath&gt;
+  &lt;/PropertyGroup&gt;
+
+&lt;/Project&gt;
+</pre>
+      <li> Save and close <code>Microsoft.Cpp.Win32.user.props</code>.
+ </ol>
+</ul>
+<li> <p> Repeat the previous step for <code>Microsoft.Cpp.x64.user.props</code>, also adding the following include and library paths:
+  <ul>
+	<li> <code>C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include</code>
+    <li> <code>C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib</code>
+  </ul>
+
+<li> <p>Click on the <b>Tools</b> menu and then select <b>Options</b>, as demonstrated in this image:
+
+<center><img src="vc9-tools-menu.png" border=0 align=top></center></p>
+
+<li><p>In the tree list on the left of the entire dialog, select TextEditor/Extensions.  Add each of the following extensions with the "Microsoft C++ Experience" by typing it into the text box and pressing "Add": "pix", "vrt", "geo", "cu", "any".  The completed dialog should look like:</p>
+<center><img src="vc9-extension-dialog.png" border=0 align=top></center></p>
+
+<li><p>Push <b>Ok</b> to close the <b>Options</b> dialog.</p>
+
+<li><p>Quit Visual Studio to ensure that your changes are saved.</p>
+<li><p>Set the G3D9DATA environment variable to the directory containing the G3D data files (e.g., c:\libraries\G3D9\data).  Add
+the G3D9\bin directory to your PATH environment variable. For instructions on setting environment variables
+for different versions of Windows, see:
+<ul>
+ <li> <a href="http://support.microsoft.com/kb/311843">Windows 2000</a>
+ <li> <a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;310519">Windows XP</a>
+ <li> <a href="http://support.tabs3.com/main/R10463.htm">Windows Vista</a>
+ <li> <a href="http://www.itechtalk.com/thread3595.html">Windows 7</a>
+</ul>
+</p>
+</ol>
+
+See the <a href="guidenewwin32.html">instructions for creating a new project</a> on Windows for information about how to write your first G3D program,
+or explore the provided <a href="guidedemos.html">sample programs</a>.
+\endhtmlonly
+
+*/

@@ -1,0 +1,277 @@
+/**
+  \page topicindex Selected APIs by Task
+
+This page lists the most commonly used %G3D APIs grouped into functional tasks:
+
+\htmlonly
+<table width=80%>
+<tr>
+<td>
+<ul>
+<li><a href="#scene1">Scene Graph</a>
+<li><a href="#immediate">GPU (Rasterization) Rendering</a>
+<li><a href="#guix">2D Graphical User Interface</a>
+<li><a href="#debugging">Debugging</a>
+<li><a href="#profiling">Profiling</a>
+</ul>
+</td>
+<td>
+<li><a href="#image">Images and Video</a>
+<li><a href="#strings">Strings</a>
+<li><a href="#files">File I/O</a>
+<li><a href="#raytrace">Ray Tracing and Physics</a>
+<li><a href="#network">Network</a>
+<li><a href="#memory">Memory and Threads</a>
+</ul>
+</td></tr></table>
+\endhtmlonly
+
+<b>Boldface</b> links designate the most common and easy-to-use
+features.  Indented links are subtopics; they may be helper classes or subclasses.
+Not all API entry points are shown in this index.
+
+@section scene1  Scene Graph
+
+<table width=90% border=0 cellpadding=0 >
+<tr><td width=5% ></td><td width=30% ></td><td width=65%></td></tr>
+<tr><td></td><td>\link G3D::Scene <b>Scene</b>\endlink</td><td>\copybrief G3D::Scene</td></tr>
+
+<tr height=3 ><td colspan=2 ></td></tr>
+
+<tr><td></td><td>\link G3D::Entity <b>Entity</b>\endlink</td><td>\copybrief G3D::Entity</td></tr>
+<tr><td></td><td>\indent\link G3D::VisibleEntity <b>VisibleEntity</b>\endlink</td><td>\copybrief G3D::VisibleEntity</td></tr>
+
+<tr height=3 ><td colspan=2 ></td></tr>
+<tr><td></td><td>\link G3D::Camera <b>Camera</b>\endlink</td><td>\copybrief G3D::Camera</td></tr>
+<tr><td></td><td>\indent\link G3D::Film Film\endlink</td><td>\copybrief G3D::Film</td></tr>
+<tr><td></td><td>\indent\link G3D::MotionBlur MotionBlur\endlink</td><td>\copybrief G3D::MotionBlur</td></tr>
+<tr><td></td><td>\indent\link G3D::DepthOfField DepthOfField\endlink</td><td>\copybrief G3D::DepthOfField</td></tr>
+
+<tr height=3 ><td colspan=2 ></td></tr>
+<tr><td></td><td>\link G3D::Lighting <b>Lighting</b>\endlink</td><td>\copybrief G3D::Lighting</td></tr>
+<tr><td></td><td>\indent\link G3D::Light <b>Light</b>\endlink</td><td>\copybrief G3D::Light</td></tr>
+<tr><td></td><td>\indent\link G3D::ShadowMap <b>ShadowMap</b>\endlink</td><td>\copybrief G3D::ShadowMap</td></tr>
+<tr><td></td><td>\indent\link G3D::AmbientOcclusion AmbientOcclusion\endlink</td><td>\copybrief G3D::AmbientOcclusion</td></tr>
+
+<tr height=3 ><td colspan=2 ></td></tr>
+
+<tr><td></td><td>\link G3D::ArticulatedModel <b>ArticulatedModel</b>\endlink</td><td>Load 3DS, IFS, PLY2, and OFF files, or construct models from code</td></tr>
+<tr><td></td><td>\indent\link G3D::UniversalMaterial UniversalMaterial\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\indent\link G3D::UniversalMaterial::Specification UniversalMaterial::Specification\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\indent\link G3D::UniversalBSDF UniversalBSDF\endlink</td><td> </td></tr>
+<tr valign=top ><td></td><td>\indent\indent\link G3D::Component Component\endlink</td><td>
+(See also \link G3D::MapComponent MapComponent\endlink,
+\link G3D::Component1 Component1\endlink,
+\link G3D::Component3 Component3\endlink,
+\link G3D::Component4 Component4\endlink)
+</td></tr>
+<tr><td></td><td>\indent\indent\link G3D::BumpMap BumpMap\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\link G3D::UniversalSurface UniversalSurface\endlink</td><td> </td></tr>
+<tr height=3 ><td colspan=2 ></td></tr>
+
+<tr><td></td><td>\link G3D::MD2Model <b>MD2Model</b>\endlink</td><td>Quake 2 character</td></tr>
+
+</table>
+
+
+@section immediate GPU Rendering
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=30% ></td><td width=65%></td></tr>
+<tr><td></td><td>\link G3D::RenderDevice <b>RenderDevice</b>\endlink</td><td>\copybrief G3D::RenderDevice</td></tr>
+
+<tr><td></td><td>\link G3D::Texture <b>Texture</b>\endlink</td><td>\copybrief G3D::Texture</td></tr>
+
+<tr><td></td><td>\link G3D::Shader <b>Shader</b>\endlink</td><td>\copybrief G3D::Shader</td></tr>
+<tr><td></td><td>\indent\link G3D::Args <b>Args</b>\endlink</td><td>\copybrief G3D::Args</td></tr>
+
+<tr><td></td><td>\link G3D::VertexBuffer <b>VertexBuffer</b>\endlink</td><td>\copybrief G3D::VertexBuffer</td></tr>
+<tr><td></td><td>\indent\link G3D::AttributeArray <b>AttributeArray</b>\endlink</td><td>\copybrief G3D::AttributeArray</td></tr>
+<tr><td></td><td>\indent\link G3D::IndexStream <b>IndexStream</b>\endlink</td><td>\copybrief G3D::IndexStream</td></tr>
+
+<tr><td></td><td>\link G3D::Framebuffer <b>Framebuffer</b>\endlink</td><td>\copybrief G3D::Framebuffer</td></tr>
+<tr><td></td><td>\link G3D::GBuffer GBuffer\endlink</td><td>\copybrief G3D::GBuffer</td></tr>
+<tr><td></td><td>\link G3D::Surface Surface\endlink</td><td>\copybrief G3D::Surface</td></tr>
+</table>
+
+
+@section guix 2D Graphical User Interface
+<table width=90% border=0 cellpadding=0 >
+<tr><td width=5% ></td><td width=30% ></td><td width=65%></td></tr>
+<tr><td></td><td>\link G3D::GApp <b>GApp</b>\endlink</td><td>\copybrief G3D::GApp</td></tr>
+<tr><td></td><td>\link G3D::GuiPane <b>GuiPane</b>\endlink</td><td>Container and creator of other GUI controls; obtained from a GuiWindow </td></tr>
+<tr><td></td><td>\link G3D::GuiWindow <b>GuiWindow</b>\endlink</td><td>Skinnable GUI (documentation contains GUI sample code)</td></tr>
+<tr><td></td><td>\link G3D::GEvent <b>GEvent</b>\endlink, \link G3D::GEventType <b>GEventType</b>\endlink</td><td>Event class and type enum, used inside an event handler</td></tr>
+<tr><td></td><td>\link G3D::GFont <b>GFont</b>\endlink</td><td>Explicitly render text</td></tr>1
+<tr><td></td><td>\link G3D::GApp::onEvent <b>GApp::onEvent</b>\endlink, \link G3D::GApp::onUserInput <b>GApp::onUserInput</b>\endlink</td><td>Overridable event handlers</td></tr>
+<tr><td></td><td>\link G3D::UserInput UserInput\endlink</td><td>Pollable keyboard, mouse, and joystick state used inside an event handler </td></tr>
+<tr><td></td><td>\link G3D::GuiButton GuiButton\endlink, \link G3D::GuiCheckBox GuiCheckBox\endlink, \link G3D::GuiDropDownList GuiDropDownList\endlink, \link G3D::GuiSlider GuiSlider\endlink, \link G3D::GuiRadioButton GuiRadioButton\endlink, \link G3D::GuiLabel GuiLabel\endlink, \link G3D::GuiTextBox GuiTextBox\endlink, \link G3D::GuiTextureBox GuiTextureBox\endlink, \link G3D::GuiTabPane GuiTabPane\endlink</td><td>GUI controls created by GuiPanel </td></tr>
+<tr><td></td><td>\link G3D::Widget Widget\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::Surface2D Surface2D\endlink</td><td>2D object scene graph, used by Widgets for rendering</td></tr>
+<tr><td></td><td>\link G3D::Manipulator Manipulator\endlink</td><td>\copybrief G3D::Manipulator</td></tr>
+<tr><td></td><td>\indent\link G3D::FirstPersonManipulator <b>FirstPersonManipulator</b>\endlink</td><td>\copybrief G3D::FirstPersonManipulator</td></tr>
+<tr><td></td><td>\indent\link G3D::ThirdPersonManipulator <b>ThirdPersonManipulator</b>\endlink</td><td>\copybrief G3D::ThirdPersonManipulator</td></tr>
+<tr><td></td><td>\link G3D::msgBox msgBox\endlink</td><td>Create a new OS window popup message</td></tr>
+</table>
+
+@section debugging Debugging
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=30% ></td><td width=65%></td></tr>
+<tr><td></td><td>\link debugAssert() <b>debugAssert</b>\endlink</td><td>Assertion macro with friendly dialog box in DEBUG builds</td></tr>
+<tr><td></td><td>\link G3D::debugPrintf <b>debugPrintf</b>\endlink</td><td>Prints to the 3D console, terminal, and log.txt</td></tr>
+<tr><td></td><td>\link G3D::screenPrintf <b>screenPrintf</b>\endlink</td><td>Prints information that repeats every frame to the screen</td></tr>
+<tr><td></td><td>\link G3D::debugDraw <b>debugDraw</b>\endlink</td><td>Draw a shape for debugging purposes</td></tr>
+<tr><td></td><td>\link G3D::consolePrintf consolePrintf\endlink</td><td>Prints to the 3D console and log.txt</td></tr>
+<tr><td></td><td>\link G3D::logPrintf logPrintf\endlink</td><td>Prints to log.txt</td></tr>
+<tr><td></td><td>\link G3D::GApp::debugPane <b>GApp::debugPane</b>\endlink</td><td>Add your own debugging GUI controls to this provided window</td></tr>
+<tr><td></td><td>\link G3D::debugPrintf <b>debugPrintf</b>\endlink</td><td>Prints to the terminal (Unix) or Output Window (Win) in DEBUG builds</td></tr>
+<tr><td></td><td>\link G3D::logPrintf <b>logPrintf</b>\endlink</td><td>Prints to the log.txt file (which you should regularly check for warnings!)</td></tr>
+<tr><td></td><td>\link G3D::Draw Draw\endlink</td><td>Render simple geometric primitives without loading a model</td></tr>
+<tr><td></td><td>\link debugAssertM() debugAssertM\endlink</td><td>Assertion macro with a string message in DEBUG builds</td></tr>
+<tr><td></td><td>\link alwaysAssertM() alwaysAssertM\endlink</td><td>Assertion macro that remains even in optimized builds</td></tr>
+<tr><td></td><td>\link G3D::GApp::catchCommonExceptions GApp::catchCommonExceptions\endlink</td><td>Turn uncaught exceptions into assertion failures</td></tr>
+<tr><td></td><td>\link G3D::Log Log\endlink</td><td>Guarantees output is written to disk before Log::printf returns</td></tr>
+<tr><td></td><td>\link G3D::describeSystem describeSystem\endlink</td><td>Returns a string describing the current machine</td></tr>
+<tr><td></td><td>\link G3D::isValidHeapPointer isValidHeapPointer\endlink</td><td>Used in assertions to identify bad pointers</td></tr>
+<tr><td></td><td>\link G3D::isValidPointer isValidPointer\endlink</td><td>Used in assertions to identify bad pointers</td></tr>
+<tr><td></td><td>\link G3D::setAssertionHook setAssertionHook\endlink</td><td>Override the behavior of assertion failures</td></tr>
+<tr><td></td><td>\link G3D::setFailureHook setFailureHook\endlink</td><td>Override the behavior of alwaysAssertM failures in RELEASE builds</td></tr>
+<tr><td></td><td>\link G3D::GApp::showDebugText GApp::showDebugText\endlink</td><td>Enable GApp::debugPrintf output</td></tr>
+</table>
+
+@section profiling Profiling
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::Profiler <b>Profiler</b>\endlink</td><td>\copybrief G3D::Profiler </td></tr>
+<tr><td></td><td>\link G3D::Stopwatch <b>Stopwatch</b>\endlink</td><td>\copybrief G3D::Stopwatch </td></tr>
+<tr><td></td><td>\link G3D::RenderDevice::Stats RenderDevice::Stats\endlink</td><td>\copybrief G3D::RenderDevice::Stats </td></tr>
+<tr><td></td><td>\link G3D::GApp::showRenderingStats GApp::showRenderingStats\endlink</td><td>Display performance information on the 3D window</td></tr>
+<tr><td></td><td>\link G3D::System::mallocStatus System::mallocStatus\endlink, \link G3D::System::resetMallocPerformanceCounters System::resetMallocPerformanceCounters\endlink</td><td>Measure heap size and detect memory leaks</td></tr>
+<tr><td></td><td>\link G3D::System::beginCycleCount System::beginCycleCount\endlink, \link G3D::System::endCycleCount System::endCycleCount\endlink</td><td>Cycle-accurate timing of very short routines </td></tr>
+</table>
+
+
+@section image Images and Video
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::Image Image\endlink</td><td>\copybrief G3D::Image</td></tr>
+<tr><td></td><td>\link G3D::PixelTransferBuffer PixelTransferBuffer\endlink</td><td>\copybrief G3D::PixelTransferBuffer</td></tr>
+<tr><td></td><td>\link G3D::Texture <b>Texture</b>\endlink</td><td>GPU image representation</td></tr>
+
+<tr><td></td><td>\link G3D::VideoInput <b>VideoInput</b>\endlink</td><td>Read from AVI, MPG and other video files in real-time</td></tr>
+<tr><td></td><td>\link G3D::VideoOutput <b>VideoOutput</b>\endlink</td><td>Write video files</td></tr>
+
+<tr><td></td><td>\link G3D::Draw::rect2D <b>Draw::rect2D</b>\endlink</td><td>Stretch a Texture over a rectangle on screen</td></tr>
+<tr><td></td><td>\link G3D::RenderDevice::apply <b>RenderDevice::apply</b>\endlink</td><td>\copybrief G3D::RenderDevice::apply</td></tr>
+<tr><td></td><td>\link G3D::RenderDevice::push2D <b>RenderDevice::push2D</b>\endlink</td><td>\copybrief G3D::RenderDevice::push2D</td></tr>
+<tr><td></td><td>\link G3D::Framebuffer <b>Framebuffer</b>\endlink</td><td>An "off-screen" rendering surface used for image processing on the GPU</td></tr>
+<tr><td></td><td>\link G3D::Image3 <b>Image3</b>\endlink</td><td>RGB floating point image</td></tr>
+<tr><td></td><td>\link G3D::Color1 Color1\endlink, \link G3D::Color3 Color3\endlink, \link G3D::Color4 Color4\endlink</td><td>Floating-point monochrome, RGB, and RGBA color (no clamping)</td></tr>
+<tr><td></td><td>\link G3D::Color1uint8 Color1uint8\endlink, \link G3D::Color3uint8 Color3uint8\endlink, \link G3D::Color4uint8 Color4uint8\endlink</td><td>8-bit Monochrome, 24-bit RGB, and 32-bit RGBA color (clamped to 0-1 / 0-255)</td></tr>
+<tr><td></td><td>\link G3D::Map2D Map2D\endlink</td><td>Templated image class, e.g., for creating normal maps or arbitrary grids of values</td></tr>
+<tr><td></td><td>\link G3D::WrapMode WrapMode\endlink</td><td>Specifies how out-of-bounds image locations are treated for Texture, Map2D, and Image classes</td></tr>
+<tr><td></td><td>\link G3D::gaussian1D gaussian1D\endlink</td><td>Generate 1D blur filter coefficients</td></tr>
+<tr><td></td><td>\link G3D::GaussianBlur GaussianBlur\endlink</td><td>Fast GPU 1D blur</td></tr>
+<tr><td></td><td>\link G3D::Film Film\endlink</td><td>Gamma correct, adaptation, and bloom for realistic lighting</td></tr>
+</table>
+
+@section strings String Processing
+
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::beginsWith <b>beginsWith</b>\endlink, \link G3D::endsWith <b>endsWith</b>\endlink</td><td> </td></tr>
+
+<tr><td></td><td>\link G3D::format <b>format</b>\endlink</td><td>Convert numbers to strings (a safe sprintf)</td></tr>
+
+<tr><td></td><td>\link G3D::isSlash isSlash\endlink, \link G3D::isWhiteSpace isWhiteSpace\endlink, \link G3D::isDigit isDigit\endlink, \link G3D::isNewline isNewline\endlink, \link G3D::isLetter isLetter\endlink, \link G3D::isQuote isQuote\endlink</td><td> </td></tr>
+
+<tr><td></td><td>\link G3D::stringSplit stringSplit\endlink, \link G3D::stringJoin stringJoin\endlink</td><td></td></tr>
+
+<tr><td></td><td>\link G3D::toUpper toUpper\endlink, \link G3D::toLower toLower\endlink</td><td>Change case</td></tr>
+
+<tr><td></td><td>\link G3D::trimWhitespace trimWhitespace\endlink</td><td>Remove blanks at the beginning and end of a string</td></tr>
+
+<tr><td></td><td>\link STR() STR\endlink</td><td>Macro for creating large blocks of quoted text, usually used with \link G3D::OldShader OldShader\endlink</td></tr>
+
+<tr><td></td><td>\link G3D::TextInput::TextInput TextInput\endlink(\link G3D::TextInput::FROM_STRING TextInput::FROM_STRING\endlink, ...)</td><td>Tokenizer for parsing complex strings</td></tr>
+</table>
+
+@section files File I/O
+
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::Any <b>Any</b>\endlink</td><td>\copybrief G3D::Any</td></tr>
+<tr><td></td><td>\link G3D::BinaryInput <b>BinaryInput</b>\endlink, \link G3D::BinaryOutput <b>BinaryOutput</b>\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::TextInput <b>TextInput</b>\endlink, \link G3D::TextOutput <b>TextOutput</b>\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::FileSystem FileSystem\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::filenameContainsWildcards filenameContainsWildcards\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::readWholeFile readWholefile\endlink, \link G3D::writeWholeFile writeWholeFile\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::createTempFile createTempFile\endlink</td><td></td></tr>
+</table>
+
+@section raytrace Ray Tracing and Physics
+
+Ray tracing and physical simulation both compute intersections between
+geometric primitives.  %G3D distinguishes between "moving" collision
+detection, where two objects are moving with relative constant
+velocity; and "fixed" detection where where the relative velocity of
+the objects is zero.  The two problems are related.  A "moving point"
+is the same as a fixed ray, a "moving sphere" is a fixed capsule, and
+so on.  Thus for ray tracing one often uses "moving point" collision
+detection instead of rays (which is reasonable, since ray tracing
+simulates photons moving around a scene).
+
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::TriTree <b>TriTree</b>\endlink</td><td>\copybrief G3D::TriTree</td></tr>
+<tr><td></td><td>\link G3D::Intersect <b>Intersect</b>\endlink</td><td>\copybrief G3D::Intersect</td></tr>
+<tr><td></td><td>\link G3D::CollisionDetection <b>CollisionDetection</b>\endlink</td><td>Moving and fixed collisions between many kinds of primitives</td></tr>
+<tr><td></td><td>\link G3D::Ray <b>Ray</b>\endlink,
+<tr><td></td><td>\link G3D::RayGridIterator <b>RayGridIterator</b>\endlink</td><td>\copybrief G3D::RayGridIterator</td></tr>
+\link G3D::Sphere <b>Sphere</b>\endlink,
+\link G3D::Plane <b>Plane</b>\endlink,
+\link G3D::Box <b>Box</b>\endlink,
+\link G3D::AABox <b>AABox</b>\endlink,
+\link G3D::Triangle <b>Triangle</b>\endlink,
+\link G3D::Tri <b>Tri</b>\endlink,
+\link G3D::Plane <b>Plane</b>\endlink,
+\link G3D::Line <b>Line</b>\endlink,
+\link G3D::Cylinder <b>Cylinder</b>\endlink,
+\link G3D::Capsule <b>Capsule</b>\endlink,
+\link G3D::Shape <b>Shape</b>\endlink
+</td><td>Geometric primitives</td></tr>
+<tr><td></td><td>\link G3D::DirectionHistogram <b>DirectionHistogram</b>\endlink</td><td>\copybrief G3D::DirectionHistogram</td></tr>
+<tr><td></td><td>\link G3D::MeshAlg <b>MeshAlg</b>\endlink</td><td>Routines for operating on triangle meshes</td></tr>
+<tr><td></td><td>\link G3D::KDTree <b>KDTree</b>\endlink</td><td>Axis-aligned binary space partition tree for O(log n) collision detection</td></tr>
+<tr><td></td><td>\link G3D::PointKDTree <b>PointKDTree</b>\endlink</td><td>AABSP tree optimized for zero-extent objects.  Primarily used as a photon map</td></tr>
+<tr><td></td><td>\link G3D::Camera <b>Camera::worldRay</b>\endlink</td><td>Obtain the ray through a pixel</td></tr>
+<tr><td></td><td>\link G3D::Image3 <b>Image3</b>\endlink, \link G3D::Image4 <b>Image4</b>\endlink</td><td>Useful for software rendering output and texture maps</td></tr>
+<tr><td></td><td>\link G3D::Vector3::reflectionDirection <b>Vector3::reflectionDirection</b>\endlink, \link G3D::Vector3::refractionDirection <b>Vector3::refractionDirection</b>\endlink</td><td></td></tr>
+</table>
+
+\section network Networking
+
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::ReliableConduit <b>ReliableConduit</b>\endlink</td><td>Message-based TCP infrastructure ideal for most games</td></tr>
+<tr><td></td><td>\link G3D::NetListener <b>NetListener</b>\endlink</td><td>Server-side way of listening for incoming connections</td></tr>
+<tr><td></td><td>\link G3D::BinaryInput <b>BinaryInput</b>\endlink, \link G3D::BinaryOutput <b>BinaryOutput</b>\endlink</td><td>Used by serialize/deserialize methods to binary encode messages for transfer.</td></tr>
+<tr><td></td><td>\link G3D::NetAddress NetAddress\endlink</td><td>IP, port, and hostname addressing</td></tr>
+<tr><td></td><td>\link G3D::LightweightConduit LightweightConduit\endlink</td><td>Message-based UDP infrastructure. Allows multi-cast and NAT traversal, but at the cost of unreliable transfer.</td></tr>
+</table>
+
+
+\section memory Memory and Threads
+
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::GThread <b>GThread</b>\endlink</td><td>\copybrief G3D::GThread </td></tr>
+<tr><td></td><td>\link G3D::ThreadSet <b>ThreadSet</b>\endlink</td><td>\copybrief G3D::ThreadSet </td></tr>
+<tr><td></td><td>\link G3D::GMutex <b>GMutex</b>\endlink</td><td>\copybrief G3D::GMutex</td></tr>
+<tr><td></td><td>\link G3D::Spinlock <b>Spinlock</b>\endlink</td><td>\copybrief G3D::Spinlock</td></tr>
+<tr><td></td><td>\link G3D::AtomicInt32 <b>AtomicInt32</b>\endlink</td><td>\copybrief G3D::AtomicInt32</td></tr>
+<tr><td></td><td>\link G3D::MemoryManager <b>MemoryManager</b>\endlink</td><td>\copybrief G3D::MemoryManager</td></tr>
+<tr><td></td><td>\indent\link G3D::AlignedMemoryManager AlignedMemoryManager\endlink</td><td>\copybrief G3D::AlignedMemoryManager</td></tr>
+<tr><td></td><td>\indent\link G3D::CRTMemoryManager CRTMemoryManager\endlink</td><td>\copybrief G3D::CRTMemoryManager</td></tr>
+<tr><td></td><td>\indent\link G3D::AreaMemoryManager AreaMemoryManager\endlink</td><td>\copybrief G3D::AreaMemoryManager</td></tr>
+</table>
+*/

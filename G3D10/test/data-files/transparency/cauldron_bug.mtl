@@ -1,0 +1,38 @@
+Wavefront OBJ material file
+# Contains 3 materials
+
+newmtl Grass_Block
+# Ns 0
+# Ka 0.2 0.2 0.2
+Kd 1 1 1
+Ks 0 0 0
+# map_Ka cauldron_bug-RGB.png
+map_Kd cauldron_bug-RGB.png
+# illum 2
+# d 1
+# Tr 1
+
+newmtl Stationary_Water
+# Ns 0
+# Ka 0.2 0.2 0.2
+Kd 1 1 1
+Ks 0 0 0
+# map_Ka cauldron_bug-RGBA.png
+map_Kd cauldron_bug-RGBA.png
+map_d cauldron_bug-Alpha.png
+# illum 4
+# d 0.535
+# Tr 0.535
+# Tf 0.465 0.465 0.465
+
+newmtl Cauldron
+# Ns 0
+# Ka 0.2 0.2 0.2
+Kd 1 1 1
+Ks 0 0 0
+# map_Ka cauldron_bug-RGBA.png
+map_Kd cauldron_bug-RGBA.png
+map_d cauldron_bug-Alpha.png
+# illum 2
+# d 1
+# Tr 1

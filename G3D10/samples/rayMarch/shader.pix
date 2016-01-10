@@ -1,0 +1,293 @@
+#version 400 // -*- c++ -*-
+
+#include <g3dmath.glsl>
+
+// This shader is a modified version of "GENERATORS REDUX" by Kali with
+// some optimizations by eiffie; adapted for free flight, documented, and
+// converted to G3D conventions by Morgan McGuire.
+//
+// See https://www.shadertoy.com/view/Xtf3Rn for the source.
+
+uniform mat4x3         cameraToWorldMatrix;
+uniform float          tanHalfFieldOfViewY;
+uniform float          projectionMatrix22, projectionMatrix23;
+
+out vec4 fragColor;
+
+// Options that increase quality but decrease performance:
+#define HIGH_QUALITY_NORMALS
+
+const int RAY_STEPS = 70;
+const vec3 LIGHT_COLOR = vec3(0.85, 0.9, 1.0);
+const vec3 AMBIENT_COLOR = vec3(0.8, 0.83, 1.0);
+const vec3 FLOOR_COLOR = vec3(1.0, 0.7, 0.9);
+const vec3 ENERGY_COLOR = vec3(1.0, 0.7, 0.4);
+
+// Decrease this value to increase visual fidelity at
+// some performance cost
+const float detailScale = 0.000065;
+
+
+vec3  lightdir = normalize(vec3(0.5, -0.3, -1.0));
+vec3  ambdir   = normalize(vec3(0.0, 0.0, 1.0));
+vec3  energy   = vec3(0.01);
+float det     = 0.0;
+
+
+mat2 rot(float a) {
+    return mat2(cos(a), sin(a), -sin(a), cos(a)); 
+}
+
+/** Main distance estimator. Returns distance to the nearest surface in the x component
+    and a material identifier in the y component */
+vec2 estimateDistance(vec3 pos) {
+    vec3 tpos = pos;
+
+    // Tile the basic quad shape in XZ
+    tpos.xz = abs(0.5 - mod(pos.xz, 1.0));
+    vec4 p = vec4(tpos, 1.0);
+    
+    mat2 rotation = mat2(-0.416, -0.910,
+                         0.910, -0.416);
+    // Repeatedly rotate and refine a rounded-rectangular column
+    // until it looks like bones
+    for (int i = 0; i < 6; ++i) {
+        p.xyz = abs(p.xyz) - vec3(-0.02, 1.98, -0.02);
+        p = p * 2.0 / clamp(dot(p.xyz, p.xyz), 0.4, 1.0) - vec4(0.5, 1.0, 0.4, 0.0);
+
+        // Spin alternate iterations of refinement about 65 degrees.
+        // Doing this for every other iteration increases performance
+        if ((i & 1) == 0) {
+            p.xz *= rotation;
+        }
+    }
+    
+    // Distance to the floor
+    float fl = pos.y - 3.013;
+
+    // Distance to the columns
+    float fr = (length(max(abs(p.xyz) - vec3(0.1, 5.0, 0.1), vec3(0.0))) - 0.05) / p.w;
+    float d = min(fl, fr);
+    // Distance to the ceiling
+    d = min(d, 3.95 - pos.y);
+
+    float hid;
+    if (abs(d - fl) < 0.001) {
+        // Force floor texture
+        hid = 1.0;
+    } else {
+        hid = 0.0;
+    }
+
+    return vec2(d, hid);
+}
+
+
+vec3 normal(vec3 p, float d) {
+    if (p.y <= 3.02) { return vec3(0.0, 1.0, 0.0); }
+    vec3 e = vec3(0.0, det, 0.0);
+    
+#ifdef HIGH_QUALITY_NORMALS
+    return normalize(vec3(
+                          estimateDistance(p + e.yxx).x - estimateDistance(p - e.yxx).x,
+                          estimateDistance(p + e.xyx).x - estimateDistance(p - e.xyx).x,
+                          estimateDistance(p + e.xxy).x - estimateDistance(p - e.xxy).x
+                          )
+                     );    
+#else
+    return normalize(vec3(
+                          d - estimateDistance(p - e.yxx).x,
+                          d - estimateDistance(p - e.xyx).x,
+                          d - estimateDistance(p - e.xxy).x
+                          )
+                     );    
+#endif
+}
+
+
+float calcAO(const vec3 pos, const vec3 nor) {
+    float aodet = detailScale * 40.0;
+    float totao = 0.0;
+    float sca = 14.0;
+    for (float aoi = 0.0; aoi < 5.0; ++aoi) {
+        float hr = aodet * square(aoi);
+        vec3 aopos = nor * hr + pos;
+        float dd = estimateDistance(aopos).x;
+        totao += -(dd - hr) * sca;
+        sca *= 0.7;
+    }
+    return clamp(1.0 - 5.0 * totao, 0.0, 1.0 );
+}
+
+
+// Returns the color scalar within the palette based on
+// the screen position
+float surfaceColor(vec3 p) {
+    p = abs(0.5 - fract(p * 10.0));
+    vec3 c = vec3(3.0);
+
+    float es = 0.0;
+    float l = 0.0;
+
+    for (int i = 0; i < 10; ++i) { 
+        p = abs(p + c) - abs(p - c) - p; 
+        p /= clamp(dot(p, p), .0, 1.);
+        p = p * -1.5 + c;
+        if (mod(float(i), 2.0) < 1.0) { 
+            float pl = l;
+            l = length(p);
+            es+= exp(-1.0 / abs(l - pl));
+        }
+    }
+
+    return es;
+}
+
+
+vec3 light(in vec3 p, in vec3 dir, in vec3 n, in float hid) {
+    float sh=calcAO(p, -2.5 * lightdir);//USING AO TO MAKE VERY SOFT SHADOWS
+    float ao = calcAO(p,n);
+    float diff = max(0.,dot(lightdir,-n))*sh;
+    float y = 3.35-p.y;
+    vec3 amb = max(0.5, dot(dir, -n)) * 0.5 * AMBIENT_COLOR;
+    if (hid < 0.5) {
+        amb+=max(0.2,dot(vec3(0.,1.,0.),-n))*FLOOR_COLOR*pow(max(0.,.2-abs(3.-p.y))/.2,1.5)*2.;
+        amb+=energy*pow(max(0.,.4-abs(y))/.4,2.)*max(0.2,dot(vec3(0.,-sign(y),0.),-n))*2.;
+    }
+    vec3 r = reflect(lightdir,n);
+    float spec=pow(max(0.,dot(dir,-r))*sh,10.);
+    vec3 col;
+    float energysource=pow(max(0.,.04-abs(y))/.04,4.)*2.;
+    if (hid > 1.5) {
+        col = vec3(1.0); 
+        spec *= spec;
+    } else {
+        float k = surfaceColor(p) * 0.23 + 0.2; 
+        k = min(k, 1.5 - energysource);
+
+        col = mix(vec3(k, k*k, k*k*k), vec3(k), 0.3);
+
+        if (abs(hid - 1.0) < .001) {
+            col *= FLOOR_COLOR * 1.3;
+        }
+    }
+
+    col = col * (amb + diff * LIGHT_COLOR) + spec * LIGHT_COLOR;        
+    if (hid < 0.5) { 
+        col = max(col, energy * 2.0 * energysource);
+    }
+
+    col *= min(1.0, ao + length(energy) * 0.5 * max(0.0, 0.1 - abs(y)) / 0.1);
+    return col;
+}
+
+
+vec3 rayMarch(in vec3 from, in vec3 dir, inout float maxDist) {
+    float ey = mod(g3d_SceneTime * 0.25 * 0.5, 1.0);
+    float glow = 0.0;
+    float eglow = 0.0;
+    float ref = 0.0;
+    float sphdist = 0.0;
+    float totdist = 0.0;
+    vec2 d = vec2(1.0, 0.0);
+    vec3 p;
+    vec3 col = vec3(0.0);
+    vec3 origdir = dir;
+    vec3 origfrom = from;
+    vec3 sphNorm;
+        
+    for (int i = 0; 
+         (i < RAY_STEPS) &&
+             (d.x > det) && 
+             (totdist < maxDist); ++i) {
+
+        p = from + totdist * dir;
+        d = estimateDistance(p);
+        det = detailScale * (1.0 + totdist * 60.0) * (1.0 + ref * 5.0);
+
+        totdist += d.x; 
+
+        if (d.x < 0.015) {
+            glow += max(0.0, 0.015 - d.x) * exp(-totdist);
+        }
+        
+        if ((d.y < 0.5) && (d.x < 0.03)) {
+            // 2 glows at once
+            float glw = min(abs(3.35 - p.y - ey), abs(3.35 - p.y + ey));
+            
+            eglow += max(0.0, 0.03 - d.x) / 0.03 *
+                (pow(max(0.0, 0.05 - glw) / 0.05, 5.0) +
+                 pow(max(0.0, 0.15 - abs(3.35 - p.y)) / 0.15, 8.0)) * 1.5;
+        } // if glow
+    } // for
+
+    energy = ENERGY_COLOR * (1.5 + sin(g3d_SceneTime * 20.0 + p.z * 10.0)) * 0.25;
+
+    float l = pow(max(0.0, dot(normalize(-dir.xz), normalize(lightdir.xz))), 2.0);
+    l *= max(0.2, dot(-dir, lightdir));
+
+    vec3 backg = 0.5 * (1.2 - l) + LIGHT_COLOR * l * 0.7;
+    backg *= AMBIENT_COLOR;
+    if (d.x <= det) {
+        const float FAR = 2.0;
+        if (totdist < FAR) {
+            vec3 norm = normal(p - abs(d.x - det) * dir, d.x);
+            col = light(p - abs(d.x - det) * dir, dir, norm, d.y) * exp(-0.2 * square(totdist)); 
+
+            // Fade to black to hide shading LOD
+            col *= clamp((FAR - totdist) * 6.0, 0.0, 1.0);
+        } else {
+            // No shading in the distance
+            col = vec3(0.0);
+        }
+        col = mix(col, backg, 1.0 - exp(-pow(totdist, 1.5)));
+    } else { 
+        col = backg;
+    }
+    vec3 lglow=LIGHT_COLOR*pow(l,30.)*.5;
+    col+=glow*(backg+lglow)*1.3;
+    col+=pow(eglow,2.)*energy*.015;
+    col+=lglow*min(1.,totdist*totdist*.3);
+    if (ref > 0.5) {
+        vec3 sphlight=light(origfrom+sphdist*origdir,origdir,sphNorm,2.);
+        col = mix(col*.3+sphlight*.7,backg,1.0-exp(-1.*pow(sphdist,1.5)));
+    }
+
+    maxDist = totdist;
+    return col; 
+}
+
+
+void main() {
+    Ray eyeRay = Ray(Point3(0, 0, 0),
+                     normalize(Vector3((gl_FragCoord.xy - g3d_FragCoordExtent.xy / 2.0) * Vector2(1, -1), 
+                                       g3d_FragCoordExtent.y / ( -2.0 * tanHalfFieldOfViewY))));
+    float csEyeRayDirectionZ = eyeRay.direction.z;
+
+    // Transform the ray to world space
+    eyeRay.direction = Matrix3(cameraToWorldMatrix) * eyeRay.direction;
+    eyeRay.origin    = cameraToWorldMatrix * vec4(eyeRay.origin, 1.0);
+
+    float maxDist = 3.0;
+    vec3 color = rayMarch(eyeRay.origin, eyeRay.direction, maxDist); 
+    color = clamp(color, 0.0, 1.0);
+
+    // ad-hoc post processing
+    const float BRIGHTNESS = 0.9;
+    const float GAMMA = 1.3;
+    const float SATURATION = 0.85;
+    color = pow(color, vec3(GAMMA)) * BRIGHTNESS;
+    color = mix(vec3(length(color)), color, SATURATION);
+    fragColor = vec4(color, 1.0);
+
+    // Square to match the shadertoy explicitly gamma-encoded shading
+    fragColor.rgb = max(fragColor.rgb, 0.0);
+    fragColor.rgb *= fragColor.rgb;
+
+    // Camera space z value
+    float csZ = maxDist / csEyeRayDirectionZ;
+
+    // Pack into standard OpenGL depth buffer format to make the result compatible
+    // with rasterization and post-processing.
+    gl_FragDepth = (maxDist == inf) ? 1.0 : ((projectionMatrix22 * csZ + projectionMatrix23) / -csZ);
+}

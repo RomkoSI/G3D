@@ -1,0 +1,39 @@
+#version 330
+#include <g3dmath.glsl>
+
+uniform sampler2D   fontTexture;
+uniform float       alphaThreshold;
+uniform float       textureLODBias;
+uniform vec2        borderWidth;
+
+in  vec4 fontColor;
+in  vec4 bColor;
+in  vec2 texCoord;
+
+out vec4 result;
+
+void main() {
+    float lod = mipMapLevel(texCoord, textureSize(fontTexture, 0).xy) + textureLODBias;
+    float alpha = textureLod(fontTexture, texCoord, lod).r;
+
+    if (bColor.a < alphaThreshold) {
+        // No outline
+        if (alpha < alphaThreshold) {
+            discard;
+        }
+        result = fontColor * vec4(1, 1, 1, alpha);
+    } else {
+        // Outline 
+        float borderAlpha =             textureLod(fontTexture, vec2(texCoord.x - borderWidth.x, texCoord.y), lod).r;
+        borderAlpha = max(borderAlpha,  textureLod(fontTexture, vec2(texCoord.x + borderWidth.x, texCoord.y), lod).r);
+        borderAlpha = max(borderAlpha,  textureLod(fontTexture, vec2(texCoord.x, texCoord.y - borderWidth.y), lod).r);
+        borderAlpha = max(borderAlpha,  textureLod(fontTexture, vec2(texCoord.x, texCoord.y + borderWidth.y), lod).r);
+        borderAlpha *= bColor.a;
+        if ((alpha < alphaThreshold) && (borderAlpha < alphaThreshold)) {
+            discard;
+        }
+
+        float fontAlpha = alpha * fontColor.a;
+        result = vec4(lerp(bColor.rgb, fontColor.rgb, fontAlpha), borderAlpha);
+    }
+}

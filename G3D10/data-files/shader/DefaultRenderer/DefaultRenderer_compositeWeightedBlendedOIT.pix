@@ -1,0 +1,33 @@
+#version 330
+#include <compatibility.glsl>
+#include <g3dmath.glsl>
+
+/* sum(rgb * a, a) */
+uniform sampler2D accumTexture;
+
+/* prod(1 - a) */
+uniform sampler2D revealageTexture;
+
+out Color4 result;
+
+void main() {
+    int2 C = int2(gl_FragCoord.xy);
+
+    float revealage = texelFetch(revealageTexture, C, 0).r;
+    if (revealage == 1.0) {
+        // Save the blending and color texture fetch cost
+        discard;
+    }
+
+    float4 accum     = texelFetch(accumTexture, C, 0);
+
+    // Suppress overflow
+    if (isinf(maxComponent(abs(accum)))) {
+        accum.rgb = float3(accum.a);
+    }
+
+    // dst' =  (accum.rgb / accum.a) * (1 - revealage) + dst
+    // [dst has already been modulated by the transmission colors and coverage and the blend mode
+    // inverts revealage for us] 
+    result = float4(accum.rgb / max(accum.a, 0.00001), revealage);
+}

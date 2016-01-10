@@ -1,0 +1,82 @@
+// -*- c++ -*-
+// You can extend this sample scene file format with your own fields.
+// Edit the scene parsing in Scene.cpp.
+{
+    name = "A",
+   
+    models = {
+       teapotModel = ArticulatedModel::Specification {
+           filename = "model/teapot/teapot.obj";
+           scale = 0.01;
+           preprocess = {
+               setMaterial(root(), all(), Color3(1, 0, 0));
+            };
+       };
+        
+    };
+    
+	lightingEnvironment = 
+		LightingEnvironment {
+			environmentMap = {
+				constant = 1.5;
+	//			texture  = "<whitecube>";
+		};
+	};
+    
+    entities = {
+        spawn = MarkerEntity {
+            frame = CFrame::fromXYZYPRDegrees(0, 2, 0);
+            color = Color3(0, 1, 0);
+            osBoxArray = [
+                AABox(Point3(-1,-1,-1), Point3(1,1,1));
+            ];
+        };
+
+        sun = Light {
+            type = "SPOT";
+            frame = CFrame::fromXYZYPRDegrees(0, 10, 0, 9, -90, 0 ) ;
+           
+            bulbPower = Power3(3e3, 3e3, 0);
+            spotHalfAngleDegrees = 25;
+            nearPlaneZLimit = -0.1;
+            shadowMapBias = 0.02;
+            spotSquare = false;
+            enabled = true;
+            shadowMapSize = Vector2int16(2048, 2048);
+        };
+     
+        teapot = VisibleEntity {
+            model = "teapotModel";
+            frame = CFrame::fromXYZYPRDegrees( 2.50425, 0.5, 2.35944, -103.2 ) ;
+        };
+
+
+        camera = Camera {
+            frame = CFrame::fromXYZYPRDegrees(0.632912, 4.96049, 7.07624, 7.54394, -32.1014 ) ;
+        
+            filmSettings = FilmSettings {
+                antialiasingEnabled = false;
+                vignetteSizeFraction = 0;
+                debugZoom = 16;
+            };
+
+            motionBlurSettings = MotionBlurSettings {
+                enabled = false;
+            };
+
+            depthOfFieldSettings = DepthOfFieldSettings {
+                enabled = false;
+                model = "ARTIST";
+                nearSharpPlaneZ = -1.5;
+            };
+
+            projection = Projection {
+                nearPlaneZ = -0.1;
+                farPlaneZ = -200;
+                fovDirection = "VERTICAL";
+                fovDegrees = 60;
+            }
+        };
+    };
+        
+}

@@ -1,0 +1,66 @@
+button.theme {
+}
+
+body {
+    background: #000;
+    color: #888;
+    line-spacing: 110%;
+}
+
+body, table, div, p, dl {
+    color: #888;
+}
+
+a {
+    color: #AAA;
+}
+
+.contents {
+    zoom: 130%;
+}
+
+.contents a:visited {
+    color: #a78158;
+    
+}
+
+.memname, .mdescRight {
+    color: #AAA; !important
+}
+
+.paramname {
+    color: #8b4d2f;
+}
+
+div.header {
+    background-color: #321;
+}
+
+div.headertitle {
+    background-color: #210;
+}
+
+div.fragment {
+    border: 1px solid #AAA;
+	background-color: #000;
+	padding: 4px;
+    margin: 4px;
+}
+
+.memItemLeft, .memItemRight, .memTemplParams {    
+    border-top: 1px solid #555;
+}
+
+.memproto {
+    border-top: 1px solid #666;
+    border-left: 1px solid #666;
+    border-right: 1px solid #666;
+    background-color: #444;
+}
+
+.memdoc {
+    border-bottom: 1px solid #666;      
+    border-left: 1px solid #666;     
+    border-right: 1px solid #666; 
+}
+

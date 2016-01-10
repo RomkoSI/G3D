@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+# -*- python -*-
+#
+# Quick and dirty script for getting the proper SVN revision number into G3D source code
+#
+
+import os, sys, platform, re, shutil
+
+topLevelOfG3D = os.path.dirname(os.path.realpath(__file__));
+
+# To get access to icompile routines
+sys.path.append(topLevelOfG3D + '/bin')
+import ice.utils
+from ice.utils import run, runWithOutput
+
+s = platform.system()
+windows = (s == 'Windows') or (s == 'Microsoft')
+
+def fileCopyAndReplace(source, dest, toReplaceString, replacementString):
+    with open (source, "r") as templateFile:
+            headerString = templateFile.read().replace(toReplaceString, replacementString)
+            with open(dest, 'w') as headerFile:
+                headerFile.write(headerString)
+
+def fileEquality(filename1, filename2):
+    if (not os.path.exists(filename1)) and (not os.path.exists(filename2)):
+        return True
+    elif os.path.exists(filename1) != os.path.exists(filename2):
+        return False
+
+    # Both files exist
+    with open (filename1, "r") as file1:
+        string1 = file1.read()
+    with open (filename2, "r") as file2:
+        string2 = file2.read()
+    return string1 == string2
+
+def updateSVNInfo(source, dest, replacementString):
+    fileCopyAndReplace(source, dest, '$WCREV$', replacementString);
+
+def parseRawRevisionString(rawRevisionString):
+    match = re.search('\d+', rawRevisionString)
+    if match:
+        return match.group(0)
+    else:
+        return '-1'
+    
+
+source  = topLevelOfG3D + "/G3D.lib/source/svn_info.tmpl"
+dest    = topLevelOfG3D + "/G3D.lib/source/svn_info.cpp"
+#Use a temporary file and copy to actual location only if not equal to current file
+tempdest = topLevelOfG3D + "/temp/svn_info.cpp"
+if windows:
+    result = 1
+    try:
+        result = ice.utils.run('SubWCRev', [topLevelOfG3D, source, tempdest])
+    except:
+        print('Warning: TortoiseSVN is not installed, so the build system could not fetch the G3D SVN version.')
+        result = 1
+
+    if result != 0:
+        updateSVNInfo(source, tempdest, '-1')
+
+    if not fileEquality(tempdest, dest):
+        print("Updating svn_info.cpp")
+        shutil.copy(tempdest, dest)
+else:
+    (result, rawRevisionString, _) = runWithOutput("svnversion", ["-n"], False)
+    updateSVNInfo(source, dest, parseRawRevisionString(rawRevisionString))

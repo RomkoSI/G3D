@@ -1,0 +1,81 @@
+// -*- c++ -*-
+// You can extend this sample scene file format with your own fields.
+// Edit the scene parsing in Scene.cpp.
+{
+    name = "Space",
+   
+    models = {
+        asteroid0Model = #include("model/rock/rock_01.ArticulatedModel.Any");
+        asteroid1Model = #include("model/rock/rock_02.ArticulatedModel.Any");
+        asteroid2Model = #include("model/rock/rock_03.ArticulatedModel.Any");
+        asteroid3Model = #include("model/rock/rock_04.ArticulatedModel.Any");
+        asteroid4Model = #include("model/rock/rock_05.ArticulatedModel.Any");
+
+        /*
+        // Load faster when debugging:
+        asteroid0Model = "ifs/d20.ifs";
+        asteroid1Model = "ifs/d20.ifs";
+        asteroid2Model = "ifs/d20.ifs";
+        asteroid3Model = "ifs/d20.ifs";
+        asteroid4Model = "ifs/d20.ifs";
+        */
+
+        shipModel = #include("model/spaceFighter/spaceFighter01.ArticulatedModel.Any");
+    };
+    
+    lightingEnvironment = LightingEnvironment {
+        environmentMap = 
+                Texture::Specification {
+                    encoding = "SRGB8";
+                    filename = "cubemap/hipshot_m9_sky/16_*.png";
+                    encoding = Texture::Encoding {
+                        readMultiplyFirst = 1.5;
+                    };
+                };
+    };
+    
+    entities = {
+        sun = Light {
+            type = "DIRECTIONAL";
+            canChange = false;
+            frame = CFrame::fromXYZYPRDegrees(inf, inf, inf, -117, -34, 0);
+            biradiance = Biradiance3(9, 9.5, 8.5);
+            shadowMapSize = Vector2int16(2048, 2048);
+        };
+
+        fillLight = Light {
+            canChange = false;
+            type = "DIRECTIONAL";
+            biradiance = Biradiance3::fromARGB(0x85816f);
+            frame = CFrame::fromXYZYPRDegrees(inf, inf, inf, -30, 45, 0);
+            castsShadows = false;
+        };
+
+        player = PlayerEntity {
+            model = "shipModel";
+        };
+        
+        camera = Camera {
+            frame = CFrame::fromXYZYPRDegrees(0.0f,   0,   15);
+        
+            depthOfFieldSettings = DepthOfFieldSettings {
+                model = "ARTIST";
+                enabled = false;
+                nearSharpPlaneZ = -1.5;
+            };
+
+            motionBlurSettings = MotionBlurSettings {
+                enabled = true;
+                exposureFraction = 1.0;
+            };
+
+            projection = Projection {
+                nearPlaneZ = -0.2;
+                farPlaneZ = -400;
+                fovDirection = "VERTICAL";
+                fovDegrees = 50;
+            }
+        };
+    };
+        
+}

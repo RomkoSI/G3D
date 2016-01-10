@@ -1,0 +1,8 @@
+#version 330
+out vec3 direction;
+in vec4 g3d_Vertex;
+
+void main() {
+    direction = g3d_Vertex.xyz;
+    gl_Position = g3d_Vertex * g3d_ObjectToScreenMatrixTranspose;
+}

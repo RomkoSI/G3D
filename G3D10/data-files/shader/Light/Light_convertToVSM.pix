@@ -1,0 +1,12 @@
+#version 330 // -*- c++ -*-
+#include <reconstructFromDepth.glsl>
+
+out vec2 result;
+
+uniform sampler2D depth_buffer;
+uniform vec3 clipInfo;
+
+void main() {
+    float z = reconstructCSZ(texelFetch(depth_buffer, ivec2(gl_FragCoord.xy), 0).r, clipInfo);
+    result = vec2(z, z*z);
+}

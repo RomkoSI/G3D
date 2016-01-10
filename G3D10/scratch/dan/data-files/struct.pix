@@ -1,0 +1,22 @@
+#version 330 // -*- c++ -*-
+             /**
+             \file Draw_sphereSection.pix
+             */
+
+struct InputStruct {
+    sampler2D color;
+    float scale;
+    vec2 bounds;
+};
+
+uniform InputStruct inputStruct;
+
+out vec4 results;
+
+void main() {
+    if (gl_FragCoord.x < inputStruct.bounds.x && gl_FragCoord.y < inputStruct.bounds.y) {
+        results = texelFetch(inputStruct.color, ivec2(gl_FragCoord.xy), 0) * inputStruct.scale;
+    } else {
+        results = texelFetch(inputStruct.color, ivec2(gl_FragCoord.xy), 0);
+    }
+}

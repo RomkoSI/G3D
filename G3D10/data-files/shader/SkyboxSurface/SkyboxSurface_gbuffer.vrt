@@ -1,0 +1,14 @@
+#version 330// -*- c++ -*-
+#ifdef EMISSIVE
+    out vec3 direction;
+#endif
+
+in vec4 g3d_Vertex;
+
+void main() {
+#   ifdef EMISSIVE
+        direction = g3d_Vertex.xyz;
+#   endif
+
+    gl_Position = g3d_Vertex * g3d_ObjectToScreenMatrixTranspose;
+}

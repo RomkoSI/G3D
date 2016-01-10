@@ -1,0 +1,168 @@
+<!DOCTYPE html
+          PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html oncontextmenu="return false">
+  <head>
+<meta charset="utf-8"/><!-- must be in the first 1024 bytes -->    
+<!-- 
+
+
+
+
+
+
+
+
+
+
+
+   You should not change this file unless you intentionally are doing
+   really advanced work.
+
+
+   You probably want to change the code in game.js instead.
+
+
+
+
+
+
+
+
+
+
+
+
+   This is Open Source under the BSD license: http://www.opensource.org/licenses/bsd-license.php
+
+   Copyright (c) 2012-2014, Morgan McGuire
+   All rights reserved.
+
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions
+   are met:
+
+   Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+   Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the
+   distribution.  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS
+   AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+   INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+   DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
+   BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+   OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+   OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+   USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+   DAMAGE.
+-->
+    <title>Game</title>
+
+    <meta http-equiv="content-script-type" content="text/javascript"/>
+    <!-- Prevent Chrome from caching the game.js file and thus preventing its reloading when debugging -->
+    <meta HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+    <meta HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-STORE"/>
+    <meta HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE"/>
+
+    <!-- iOS/mobile Settings.  Do not set width and height based on
+         device-width and device-height; that makes assumptions about
+         orientation -->
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+    <meta name="apple-touch-fullscreen" content="yes" />
+
+    <style type="text/css">
+      /* Prevent selection on iOS during touch events */
+      * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+      }
+
+      body {
+         margin: 0px; 
+         background: #000;
+         height: 100%;
+         overflow:hidden;
+      }
+    </style>
+
+    <!-- Browser compatibility -->
+    <script>
+      if ((navigator.userAgent.toLowerCase().indexOf('safari') == -1) &&
+          (navigator.userAgent.toLowerCase().indexOf('chrome') == -1) &&
+          (navigator.userAgent.toLowerCase().indexOf('iphone') == -1) &&
+          (navigator.userAgent.toLowerCase().indexOf('ipad') == -1) &&
+          (navigator.userAgent.toLowerCase().indexOf('ipod') == -1) &&
+          (navigator.userAgent.toLowerCase().indexOf('.net clr') == -1) &&
+          (navigator.appName.toLowerCase().indexOf('internet explorer') == -1) &&
+          (navigator.userAgent.indexOf("Firefox") == -1)) {
+
+          // Note that Chrome reports itself as Safari on Mac and full-screen
+          // iOS webapps report themselves as 'iPhone'
+      
+          alert("Please run this game in Internet Explorer 9, Chrome 25.0, Safari 6.0.2, " +
+                "the iOS 5.1 Safari web browser, Firefox 19.0, or a newer browser.");
+      }
+
+      var _ch_PLAY_VERSION = 1.61;
+      
+      // Make several attempts to load the codeheart.js library from different locations.
+      var _ch_sourceURL;
+
+      /** This must be called from its own script tag because it emits code 
+          for other script tags. */
+      function tryToLoad(url) {
+         if (typeof codeheart === 'undefined') {
+            // Previous attempts failed to load the script.  Try another location.
+            // We can't allow the script tag itself to appear as a string in the source
+            // code, so this is broken across multiple strings.
+
+            document.write('<scr' + 'ipt src="' + url + '?refresh=1" charset="UTF-8" type="text/javascript"></scr' + 'ipt>'); 
+
+            // Assume success
+            _ch_sourceURL = url;
+         } 
+      }
+    </script>
+    <script>tryToLoad("codeheart.js");</script>
+    <script>tryToLoad("../codeheart.js");</script>
+    <script>tryToLoad("../../codeheart.js");</script>
+    <script>tryToLoad("../../../codeheart.js");</script>
+    <script>tryToLoad("http://www.codeheartjs.com/1.6/codeheart.js");</script>
+
+    <script>
+       console.clear();
+
+       if (typeof codeheart === 'undefined') {
+           alert("You have to put codeheart.js in this directory, (" + window.location +
+                 ") put it in the " + 
+                 "parent directory, or have an internet connection.");
+       } else {
+           var s = "_______________________________________________________";
+           console.log(s + s);
+           console.log("\n");
+           console.log("Running codeheart.js version " + codeheart.VERSION + " from " + _ch_sourceURL);
+           console.log("Running play.html version " + _ch_PLAY_VERSION + " from " + window.location);
+           console.log("Running game at " + ('' + window.location).substr(0, ('' + window.location).length - 'play.html'.length) + 'game.js');
+           console.log("on " + navigator.userAgent);
+           console.log("\n");
+           console.log(s + s);
+       }
+    </script>
+
+  </head>
+
+  <body oncontextmenu="return false" onload="_ch_onLoad();">
+    <script>_ch_makeCanvas();</script>
+
+    <!-- The game code -->
+    <script src="game.js?refresh=1" type="text/javascript"></script>
+  </body>
+
+</html>

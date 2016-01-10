@@ -1,0 +1,83 @@
+// -*- c++ -*-
+// You can extend this sample scene file format with your own fields.
+// Edit the scene parsing in Scene.cpp.
+{
+    name = "Level",
+   
+    models = {
+        buildingModel = ArticulatedModel::Specification { 
+            filename = "model/atcs/atcs.pk3/maps/atcs.bsp"; 
+
+            // Quake models tend to be missing backfaces when viewed from "outside" the map, which causes shadow casting problems
+            preprocess = (setTwoSided(all(), true););
+        }; 
+        playerModel = MD3Model::Specification { 
+            defaultSkin = MD3Model::Skin("md3/crusader/models/players/Crusader/lower_default.skin", "md3/crusader/models/players/Crusader/upper_default.skin", "md3/crusader/models/players/Crusader/head_default.skin"); 
+            directory = "md3/crusader/models/players/Crusader/"; 
+        }; 
+       
+    };
+    
+    lightingEnvironment = LightingEnvironment {
+        environmentMap = Texture::Specification {
+            filename = "cubemap/hipshot_m9_sky/16_*.png";
+            encoding = Texture::Encoding{
+				format = "SRGB8";
+				readMultiplyFirst= 1.5;
+			};
+        };
+    };
+    
+    entities = {
+        sun = Light {
+            type = "DIRECTIONAL";
+            canChange = false;
+            frame = CFrame::fromXYZYPRDegrees(inf, inf, inf, -117, -34, 0);
+            biradiance = Biradiance3(9, 9.5, 8.5);
+            shadowMapSize = Vector2int16(2048, 2048);
+            shadowMapBias = 0.05;
+        };
+
+        fillLight = Light {
+            canChange = false;
+            type = "DIRECTIONAL";
+            biradiance = Biradiance3::fromARGB(0x85816f);
+            frame = CFrame::fromXYZYPRDegrees(inf, inf, inf, -30, 45, 0);
+            castsShadows = false;
+        };
+
+        player = PlayerEntity {
+            model = "playerModel";
+            frame = Point3(-13.3, 20, -12.2 ); 
+        };
+        
+
+        building = VisibleEntity { 
+            model = "buildingModel"; 
+            frame = Point3(0, 0, 0 ); 
+            canChange = false;
+        };
+
+        camera = Camera {
+            frame = CFrame::fromXYZYPRDegrees(  -13.3, 1, -11.2, 0, 0, 0 );
+        
+            depthOfFieldSettings = DepthOfFieldSettings {
+                model = "ARTIST";
+                enabled = false;
+                nearSharpPlaneZ = -1.5;
+            };
+
+            motionBlurSettings = MotionBlurSettings {
+                enabled = false;
+            };
+
+            projection = Projection {
+                nearPlaneZ = -0.2;
+                farPlaneZ = -400;
+                fovDirection = "VERTICAL";
+                fovDegrees = 50;
+            }
+        };
+    };
+        
+}

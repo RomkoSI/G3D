@@ -1,0 +1,16 @@
+#version 330 // -*- c++ -*-
+#include <compatibility.glsl>
+
+uniform sampler2D  source;
+uniform int2       offset;
+uniform vec2       dstOffset;
+uniform int        scale;
+
+// For inverting the y-axis
+uniform int        yOffset, ySign;
+
+out vec4 result;
+
+void main(void) {
+    result = texelFetch(source, int2(gl_FragCoord.x - dstOffset.x, yOffset + (ySign * gl_FragCoord.y - dstOffset.y)) / scale + offset, 0);
+}

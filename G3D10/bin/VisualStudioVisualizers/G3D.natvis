@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+    <Type Name="G3D::SSESmallString&lt;*&gt;">
+      <DisplayString Condition="m_allocated == 0">"{m_data}" (const segment)</DisplayString>
+      <DisplayString Condition="m_data == m_buffer">"{m_data}" (inline)</DisplayString>
+      <DisplayString>"{m_data}" (heap)</DisplayString>
+    </Type>
+</AutoVisualizer>

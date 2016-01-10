@@ -1,0 +1,6 @@
+#!/bin/sh
+if hash /usr/bin/env python3 2>/dev/null; then
+    exec /usr/bin/env python3 "$@"
+else
+    exec /usr/bin/env python "$@"
+fi
