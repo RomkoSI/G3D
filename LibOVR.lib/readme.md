@@ -1,1 +1,0 @@
-This is the Oculus SDK 0.6.0.1 modified to compile under Visual Studio 2015
