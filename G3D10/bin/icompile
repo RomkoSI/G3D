@@ -60,12 +60,12 @@ def buildDocumentation(state):
     for f in ['formulas.repository', '_formulas.tex']:
         file = pathConcat(state.buildDir, 'doc', f)
         if os.path.exists(file): os.remove(file)
-    
+
     run('doxygen', ['Doxyfile'], verbosity >= VERBOSE)
 
     if (os.path.exists(state.rootDir + 'doc-files')):
-        copyIfNewer(state.rootDir + 'doc-files', 
-                    state.buildDir + 'doc', 
+        copyIfNewer(state.rootDir + 'doc-files',
+                    state.buildDir + 'doc',
                     verbosity >= VERBOSE)
 
     maybeColorPrint('Done building documentation', SECTION_COLOR)
@@ -87,7 +87,7 @@ def buildDataFiles(state):
 
             if (state.os == 'osx') and any([x.endswith('.dylib') for x in outOfDateFiles]):
                 if verbosity >= NORMAL: colorPrint('\nRebasing OS X dylib files', SECTION_COLOR)
-                # On OS X, fix the load path to be the build directory.  
+                # On OS X, fix the load path to be the build directory.
                 # See http://www.cocoadev.com/index.pl?ApplicationLinking
                 for lib in outOfDateFiles:
                     if lib.endswith('.dylib'):
@@ -95,14 +95,14 @@ def buildDataFiles(state):
                         rebase(pathConcat(state.installDir, raw))
                         if verbosity == NORMAL:
                             print(raw)
-                        
+
                 if verbosity >= VERBOSE: colorPrint('Done rebasing dylib files', SECTION_COLOR)
             maybePrintBar()
         else:
             if verbosity > NORMAL:
                 colorPrint('\nData files are up to date', SECTION_COLOR)
                 maybePrintBar()
-                
+
 ##############################################################################
 #                               Build Include                                #
 ##############################################################################
@@ -110,7 +110,7 @@ def buildDataFiles(state):
 def buildInclude(state):
     src = 'include'
     dst = state.installDir + 'include'
-    
+
     if os.path.exists(src):
         if verbosity >= NORMAL: colorPrint('\nCopying public header files', SECTION_COLOR)
         copyIfNewer(src, dst, verbosity >= VERBOSE, verbosity >= NORMAL)
@@ -122,7 +122,7 @@ def buildInclude(state):
 
 def buildClean(state):
     if verbosity >= NORMAL: colorPrint('Deleting all generated files', SECTION_COLOR)
-    
+
     rmdir(state.buildDir, verbosity >= VERBOSE)
     rmdir(state.tempDir, verbosity >= VERBOSE)
     if ((state.tempParentDir != None) and
@@ -140,9 +140,9 @@ def buildClean(state):
 class CompileJob(threading.Thread):
     """ When finished, this is the output from the compilation job."""
     messages = None
-    
+
     returnCode = None
-    
+
     def __init__(self, file, state, copt):
         threading.Thread.__init__(self)
         self.file = file
@@ -154,7 +154,7 @@ class CompileJob(threading.Thread):
     def run(self):
         (self.returnCode, self.messages) = makeObjectFile(self.state, self.file, self.copt)
 
-    
+
 """
 Compiles all specified source files to object files.  If it encounters
 a compiler error prints it and, exits the program.
@@ -186,7 +186,7 @@ def makeObjectFiles(buildList, state, copt):
 
         while len(jobs) >= maxSimultaneousJobs:
             serviceCompileJobs(jobs)
-                    
+
         # Create new job
         jobs.append(CompileJob(file, state, copt))
 
@@ -198,7 +198,7 @@ def makeObjectFiles(buildList, state, copt):
 """ Process a list of CompileJobs. """
 def serviceCompileJobs(jobs):
     POLL_INTERVAL = 0.05 # seconds
-    
+
     doneJobs = [j for j in jobs if not j.isAlive()]
     if len(doneJobs) == 0:
         # Wait; none of the jobs have completed
@@ -207,7 +207,7 @@ def serviceCompileJobs(jobs):
         for j in doneJobs:
             # Remove done jobs
             jobs.remove(j)
-            
+
             # Print the results of the done jobs
             print(j.messages, end=' ')
             sys.stdout.flush()
@@ -228,7 +228,7 @@ def makeObjectFile(state, cfile, options):
     options = maybeRemoveCPPOptions(cfile, options)
 
     args = options.split()
-  
+
     if extname(cfile).lower() == 'c':
         # At least on Darwin, g++ (vs. gcc) fails to correctly
         # identify c files with old syntax (e.g., png.c) and
@@ -240,7 +240,7 @@ def makeObjectFile(state, cfile, options):
     messages = ''
     if verbosity >= NORMAL:
         # 'run' will not print the full command, so we just
-        # print the filename to be compiled here. 
+        # print the filename to be compiled here.
         messages += shortname(state.rootDir, cfile) + '\n'
 
     (ret, out, err) = runWithOutput(state.compiler, args, verbosity >= VERBOSE)
@@ -254,7 +254,7 @@ def makeObjectFile(state, cfile, options):
     if verbosity >= VERBOSE:
         # Add a blank line
         if messages[-2:] != '\n\n': messages += '\n'
-            
+
     return (ret, messages)
 
 #########################################################################
@@ -270,7 +270,7 @@ def extendLibrariesWithDependencies(libraries, state):
     # Keep looping as long as we added something
     while len(stack) > 0:
         libname = stack.pop()
-        
+
         if libname in libraryTable:
             for dependency in libraryTable[libname].dependsOnList:
                 if not dependency in libraries:
@@ -288,7 +288,7 @@ filename = state.installDir + basename
 def rebase(filename):
     raw = betterbasename(filename)
     run('install_name_tool', ['-id', pathConcat('@loader_path', raw), filename], verbosity >= VERBOSE)
-   
+
 
 """
 If lib is a .dylib and on OS X, find the dylib and copy-if-newer it to the
@@ -299,7 +299,7 @@ def copyIfDylib(lib, isRelease, state):
     # is this library supposed to be deployed?
     if not lib.deploy: return
 
-    # is this a .dylib or a .so? 
+    # is this a .dylib or a .so?
     name = lib.releaseLib if isRelease else lib.debugLib
     src = findLibrary(name, lib.type, state.libraryPaths())
     #
@@ -312,7 +312,7 @@ def copyIfDylib(lib, isRelease, state):
         if (verbosity == NORMAL): print('\r  ' + b)
         # The dylib was copied, so rebase it
         rebase(dst)
-        
+
 
 """
  allFiles is a list of all files on which something
@@ -343,7 +343,7 @@ def getLinkerOptions(state, allFiles):
         if header in headerToLibraryTable:
             libs = headerToLibraryTable[header]
             libraries.update(libs)
-                
+
             if verbosity >= TRACE:
                 if len(libs) > 1:
                    print('#include "' + header + '" triggered links to ' + libs)
@@ -352,7 +352,7 @@ def getLinkerOptions(state, allFiles):
 
     # Add the dependencies from the libraries list
     extendLibrariesWithDependencies(libraries, state)
-    
+
     # Check for additional libraries that will be needed from the
     # symbols in the static libraries on which we depend.
     # TODO:
@@ -391,7 +391,7 @@ def getLinkerOptions(state, allFiles):
                     allLinks += ['-l' + rawLibraryFilename(findLibrary(lib.releaseLib, lib.type, state.libraryPaths()))]
 
         elif verbosity >= NORMAL:
-            colorPrint("Detected use of the '" + libname + 
+            colorPrint("Detected use of the '" + libname +
                       "' library, which iCompile does not know how to use.", WARNING_COLOR)
 
     if verbosity >= TRACE:
@@ -413,23 +413,23 @@ def makeStaticLibrary(state, objectFiles):
         # Merge into a giant universal binary object file
         ret = run('lipo', objectFiles + ['-create', '-output', tempFile] , verbosity >= VERBOSE)
         messages = ""
-        if (ret == 0):
+        if ret == 0:
             ret,messages,_ = runWithOutput('ar', ['cr', state.binaryDir + state.binaryName, tempFile], verbosity >= VERBOSE)
-    else: 
+    else:
         ret,messages,_ = runWithOutput('ar', ['cr', state.binaryDir + state.binaryName] + objectFiles, verbosity >= VERBOSE)
-    
+
     for line in messages.split('\n'):
         if 'has no symbols' not in messages:
             print(line)
     if verbosity >= VERBOSE: print()
-    
-    if (ret == 0):
-        ret = run('ranlib', ['-no_warning_for_no_symbols', state.binaryDir + state.binaryName], verbosity >= VERBOSE)
+
+    if ret == 0:
+        ret = run('ranlib', [state.binaryDir + state.binaryName], verbosity >= VERBOSE)
 
 
 #########################################################################
 
-""" Makes an executable from a list of object files. 
+""" Makes an executable from a list of object files.
     """
 def makeExecutable(state, objectFiles, linkOptions):
 
@@ -454,11 +454,11 @@ def makeExecutable(state, objectFiles, linkOptions):
 
 
     if ('OpenGL' in options) or ('GL' in options):
-        # Suppress the multiply defined symbols warning that 
+        # Suppress the multiply defined symbols warning that
         # comes from using OpenGL (which has both dynamic and static
         # versions of the same functions)
         options += ['-multiply_defined', 'suppress']
- 
+
         if sys.platform.startswith('darwin'):
             # Linking OpenGL on Darwin creates problems because of the
             # framework.  This option appears to work around the problem.
@@ -470,7 +470,7 @@ def makeExecutable(state, objectFiles, linkOptions):
     for opt in options:
         if (opt == None) or ('\0' in opt) or ('\r' in opt) or ('\t' in opt) or (opt.strip() == ''):
             raise Exception('Illegal option: "' + str(opt) + '"')
- 
+
     ret = run(state.compiler, options, verbosity >= VERBOSE)
 
     if ret != 0:
@@ -497,8 +497,8 @@ def buildDependencyProjects(state):
 
     # Create arguments to pass to the child icompile process
     libArgs = ['--config', state.preferenceFile()]
-    
-    # We don't need to pass verbosity because it is globally 
+
+    # We don't need to pass verbosity because it is globally
     # specified; FYI, ['--verbosity', str(verbosity - QUIET)]
 
     if state.target == DEBUG:
@@ -523,11 +523,11 @@ def setIcon(iconFile, targetFile, state):
 
     # Extract the icns file
     shell('DeRez -only icns ' + iconCopy + ' > tempicon.rsrc', verbosity >= VERBOSE)
-    
+
     # Add it to the target file
     shell('Rez -append tempicon.rsrc -o ' + targetFile, verbosity >= VERBOSE)
     shell('SetFile -a C ' + targetFile, verbosity >= VERBOSE)
-    
+
     # Setting a file's icon from Python on OS X (which crashes)
     # @cite http://www.codeshorts.ca/tag/osx/
     # Dynamic import, so that this doesn't fail on Linux
@@ -537,11 +537,11 @@ def setIcon(iconFile, targetFile, state):
     #workspace = AppKit.NSWorkspace.sharedWorkspace()
     #workspace.setIcon_forFile_options_(image, file_path, 0)
 ###################################################################################
-    
+
 """ Creates the object files and links them. """
 def buildBinary(state):
 
-    if verbosity >= NORMAL: 
+    if verbosity >= NORMAL:
         printBar()
         colorPrint('Building ' + state.binaryName, SECTION_COLOR)
 
@@ -571,13 +571,13 @@ def buildBinary(state):
     while len(rerunFiles) > 0:
         if verbosity >= TRACE:
             print('Searching for sibling libraries to resolve headers found in ' + str(rerunFiles))
-        
-        if verbosity >= SUPERTRACE: 
+
+        if verbosity >= SUPERTRACE:
             print('\nBefore identifySiblingLibraryDependencies, state.usesProjectsList = ' + str(state.usesProjectsList))
 
         identifySiblingLibraryDependencies(missingHeaders, parents, state)
 
-        if verbosity >= SUPERTRACE: 
+        if verbosity >= SUPERTRACE:
             print('\nAfter identifySiblingLibraryDependencies, state.usesProjectsList = ' + str(state.usesProjectsList))
 
         (rerunFiles, missingHeaders) = getDependencyInformation(rerunFiles, dependencySet, dependencies,
@@ -612,11 +612,11 @@ def buildBinary(state):
     # Get modification times for all of the files
     buildList = getOutOfDateFiles(state, cfiles, dependencies, files, timeStamp)
 
-    copt = ' '.join(getCompilerOptions(state, 
+    copt = ' '.join(getCompilerOptions(state,
         files, state.compilerWarningOptions + state.compilerVerboseOptions))
 
     if verbosity >= TRACE:
-        print("\nBuilding out of date files\n")    
+        print("\nBuilding out of date files\n")
 
     # Build all out of date files
     if len(buildList) > 0:
@@ -624,23 +624,23 @@ def buildBinary(state):
 
     makeObjectFiles(buildList, state, copt)
     relink = len(buildList) > 0
- 
+
     # Generate *all* object file names (even ones that
     # weren't rebuilt)
     ofiles = []
-    for cfile in cfiles: 
+    for cfile in cfiles:
         ofiles.append(getObjectFilename(state, cfile))
 
     # Definitely need to link if no executable exists
     doLink = not os.path.exists(state.binaryDir + state.binaryName)
     if not doLink:
         # See if an object file is newer than the exe
-        
+
         exeTime = getTimeStamp(state.binaryDir + state.binaryName)
         for file in ofiles:
             if getTimeStamp(file) > exeTime:
                 if verbosity >= TRACE:
-                    print(("Relinking because " + file + 
+                    print(("Relinking because " + file +
                            " is newer than " + state.binaryDir + state.binaryName))
                 doLink = True
                 break
@@ -670,9 +670,9 @@ def buildBinary(state):
             print('\n')
             print(svnStatus)
         print(stats)
-        
+
     if verbosity >= VERBOSE: colorPrint('Done building ' + state.binaryName, SECTION_COLOR)
-    
+
 #########################################################################
 
 """ Returns two lists; all of the arguments up to and including the first
@@ -682,7 +682,7 @@ def separateArgs(args):
         #        if (args[i] == '--gdb'):
         #           colorPrint('You compiled with clang++ (llvm), so replacing --gdb with --lldb.', WARNING_COLOR)
         #          args[i] = '--lldb'
-            
+
         if (args[i] == "--run") or (args[i] == "--lldb") or (args[i] == "--gdb"):
             progArgs = args[(i + 1):]
             args = args[:(i + 1)]
@@ -736,9 +736,9 @@ def lldbCompiledProgram(state, progArgs):
     #          -cd  Working directory
     #          -f   Print files and line numbers in Emacs-compatible format
     #          -silent Don't print copyright
-    cmd = ('lldb ' 
+    cmd = ('lldb '
                 + ' -f ' + os.path.abspath(pathConcat(state.binaryDir, state.binaryName))
-#                + ' -s ' + os.path.abspath(commandFile) 
+#                + ' -s ' + os.path.abspath(commandFile)
                 )
     currentDirectory = os.getcwd()
     os.chdir(state.workDir)
@@ -781,7 +781,7 @@ def gdbCompiledProgram(state, progArgs):
 
 
 ####################################################################
-        
+
 """ Choose and configure the compiler for this platform and target."""
 def configureCompiler(state):
     base = rawfilename(state.compiler).lower()
@@ -806,7 +806,7 @@ def configureVC(state):
         state.linkerOptions   = []
     else:
         state.compilerOptions =\
-                ['/D_DEBUG',     
+                ['/D_DEBUG',
                  '/Zi']            # Debug information
         state.linkerOptions   = []
 
@@ -831,7 +831,7 @@ def configureVC(state):
 
     # Enable 64-bit warnings and most other warnings
     state.compilerWarningOptions = ['/Wp64', '/W2']
-  
+
     # Put user options last so that they can override ours
     if userCompilerOptions != None: state.compilerOptions += userCompilerOptions
     if userLinkerOptions != None: state.linkerOptions += userLinkerOptions
@@ -858,7 +858,7 @@ def configureGppOrClang(state):
     if state.target == RELEASE:
         # '-fno-signaling-nans',
         state.compilerOptions = ['-O3',
-                                 '-D_RELEASE', 
+                                 '-D_RELEASE',
                                  '-fno-trapping-math',
                                  '-fno-strict-aliasing',
                                  '-ffast-math',
@@ -897,7 +897,7 @@ def configureGppOrClang(state):
             state.compilerOptions += flags.split(' ')
         else:
             state.detectedArchitecture = 'x86_64';
-        
+
         arch += ['-msse3']
         state.compilerOptions += arch
         state.linkerOptions   += arch
@@ -910,7 +910,7 @@ def configureGppOrClang(state):
 
         # Suppress linker warnings, which on OS X include warnings about anonymous symbols
         state.linkerOptions += ['-Wl,-w']
-        
+
         state.compilerOptions += ['-D__cdecl=', '-D__stdcall=', '-D__fastcall=']
 
         gcc44 = gccVersion[0] >= 4 and gccVersion[1] >= 4
@@ -924,10 +924,10 @@ def configureGppOrClang(state):
             state.compilerOptions.append('-fasm-blocks')
 
         state.detectedArchitecture = 'x86_64'
-        state.detectedTuning = 'noncona'          
-      
+        state.detectedTuning = 'noncona'
+
         state.linkerOptions += ['-Wl,-headerpad_max_install_names']
-        
+
     else:
         if platform.architecture()[0] == '32bit':
             # On 32-bit machines, compile for at least P4 to
@@ -937,13 +937,13 @@ def configureGppOrClang(state):
             state.compilerOptions.append('-march=pentium4')
             state.detectedArchitecture = 'x86';
             state.detectedTuning = 'pentium4';
-            
+
         state.compilerOptions.append('-msse3')
-        
+
         if gccVersion[0] >= 4:
             state.compilerOptions.append('-mfpmath=sse')
             state.compilerOptions.append('-mtune=nocona')
-            
+
 
     if 'clang' in state.compiler:
         arch = ['-arch', 'x86_64', '-msse2', '-msse3', '-msse4.2']
@@ -953,12 +953,12 @@ def configureGppOrClang(state):
     state.compilerOptions += arch
     state.linkerOptions   += arch
 
-        
-    # Use pipes instead of temporary files for 
+
+    # Use pipes instead of temporary files for
     # inter-process communication; this should be faster.
     state.compilerOptions += ['-pipe']
 
- 
+
     if state.binaryType == DLL:
         state.linkerOptions  += ['-shared']
 
@@ -969,7 +969,7 @@ def configureGppOrClang(state):
         # G3D's use of CarbonWindow on OS X generates tons of annoying
         # deprecated warnings from a system header.
         state.compilerWarningOptions += ['-Wno-deprecated-declarations']
-  
+
     # Put user options last so that they can override ours
     if userCompilerOptions != None: state.compilerOptions += userCompilerOptions
     if userLinkerOptions != None: state.linkerOptions += userLinkerOptions
@@ -983,7 +983,7 @@ def configureGppOrClang(state):
     #if verbosity >= VERBOSE:
     #    state.linkerOptions += ['--verbose']
     #    state.compilerOptions += ['--verbose']
-    
+
 
 
 #########################################################################
@@ -1057,7 +1057,7 @@ def processSVNStatus(state):
         result += "There are conflicted files in this project. Use 'svn status' for more information.\n"
 
     return result
-   
+
 #########################################################################
 
 """ Main program execution.
@@ -1066,14 +1066,14 @@ def processSVNStatus(state):
   progArgs - arguments to pass on to the compiled program
 """
 def main(state, args, progArgs, doGDB, doLLDB, doRun, doDeploy):
-    
+
     if '--info' in args:
         printInfo(state);
         sys.exit(0)
 
     if verbosity >= TRACE:
         print(state)
-            
+
     if '--clean' in args:
         buildClean(state)
         # Exit early, preventing the cache from being written
@@ -1093,7 +1093,7 @@ def main(state, args, progArgs, doGDB, doLLDB, doRun, doDeploy):
     buildBinary(state)
 
     maybePrintBar()
-        
+
     if isLibrary(state.binaryType):
         buildInclude(state)
         maybePrintBar()
@@ -1119,7 +1119,7 @@ def main(state, args, progArgs, doGDB, doLLDB, doRun, doDeploy):
     if doDeploy:
         maybePrintBar()
         deploy(state)
-        
+
     return 0
 
 ########################################################################################
@@ -1131,11 +1131,11 @@ doBeep = False
 alreadyiCompiled = []
 
 """
-Runs iCompile on the specified project (which must be a directory) with the specified 
+Runs iCompile on the specified project (which must be a directory) with the specified
 program arguments and returns its return code.
 """
 def icompile(projectDir, allArgs):
-    
+
     curdir = os.getcwd()
 
     os.chdir(projectDir)
@@ -1157,7 +1157,7 @@ def icompile(projectDir, allArgs):
     # Create output directory before configureCompiler runs
     # so that it can add the output as a link path
     mkdir(state.binaryDir, verbosity >= VERBOSE)
-    
+
     configureCompiler(state)
 
     doGDB    = '--gdb'    in args
@@ -1232,7 +1232,7 @@ if __name__ == '__main__':
     if not os.path.exists('ice.txt') and (launchDir.endswith('/source') or launchDir.endswith('/data-files')) and os.path.exists('../ice.txt'):
         # run from parent directory; icompile was run from within the source directory
         os.chdir('..')
-    
+
     ret = icompile('.', sys.argv[1:])
 
     os.chdir(launchDir)
