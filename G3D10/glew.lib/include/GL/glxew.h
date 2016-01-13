@@ -81,6 +81,10 @@
 #define __glxew_h__
 #define __GLXEW_H__
 
+#ifdef _WIN32
+#error glxew.h included on Windows
+#endif
+
 #ifdef __glxext_h_
 #error glxext.h included before glxew.h
 #endif
