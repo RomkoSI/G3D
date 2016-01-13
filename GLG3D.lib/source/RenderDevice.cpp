@@ -113,7 +113,7 @@ void RenderDevice::setDebugOutput(bool b) {
     if (b) {
         glEnable(GL_DEBUG_OUTPUT);
         //glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
-        glDebugMessageCallback(debugCallback, NULL);
+        glDebugMessageCallback((GLDEBUGPROC)G3D::debugCallback, NULL);
     } else {
         glDisable(GL_DEBUG_OUTPUT);
     }
