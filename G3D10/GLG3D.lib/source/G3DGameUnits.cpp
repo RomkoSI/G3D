@@ -24,7 +24,7 @@ SimTime toSeconds(int hour, int minute, double seconds, AMPM ap) {
         t += 12 * 60 * 60;
     }
 
-    return t;
+    return SimTime(t);
 }
 
 }
