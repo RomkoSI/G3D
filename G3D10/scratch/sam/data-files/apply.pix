@@ -1,0 +1,9 @@
+#version 330
+
+
+float gaussCoef[1] = float[1](0);
+out float result;
+
+void main() {
+    result = gaussCoef[0];
+}
