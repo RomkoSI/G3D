@@ -1,7 +1,6 @@
 /**
 \file GLG3D/AZDORenderer.cpp
 
-
 */
 #include "AZDORenderer.h"
 
