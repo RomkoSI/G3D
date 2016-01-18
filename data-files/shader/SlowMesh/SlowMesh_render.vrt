@@ -15,4 +15,6 @@ void main() {
     #endif
     color         = g3d_Color;
     gl_Position   = g3d_Vertex * g3d_ObjectToScreenMatrixTranspose;
+
+    gl_PointSize  = 100 / max(gl_Position.z, 0.001);
 }
