@@ -64,15 +64,23 @@ static String getPreamble(int N, bool unitArea, float stddevMultiplier = 1.0f) {
             }
         }
         preamble += format("#define KERNEL_RADIUS %d\n", N / 2 + 1);
-        // Using const results in a massive slowdown for large kernels
-        preamble += "float gaussCoef[KERNEL_RADIUS] = float[KERNEL_RADIUS]( ";
-        for (int i = 0; i < N / 2; ++i) {
-            preamble += format("%10.8f, ", coeff[i]);
+        //this terrible hack was made neccesary by NVIDIA driver update 361.43. In this driver NVIDIA fails to support array initialization.
+        if (GLCaps::enumVendor() == GLCaps::Vendor::NVIDIA) {
+            preamble += "float gaussCoef[KERNEL_RADIUS];\n";
+            preamble += "#define NVIDIA_361_WORKAROUND() ";
+            for (int i = 0; i <= N / 2; ++i) {
+                preamble += format("gaussCoef[%i] = %10.8f; ", i, coeff[i]);
+            }
+        } else {
+            // Using const results in a massive slowdown for large kernels
+            preamble += "float gaussCoef[KERNEL_RADIUS] = float[KERNEL_RADIUS]( ";
+            for (int i = 0; i < N / 2; ++i) {
+                preamble += format("%10.8f, ", coeff[i]);
+            }
+            // Last one has a closing paren and semicolon
+            preamble += format("%10.8f);", coeff[N / 2]);
         }
-        // Last one has a closing paren and semicolon
-        preamble += format("%10.8f);", coeff[N/2]);
     }
-
     return preamble;
 }
 
