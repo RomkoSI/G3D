@@ -16,7 +16,10 @@ uniform int2      direction;
 out vec4 result;
 
 void main() {
-              
+ 
+#   ifdef  NVIDIA_361_WORKAROUND
+        NVIDIA_361_WORKAROUND();
+#   endif
     int2   P = int2(gl_FragCoord.xy) << shift;         
     float4 sum = texelFetch(source, P, 0) * gaussCoef[KERNEL_RADIUS - 1];
     
@@ -32,3 +35,4 @@ void main() {
 
     result = sum;
 }
+
