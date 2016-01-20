@@ -787,7 +787,7 @@ shared_ptr<Texture> Texture::fromFile
     // The six cube map faces, or the one texture and 5 dummys.
     shared_ptr<Image> image[6];
 
-    if (((numFaces == 1) && (dimension == DIM_2D))|| (dimension == DIM_3D)) {
+    if (((numFaces == 1) && (dimension == DIM_2D)) || (dimension == DIM_3D)) {
         if ((toLower(realFilename[0]) == "<white>") || realFilename[0].empty()) {
             const shared_ptr<CPUPixelTransferBuffer>& buffer = CPUPixelTransferBuffer::create(1, 1, ImageFormat::RGBA8());
             image[0] = Image::fromPixelTransferBuffer(buffer);
@@ -808,7 +808,7 @@ shared_ptr<Texture> Texture::fromFile
                 image[f] = Image::fromPixelTransferBuffer(buffer);
                 image[f]->set(Point2int32(0, 0), Color4unorm8::one());
             } else {
-                threadSet.insert(shared_ptr<ImageLoaderThread>(new ImageLoaderThread(realFilename[f], image[f], desiredEncoding.format)));
+                threadSet.insert(shared_ptr<ImageLoaderThread>(new ImageLoaderThread(realFilename[f], image[f])));
             }
         }
         threadSet.start(GThread::USE_CURRENT_THREAD);
