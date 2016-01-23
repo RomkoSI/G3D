@@ -482,7 +482,7 @@
         temporallyVarySamples = true; 
         propagationDamping = 0.1;
         temporalFilterSettings = TemporalFilter::Settings {
-            alpha = 0.92;
+            hysteresis = 0.92;
         };
         useTapNormal = true;
         
@@ -506,7 +506,7 @@
         temporallyVarySamples = true; 
         propagationDamping = 0.1;
         temporalFilterSettings = TemporalFilter::Settings {
-            alpha = 0.931;
+            hysteresis = 0.931;
         };
 
         useTapNormal = false;
@@ -535,7 +535,7 @@
         temporallyVarySamples = true; 
         propagationDamping = 0.1;
         temporalFilterSettings = TemporalFilter::Settings {
-            alpha = 0.92;
+            hysteresis = 0.92;
         };
 
         useTapNormal = true;
@@ -562,7 +562,7 @@
         temporallyVarySamples = true; 
         propagationDamping = 0.1;
         temporalFilterSettings = TemporalFilter::Settings {
-            alpha = 0.931;
+            hysteresis = 0.931;
         };
 
         useTapNormal = true;

@@ -176,7 +176,7 @@ void App::makeAdvancedGUI() {
 
     temporalSettingsPane->addCheckBox("Temporally Vary Samples", &m_deepGBufferRadiositySettings.temporallyVarySamples);
     temporalSettingsPane->addLabel("Temporal Alpha (0 is off)");
-    temporalSettingsPane->addNumberBox("      ", &m_deepGBufferRadiositySettings.temporalFilterSettings.alpha, "", GuiTheme::LINEAR_SLIDER, 0.0f, 1.0f);
+    temporalSettingsPane->addNumberBox("      ", &m_deepGBufferRadiositySettings.temporalFilterSettings.hysteresis, "", GuiTheme::LINEAR_SLIDER, 0.0f, 1.0f);
     temporalSettingsPane->addLabel("Propagation Damping (1 is no inter-frame propagation)");
     temporalSettingsPane->addNumberBox("      ", &m_deepGBufferRadiositySettings.propagationDamping, "", GuiTheme::LINEAR_SLIDER, 0.0f, 1.0f);
     temporalSettingsPane->pack();
@@ -479,7 +479,7 @@ void App::convergeDeepGBufferRadiosity(RenderDevice* rd) {
         return;
     }
     DeepGBufferRadiositySettings previousSettings = m_deepGBufferRadiositySettings;
-    m_deepGBufferRadiositySettings.temporalFilterSettings.alpha = 0.01f;
+    m_deepGBufferRadiositySettings.temporalFilterSettings.hysteresis = 0.01f;
     m_deepGBufferRadiositySettings.propagationDamping = 0.99f;
     m_deepGBufferRadiositySettings.numSamples = 50;
     m_deepGBufferRadiositySettings.numBounces = 3;
@@ -673,7 +673,7 @@ void App::onAfterLoadScene(const Any& any, const String& stringName) {
     m_deepGBufferRadiositySettings               = any.get("deepGBufferRadiositySettings", DeepGBufferRadiositySettings());
     m_maxPerformanceDeepGBufferRadiosityPresets  = any.get("maxPerformanceDeepGBufferRadiosityPresets", DeepGBufferRadiositySettings());
     m_maxQualityDeepGBufferRadiosityPresets      = any.get("maxQualityDeepGBufferRadiosityPresets", DeepGBufferRadiositySettings());
-    m_BALANCEDDeepGBufferRadiosityPresets          = any.get("BALANCEDDeepGBufferRadiosityPresets", DeepGBufferRadiositySettings());
+    m_BALANCEDDeepGBufferRadiosityPresets        = any.get("BALANCEDDeepGBufferRadiosityPresets", DeepGBufferRadiositySettings());
     evaluateDemoSettings();
 
     if (scene()) {

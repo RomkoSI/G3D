@@ -267,11 +267,11 @@ void DeepGBufferRadiosity::update
 
         bool computePeeledLayer = willComputePeeledLayer(settings);
         DeepGBufferRadiositySettings currentSettings(settings);
-        float originalTemporalAlpha = currentSettings.temporalFilterSettings.alpha;
+        float originalTemporalAlpha = currentSettings.temporalFilterSettings.hysteresis;
 
         if (currentSettings.numBounces > 1) {
             // Don't temporally filter until the end.
-            currentSettings.temporalFilterSettings.alpha = 0.0f;
+            currentSettings.temporalFilterSettings.hysteresis = 0.0f;
         }
 
         compute(rd, currentSettings, depthTexture, previousBounceBuffer, camera,  peeledDepthBuffer, peeledColorBuffer, normalBuffer, peeledNormalBuffer, computePeeledLayer, gbuffer, scene);
@@ -281,7 +281,7 @@ void DeepGBufferRadiosity::update
         for (int i = 1; i < settings.numBounces; ++i) {
             currentBounce = i + 1;
             if (currentBounce == settings.numBounces) { // Filter on the final bounce
-                currentSettings.temporalFilterSettings.alpha = originalTemporalAlpha;
+                currentSettings.temporalFilterSettings.hysteresis = originalTemporalAlpha;
             }
 
             alwaysAssertM(!computePeeledLayer || notNull(peeledLambertianBuffer), "If doing multiple DeepGBufferRadiosity bounces requiring peeled layer, must pass in a peeled lambertian buffer");
