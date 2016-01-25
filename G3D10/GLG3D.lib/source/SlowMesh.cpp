@@ -21,6 +21,10 @@ namespace G3D {
         m_primitiveType = p;
     }
 
+    void G3D::SlowMesh::setPointSize(const float size) {
+        m_pointSize = size;
+    }
+
     /** Sets the texture to use for rendering */
     void SlowMesh::setTexture(const shared_ptr<Texture> t) {
         m_texture = t;
@@ -47,7 +51,7 @@ namespace G3D {
 
     /** Construct a CPUVertex given the current texCoord, color, and normal state */
     void SlowMesh::makeVertex(const Vector2& vertex) {
-        makeVertex(Vector3(vertex, 0));
+        makeVertex(Vector4(vertex, 0, 1));
     }
 
     void SlowMesh::makeVertex(const Vector3& vertex) {
@@ -113,6 +117,9 @@ namespace G3D {
             } else {
                 args.setMacro("HAS_TEXTURE", 0);
             }
+            
+            args.setMacro("IS_PROJECTION", rd->projectionMatrix()[3][4] == 0.0f ? 1 : 0);
+            args.setUniform("pointSize", m_pointSize);
 
             args.setPrimitiveType(m_primitiveType);
             args.setAttributeArray("g3d_Vertex", vertex);
@@ -123,6 +130,7 @@ namespace G3D {
             if (m_primitiveType == PrimitiveType::POINTS) { glEnable(GL_PROGRAM_POINT_SIZE); }
             LAUNCH_SHADER("SlowMesh_render.*", args);
             if (m_primitiveType == PrimitiveType::POINTS) { glDisable(GL_PROGRAM_POINT_SIZE); }
+
         }
     }
 
