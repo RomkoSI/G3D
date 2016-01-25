@@ -70,6 +70,7 @@ class SlowMesh {
     Color4              m_currentColor;
     Vector2             m_currentTexCoord;
     Vector3             m_currentNormal;
+    float               m_pointSize;
 
     void copyToGPU(
             AttributeArray&   vertex, 
@@ -79,11 +80,13 @@ class SlowMesh {
 
 public:
     SlowMesh(PrimitiveType p, const shared_ptr<Texture>& t = shared_ptr<Texture>()) : m_primitiveType(p), m_texture(t),
-        m_currentColor(Color3::black()), m_currentTexCoord(0,0), m_currentNormal(Vector3::unitZ()) {}
+        m_currentColor(Color3::black()), m_currentTexCoord(0,0), m_currentNormal(Vector3::unitZ()), m_pointSize(100.0f) {}
 
     /** Overrides the current PrimitiveType, all of the create vertices will be of 
         said type, whether made before or after this call */
     void setPrimitveType(const PrimitiveType& p);
+
+    void setPointSize(const float size);
 
     /** Sets the texture to use for rendering */
     void setTexture(const shared_ptr<Texture> t);

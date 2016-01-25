@@ -9,6 +9,8 @@ out vec4 color;
     out vec2             texCoord;
 #endif
 
+uniform float pointSize;
+
 void main() {
     #if HAS_TEXTURE
         texCoord = g3d_TexCoord0;
@@ -16,5 +18,10 @@ void main() {
     color         = g3d_Color;
     gl_Position   = g3d_Vertex * g3d_ObjectToScreenMatrixTranspose;
 
-    gl_PointSize  = 100 / max(gl_Position.z, 0.001);
+    gl_PointSize  = 15 / 
+#   if IS_PROJECTION    
+        max(gl_Position.z, 0.001);
+#   else
+        1;
+#   endif
 }
