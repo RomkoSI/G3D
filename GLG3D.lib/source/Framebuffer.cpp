@@ -405,7 +405,7 @@ void Framebuffer::resize(int w, int h){
 
 
 void Framebuffer::blitTo
-(RenderDevice* rd,
+   (RenderDevice* rd,
     const shared_ptr<Framebuffer>& dst,
     bool invertY,
     bool linearInterpolation,
@@ -425,14 +425,16 @@ void Framebuffer::blitTo
     rd->setReadFramebuffer(dynamic_pointer_cast<Framebuffer>(const_cast<Framebuffer*>(this)->shared_from_this()));
 
     GLenum flags = 0;
-    if (blitDepth) { flags |= GL_DEPTH_BUFFER_BIT; }
+    if (blitDepth)   { flags |= GL_DEPTH_BUFFER_BIT;   }
     if (blitStencil) { flags |= GL_STENCIL_BUFFER_BIT; }
-    if (blitColor) { flags |= GL_COLOR_BUFFER_BIT; }
+    if (blitColor)   { flags |= GL_COLOR_BUFFER_BIT;   }
 
     debugAssertM(!(linearInterpolation && (blitDepth || blitStencil)), "if blit depth or stencil is enabled Nearest inpterpolation must be used");
-    debugAssertM((!blitDepth) || (dst->has(Framebuffer::DEPTH) && has(Framebuffer::DEPTH)), "To perform a depth blit both the source and destination Framebuffers must have a depth buffer attached");
-    debugAssertM((!blitStencil) || (dst->has(Framebuffer::STENCIL) && has(Framebuffer::STENCIL)), "To perform a stencil blit both the source and destination Framebuffers must have a stencil buffer attached");
-    debugAssertM((!blitColor) || (dst->has(Framebuffer::COLOR0) && has(Framebuffer::COLOR0)), "To perform a color blit both the source and destination Framebuffers must have a color buffer attached");
+    if (notNull(dst)) {
+        debugAssertM((! blitDepth) || (dst->has(Framebuffer::DEPTH) && has(Framebuffer::DEPTH)), "To perform a depth blit both the source and destination Framebuffers must have a depth buffer attached");
+        debugAssertM((! blitStencil) || (dst->has(Framebuffer::STENCIL) && has(Framebuffer::STENCIL)), "To perform a stencil blit both the source and destination Framebuffers must have a stencil buffer attached");
+        debugAssertM((! blitColor) || (dst->has(Framebuffer::COLOR0) && has(Framebuffer::COLOR0)), "To perform a color blit both the source and destination Framebuffers must have a color buffer attached");
+    }
 
     glBlitFramebuffer(0, invertY ? h : 0, w, invertY ? 0 : h, 0, 0, w, h, flags, linearInterpolation ? GL_LINEAR : GL_NEAREST);
     debugAssertGLOk();
