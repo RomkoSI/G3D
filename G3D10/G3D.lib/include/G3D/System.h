@@ -26,7 +26,9 @@
 #ifdef G3D_OSX
 #   define Zone OSX_Zone
 #   define Fixed OSX_Fixed
+#   define Point OSX_Point
 #   include <CoreServices/CoreServices.h>
+#   undef Point
 #   undef Fixed
 #   undef nil
 #endif
