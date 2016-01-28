@@ -1,0 +1,1 @@
+This is an example of shader code to generate a Deep G-Buffer in a single shading pass.
