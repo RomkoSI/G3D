@@ -23,7 +23,8 @@ layout(triangles) in;
     in layout(location = 0, passthrough) vec3 csPosition[];
     in layout(location = 1, passthrough) vec3 csPrevPosition[];
 
-    // TODO: Passthrough all other attributes here
+    // ...
+    // TODO: Passthrough all application-specific attributes here
 #else
     out int gl_Layer;
     out int gl_ViewportIndex;
@@ -35,7 +36,8 @@ layout(triangles) in;
     in layout(location = 1) vec3 csPrevPosition_in[];
     out layout(location = 1) vec3 csPrevPosition;
 
-    // TODO: Passthrough all other attributes here
+    // ...
+    // TODO: Passthrough all application-specific attributes here
 #endif
 
 
@@ -50,7 +52,8 @@ void main() {
         for (int j = 0; j < 3; ++j) {
             csPosition      = csPosition_in[j];
             csPrevPosition  = csPrevPosition_in[j];
-            // Pass through any extra attributes here
+
+            // TODO: Pass through application-specific attributes here
 
             gl_Position = gl_in[j].gl_Position;
             EmitVertex();

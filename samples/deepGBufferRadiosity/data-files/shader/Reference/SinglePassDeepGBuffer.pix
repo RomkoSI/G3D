@@ -1,27 +1,27 @@
-#version 420 // -*- c++ -*-
-
+#version 440 // -*- c++ -*-
 
 uniform sampler2D   previousDepth_buffer;
 uniform vec2        currentDepth_invSize;
 
 /** Minimum depth buffer value distance (on [0,1]) that new faces
-must be beyond previousDepthBuffer to be written. */
+    must be beyond previousDepthBuffer to be written. */
 uniform float     minZSeparation;
 
+/** Projection matrix constants describing the viewport 
+  (see G3D::Projection documentation) */
 uniform float3    clipInfo;
 
-// We reproject per-pixel so that csPrevPosition can be interpolated
-// linearly in the current frame's 3D; projecting the previous position
-// in the vertex shader would result in a previous homogeneous value
-// being linearly in the current frame.
 uniform mat4 projectToScreenMatrix;
 
 in layout(location = 0) vec3 csPosition;
 in layout(location = 1) vec3 csPrevPosition;
-// Declare other attributes here
+
+// ...
+// TODO: Declare application-specific attributes here
+
 in int gl_Layer;
 
-// Declare GBuffer targets here.
+// TODO: Declare application-specific GBuffer targets here.
 // For this example, we will write only the camera space 
 // position and the change in screen-space position.
 out layout(location = 0) vec3 csPosition_target;
@@ -52,7 +52,7 @@ vec2 getSSPositionChange(vec3 csPosition, vec3 csPrevPosition, mat4 projectToScr
     return ssPositions.zw - ssPositions.xy;
 }
 
-bool isDepthPeeledWithReproject(in vec2 ssV, in sampler2D prevDepthBuffer,
+bool isInFrontOfSecondLayer(in vec2 ssV, in sampler2D prevDepthBuffer,
             in float minZGap, in vec2 fragCoord, in float prevZ, in vec3 clipInfo, in vec2 invCurrentSize) {
     vec2 prevSSC = fragCoord - ssV;
     float oldDepth = texture(prevDepthBuffer, prevSSC * invCurrentSize).r;
@@ -65,15 +65,14 @@ void main() {
 
     vec2 ssPositionChange = getSSPositionChange(csPosition, csPrevPosition, projectToScreenMatrix);
 
-    if (isDepthPeeledWithReproject(ssPositionChange, previousDepth_buffer, 
-                                minZSeparation, 
-                                gl_FragCoord.xy, csPrevPosition.z, 
-                                clipInfo, currentDepth_invSize)) {
+    if ((gl_Layer == 1) && isInFrontOfSecondLayer(ssPositionChange, previousDepth_buffer, 
+                          minZSeparation, 
+                          gl_FragCoord.xy, csPrevPosition.z, 
+                          clipInfo, currentDepth_invSize)) {
         discard;
     }
 
-    // Do your regular GBuffer writing here
+    // TODO: Application-specific writing to the G-Buffer
     csPosition_target = csPosition;
     ssPositionChange_target = ssPositionChange;
 }
-/* end of SinglePassDeepGBuffer.pix */
