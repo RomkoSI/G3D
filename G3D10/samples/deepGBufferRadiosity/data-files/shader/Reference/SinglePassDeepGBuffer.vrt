@@ -1,74 +1,22 @@
-#version 330 or 420 compatibility// -*- c++ -*-
-/**
-    \file SinglePassDeepGBuffer.vrt
-*/
-#include <UniversalSurface/UniversalSurface_vertex.glsl>
+#version 440
 
-    #expect PREDICT_NEXT_FRAME "1 or 0"
-    #expect HAS_BONES
+uniform mat4x3  previousObjectToCameraMatrix;
+uniform mat4x3  objectToCameraMatrix;
+uniform mat4    projectionMatrix;
 
-#if HAS_BONES > 0
-    in vec4      g3d_BoneWeights;
-in ivec4     g3d_BoneIndices;
-uniform sampler2D   boneMatrixTexture;
-#   if defined(CS_POSITION_CHANGE) || defined(SS_POSITION_CHANGE) || defined(SS_EXPRESSIVE_MOTION)
-uniform sampler2D   prevBoneMatrixTexture;
-#   endif
-#endif
+in vec3 g3d_Vertex;
 
-#if defined(NUM_LIGHTMAP_DIRECTIONS) && (NUM_LIGHTMAP_DIRECTIONS > 0)
-in vec2 g3d_TexCoord1;
-#endif
+out layout(location = 0) vec3 csPosition;
+out layout(location = 1) vec3 csPrevPosition;
 
-#if defined(CS_POSITION_CHANGE) || defined(SS_POSITION_CHANGE)
-uniform mat4x3  PreviousObjectToCameraMatrix;
-out layout(location = 7) vec3 csPrevPosition;
-#endif
-
-#if defined(SS_EXPRESSIVE_MOTION)
-uniform mat4x3  ExpressivePreviousObjectToCameraMatrix;
-out layout(location = 8) vec3 csExpressivePrevPosition;
-#endif
-
-#include <UniversalMaterial/UniversalMaterial.glsl>
-uniform_UniversalMaterial(material_);
+// Declare any other necessary attributes as needed (texCoords, normals, tangents)
 
 void main(void) {
-    // Temporary variables needed because some drivers do not allow modifying attribute variables directly
-    vec4 vertex = g3d_Vertex;
+    vec4 vertex = vec4(g3d_Vertex, 1.0);
+    csPosition = (objectToCameraMatrix * vertex).xyz;
+    csPrevPosition = (previousObjectToCameraMatrix * vertex).xyz;
 
-    vec3 normal = g3d_Normal;
-    vec4 packedTangent = g3d_PackedTangent;
+    // Handle any other necessary attributes as needed (texCoords, normals, tangents)
 
-#   if (defined(CS_POSITION_CHANGE) || defined(SS_POSITION_CHANGE) || defined(SS_EXPRESSIVE_MOTION)) && (NUM_BONES > 0)
-    // For expressive motion, still use the same previous bone matrix texture to avoid
-    // additional computation (since it is expressive anyway!)
-    mat4 prevBoneTransform = UniversalSurface_getFullBoneTransform(g3d_BoneWeights, g3d_BoneIndices, prevBoneMatrixTexture);
-#   endif
-
-#   if defined(CS_POSITION_CHANGE) || defined(SS_POSITION_CHANGE) || PREDICT_NEXT_FRAME || REPROJECT
-#       if NUM_BONES > 0
-    csPrevPosition = (PreviousObjectToCameraMatrix * (prevBoneTransform * vertex)).xyz;
-#       else
-    csPrevPosition = (PreviousObjectToCameraMatrix * vertex).xyz;
-#       endif
-#   endif
-
-#   if NUM_BONES > 0
-    // This mutates vertex, normal, and packedTangent
-    UniversalSurface_boneTransform(g3d_BoneWeights, g3d_BoneIndices, boneMatrixTexture, vertex, normal, packedTangent);
-#   endif
-
-    UniversalSurface_transform(vertex, normal, packedTangent, g3d_TexCoord0,
-#       if defined(NUM_LIGHTMAP_DIRECTIONS) && (NUM_LIGHTMAP_DIRECTIONS > 0)
-        g3d_TexCoord1,
-#       else   
-        vec2(0),
-#       endif
-#if HAS_VERTEX_COLORS
-        g3d_VertexColor
-#else
-        vec4(0)
-#endif
-        );
+    gl_Position = projectionMatrix * csPosition;
 }
