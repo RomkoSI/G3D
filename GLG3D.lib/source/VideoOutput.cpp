@@ -114,13 +114,13 @@ shared_ptr<VideoOutput> VideoOutput::create(const String& filename, const Settin
 VideoOutput::VideoOutput() :
     m_isInitialized(false),
     m_isFinished(false),
+    m_framecount(0),
     m_avOutputFormat(NULL),
     m_avFormatContext(NULL),
     m_avStream(NULL),
     m_avInputBuffer(NULL),
     m_avInputFrame(NULL),
     m_avEncodingBuffer(NULL),
-    m_framecount(0),
     m_avEncodingBufferSize(0)
 {
 }
