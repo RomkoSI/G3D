@@ -183,9 +183,9 @@ bool ParticleSystem::s_preferLowResolutionTransparency = false;
 
 ParticleSystem::ParticleSystem() : m_particlesChangedSinceBounds(true), 
     m_particlesChangedSincePose(true), 
+    m_rng(4028146898U, false),
     m_particlesAreInWorldSpace(true), 
-    m_initTime(0),
-    m_rng(4028146898U, false) {
+    m_initTime(0) {
 }
 
 void ParticleSystem::updateBounds() {   
