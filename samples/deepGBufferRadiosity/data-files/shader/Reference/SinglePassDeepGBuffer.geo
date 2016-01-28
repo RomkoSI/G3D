@@ -1,5 +1,13 @@
 #version 440 // -*- c++ -*-
 
+#extension NV_viewport_array2 : enable
+#extension NV_geometry_shader_passthrough : enable
+
+#if defined(GL_NV_viewport_array2) && defined(GL_NV_geometry_shader_passthrough)
+//  Fast path for 
+#   define USE_VIEWPORT_MULTICAST
+#endif
+
 layout(triangles) in;
 
 #define NUM_LAYERS 2
@@ -7,13 +15,7 @@ layout(triangles) in;
 #if USE_VIEWPORT_MULTICAST
     layout(viewport_relative) out int gl_Layer;
     layout(triangle_strip, max_vertices = 3) out;
-#else
-    out int gl_Layer;
-    out int gl_ViewportIndex;
-    layout(triangle_strip, max_vertices = 3 * NUM_LAYERS) out;
-#endif
 
-#if USE_VIEWPORT_MULTICAST
     layout(passthrough) in gl_PerVertex {
         vec4 gl_Position;
     };
@@ -21,16 +23,21 @@ layout(triangles) in;
     in layout(location = 0, passthrough) vec3 csPosition[];
     in layout(location = 1, passthrough) vec3 csPrevPosition[];
 
-    // Passthrough all other attributes here
+    // TODO: Passthrough all other attributes here
 #else
+    out int gl_Layer;
+    out int gl_ViewportIndex;
+    layout(triangle_strip, max_vertices = 3 * NUM_LAYERS) out;
+
     in  layout(location = 0) vec2 csPosition_in[];
     out layout(location = 0) vec2 csPosition;
 
     in layout(location = 1) vec3 csPrevPosition_in[];
     out layout(location = 1) vec3 csPrevPosition;
 
-    // Passthrough all other attributes here
+    // TODO: Passthrough all other attributes here
 #endif
+
 
 void main() {
 #if USE_VIEWPORT_MULTICAST

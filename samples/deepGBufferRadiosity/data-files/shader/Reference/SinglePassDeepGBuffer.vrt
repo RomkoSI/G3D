@@ -9,14 +9,14 @@ in vec3 g3d_Vertex;
 out layout(location = 0) vec3 csPosition;
 out layout(location = 1) vec3 csPrevPosition;
 
-// Declare any other necessary attributes as needed (texCoords, normals, tangents)
+// TODO: Declare any other necessary attributes as needed (texCoords, normals, tangents)
 
 void main(void) {
     vec4 vertex = vec4(g3d_Vertex, 1.0);
     csPosition = (objectToCameraMatrix * vertex).xyz;
     csPrevPosition = (previousObjectToCameraMatrix * vertex).xyz;
 
-    // Handle any other necessary attributes as needed (texCoords, normals, tangents)
+    // TODO: Handle any other necessary attributes as needed (texCoords, normals, tangents)
 
     gl_Position = projectionMatrix * csPosition;
 }

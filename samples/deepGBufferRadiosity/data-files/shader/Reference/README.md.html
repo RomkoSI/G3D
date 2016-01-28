@@ -1,10 +1,13 @@
-This is an example of shader code to generate a two-layer Deep G-Buffer in a single 
-shading pass using the technique from:
+The sample program creates a deep G-Buffer using depth peeling, which is straightforward but slow.
 
-> Mara, McGuire, Nowrouzezahrai, and Luebke, Deep G-Buffers for Stable Global Illumination > Approximation, submitted to ACM Transactions on Graphics, January 2016
+This directory contains a reference implementation to generate a two-layer Deep G-Buffer in a single shading pass using the technique from:
 
+> Mara, McGuire, Nowrouzezahrai, and Luebke, Deep G-Buffers for Stable Global Illumination
+> Approximation, submitted to ACM Transactions on Graphics, January 2016
 
+If your GPU has the NV_viewport_array2 and NV_geometry_shader_passthroughextensions (NVIDIA Maxwell and later GUs), then these shaders implement the "Reproject Optimized" variant described in that paper. Otherwise, they automatically fall back to the "Reproject" variant.
 
+To use these reference shaders in your own system, implement all of the "TODO" lines that are application specific. From CPU code, 
 
 
 
