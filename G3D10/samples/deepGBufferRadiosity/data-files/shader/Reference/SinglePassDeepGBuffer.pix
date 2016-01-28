@@ -1,5 +1,9 @@
 #version 420 // -*- c++ -*-
 
+
+uniform sampler2D   previousDepth_buffer;
+uniform vec2        currentDepth_invSize;
+
 /** Minimum depth buffer value distance (on [0,1]) that new faces
 must be beyond previousDepthBuffer to be written. */
 uniform float     minZSeparation;
@@ -48,7 +52,7 @@ vec2 getSSPositionChange(vec3 csPosition, vec3 csPrevPosition, mat4 projectToScr
     return ssPositions.zw - ssPositions.xy;
 }
 
-bool isDepthPeeledWithReproject(in vec2 ssV, in sampler2D prevDepthBuffer, in vec2 currentToPrevScale, 
+bool isDepthPeeledWithReproject(in vec2 ssV, in sampler2D prevDepthBuffer,
             in float minZGap, in vec2 fragCoord, in float prevZ, in vec3 clipInfo, in vec2 invCurrentSize) {
     vec2 prevSSC = fragCoord - ssV;
     float oldDepth = texture(prevDepthBuffer, prevSSC * invCurrentSize).r;
@@ -62,9 +66,9 @@ void main() {
     vec2 ssPositionChange = getSSPositionChange(csPosition, csPrevPosition, projectToScreenMatrix);
 
     if (isDepthPeeledWithReproject(ssPositionChange, previousDepth_buffer, 
-                                currentToPreviousScale, minZSeparation, 
+                                minZSeparation, 
                                 gl_FragCoord.xy, csPrevPosition.z, 
-                                clipInfo, currentDepth_invSize.xy)) {
+                                clipInfo, currentDepth_invSize)) {
         discard;
     }
 
