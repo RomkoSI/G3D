@@ -1,0 +1,328 @@
+#version 120 or 150 or 420 // -*- c++ -*-
+#extension GL_ARB_shader_atomic_counters : enable
+#extension GL_ARB_shader_image_load_store : enable
+#extension GL_ARB_gpu_shader5 : enable
+#extension GL_ARB_separate_shader_objects : enable
+#include <g3dmath.glsl>
+#include <compatibility.glsl>
+#include <UniversalMaterial/UniversalMaterial.glsl>
+
+#expect USE_IMAGE_STORE "1 or 0"
+
+uniform_UniversalMaterial();
+
+/**
+\file UniversalSurface_GBuffer.pix
+\author Morgan McGuire, http://graphics.cs.williams.edu
+
+This shader expects a prefix (GBuffer::macros() or SVO::macros()) to be attached
+at runtime using Shader::setPremable.
+
+If USE_IMAGE_STORE is defined and set to a non-zero value, then the OpenGL image store
+API is used instead of framebuffer write.  In this case, you will probably want to
+disable framebuffer writes (color mask) using RenderDevice::setColorWrite(false).
+
+Requires BUFFER_WIDTH_MASK = width - 1 and BUFFER_WIDTH_SHFIT = log_2(width) to be
+passed, where width is a power of 2.
+*/
+#if __VERSION__ >= 130
+#   define varying in
+#endif
+
+#include<normal-compression/ONV.glsl>
+
+#expect USE_IMAGE_STORE "1 or 0"
+#expect HAS_ALPHA "1 or 0"
+#expect REPROJECT "1 or 0"
+
+#if (__VERSION__ < 420)// && ! defined(GL_ARB_separate_shader_objects)) 
+#   define layout(ignore)
+#endif
+
+    /** Texture coordinate */
+    varying layout(location = 0) vec2 texCoord;
+
+varying layout(location = 1) vec3 wsPosition;
+
+
+/** Do not read color attributes (except LAMBERTIAN, if an alpha test is required)
+outside of this rectangle.  Used to implement the trim band outside of which
+only depth is recorded. */
+uniform vec2            lowerCoord, upperCoord;
+
+
+#if defined(CS_POSITION_CHANGE) || defined(SS_POSITION_CHANGE) || REPROJECT
+varying layout(location = 7) vec3 csPrevPosition;
+#endif
+
+#if defined(SS_POSITION_CHANGE) || REPROJECT
+// We reproject per-pixel so that csPrevPosition can be interpolated
+// linearly in the current frame's 3D; projecting the previous position
+// in the vertex shader would result in a previous homogeneous value
+// being linearly in the current time frame.
+uniform mat4 ProjectToScreenMatrix;
+
+vec2 getSSPositionChange(vec3 csPosition) {
+
+    vec4 temp = ProjectToScreenMatrix * vec4(csPrevPosition, 1.0);
+
+    // gl_FragCoord.xy has already been rounded to a pixel center, so regenerate the true projected position.
+    // This is needed to generate correct velocity vectors in the presence of Projection::pixelOffset
+    vec4 temp2 = ProjectToScreenMatrix * vec4(csPosition, 1.0);
+
+    // We want the precision of division here and intentionally do not convert to multiplying by an inverse.
+    // Expressing the two divisions as a single vector division operation seems to prevent the compiler from
+    // computing them at different precisions, which gives non-zero velocity for static objects in some cases.
+    vec4 ssPositions = vec4(temp.xy, temp2.xy) / vec4(temp.ww, temp2.ww);
+
+    return ssPositions.zw - ssPositions.xy;
+
+}
+
+#endif
+
+float backside = (gl_FrontFacing == g3d_InvertY) ? 1.0 : -1.0;
+
+#ifdef NORMALBUMPMAP
+#   if (PARALLAXSTEPS > 0)
+
+varying layout(location = 6) vec3  _tsE;
+#   endif    
+varying layout(location = 4)   vec3    tan_X;
+varying layout(location = 5)   vec3    tan_Y;
+
+#include <BumpMap/BumpMap.glsl>
+#endif
+
+varying layout(location = 2) vec3             tan_Z;
+
+/** Index of refraction / 24.0 */
+uniform float            normalizedIndexOfRefraction;
+
+#ifdef SVO_POSITION
+varying layout(location = 8) vec3         svoPosition;
+flat varying layout(location = 9) int		triangleAxis;
+#endif
+
+#if (USE_DEPTH_PEEL != 0)
+#   include <depthPeel.glsl>
+
+/** Need not be at the same resolution as the current depth buffer.
+For samples to be written, they must be at greater gl_FragCoord.z values
+than those in this buffer.*/
+#for (int layerToPeelAgainst = 0; layerToPeelAgainst < MAX_LAYER_INDEX; ++layerToPeelAgainst)
+    uniform_Texture(sampler2D, previousDepth$(layerToPeelAgainst)_);
+#endfor
+
+
+/**
+textureSize(previousDepthBuffer) / textureSize(currentDepthBuffer)
+*/
+uniform float2    currentToPreviousScale;
+
+/** Minimum depth buffer value distance (on [0,1]) that new faces
+must be beyond previousDepthBuffer to be written. */
+uniform float     minZSeparation;
+
+uniform float3    clipInfo;
+#   if REPROJECT
+#       include <SinglePassDepthPeel/depthPeelWithReproject.glsl>
+#   endif
+#endif
+
+#if HAS_VERTEX_COLORS
+varying layout(location = 10) vec4 vertexColor;
+#endif
+
+in int gl_Layer;
+//layout(early_fragment_tests) in;
+void main() {
+#   if REPROJECT
+    vec3 csPosition = g3d_WorldToCameraMatrix * vec4(wsPosition, 1.0);
+    vec2 ssPositionChange = getSSPositionChange(csPosition);
+#   endif 
+
+    #for (int layerToPeelAgainst = 0; layerToPeelAgainst < MAX_LAYER_INDEX; ++layerToPeelAgainst)
+        if (gl_Layer == ($(layerToPeelAgainst) + 1)) {
+#       if REPROJECT
+            if (isDepthPeeledWithReproject(ssPositionChange, previousDepth$(layerToPeelAgainst)_buffer, currentToPreviousScale, minZSeparation, gl_FragCoord.xy, csPrevPosition.z, clipInfo, previousDepth$(layerToPeelAgainst)_invSize.xy)) {
+                discard;
+            }
+#       else
+            if (isDepthPeeled(previousDepth$(layerToPeelAgainst)_buffer, currentToPreviousScale, minZSeparation, gl_FragCoord.xyz, clipInfo)) {
+                discard;
+            }
+#       endif
+        }
+    #endfor
+
+#if PREDICT_NEXT_FRAME
+        if (gl_Layer == 2) {
+            return; // Only write to depth on the prediction buffer
+        }
+#endif
+
+
+#   if ! USE_IMAGE_STORE
+    // Check the colorrect bounds
+    if ((gl_FragCoord.x < lowerCoord.x) ||
+        (gl_FragCoord.y < lowerCoord.y) ||
+        (gl_FragCoord.x > upperCoord.x) ||
+        (gl_FragCoord.y > upperCoord.y)) {
+        // Outside of bounds
+
+#           if HAS_ALPHA
+        // Alpha test
+#               if defined(LAMBERTIANCONSTANT) || defined(LAMBERTIANMAP)
+    {
+        // Don't bother with parallax--we're in a guard band
+        float alpha =
+#                   ifdef LAMBERTIANCONSTANT
+            lambertianConstant.a
+#                      ifdef LAMBERTIANMAP
+            * texture2D(lambertianMap, texCoord).a
+#                      endif
+#                   else
+            texture2D(lambertianMap, texCoord).a
+#                   endif
+            ;
+        if (alpha < 0.5) {
+            discard;
+        }
+    }
+#               endif
+#           endif
+
+    // Don't bother looking up attributes, just let the depth write straight through
+    return;
+    }
+#   endif
+
+#   if defined(NORMALBUMPMAP)
+    float rawNormalLength = 1.0;
+    vec3 wsN;
+    vec2 offsetTexCoord;
+    vec3 tsN;
+#       if (PARALLAXSTEPS > 0)
+    bumpMap(normalBumpMap, bumpMapScale, bumpMapBias, texCoord, tan_X, tan_Y, tan_Z, backside, normalize(_tsE), wsN, offsetTexCoord, tsN, rawNormalLength, PARALLAXSTEPS);
+#       else
+    // Vanilla normal mapping
+    bumpMap(normalBumpMap, 0.0, 0.0, texCoord, tan_X, tan_Y, tan_Z, backside, vec3(0.0), wsN, offsetTexCoord, tsN, rawNormalLength, PARALLAXSTEPS);
+#       endif
+#   else
+    // World space normal
+    vec3 wsN = normalize(tan_Z.xyz * backside);
+    vec2 offsetTexCoord = texCoord;
+    // No bump maps, normal always Z-axis of tangent space
+    vec3 tsN = vec3(0.0, 0.0, 1.0);
+#   endif
+
+    //////////////////////// MATERIAL //////////////////////////////
+
+    vec3 lambertianColor;
+    float coverage;
+    {
+        vec4 temp = texture2D(LAMBERTIAN_buffer, offsetTexCoord) * LAMBERTIAN_readMultiplyFirst + LAMBERTIAN_readAddSecond;
+#       if HAS_VERTEX_COLORS
+        temp *= vertexColor;
+#       endif
+
+        lambertianColor = temp.rgb;
+        coverage = temp.a;
+    }
+
+#   if HAS_ALPHA
+    if (coverage < 0.5) {
+        // We have to discard because FBO might not be using the lambertian buffer in gl_FragCoord[0]
+        discard;
+    }
+#   endif
+
+
+    #   foreach(NAME, name, i, components) in(EMISSIVE, emissive, 3, rgb), (TRANSMISSIVE, transmissive, 3, rgb)
+#       ifdef $(NAME)
+        $(NAME).$(components) =
+#           if defined($(NAME)CONSTANT) || defined($(NAME)MAP)     
+#               ifdef $(NAME)CONSTANT
+        $(name)Constant
+#                   ifdef $(NAME)MAP
+        * texture2D($(name)Map, offsetTexCoord).$(components)
+#                   endif
+#               else
+        texture2D($(name)Map, offsetTexCoord).$(components)
+#               endif
+#           else
+        vec$(i)(0.0)
+#           endif
+        ;
+#       endif
+    #   endforeach
+
+
+
+        ///////////////////////// NORMALS //////////////////////////////
+#   ifdef CS_NORMAL
+        vec3 csN = (mat3(g3d_WorldToCameraMatrix) * wsN);
+#   endif
+
+#   if defined(WS_FACE_NORMAL) || defined(CS_FACE_NORMAL)
+    vec3 wsFaceNormal = normalize(cross(dFdy(wsPosition), dFdx(wsPosition)));
+#   endif
+
+#   ifdef CS_FACE_NORMAL
+    vec3 csFaceNormal = (g3d_WorldToCameraMatrix * vec4(wsFaceNormal, 0.0));
+#   endif
+
+    #   foreach(NAME, name) in(WS_NORMAL, wsN), (TS_NORMAL, tsN), (WS_FACE_NORMAL, wsFaceNormal), (WS_FACE_NORMAL, wsFaceNormal), (CS_FACE_NORMAL, csFaceNormal), (SVO_POSITION, svoPosition)
+#       ifdef $(NAME)
+        $(NAME).xyz = $(name) * $(NAME)_writeMultiplyFirst.xyz + $(NAME)_writeAddSecond.xyz;
+#       endif
+    #   endforeach
+
+
+        //////////////////////// POSITIONS /////////////////////////////
+        // NVIDIA drivers miscompile this unless we write WS_POSITION after the normals
+#   if (defined(CS_POSITION) || defined(CS_POSITION_CHANGE) || defined(SS_POSITION_CHANGE) || defined(CS_Z)) && !REPROJECT
+        vec3 csPosition = g3d_WorldToCameraMatrix * vec4(wsPosition, 1.0);
+#   endif
+
+#   ifdef CS_POSITION_CHANGE
+    vec3 csPositionChange = (csPosition - csPrevPosition);
+#   endif
+
+#   if defined(SS_POSITION_CHANGE) && !REPROJECT
+    vec2 ssPositionChange = getSSPositionChange(csPosition);
+#   endif
+
+
+
+    #   foreach(NAME, name, components) in(WS_POSITION, wsPosition, xyz), (CS_POSITION, csPosition, xyz), (CS_POSITION_CHANGE, csPositionChange, xyz)
+#       ifdef $(NAME)
+        $(NAME).$(components) = $(name) * $(NAME)_writeMultiplyFirst.$(components) + $(NAME)_writeAddSecond.$(components);
+#       endif
+    #   endforeach
+
+#   ifdef CS_Z
+        CS_Z.r = csPosition.z * CS_Z_writeMultiplyFirst.x + CS_Z_writeAddSecond.x;
+#   endif
+
+    //if (gl_Layer == 0) {
+    CS_NORMAL.rg = encode32(csN);
+    SS_POSITION_CHANGE.xy = ssPositionChange * SS_POSITION_CHANGE_writeMultiplyFirst.xy + SS_POSITION_CHANGE_writeAddSecond.xy;
+#   ifdef GLOSSY
+    GLOSSY = texture(GLOSSY_buffer, offsetTexCoord) * GLOSSY_readMultiplyFirst + GLOSSY_readAddSecond;
+
+#       if defined(NORMALBUMPMAP)
+    // normal variance -> glossy coefficient to resolve aliasing
+    if (GLOSSY.a < 1.0) {
+        GLOSSY.a = packGlossyExponent(computeToksvigGlossyExponent(unpackGlossyExponent(GLOSSY.a), rawNormalLength));
+    }
+#       endif
+#   endif
+#   ifdef LAMBERTIAN
+    LAMBERTIAN.rgb = lambertianColor;
+#   endif
+    //}
+
+}
+/* end of SinglePassDepthPeel_gbuffer.pix */
