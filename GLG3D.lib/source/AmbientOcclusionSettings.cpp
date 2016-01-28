@@ -28,11 +28,11 @@ AmbientOcclusionSettings::AmbientOcclusionSettings() :
     useNormalBuffer(true),
     depthPeelSeparationHint(0.01f),
     highQualityBlur(true),
-    zStorage(ZStorage::HALF),
     packBlurKeys(false),
     temporalFilterSettings(TemporalFilter::Settings()),
     temporallyVarySamples(false),
-    enabled(true) {
+    enabled(true),
+    zStorage(ZStorage::HALF) {
 
     temporalFilterSettings.hysteresis = 0.0f;
 }
