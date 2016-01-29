@@ -133,7 +133,7 @@ DECLARE_GLFORMATOF( Vector4int32,  GL_INT,            false, false)
 DECLARE_GLFORMATOF( Color3unorm8,  GL_UNSIGNED_BYTE,  false, true)
 DECLARE_GLFORMATOF( Color3,        GL_FLOAT,          false, false)
 DECLARE_GLFORMATOF( Color4,        GL_FLOAT,          false, false)
-DECLARE_GLFORMATOF( Color4unorm8,  GL_UNSIGNED_BYTE,  false, false)
+DECLARE_GLFORMATOF( Color4unorm8,  GL_UNSIGNED_BYTE,  false, true)
 
 DECLARE_GLFORMATOF( snorm8,        GL_BYTE,           false, true)
 DECLARE_GLFORMATOF( snorm16,       GL_SHORT,          false, true)
