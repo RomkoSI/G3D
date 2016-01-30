@@ -16,6 +16,9 @@
     <Filter Include="Shader Files\DeepGBufferRadiosity">
       <UniqueIdentifier>{f1668283-7013-404e-9513-f3aae7ebf5a3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader Files\Reference">
+      <UniqueIdentifier>{48c705f5-ff86-47ca-ad6e-294ade9dcb6b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\samples\deepGBufferRadiosity\source\App.h">
@@ -81,6 +84,15 @@
     </None>
     <None Include="..\samples\deepGBufferRadiosity\data-files\scene\sponza-statue.Scene.Any">
       <Filter>Scene Files</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\Reference\SinglePassDeepGBuffer.vrt">
+      <Filter>Shader Files\Reference</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\Reference\SinglePassDeepGBuffer.pix">
+      <Filter>Shader Files\Reference</Filter>
+    </None>
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\Reference\SinglePassDeepGBuffer.geo">
+      <Filter>Shader Files\Reference</Filter>
     </None>
   </ItemGroup>
 </Project>

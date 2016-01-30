@@ -41,6 +41,9 @@
     <None Include="..\samples\deepGBufferRadiosity\data-files\shader\deferred.pix" />
     <None Include="..\samples\deepGBufferRadiosity\data-files\shader\lambertianOnly.pix" />
     <None Include="..\samples\deepGBufferRadiosity\data-files\shader\oct.glsl" />
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\Reference\SinglePassDeepGBuffer.geo" />
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\Reference\SinglePassDeepGBuffer.pix" />
+    <None Include="..\samples\deepGBufferRadiosity\data-files\shader\Reference\SinglePassDeepGBuffer.vrt" />
     <None Include="..\samples\deepGBufferRadiosity\data-files\shader\utilities.glsl" />
     <None Include="..\samples\deepGBufferRadiosity\data-files\shader\verticalSplitScreen.pix" />
   </ItemGroup>
