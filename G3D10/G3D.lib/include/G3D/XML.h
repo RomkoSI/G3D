@@ -117,7 +117,7 @@ public:
         If collapseEmptyTags, writes tags with no children as a single tag
     
         For example: <name atr0="val0"></name>
-        Is instead" <name atr0="val0"/>
+        Is instead: <name atr0="val0"/>
     */
     void unparse(String& s, bool collapseEmptyTags = false) const;
 
