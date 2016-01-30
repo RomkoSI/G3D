@@ -192,6 +192,9 @@ private:
 	/** \copydoc copyFile */
     void _copyFile(const String& srcPath, const String& dstPath);
 
+	/** \copydoc copyDir */
+	void _copyDir(const String& srcPath, const String& dstPath);
+
     /** \copydoc resolve */
     String _resolve(const String& path, const String& cwd = currentDirectory());
 
@@ -392,6 +395,18 @@ public:
         instance()._copyFile(srcPath, dstPath);
         mutex.unlock();
     }
+
+	/**
+	\param srcPath Must name a directory or zipfile.
+	\param dstPath Must name a directory
+
+	Flushes the cache.
+	*/
+	static void copyDir(const String& srcPath, const String& dstPath) {
+		mutex.lock();
+		instance()._copyDir(srcPath, dstPath);
+		mutex.unlock();
+	}
 
     
 

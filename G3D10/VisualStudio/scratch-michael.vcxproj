@@ -20,17 +20,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\scratch\michael\source\App.cpp" />
-    <ClCompile Include="..\scratch\michael\source\AZDORenderer.cpp" />
-    <ClCompile Include="..\scratch\michael\source\RenderModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\scratch\michael\source\App.h" />
-    <ClInclude Include="..\scratch\michael\source\AZDORenderer.h" />
-    <ClInclude Include="..\scratch\michael\source\RenderModel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\scratch\michael\data-files\shader\UniversalSurface_depthAlphaCombined.vrt" />
     <None Include="..\scratch\michael\data-files\shader\UniversalSurface_depthAlphaCombined.pix" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\scratch\michael\data-files\mitsuba-sponza\mitsuba-sponza.xml" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2175D5EA-7A70-4BFE-81BB-14C222961EA6}</ProjectGuid>

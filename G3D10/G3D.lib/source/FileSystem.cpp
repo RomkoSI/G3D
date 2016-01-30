@@ -424,13 +424,44 @@ int FileSystem::_rename(const String& _source, const String& _dest) {
 }
 
 
+void FileSystem::_copyDir(const String& _source, const String& _dest) {
+	const String& source	= FilePath::removeTrailingSlash(FilePath::expandEnvironmentVariables(_source));
+	const String& dest		= FilePath::expandEnvironmentVariables(_dest);
+	const bool forceUpdate = true;
+	const Dir& entry = getContents(source, forceUpdate);
+
+	for (int i = 0; i < entry.nodeArray.size(); ++i) {
+		const String& sourceChild = _source + entry.nodeArray[i].name;
+		const String& destChild = _dest + entry.nodeArray[i].name;
+		if (entry.nodeArray[i].type == FileSystem::Type::FILE_TYPE) {
+			_copyFile(sourceChild, destChild);
+		} else if (entry.nodeArray[i].type == FileSystem::Type::DIR_TYPE) {
+			_createDirectory(destChild);
+			_copyDir(sourceChild, destChild);
+		} else {
+			alwaysAssertM(false, "Unknown");
+		}
+	}
+
+	return;
+}
+
+
 void FileSystem::_copyFile(const String& _source, const String& _dest) {
     const String& source = FilePath::expandEnvironmentVariables(_source);
     const String& dest = FilePath::expandEnvironmentVariables(_dest);
 #   ifdef G3D_WINDOWS
         // TODO: handle case where srcPath is in a zipfile
-        CopyFileA(source.c_str(), dest.c_str(), FALSE);
-        _clearCache(FilePath::parent(_resolve(dest)));
+		if (inZipfile(source)) {
+			// Read it all in, then dump it out
+			BinaryInput  in(source, G3D_LITTLE_ENDIAN);
+			BinaryOutput out(dest, G3D_LITTLE_ENDIAN);
+			out.writeBytes(in.getCArray(), in.size());
+			out.commit(false);
+		} else {
+			CopyFileA(source.c_str(), dest.c_str(), FALSE);
+			_clearCache(FilePath::parent(_resolve(dest)));
+		}
 #   else
         // Read it all in, then dump it out
         BinaryInput  in(source, G3D_LITTLE_ENDIAN);

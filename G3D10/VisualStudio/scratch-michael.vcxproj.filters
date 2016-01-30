@@ -21,21 +21,9 @@
     <ClCompile Include="..\scratch\michael\source\App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\scratch\michael\source\AZDORenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scratch\michael\source\RenderModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\scratch\michael\source\App.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\scratch\michael\source\AZDORenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\scratch\michael\source\RenderModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -46,5 +34,10 @@
     <None Include="..\scratch\michael\data-files\shader\UniversalSurface_depthAlphaCombined.vrt">
       <Filter>Shader Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\scratch\michael\data-files\mitsuba-sponza\mitsuba-sponza.xml">
+      <Filter>Scene Files</Filter>
+    </Xml>
   </ItemGroup>
 </Project>
