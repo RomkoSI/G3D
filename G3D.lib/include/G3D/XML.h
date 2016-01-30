@@ -103,17 +103,23 @@ public:
 
     XML(TextInput& t);
 
-    void serialize(TextOutput& t) const;
+    void serialize(TextOutput& t, bool collapseEmptyTags = false) const;
 
     void deserialize(TextInput& t);
 
     void load(const String& filename);
 
-    void save(const String& filename) const;
+    void save(const String& filename, bool collapseEmptyTags = false) const;
 
     void parse(const String &s);
 
-    void unparse(String& s) const;
+    /** 
+        If collapseEmptyTags, writes tags with no children as a single tag
+    
+        For example: <name atr0="val0"></name>
+        Is instead" <name atr0="val0"/>
+    */
+    void unparse(String& s, bool collapseEmptyTags = false) const;
 
     const AttributeTable& attributeTable() const {
         return m_attribute;

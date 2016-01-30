@@ -7,7 +7,13 @@ This directory contains a reference implementation to generate a two-layer Deep 
 
 If your GPU has the NV_viewport_array2 and NV_geometry_shader_passthroughextensions (NVIDIA Maxwell and later GUs), then these shaders implement the "Reproject Optimized" variant described in that paper. Otherwise, they automatically fall back to the "Reproject" variant.
 
-To use these reference shaders in your own system, implement all of the "TODO" lines that are application specific. From CPU code, 
+To use these reference shaders in your own system, implement all of the "TODO" lines that are application specific. 
+
+From CPU code, set up a G-Buffer with each render target having two layers 
+(allocate each texture with glTexImage3D), and bind it 
+to the framebuffer. Set up two viewports (via glViewportArray); the second one can be 
+lower resolution. Bind all necessary uniforms and vertex attributes (see the top of the 
+vertex and pixel shaders).
 
 
 

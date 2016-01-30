@@ -670,10 +670,10 @@ void App::onGraphics2D(RenderDevice* rd, Array< shared_ptr< Surface2D > >& surfa
 
 
 void App::onAfterLoadScene(const Any& any, const String& stringName) {
-    m_deepGBufferRadiositySettings               = any.get("deepGBufferRadiositySettings", DeepGBufferRadiositySettings());
+    m_deepGBufferRadiositySettings               = any.get("deepGBufferRadiositySettings",              DeepGBufferRadiositySettings());
     m_maxPerformanceDeepGBufferRadiosityPresets  = any.get("maxPerformanceDeepGBufferRadiosityPresets", DeepGBufferRadiositySettings());
-    m_maxQualityDeepGBufferRadiosityPresets      = any.get("maxQualityDeepGBufferRadiosityPresets", DeepGBufferRadiositySettings());
-    m_BALANCEDDeepGBufferRadiosityPresets        = any.get("BALANCEDDeepGBufferRadiosityPresets", DeepGBufferRadiositySettings());
+    m_maxQualityDeepGBufferRadiosityPresets      = any.get("maxQualityDeepGBufferRadiosityPresets",     DeepGBufferRadiositySettings());
+    m_BALANCEDDeepGBufferRadiosityPresets        = any.get("BALANCEDDeepGBufferRadiosityPresets",       DeepGBufferRadiositySettings());
     evaluateDemoSettings();
 
     if (scene()) {
