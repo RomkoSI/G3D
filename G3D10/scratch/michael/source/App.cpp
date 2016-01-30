@@ -34,7 +34,7 @@ int main(int argc, const char* argv[]) {
 	settings.depthGuardBandThickness = Vector2int16(0, 0);
 	settings.colorGuardBandThickness = Vector2int16(0, 0);
 	settings.dataDir = FileSystem::currentDirectory();
-	settings.screenshotDirectory = "../journal/";
+	//settings.screenshotDirectory = "../journal/";
 
 	settings.renderer.deferredShading = false;
 	settings.renderer.orderIndependentTransparency = false;

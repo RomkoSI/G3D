@@ -437,7 +437,7 @@ void FileSystem::_copyDir(const String& _source, const String& _dest) {
 			_copyFile(sourceChild, destChild);
 		} else if (entry.nodeArray[i].type == FileSystem::Type::DIR_TYPE) {
 			_createDirectory(destChild);
-			_copyDir(sourceChild, destChild);
+			_copyDir(sourceChild + "/", destChild + "/");
 		} else {
 			alwaysAssertM(false, "Unknown");
 		}
