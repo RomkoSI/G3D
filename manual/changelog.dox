@@ -12,6 +12,7 @@
     <p>
     Changes in 10.01:
      <ul>
+       <li> Add collapseEmptyTags argument to XML::unparse and XML::save [Mike] </li>
        <li> Renamed RefractionQuality to RefractionHint [Mike] </li>
        <li> Added FilmSettings::extendGBufferSpecification [Mike] </li>
        <li> Added DepthOfFieldSettings::extendGBufferSpecification [Mike] </li>
