@@ -434,7 +434,14 @@ void FileSystem::_copyDir(const String& _source, const String& _dest) {
 		const String& sourceChild = _source + entry.nodeArray[i].name;
 		const String& destChild = _dest + entry.nodeArray[i].name;
 		if (entry.nodeArray[i].type == FileSystem::Type::FILE_TYPE) {
-			_copyFile(sourceChild, destChild);
+            // Workaround for directories in zip files, 
+            // which improperly are assigned as FILE_TYPE
+            // TODO: Fix need for workaround
+            if (endsWith(sourceChild, "/")) {
+
+            } else {
+                _copyFile(sourceChild, destChild);
+            }
 		} else if (entry.nodeArray[i].type == FileSystem::Type::DIR_TYPE) {
 			_createDirectory(destChild);
 			_copyDir(sourceChild + "/", destChild + "/");
