@@ -4,9 +4,9 @@
  \maintainer Morgan McGuire, Michael Mara http://graphics.cs.williams.edu
  
  \created 2012-06-27
- \edited  2014-03-02
+ \edited  2016-02-03
 
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
 
@@ -42,11 +42,13 @@ void Args::appendIndexStream(const IndexStream& indexStream) {
 
 
 int Args::numIndices() const {
-    if ( hasComputeGrid() || hasIndirectBuffer() || hasRect()) {
+    if (hasComputeGrid() || hasIndirectBuffer() || hasRect()) {
         alwaysAssertM(false, "Args::numIndices called when in a mode that doesn't use indices.");
         return 0;
     } else {
-        if (m_indexStream.size() > 0) {
+        if (m_numIndices != -1) {
+            return m_numIndices;
+        } else if (m_indexStream.size() > 0) {
             return m_indexStream.size();
         } else if (m_indexCounts.size() > 0) {
             int totalCount = 0;
@@ -56,7 +58,8 @@ int Args::numIndices() const {
             return totalCount;
         } else if (m_streamArgs.size() == 0) {
             // If there are no arguments
-            return m_numIndices;
+            alwaysAssertM(false, "Args::setNumIndices must be called if there are no stream arguments.");
+            return 0;
         } else {
             Args::GPUAttributeTable::Iterator i = m_streamArgs.begin();
             int minNumVertices = (*i).value.attributeArray.size();
