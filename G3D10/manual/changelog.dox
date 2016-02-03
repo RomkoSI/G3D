@@ -96,6 +96,7 @@
 	   <li> Added stochastic shadow mapping support via Light::stochastic and the HIGH_QUALITY_SHADOW_MAP_FILTERING shader macro</li>
 	   <li> Added default ArticulatedModel::Specification::refractionQuality hint </li>
 	   <li> G3D::Args::setNumIndices can now override the length of the attribute arrays or index arrays</li>
+	   <li> Added G3D::Array randomize for parallel arrays </li>
       </ul>
     </p>
 
