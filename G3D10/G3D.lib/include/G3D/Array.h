@@ -5,9 +5,9 @@
   \cite Portions written by Aaron Orenstein, a@orenstein.name
  
   \created 2001-03-11
-  \edited  2013-01-28
+  \edited  2016-02-03
 
-  Copyright 2000-2015, Morgan McGuire, http://graphics.cs.williams.edu
+  Copyright 2000-2016, Morgan McGuire, http://graphics.cs.williams.edu
   All rights reserved.
  */
 
@@ -1468,7 +1468,7 @@ return( lhs < rhs? true : false );
         T temp;
 
         for (int i = size() - 1; i >= 0; --i) {
-            int x = rng.integer(0, i);
+            const int x = rng.integer(0, i);
 
             temp = data[i];
             data[i] = data[x];
@@ -1476,6 +1476,26 @@ return( lhs < rhs? true : false );
         }
     }
 
+    /** Redistributes the elements so that the new order is statistically independent
+        of the original order. O(n) time. Randomizes both arrays in the same way. */
+    template<class B> 
+    void randomize(Array<B>& b, Random& rng) {
+        alwaysAssertM(b.size() == size(), "Both arrays must have the same length");
+        T temp;
+        B tempB;
+
+        for (int i = size() - 1; i >= 0; --i) {
+            const int x = rng.integer(0, i);
+
+            temp = data[i];
+            data[i] = data[x];
+            data[x] = temp;
+
+            tempB = b[i];
+            b[i] = b[x];
+            b[x] = tempB;
+        }
+    }
 
     /** Ensures that future append() calls can grow up to size \a n without allocating memory.*/
     void reserve(int n) {
