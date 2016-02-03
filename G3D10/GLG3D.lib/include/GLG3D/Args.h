@@ -212,7 +212,8 @@ public:
     /** 
         If the index array has size > 0, returns its size, otherwise,
         returns the length of the shortest attached vertex attribute
-        stream (0 if there are none.)
+        stream (0 if there are none) or the value set by an explicit 
+        call to setNumIndices.
         */
     int numIndices() const;
 	
