@@ -2219,18 +2219,14 @@ void RenderDevice::sendSequentialIndices(PrimitiveType primitive, int numVertice
 
 
 void RenderDevice::sendSequentialIndicesInstanced(PrimitiveType primitive, int numVertices, int numInstances) {
-
     
     beforePrimitive();
     
     glDrawArraysInstanced(primitiveToGLenum(primitive), 0, numVertices, numInstances);
     
-
-    countTriangles(primitive, numVertices * numInstances);
-    
+    countTriangles(primitive, numVertices * numInstances);    
     afterPrimitive();
     
-
     minStateChange();
     minGLStateChange();
 }
@@ -2697,8 +2693,8 @@ void RenderDevice::apply(const shared_ptr<Shader>& s, Args& args) {
     }
     debugAssertGLOk();
     const shared_ptr<Shader::ShaderProgram>& program = s->compileAndBind(args, this, maxModifiedTextureUnit);
-debugAssertGLOk();
-    Shader::DomainType domainType = Shader::domainType(s, args);
+    debugAssertGLOk();
+    const Shader::DomainType domainType = Shader::domainType(s, args);
 
     debugAssertGLOk();
     if (domainType == Shader::RECT_MODE) {
@@ -2745,21 +2741,21 @@ debugAssertGLOk();
              if ((domainType == Shader::STANDARD_INDEXED_RENDERING_MODE) || (domainType == Shader::RECT_MODE)) {
                  
                  sendIndicesInstanced(args.getPrimitiveType(), args.getIndexStream(), args.numInstances());
-                 debugAssertGLOk();         
+                 debugAssertGLOk();
     
              } else if (domainType == Shader::STANDARD_NONINDEXED_RENDERING_MODE) {
                        
                  sendSequentialIndicesInstanced(args.getPrimitiveType(), args.numIndices(), args.numInstances());
-                 debugAssertGLOk();         
+                 debugAssertGLOk();
                  
              } else if (domainType == Shader::INDIRECT_RENDERING_MODE) {
                  
                  glBindBuffer(GL_DRAW_INDIRECT_BUFFER, args.indirectBuffer()->glBufferID());
-                 debugAssertGLOk();         
+                 debugAssertGLOk();
                  glDrawArraysIndirect(args.getPrimitiveType(), (const void*)args.indirectOffset());
-                 debugAssertGLOk();         
+                 debugAssertGLOk();
                  glBindBuffer(GL_DRAW_INDIRECT_BUFFER, GL_NONE);
-                 debugAssertGLOk();         
+                 debugAssertGLOk();
                  
              } else if (domainType == Shader::MULTIDRAW_NONINDEXED_RENDERING_MODE) {
                  sendMultidrawSequentialIndices(args.getPrimitiveType(), args.indexCountArray(), args.indexOffsetArray());
