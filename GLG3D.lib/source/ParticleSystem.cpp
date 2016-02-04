@@ -158,7 +158,7 @@ shared_ptr<ParticleMaterial> ParticleMaterial::create(const shared_ptr<Universal
                     material->bsdf()->lambertian().texture()->height(), "Particle materials must be square"); 
         return shared_ptr<ParticleMaterial>(new ParticleMaterial(0, material->bsdf()->lambertian().texture()->width()));
     } else {
-        // TODO: Support multiple materials
+        // TODO: Mike Support multiple materials
         s_material = material;
         debugAssertM(material->bsdf()->lambertian().texture()->width() ==
             material->bsdf()->lambertian().texture()->height(), "Particle materials must be square");
@@ -536,7 +536,7 @@ void ParticleSystem::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
             }
         }
 
-        // TODO: have the model indicate if physics is enabled for this system
+        // TODO: Morgan have the model indicate if physics is enabled for this system
         applyPhysics(float(absoluteTime), float(deltaTime));
     }
 }
