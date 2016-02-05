@@ -202,7 +202,7 @@ void App::makeAdvancedGUI() {
 
 
 void App::makeGUI() {
-    const float GUI_WIDTH = 300;
+    const float GUI_WIDTH = 305;
     m_gui = GuiWindow::create("", debugWindow->theme(), Rect2D::xywh(0, 0, GUI_WIDTH, float(window()->height())), GuiTheme::PANEL_WINDOW_STYLE, GuiWindow::NO_CLOSE);
     GuiPane* pane = m_gui->pane();
 
