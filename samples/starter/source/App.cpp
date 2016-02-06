@@ -36,7 +36,7 @@ int main(int argc, const char* argv[]) {
     settings.dataDir                    = FileSystem::currentDirectory();
     settings.screenshotDirectory        = "../journal/";
 
-    settings.renderer.deferredShading = false;
+    settings.renderer.deferredShading = true;
     settings.renderer.orderIndependentTransparency = false;
 
 
