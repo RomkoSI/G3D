@@ -8,7 +8,7 @@
 #include <AlphaHint.glsl>
 
 #ifndef OPAQUE_PASS
-#define OPAQUE_PASS 0
+#   define OPAQUE_PASS 0
 #endif
 
 /** 
