@@ -65,6 +65,9 @@ private:
 
     ParticleMaterial(int index, int texelWidth) : m_textureIndex(index), m_texelWidth(texelWidth) {}
 
+    /** Adds in newMaterial to the s_material array, and returns the layer it resides on. */
+    static int insertMaterial(shared_ptr<UniversalMaterial> newMaterial);
+
 public:
 
     /** Allocates a material handle for use with particles. This call is very slow and should not be made per frame. */

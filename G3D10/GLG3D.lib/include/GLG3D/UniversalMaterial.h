@@ -92,7 +92,7 @@ public:
         BumpMap::Specification  m_bump;
 
         /** Preferred level of refraction quality. The actual level available depends on the renderer.*/
-        RefractionHint       m_refractionHint;
+        RefractionHint          m_refractionHint;
 
         /** Preferred level of mirror reflection quality. The actual level available depends on the renderer.*/
         MirrorQuality           m_mirrorHint;

@@ -146,20 +146,64 @@ shared_ptr<ParticleMaterial> ParticleMaterial::create(const UniversalMaterial::S
     return create(UniversalMaterial::create(material));
 }
 
+shared_ptr<Texture> convertToTextureArray(const String& name, shared_ptr<Texture> tex) {
+    /* TODO: make it an array (will involve shader changes)
+    shared_ptr<Texture> texArray = Texture::createEmpty(name, tex->width(), tex->height(), 
+                                        tex->encoding(), Texture::DIM_2D_ARRAY, false, 1);*/
+    shared_ptr<Texture> result = Texture::createEmpty(name, tex->width(), tex->height(),
+        tex->encoding(), Texture::DIM_2D);
+    Texture::copy(tex, result);
+    result->generateMipMaps();
+    return result;
+}
 
-shared_ptr<ParticleMaterial> ParticleMaterial::create(const shared_ptr<UniversalMaterial>& material) {
-    if (isNull(s_material)) {
-        s_material = material;
-        debugAssertM(material->bsdf()->lambertian().texture()->width() == 
-                    material->bsdf()->lambertian().texture()->height(), "Particle materials must be square"); 
-        return shared_ptr<ParticleMaterial>(new ParticleMaterial(0, material->bsdf()->lambertian().texture()->width()));
+int ParticleMaterial::insertMaterial(shared_ptr<UniversalMaterial> newMaterial) {
+    alwaysAssertM(isNull(newMaterial->bump()), "We do not yet support bump-mapped particles");
+    alwaysAssertM(newMaterial->bsdf()->etaReflect() == newMaterial->bsdf()->etaTransmit(), 
+        "We do not yet support refracting particles");
+    alwaysAssertM(newMaterial->customShaderPrefix() == "", "We do not support custom shader prefixes for particles.");
+    alwaysAssertM(newMaterial->numLightMapDirections() == 0, "We do not support light maps on particles.");
+    shared_ptr<Texture> lambertian      = newMaterial->bsdf()->lambertian().texture();
+    shared_ptr<Texture> glossy          = newMaterial->bsdf()->glossy().texture();
+    shared_ptr<Texture> transmissive    = newMaterial->bsdf()->transmissive().texture();
+    shared_ptr<Texture> emissive        = newMaterial->emissive().texture();
+
+    if (true || isNull(s_material)) { // TODO: Handle multiple materials
+        
+
+        UniversalMaterial::Specification settings;
+        settings.setAlphaHint(AlphaHint::BLEND);
+        //settings.setBump                  TODO: support
+        //settings.setConstant              TODO: remove
+        //settings.setCustomShaderPrefix    TODO: remove
+        settings.setEmissive(convertToTextureArray("G3D::ParticleMaterial Emissive", emissive));
+        //settings.setEta
+        settings.setGlossy(convertToTextureArray("G3D::ParticleMaterial Glossy", glossy));
+        settings.setLambertian(convertToTextureArray("G3D::ParticleMaterial Lambertian", lambertian));
+        //settings.setLightMaps;
+        //settings.setMirrorHint(MirrorQuality::);
+        settings.setRefractionHint(RefractionHint::NONE);
+        //settings.setSampler();
+        settings.setTransmissive(convertToTextureArray("G3D::ParticleMaterial Transmissive", transmissive));
+        
+       
+        s_material = UniversalMaterial::create("Particle Uber-Material", settings);
+
     } else {
         // TODO: Mike Support multiple materials
-        s_material = material;
+        /*s_material = material;
         debugAssertM(material->bsdf()->lambertian().texture()->width() ==
             material->bsdf()->lambertian().texture()->height(), "Particle materials must be square");
-        return shared_ptr<ParticleMaterial>(new ParticleMaterial(0, material->bsdf()->lambertian().texture()->width()));
+        return shared_ptr<ParticleMaterial>(new ParticleMaterial(0, material->bsdf()->lambertian().texture()->width()));*/
     }
+    return 0;
+}
+
+shared_ptr<ParticleMaterial> ParticleMaterial::create(const shared_ptr<UniversalMaterial>& material) {
+    debugAssertM(material->bsdf()->lambertian().texture()->width() ==
+        material->bsdf()->lambertian().texture()->height(), "Particle materials must be square");
+    int index = insertMaterial(material);
+    return shared_ptr<ParticleMaterial>(new ParticleMaterial(index, material->bsdf()->lambertian().texture()->width()));
 }
 
 
