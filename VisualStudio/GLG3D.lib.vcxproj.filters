@@ -1353,5 +1353,8 @@
     <None Include="..\data-files\shader\Light\Light_convertToVSM.pix">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="..\data-files\shader\octahedral.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -1,15 +1,6 @@
 #ifndef utilities_glsl
 #define utilities_glsl
 
-float signNotZero(in float k) {
-    return k >= 0.0 ? 1.0 : -1.0;
-}
-
-vec2 signNotZero(in vec2 v) {
-    return vec2( signNotZero(v.x), signNotZero(v.y) );
-}
-
-
 float packSnorm8Float(float f) {
     return round(clamp(f + 1.0, 0.0, 2.0) * float(127));
 }

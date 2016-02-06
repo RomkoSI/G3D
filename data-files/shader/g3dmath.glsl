@@ -512,4 +512,14 @@ uint interleaveBits(uvec3 inputval) {
 	return xx + yy * uint(2) + zz * uint(4);
 }
 
+
+float signNotZero(in float k) {
+    return (k >= 0.0) ? 1.0 : -1.0;
+}
+
+
+vec2 signNotZero(in vec2 v) {
+    return vec2(signNotZero(v.x), signNotZero(v.y));
+}
+
 #endif
