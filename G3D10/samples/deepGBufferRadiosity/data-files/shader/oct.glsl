@@ -1,16 +1,9 @@
 // -*- c++ -*-
-
+#ifndef oct_glsl
+#define oct_glsl
 #include <utilities.glsl>
 #include <compatibility.glsl>
-
-vec2 octEncode(in vec3 v) {
-    float l1norm = abs(v.x) + abs(v.y) + abs(v.z);
-    vec2 result = v.xy * (1.0/l1norm);
-    if (v.z < 0.0) {
-        result = (1.0 - abs(result.yx)) * signNotZero(result.xy);
-    }
-    return result;
-}
+#include <octahedral.glsl>
 
 vec3 octEncode3Components(in vec3 v) {
     float l1norm = abs(v.x) + abs(v.y) + abs(v.z);
@@ -110,3 +103,5 @@ vec2 encode32(in vec3 v) {
 vec3 encode24(in vec3 v) {
 	return snorm12x2_to_unorm8x3(octEncode(v));  
 }
+
+#endif

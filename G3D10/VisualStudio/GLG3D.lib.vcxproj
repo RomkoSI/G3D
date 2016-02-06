@@ -508,6 +508,7 @@
     <None Include="..\data-files\shader\MotionBlur\MotionBlur_neighborMinMax.pix" />
     <None Include="..\data-files\shader\MotionBlur\MotionBlur_tileMinMax.pix" />
     <None Include="..\data-files\shader\noise.glsl" />
+    <None Include="..\data-files\shader\octahedral.glsl" />
     <None Include="..\data-files\shader\ParticleSurface\ParticleSurface_helpers.glsl" />
     <None Include="..\data-files\shader\ParticleSurface\ParticleSurface_render.geo" />
     <None Include="..\data-files\shader\ParticleSurface\ParticleSurface_render.pix" />
