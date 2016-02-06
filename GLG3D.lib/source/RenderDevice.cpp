@@ -232,7 +232,7 @@ void RenderDevice::init(OSWindow* window) {
     bool depthOk   = depthBits >= minimumDepthBits;
     bool stencilOk = stencilBits >= minimumStencilBits;
 
-    cardDescription = GLCaps::renderer() + " " + GLCaps::driverVersion();
+    cardDescription = GLCaps::renderer();
     
 
     {
