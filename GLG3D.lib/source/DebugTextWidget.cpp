@@ -1,16 +1,17 @@
 /**
 \file   DebugTextWidget.cpp
 \maintainer Morgan McGuire
-\edited 2015-07-14
+\edited 2016-02-06
 
 G3D Library http://g3d.codeplex.com
-Copyright 2000-2015, Morgan McGuire morgan@cs.williams.edu
+Copyright 2000-2016, Morgan McGuire morgan@cs.williams.edu
 All rights reserved.
 Use permitted under the BSD license
 
 */
 #include "G3D/platform.h"
 #include "GLG3D/RenderDevice.h"
+#include "GLG3D/DefaultRenderer.h"
 #include "GLG3D/DebugTextWidget.h"
 #include "GLG3D/Draw.h"
 #include "GLG3D/GFont.h"
@@ -54,7 +55,24 @@ void DebugTextWidget::render(RenderDevice *rd) const {
                     " (Optimized)";
 #               endif
 
-                static const String description = rd->getCardDescription() + "   " + System::version() + build;
+                const String sysDescription = rd->getCardDescription() + "   " + System::version() + build;
+
+                String description = sysDescription;
+                const shared_ptr<DefaultRenderer>& renderer = dynamic_pointer_cast<DefaultRenderer>(m_app->renderer());
+                if (notNull(renderer)) {
+                    if (renderer->deferredShading()) {
+                        description += "   Deferred Shading";
+                    } else {
+                        description += "   Forward Shading";
+                    }
+
+                    if (renderer->orderIndependentTransparency()) {
+                        description += "   OIT";
+                    } else {
+                        description += "   Sorted Transparency";
+                    }
+                }
+
                 m_app->debugFont->appendToCharVertexArray(charVertexArray, indexArray, rd, description, pos, size, Color3::white());
                 pos.y += size * 1.5f;
 

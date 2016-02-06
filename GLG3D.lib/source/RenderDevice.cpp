@@ -232,8 +232,7 @@ void RenderDevice::init(OSWindow* window) {
     bool depthOk   = depthBits >= minimumDepthBits;
     bool stencilOk = stencilBits >= minimumStencilBits;
 
-    cardDescription = GLCaps::renderer();
-    
+    cardDescription = GLCaps::renderer();    
 
     {
         // Test which texture formats are supported by this card
