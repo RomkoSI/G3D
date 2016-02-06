@@ -74,10 +74,6 @@ void ParticleSystem::ParticleBuffer::compact(const int newReserveCount) {
     // Update all blocks to the indices in the new vertex buffer,
     // copying their data as we progress so that they will be up to date
     for (const shared_ptr<Block>& block : blockArray) {
-#       ifdef G3D_DEBUG
-            const shared_ptr<ParticleSurface>& surface = block->surface.lock();
-            debugAssert(notNull(surface));
-#       endif
 
         const int oldStartIndex = block->startIndex;
         block->startIndex = count;
