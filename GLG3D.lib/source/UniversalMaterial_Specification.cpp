@@ -2,7 +2,7 @@
  \file   Material_Specification.cpp
  \author Morgan McGuire, http://graphics.cs.williams.edu
  \date   2009-03-10
- \edited 2014-12-30
+ \edited 2016-02-06
 */
 #include "GLG3D/UniversalMaterial.h"
 #include "G3D/Any.h"
@@ -23,7 +23,8 @@ UniversalMaterial::Specification::Specification() :
   m_refractionHint(RefractionHint::DYNAMIC_FLAT), 
   m_mirrorHint(MirrorQuality::STATIC_PROBE),
   m_numLightMapDirections(0),
-  m_alphaHint(AlphaHint::DETECT) {
+  m_alphaHint(AlphaHint::DETECT),
+  m_inferAmbientOcclusionAtTransparentPixels(true) {
 }
 
 
@@ -81,6 +82,7 @@ UniversalMaterial::Specification::Specification(const Any& any) {
 
     Any texture;
     Color4 constant;
+
     for (Any::AnyTable::Iterator it = any.table().begin(); it.isValid(); ++it) {
         const String& key = toLower(it->key);
         if (key == "lambertian") {
@@ -118,6 +120,8 @@ UniversalMaterial::Specification::Specification(const Any& any) {
             m_alphaHint = it->value;
         } else if (key == "sampler") {
             m_sampler = it->value;
+        } else if (key == "inferambientocclusionattransparentpixels") {
+            m_inferAmbientOcclusionAtTransparentPixels = it->value;
         } else if (key == "constanttable") {
             for (Any::AnyTable::Iterator it2 = it->value.table().begin(); it2.isValid(); ++it2) {
                 const Any& v = it2->value;
@@ -173,8 +177,6 @@ void UniversalMaterial::Specification::removeEmissive() {
 }
 
 
-
-
 void UniversalMaterial::Specification::setGlossy(const Texture::Specification& spec) {
     m_glossy = spec;        
 }
@@ -195,9 +197,11 @@ void UniversalMaterial::Specification::setTransmissive(const Texture::Specificat
     m_transmissiveTex.reset();
 }
 
+
 void UniversalMaterial::Specification::setTransmissive(const shared_ptr<Texture>& tex) {
     m_transmissiveTex = tex;
 }
+
 
 void UniversalMaterial::Specification::removeTransmissive() {
     setTransmissive(Texture::Specification(Color3::zero()));
@@ -266,6 +270,8 @@ bool UniversalMaterial::Specification::operator==(const Specification& s) const 
         (m_lightMap[0] == s.m_lightMap[0]) &&
         (m_lightMap[1] == s.m_lightMap[1]) &&
         (m_lightMap[2] == s.m_lightMap[2]) &&
+
+        (m_inferAmbientOcclusionAtTransparentPixels == s.m_inferAmbientOcclusionAtTransparentPixels) && 
 
         (m_alphaHint == s.m_alphaHint) &&
         

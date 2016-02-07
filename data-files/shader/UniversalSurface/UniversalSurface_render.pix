@@ -13,15 +13,13 @@
 #extension GL_ARB_texture_query_lod : enable    // For textureQueryLod
 #expect ALPHA_HINT "AlphaHint (int) value"
 #expect HAS_EMISSIVE "Boolean"
+#expect INFER_AMBIENT_OCCLUSION_AT_TRANSPARENT_PIXELS "Boolean"
 #expect HAS_TRANSMISSIVE "Boolean"
 #expect OPAQUE_PASS "Boolean triggering discard for non-unit coverage"
 #expect HAS_VERTEX_COLOR "Boolean"
 #expect HAS_NORMAL_BUMP_MAP "Boolean"
 #expect PARALLAXSTEPS "int"
 #expect NUM_LIGHTMAP_DIRECTIONS "0, 1, or 3"
-
-// Useful for foliage, looks bad on glass
-#define INFER_AMBIENT_OCCLUSION 0//(! HAS_TRANSMISSIVE)
 
 #include <compatibility.glsl>
 #include <g3dmath.glsl>
@@ -226,7 +224,7 @@ void main() {
 #       if OPAQUE_PASS
             // There is no blending...normal situation
             AO = (0.95 * texelFetch(ambientOcclusion_buffer, min(ivec2(gl_FragCoord.xy) + ambientOcclusion_offset, ivec2(ambientOcclusion_size.xy - vec2(1, 1))), 0).r + 0.05);
-#       elif INFER_AMBIENT_OCCLUSION
+#       elif INFER_AMBIENT_OCCLUSION_AT_TRANSPARENT_PIXELS
 #           ifdef HAS_TRANSMISSIVE
                 // Fade out AO with transmission, since we don't have depth buffer values
                 // useful for it. Leave a little AO on slightly transmissive surfaces to

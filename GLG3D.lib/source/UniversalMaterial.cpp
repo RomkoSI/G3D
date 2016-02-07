@@ -4,9 +4,9 @@
  \author Morgan McGuire, http://graphics.cs.williams.edu
 
  \created  2009-03-19
- \edited   2015-01-08
+ \edited   2016-02-06
 
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
   All rights reserved.
 */
 #include "GLG3D/UniversalMaterial.h"
@@ -30,7 +30,8 @@ shared_ptr<Surfel> UniversalMaterial::sample(const Tri::Intersector& intersector
 
 UniversalMaterial::UniversalMaterial() :
     m_numLightMapDirections(0),
-    m_customConstant(Color4::inf()) {
+    m_customConstant(Color4::inf()),
+    m_inferAmbientOcclusionAtTransparentPixels(true) {
 }
 
 
@@ -204,6 +205,14 @@ shared_ptr<UniversalMaterial> UniversalMaterial::create(const String& name, cons
             }
         } else {
             value->m_alphaHint = specification.alphaHint();
+        }
+
+        if (specification.inferAmbientOcclusionAtTransparentPixels().type() == Any::BOOLEAN) {
+            value->m_inferAmbientOcclusionAtTransparentPixels = specification.inferAmbientOcclusionAtTransparentPixels().boolean();
+        } else { 
+            // Detect partial coverage
+            specification.inferAmbientOcclusionAtTransparentPixels().verifyType(Any::STRING);
+            value->m_inferAmbientOcclusionAtTransparentPixels = (! value->hasTransmissive()) && value->hasAlpha() && (value->bsdf()->lambertian().max().a == 1.0);
         }
     
         value->computeDefines(value->m_macros);

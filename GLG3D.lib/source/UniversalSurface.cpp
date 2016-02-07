@@ -629,7 +629,8 @@ void UniversalSurface::setShaderArgs(Args& args, bool useStructFormat) const {
 
     if (useStructFormat) {
         m_material->setShaderArgs(args, "material.");
-        args.setMacro("HAS_ALPHA", m_material->hasAlpha());
+        args.setMacro("INFER_AMBIENT_OCCLUSION_AT_TRANSPARENT_PIXELS", m_material->inferAmbientOcclusionAtTransparentPixels());
+        args.setMacro("HAS_ALPHA",        m_material->hasAlpha());
         args.setMacro("HAS_TRANSMISSIVE", m_material->hasTransmissive());
         args.setMacro("HAS_EMISSIVE",     m_material->hasEmissive());
         args.setMacro("ALPHA_HINT",       m_material->alphaHint());
