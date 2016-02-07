@@ -2,10 +2,10 @@
  \file   GLG3D/UniversalMaterial.h
  \author Morgan McGuire, http://graphics.cs.williams.edu
  \date   2008-08-10
- \edited 2015-01-03
+ \edited 2016-02-06
  
  G3D Innovation Engine
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
 #ifndef GLG3D_UniversalMaterial_h
@@ -21,12 +21,14 @@
 #include "GLG3D/BumpMap.h"
 #include "GLG3D/Material.h"
 #include "GLG3D/Sampler.h"
+#include "G3D/enumclass.h"
+
 
 namespace G3D {
-
 class SpeedLoadIdentifier;
 class Any;
 class Args;
+
 
 /** 
   \brief Description of a surface for rendering purposes.
@@ -106,6 +108,9 @@ public:
 
         Sampler                 m_sampler;
 
+        /** boolean or "AUTO" */
+        Any                     m_inferAmbientOcclusionAtTransparentPixels;
+
         Component4 loadLambertian() const;
         Component4 loadGlossy() const;
         Component3 loadTransmissive() const;
@@ -160,6 +165,10 @@ UniversalMaterial::Specification {
     customShaderPrefix = "";    
 
     custom = "custom.png";
+
+    // Should transparent pixels guess their AO value from nearby opaque ones?
+    // This looks good on tree leaves and bad on glass or smoke
+    inferAmbientOcclusionAtTransparentPixels = false;
 
     sampler = Sampler {
        maxMipMap = 4;
@@ -243,6 +252,15 @@ Any component can be a Texture::Specification, Color3/Color4, or table of <code>
 
         AlphaHint alphaHint() const {
             return m_alphaHint;
+        }
+
+        Any inferAmbientOcclusionAtTransparentPixels() const {
+            return m_inferAmbientOcclusionAtTransparentPixels;
+        }
+
+        /** boolean or "auto" */
+        void setinferAmbientOcclusionAtTransparentPixels(Any b) {
+            m_inferAmbientOcclusionAtTransparentPixels = b;
         }
 
         void setConstant(const String& name, int c) {
@@ -383,11 +401,13 @@ protected:
 
     /** Preferred level of refraction quality. The actual level
         available depends on the renderer.*/
-    RefractionHint           m_refractionHint;
+    RefractionHint              m_refractionHint;
 
     /** Preferred level of mirror reflection quality. The actual level
         available depends on the renderer.*/
     MirrorQuality               m_mirrorHint;
+
+    bool                        m_inferAmbientOcclusionAtTransparentPixels;
 
     /** These constants are also in the m_macros string. */
     Table<String, double>       m_constantTable;
@@ -420,6 +440,10 @@ public:
     bool hasTransmissive() const;
 
     bool hasEmissive() const;
+
+    bool inferAmbientOcclusionAtTransparentPixels() const {
+        return m_inferAmbientOcclusionAtTransparentPixels;
+    }
 
     /** The UniversalMaterial::create(const Settings& settings) factor method is recommended 
        over this one because it performs caching and argument validation. 
