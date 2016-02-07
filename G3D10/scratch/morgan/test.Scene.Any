@@ -1,26 +1,6 @@
 /* -*- c++ -*- */
 { 
     entities = { 
-        /*
-        emissiveCard = VisibleEntity {
-            canChange = false; 
-            frame = CFrame::fromXYZYPRDegrees(2, 2, -2, 0, 0, -180 ); 
-            model = "emissiveModel"; 
-        };
-        */
-        /*
-        partialCoverageCard = VisibleEntity {
-            canChange = false; 
-            frame = CFrame::fromXYZYPRDegrees(-1, 2, -2, 0, 0, -180 ); 
-            model = "partialCoverageModel"; 
-        };*/
-
-        
-        transmissiveCard = VisibleEntity {
-            canChange = false; 
-            frame = CFrame::fromXYZYPRDegrees(-4, 2, -2, 0, 0, -180 ); 
-            model = "transmissiveModel";             
-        };
         
         
         camera = Camera { 
@@ -52,7 +32,7 @@
                 vignetteTopStrength = 0.5; 
             }; 
             
-            frame = CFrame::fromXYZYPRDegrees(-1.5993, 1.7956, -12.485, -177.3, -0.5, 0); 
+            frame = CFrame::fromXYZYPRDegrees(2.5936, -0.22115, -8.6714, 179.84, 0.64592, 0); 
             motionBlurSettings = MotionBlurSettings { 
                 cameraMotionInfluence = 0.5; 
                 enabled = false; 
@@ -71,15 +51,21 @@
             
             visualizationScale = 1; 
         }; 
-        /*
-        
+
         ground = VisibleEntity { 
             canChange = false; 
             frame = CFrame::fromXYZYPRDegrees(0, -1, 0, 0 ); 
             model = "groundModel"; 
              
         }; 
-        */
+        
+        
+        oldGirderBox = VisibleEntity { 
+            canChange = false; 
+            frame = CFrame::fromXYZYPRDegrees(2.09392, -0.440751, -3.2886 ); 
+            model = "oldGirderBoxModel";              
+        }; 
+
 
         sun = Light { 
             attenuation = ( 0.0001, 0, 1 ); 
@@ -136,71 +122,30 @@
     }; 
     
     models = { 
-        /*
-        emissiveModel = ArticulatedModel::Specification { 
-            filename = "ifs/square.ifs"; 
-            preprocess = ( 
-                setTwoSided("mesh", true ); 
-                transformGeometry(all(), Matrix4::scale(1, 0.5, 1));
-                setMaterial(all(), UniversalMaterial::Specification {
-                    lambertian = Color4(0,0,0,0.01);
-                    alphaHint = "BLEND";
-                    emissive = Texture::Specification {
-                        filename = "material/transparent/emissive.png";
-                        encoding = Texture::Encoding{
-                            readMultiplyFirst = 150.0;
-                        };
-                    };
-                });
-            );
-            
-            scale = 3; 
-        }; 
-
-        */
-        
-        transmissiveModel = ArticulatedModel::Specification { 
-            filename = "ifs/square.ifs"; 
-            preprocess = { 
-                setTwoSided("mesh", true ); 
-                transformGeometry(all(), Matrix4::scale(1, 0.5, 1));
-                
-                setMaterial(all(), UniversalMaterial::Specification {
-                    lambertian = Color3(0,0,0);
-                    transmissive = "material/transparent/transmissive.png";
-                });
-                
-            };
-            
-            scale = 3; 
-        }; 
-   
-    
-        partialCoverageModel = ArticulatedModel::Specification { 
-            filename = "ifs/square.ifs"; 
-            preprocess = ( 
-                setTwoSided("mesh", true ); 
-                transformGeometry(all(), Matrix4::scale(1, 0.5, 1));
-                setMaterial(all(), UniversalMaterial::Specification {
-                    lambertian = "material/transparent/partialcoverage.png";
-                    alphaHint = "BLEND";
-                    inferAmbientOcclusionAtTransparentPixels = false;
-                });
-            );
-            
-            scale = 3; 
-        }; 
-        
+      
         groundModel = ArticulatedModel::Specification { 
             filename = "ifs/squarex8.ifs"; 
             preprocess = ( 
                 setCFrame(root(), CFrame::fromXYZYPRDegrees(0, 0, 0, 0, -90, 0 ) ); 
                 setTwoSided("mesh", true ); 
                 setMaterial(all(), UniversalMaterial::Specification { 
-                         lambertian = "material/uvcheckermap/orange-1024.png"; 
+                         lambertian = Texture::Specification {
+                            filename = "material/uvcheckermap/orange-1024.png"; 
+                            encoding = Texture::Encoding {
+                                readMultiplyFirst = 0.8;
+                            };
+                        };
                     } ) ); 
             
             scale = 15; 
+        }; 
+                
+        oldGirderBoxModel = ArticulatedModel::Specification { 
+            filename = "model/cube/cube.ifs"; 
+            preprocess = ( 
+                setTwoSided(all(), true ); 
+                setMaterial(all(), #include("material/oldgirder/oldgirder.UniversalMaterial.Any")) ); 
+            
         }; 
             
     }; 
