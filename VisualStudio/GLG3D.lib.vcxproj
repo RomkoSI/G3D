@@ -571,6 +571,7 @@
     <None Include="..\data-files\shader\Texture\Texture_singleChannelDiff.pix" />
     <None Include="..\data-files\shader\UniversalMaterial\UniversalMaterial.glsl" />
     <None Include="..\data-files\shader\UniversalMaterial\UniversalMaterial_sample.glsl" />
+    <None Include="..\data-files\shader\UniversalSurface\UniversalSurface_depthOnly.pix" />
     <None Include="..\data-files\shader\UniversalSurface\UniversalSurface_depthOnly.vrt" />
     <None Include="..\data-files\shader\UniversalSurface\UniversalSurface_depthOnlyNonOpaque.pix" />
     <None Include="..\data-files\shader\UniversalSurface\UniversalSurface_depthPeel.pix" />

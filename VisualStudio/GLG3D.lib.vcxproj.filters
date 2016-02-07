@@ -1356,5 +1356,8 @@
     <None Include="..\data-files\shader\octahedral.glsl">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="..\data-files\shader\UniversalSurface\UniversalSurface_depthOnly.pix">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

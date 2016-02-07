@@ -15,28 +15,30 @@ int main(int argc, const char* argv[]) {
 
     // Change the window and other startup parameters by modifying the
     // settings class.  For example:
-    settings.window.caption = argv[0];
+    settings.window.caption             = argv[0];
     // settings.window.debugContext     = true;
 
     // settings.window.width              =  854; settings.window.height       = 480;
     // settings.window.width            = 1024; settings.window.height       = 768;
-    settings.window.width = 1280; settings.window.height = 720;
-    //    settings.window.width               = 1920; settings.window.height       = 1080;
+     settings.window.width            = 1280; settings.window.height       = 720;
+//    settings.window.width               = 1920; settings.window.height       = 1080;
     // settings.window.width            = OSWindow::primaryDisplayWindowSize().x; settings.window.height = OSWindow::primaryDisplayWindowSize().y;
-    settings.window.fullScreen = false;
-    settings.window.resizable = !settings.window.fullScreen;
-    settings.window.framed = !settings.window.fullScreen;
+    settings.window.fullScreen          = false;
+    settings.window.resizable           = ! settings.window.fullScreen;
+    settings.window.framed              = ! settings.window.fullScreen;
 
     // Set to true for a significant performance boost if your app can't render at 60fps,
     // or if you *want* to render faster than the display.
-    settings.window.asynchronous = false;
+    settings.window.asynchronous        = false;
 
-    settings.depthGuardBandThickness = Vector2int16(64, 64);
-    settings.colorGuardBandThickness = Vector2int16(16, 16);
-    settings.dataDir = FileSystem::currentDirectory();
+    settings.depthGuardBandThickness    = Vector2int16(64, 64);
+    settings.colorGuardBandThickness    = Vector2int16(0, 0);
+    settings.dataDir                    = FileSystem::currentDirectory();
+//    settings.screenshotDirectory        = "../journal/";
 
-    settings.renderer.deferredShading = true;
-    settings.renderer.orderIndependentTransparency = true;
+    settings.renderer.deferredShading = false;
+    settings.renderer.orderIndependentTransparency = false;
+
 
     return App(settings).run();
 }
@@ -55,30 +57,26 @@ void App::onInit() {
 
     // Call setScene(shared_ptr<Scene>()) or setScene(MyScene::create()) to replace
     // the default scene here.
-
-    showRenderingStats = true;
+    
+    showRenderingStats      = true;
 
     makeGUI();
     // For higher-quality screenshots:
     // developerWindow->videoRecordDialog->setScreenShotFormat("PNG");
     // developerWindow->videoRecordDialog->setCaptureGui(false);
     developerWindow->cameraControlWindow->moveTo(Point2(developerWindow->cameraControlWindow->rect().x0(), 0));
-    loadScene(
-        //"G3D Sponza"
-        "G3D Particle Test" // Load something simple
-                          //developerWindow->sceneEditorWindow->selectedSceneName()  // Load the first scene encountered 
-        );
+    loadScene("Test");
 }
 
 
 void App::makeGUI() {
     // Initialize the developer HUD (using the existing scene)
     createDeveloperHUD();
-    debugWindow->setVisible(true);
+    debugWindow->setVisible(false);
     developerWindow->videoRecordDialog->setEnabled(true);
 
     GuiPane* infoPane = debugPane->addPane("Info", GuiTheme::ORNATE_PANE_STYLE);
-
+    
     // Example of how to add debugging controls
     infoPane->addLabel("You can add GUI controls");
     infoPane->addLabel("in App::onInit().");
@@ -97,19 +95,26 @@ void App::makeGUI() {
 
 
 void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfaces) {
-    // This implementation is equivalent to the default GApp's. It is repeated here to make it
-    // easy to modify rendering. If you don't require custom rendering, just delete this
-    // method from your application and rely on the base class.
-
-    if (! scene()) {
+    if (!scene()) {
+        if ((submitToDisplayMode() == SubmitToDisplayMode::MAXIMIZE_THROUGHPUT) && (!rd->swapBuffersAutomatically())) {
+            swapBuffers();
+        }
+        rd->clear();
+        rd->pushState(); {
+            rd->setProjectionAndCameraMatrix(activeCamera()->projection(), activeCamera()->frame());
+            drawDebugShapes();
+        } rd->popState();
         return;
     }
 
-    m_gbuffer->setSpecification(m_gbufferSpecification);
+    GBuffer::Specification gbufferSpec = m_gbufferSpecification;
+    extendGBufferSpecification(gbufferSpec);
+    m_gbuffer->setSpecification(gbufferSpec);
     m_gbuffer->resize(m_framebuffer->width(), m_framebuffer->height());
     m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.depthGuardBandThickness, m_settings.colorGuardBandThickness);
 
-    m_renderer->render(rd, m_framebuffer, m_depthPeelFramebuffer, scene()->lightingEnvironment(), m_gbuffer, allSurfaces);
+    m_renderer->render(rd, m_framebuffer, scene()->lightingEnvironment().ambientOcclusionSettings.enabled ? m_depthPeelFramebuffer : shared_ptr<Framebuffer>(),
+        scene()->lightingEnvironment(), m_gbuffer, allSurfaces);
 
     // Debug visualizations and post-process effects
     rd->pushState(m_framebuffer); {
@@ -117,7 +122,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
         rd->setProjectionAndCameraMatrix(activeCamera()->projection(), activeCamera()->frame());
         drawDebugShapes();
         const shared_ptr<Entity>& selectedEntity = (notNull(developerWindow) && notNull(developerWindow->sceneEditorWindow)) ? developerWindow->sceneEditorWindow->selectedEntity() : shared_ptr<Entity>();
-        scene()->visualize(rd, selectedEntity, allSurfaces, sceneVisualizationSettings());
+        scene()->visualize(rd, selectedEntity, allSurfaces, sceneVisualizationSettings(), activeCamera());
 
         // Post-process special effects
         m_depthOfField->apply(rd, m_framebuffer->texture(0), m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(), m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness);
@@ -127,10 +132,10 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
             m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness);
     } rd->popState();
 
-    if ((submitToDisplayMode() == SubmitToDisplayMode::MAXIMIZE_THROUGHPUT) && (!renderDevice->swapBuffersAutomatically())) {
-        // We're about to render to the actual back buffer, so swap the buffers now.
-        // This call also allows the screenshot and video recording to capture the
-        // previous frame just before it is displayed.
+    // We're about to render to the actual back buffer, so swap the buffers now.
+    // This call also allows the screenshot and video recording to capture the
+    // previous frame just before it is displayed.
+    if (submitToDisplayMode() == SubmitToDisplayMode::MAXIMIZE_THROUGHPUT) {
         swapBuffers();
     }
 

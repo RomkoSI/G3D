@@ -113,7 +113,7 @@ UniversalMaterialSample sampleUniversalMaterial$(dim)
                     if (smpl.coverage < 1.0) { discard; }
 #               else
                     // In the transparent pass, eliminate fully opaque pixels as well
-                    if ((smpl.coverage <= 0.0) || (discardIfFullCoverage && !hasTransmissive && (smpl.coverage >= 1.0))) {
+                    if ((smpl.coverage <= 0.0) || (discardIfFullCoverage && ! hasTransmissive && (smpl.coverage >= 1.0))) {
                         discard; 
                     }
 #               endif
