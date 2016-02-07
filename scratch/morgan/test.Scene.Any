@@ -146,7 +146,7 @@
                     lambertian = Color4(0,0,0,0.01);
                     alphaHint = "BLEND";
                     emissive = Texture::Specification {
-                        filename = "material/channel/emissive.png";
+                        filename = "material/transparent/emissive.png";
                         encoding = Texture::Encoding{
                             readMultiplyFirst = 150.0;
                         };
@@ -167,7 +167,7 @@
                 
                 setMaterial(all(), UniversalMaterial::Specification {
                     lambertian = Color3(0,0,0);
-                    transmissive = "material/channel/transmissive.png";
+                    transmissive = "material/transparent/transmissive.png";
                 });
                 
             };
@@ -182,7 +182,7 @@
                 setTwoSided("mesh", true ); 
                 transformGeometry(all(), Matrix4::scale(1, 0.5, 1));
                 setMaterial(all(), UniversalMaterial::Specification {
-                    lambertian = "material/channel/partialcoverage.png";
+                    lambertian = "material/transparent/partialcoverage.png";
                     alphaHint = "BLEND";
                     inferAmbientOcclusionAtTransparentPixels = false;
                 });
