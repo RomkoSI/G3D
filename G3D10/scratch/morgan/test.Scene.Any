@@ -71,7 +71,7 @@
             
             visualizationScale = 1; 
         }; 
-        
+        /*
         
         ground = VisibleEntity { 
             canChange = false; 
@@ -79,7 +79,7 @@
             model = "groundModel"; 
              
         }; 
-        
+        */
 
         sun = Light { 
             attenuation = ( 0.0001, 0, 1 ); 
