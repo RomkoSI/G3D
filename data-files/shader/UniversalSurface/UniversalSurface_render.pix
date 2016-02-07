@@ -152,6 +152,13 @@ void main() {
         vertexColor, ALPHA_HINT, PARALLAXSTEPS, bool(HAS_NORMAL_BUMP_MAP), bool(HAS_VERTEX_COLOR), bool(HAS_ALPHA), bool(HAS_TRANSMISSIVE), bool(HAS_EMISSIVE), NUM_LIGHTMAP_DIRECTIONS);
     vec3 E_ambient = vec3(0.0);
 
+#   if OPAQUE_PASS && HAS_TRANSMISSIVE       
+        if (materialSample.transmissionCoefficient.r + materialSample.transmissionCoefficient.g + materialSample.transmissionCoefficient.b != 0) {
+            // This pixel needs blending
+            discard;
+        }
+#   endif
+
 #   if NUM_LIGHTMAP_DIRECTIONS == 0
         E_ambient += computeLambertianEnvironmentMapLighting(materialSample.shadingNormal);
 #   elif NUM_LIGHTMAP_DIRECTIONS == 2
@@ -292,7 +299,7 @@ void main() {
     // Outgoing light
     L_o += (E_lambertian * directAO + E_ambient       * AO) * lambertianCoefficient +
            (E_glossy     * directAO + E_glossyAmbient * AO) * glossyColor;
-
+    
     writePixel(L_o * materialSample.coverage, materialSample.coverage, transmissionCoefficient, materialSample.collimation,
 #       ifdef REFRACTION
             material.etaRatio,
