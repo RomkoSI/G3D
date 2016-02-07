@@ -168,8 +168,15 @@ void main() {
        UniversalMaterialSample materialSample = sampleUniversalMaterial2D(material, texCoord, lightMapCoord, tan_X, tan_Y, tan_Z, normalize(_tsE), backside, discardIfZeroCoverage, discardIfFullCoverage,
            vertexColor, ALPHA_HINT, PARALLAXSTEPS, bool(HAS_NORMAL_BUMP_MAP), bool(HAS_VERTEX_COLOR), bool(HAS_ALPHA), bool(HAS_TRANSMISSIVE), bool(HAS_EMISSIVE), NUM_LIGHTMAP_DIRECTIONS);
 
-        vec3 wsN = materialSample.shadingNormal;
-        vec3 tsN = materialSample.tsNormal;
+       vec3 wsN = materialSample.shadingNormal;
+       vec3 tsN = materialSample.tsNormal;
+
+#      if OPAQUE_PASS && HAS_TRANSMISSIVE       
+        if (materialSample.transmissionCoefficient.r + materialSample.transmissionCoefficient.g + materialSample.transmissionCoefficient.b != 0) {
+            // This pixel needs blending
+            discard;
+        }
+#      endif
 
         // Issue0001: Add MSAA support here (for coverage < 1.0 case)
 
