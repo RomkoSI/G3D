@@ -214,7 +214,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         }
     }
 
-    bool batchRender = true;
+    const bool batchRender = true;
     if (batchRender) {
         static Array< Array<shared_ptr<Surface> > > batchTable;
         batchTable.fastClear();
@@ -245,6 +245,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
             Args args;
             canonicalSurface->setShaderArgs(args);
 
+            args.setMacro("OPAQUE_PASS", 1);
             args.setMacro("HAS_ALPHA", 0);
             args.setMacro("USE_PARALLAX_MAPPING", 0);
 
@@ -262,10 +263,10 @@ void UniversalSurface::renderDepthOnlyHomogeneous
 
             // N.B. Alpha testing is handled explicitly inside the shader.
             if (notNull(previousDepthBuffer)) {
-                LAUNCH_SHADER_PTR_WITH_HINT(depthPeelShader, args, format("batch%d (%s)",b, canonicalSurface->m_profilerHint.c_str()));
+                LAUNCH_SHADER_PTR_WITH_HINT(depthPeelShader, args, format("batch%d (%s)", b, canonicalSurface->m_profilerHint.c_str()));
             }
             else {
-                LAUNCH_SHADER_PTR_WITH_HINT(depthShader, args, format("batch%d (%s)",b, canonicalSurface->m_profilerHint.c_str()));
+                LAUNCH_SHADER_PTR_WITH_HINT(depthShader, args, format("batch%d (%s)", b, canonicalSurface->m_profilerHint.c_str()));
             }
             /*
             for (int s = batch.size() - 1; s >= 0; --s) {
@@ -307,6 +308,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
             Args args;
             surface->setShaderArgs(args);
 
+            args.setMacro("OPAQUE_PASS", 1);
             args.setMacro("HAS_ALPHA", 0);
             args.setMacro("USE_PARALLAX_MAPPING", 0);
 
@@ -358,6 +360,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         surface->setShaderArgs(args, true);
     	bindDepthPeelArgs(args, rd, previousDepthBuffer, minZSeparation);
         args.setUniform("transmissionWeight", transmissionWeight);
+        args.setMacro("OPAQUE_PASS", 1);
         
         // N.B. Alpha testing is handled explicitly inside the shader.
         if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((surface->material()->alphaHint() == AlphaHint::BLEND) || (surface->material()->alphaHint() == AlphaHint::BINARY)))) {
