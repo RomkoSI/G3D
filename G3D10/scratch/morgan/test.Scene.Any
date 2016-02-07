@@ -1,11 +1,27 @@
-
 /* -*- c++ -*- */
 { 
     entities = { 
-        box = VisibleEntity { 
-            model = "boxModel"; 
-            visible = true; 
-        }; 
+        /*
+        emissiveCard = VisibleEntity {
+            canChange = false; 
+            frame = CFrame::fromXYZYPRDegrees(2, 2, -2, 0, 0, -180 ); 
+            model = "emissiveModel"; 
+        };
+        */
+        
+        partialCoverageCard = VisibleEntity {
+            canChange = false; 
+            frame = CFrame::fromXYZYPRDegrees(-1, 2, -2, 0, 0, -180 ); 
+            model = "partialCoverageModel"; 
+        };
+
+        /*
+        transmissiveCard = VisibleEntity {
+            canChange = false; 
+            frame = CFrame::fromXYZYPRDegrees(-4, 2, -2, 0, 0, -180 ); 
+            model = "transmissiveModel";             
+        };
+        */
         
         camera = Camera { 
             depthOfFieldSettings = DepthOfFieldSettings { 
@@ -15,34 +31,28 @@
                 farSharpPlaneZ = -40; 
                 focusPlaneZ = -10; 
                 lensRadius = 0.01; 
-                model = "NONE"; 
+                model = "ARTIST"; 
                 nearBlurRadiusFraction = 0.015; 
-                nearBlurryPlaneZ = -0.25; 
-                nearSharpPlaneZ = -1; 
+                nearBlurryPlaneZ = -0.05; 
+                nearSharpPlaneZ = -0.1; 
             }; 
             
             filmSettings = FilmSettings { 
                 antialiasingEnabled = true; 
                 antialiasingFilterRadius = 0; 
-                bloomRadiusFraction = 0.009; 
-                bloomStrength = 0.2; 
+                antialiasingHighQuality = true; 
+                bloomRadiusFraction = 0.01796; 
+                bloomStrength = 0.1; 
                 debugZoom = 1; 
                 gamma = 2.2; 
                 sensitivity = 1; 
-                toneCurve = Spline { 
-                    control = ( 0, 0.1, 0.2, 0.5, 1 ); 
-                    extrapolationMode = "LINEAR"; 
-                    finalInterval = -1; 
-                    interpolationMode = "CUBIC"; 
-                    time = ( 0, 0.1, 0.2, 0.5, 1 ); 
-                }; 
                 
                 vignetteBottomStrength = 0.05; 
                 vignetteSizeFraction = 0.17; 
                 vignetteTopStrength = 0.5; 
             }; 
             
-            frame = CFrame::fromXYZYPRDegrees(0, 1, 6, 0, 0, 0 ); 
+            frame = CFrame::fromXYZYPRDegrees(-1.5993, 1.7956, -12.485, -177.3, -0.5, 0); 
             motionBlurSettings = MotionBlurSettings { 
                 cameraMotionInfluence = 0.5; 
                 enabled = false; 
@@ -52,62 +62,146 @@
             }; 
             
             projection = Projection { 
-                farPlaneZ = -200; 
-                fovDegrees = 25; 
+                farPlaneZ = -50; 
+                fovDegrees = 35; 
                 fovDirection = "VERTICAL"; 
-                nearPlaneZ = -0.1; 
+                nearPlaneZ = -0.5; 
                 pixelOffset = Vector2(0, 0 ); 
             }; 
             
             visualizationScale = 1; 
         }; 
         
-        light1 = 
-            Light { 
-                attenuation = ( 0.0001, 0, 1 ); 
-                bulbPower = Power3(60 ); 
-                castsShadows = true; 
-                enabled = true; 
-                extent = Vector2(0.75, 0.75 ); 
-                frame = CFrame::fromXYZYPRDegrees(0, 1.92, 0, 0, -90, 0 ); 
-                producesDirectIllumination = true; 
-                producesIndirectIllumination = true; 
-                shadowMapSize = Vector2int16(1024, 1024 ); 
-                spotHalfAngleDegrees = 58;
-                spotSquare = true; 
-                stochasticShadows = true;
-                type = "SPOT"; 
-            }; 
+        
+        ground = VisibleEntity { 
+            canChange = false; 
+            frame = CFrame::fromXYZYPRDegrees(0, -1, 0, 0 ); 
+            model = "groundModel"; 
+             
+        }; 
+        
+
+        sun = Light { 
+            attenuation = ( 0.0001, 0, 1 ); 
+            bulbPower = Color3(50000 ); 
+            canChange = false; 
+            castsShadows = true; 
+            enabled = true; 
+            frame = CFrame::fromXYZYPRDegrees(-15.1351, 36.5859, -14.5709, -135.458, -59.5992, 5.45791 ); 
+            nearPlaneZLimit = -30; 
+            producesDirectIllumination = true; 
+            producesIndirectIllumination = true; 
+            shadowMapSize = Vector2int16(4096, 4096 ); 
+            spotHalfAngleDegrees = 15; 
+            spotSquare = true; 
+            stochasticShadows = true;
+            type = "SPOT"; 
+        }; 
+        
+        
     }; 
     
     lightingEnvironment = LightingEnvironment { 
         ambientOcclusionSettings = AmbientOcclusionSettings { 
-            bias = 0; 
-            blurRadius = 3; 
+            bias = 0.012; 
+            blurRadius = 4; 
             blurStepSize = 2; 
-            depthPeelSeparationHint = 0.0604059; 
+            depthPeelSeparationHint = 0.872287; 
             edgeSharpness = 1; 
-            enabled = true; 
-            intensity = 2.18812; 
+            enabled = false; 
+            intensity = 1; 
             monotonicallyDecreasingBilateralWeights = false; 
-            numSamples = 36; 
-            radius = 0.526345; 
+            numSamples = 19; 
+            radius = 1.5; 
+            temporalFilterSettings = TemporalFilter::Settings { 
+                hysteresis = 0; 
+                falloffEndDistance = 0.07; 
+                falloffStartDistance = 0.05; 
+            }; 
+            
+            temporallyVarySamples = false; 
             useDepthPeelBuffer = true; 
             useNormalBuffer = true; 
             useNormalsInBlur = true; 
         }; 
         
-        
-        environmentMap = "cubemap/whiteroom/whiteroom-*.png"; 
-        
+        environmentMap = Texture::Specification { 
+            encoding = Texture::Encoding { 
+                readMultiplyFirst = 0.5; 
+            }; 
+            
+            filename = "cubemap/uffizi/uffizi*.jpg"; 
+        }; 
         
     }; 
     
     models = { 
-        boxModel = ArticulatedModel::Specification {
-            filename = "box2texcoords.fbx";
-            scale = 0.1;
+        /*
+        emissiveModel = ArticulatedModel::Specification { 
+            filename = "ifs/square.ifs"; 
+            preprocess = ( 
+                setTwoSided("mesh", true ); 
+                transformGeometry(all(), Matrix4::scale(1, 0.5, 1));
+                setMaterial(all(), UniversalMaterial::Specification {
+                    lambertian = Color4(0,0,0,0.01);
+                    alphaHint = "BLEND";
+                    emissive = Texture::Specification {
+                        filename = "material/channel/emissive.png";
+                        encoding = Texture::Encoding{
+                            readMultiplyFirst = 150.0;
+                        };
+                    };
+                });
+            );
+            
+            scale = 3; 
         }; 
+
+        */
+        /*
+        transmissiveModel = ArticulatedModel::Specification { 
+            filename = "ifs/square.ifs"; 
+            preprocess = { 
+                setTwoSided("mesh", true ); 
+                transformGeometry(all(), Matrix4::scale(1, 0.5, 1));
+                
+                setMaterial(all(), UniversalMaterial::Specification {
+                    lambertian = Color3(0,0,0);
+                    transmissive = "material/channel/transmissive.png";
+                });
+                
+            };
+            
+            scale = 3; 
+        }; 
+    */
+    
+        partialCoverageModel = ArticulatedModel::Specification { 
+            filename = "ifs/square.ifs"; 
+            preprocess = ( 
+                setTwoSided("mesh", true ); 
+                transformGeometry(all(), Matrix4::scale(1, 0.5, 1));
+                setMaterial(all(), UniversalMaterial::Specification {
+                    lambertian = "material/channel/partialcoverage.png";
+                    alphaHint = "BLEND";
+                });
+            );
+            
+            scale = 3; 
+        }; 
+        
+        groundModel = ArticulatedModel::Specification { 
+            filename = "ifs/squarex8.ifs"; 
+            preprocess = ( 
+                setCFrame(root(), CFrame::fromXYZYPRDegrees(0, 0, 0, 0, -90, 0 ) ); 
+                setTwoSided("mesh", true ); 
+                setMaterial(all(), UniversalMaterial::Specification { 
+                         lambertian = "material/uvcheckermap/orange-1024.png"; 
+                    } ) ); 
+            
+            scale = 15; 
+        }; 
+            
     }; 
     
     name = "Test"; 

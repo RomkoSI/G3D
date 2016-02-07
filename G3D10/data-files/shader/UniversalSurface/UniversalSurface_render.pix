@@ -293,7 +293,7 @@ void main() {
     L_o += (E_lambertian * directAO + E_ambient       * AO) * lambertianCoefficient +
            (E_glossy     * directAO + E_glossyAmbient * AO) * glossyColor;
 
-    writePixel( L_o * materialSample.coverage, materialSample.coverage, transmissionCoefficient, materialSample.collimation,
+    writePixel(L_o * materialSample.coverage, materialSample.coverage, transmissionCoefficient, materialSample.collimation,
 #       ifdef REFRACTION
             material.etaRatio,
 #       else

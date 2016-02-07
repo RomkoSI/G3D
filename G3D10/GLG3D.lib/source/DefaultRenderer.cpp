@@ -6,7 +6,7 @@
    \created 2014-12-21
    \edited  2015-05-22
 
-   Copyright 2000-2015, Morgan McGuire.
+   Copyright 2000-2016, Morgan McGuire.
    All rights reserved.
 */
 #include "GLG3D/DefaultRenderer.h"
