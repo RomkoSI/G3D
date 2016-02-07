@@ -169,13 +169,14 @@ UniversalMaterialSample sampleUniversalMaterial$(dim)
 
 
     if (hasTransmissive) {
-        vec4 tmp = texture(material.transmissive.sampler, offsetTexCoord) * material.transmissive.readMultiplyFirst + material.transmissive.readAddSecond;
+        vec4 tmp = sampleTexture(material.transmissive, offsetTexCoord);
         smpl.transmissionCoefficient = tmp.rgb;
         smpl.collimation = tmp.a;
     } else {
         smpl.transmissionCoefficient = Color3(0, 0, 0);
         smpl.collimation = 1.0;
     }
+
     smpl.offsetTexCoord = offsetTexCoord.xy;
     return smpl;
 }
