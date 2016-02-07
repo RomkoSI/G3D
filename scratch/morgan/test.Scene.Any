@@ -8,20 +8,20 @@
             model = "emissiveModel"; 
         };
         */
-        
+        /*
         partialCoverageCard = VisibleEntity {
             canChange = false; 
             frame = CFrame::fromXYZYPRDegrees(-1, 2, -2, 0, 0, -180 ); 
             model = "partialCoverageModel"; 
-        };
+        };*/
 
-        /*
+        
         transmissiveCard = VisibleEntity {
             canChange = false; 
             frame = CFrame::fromXYZYPRDegrees(-4, 2, -2, 0, 0, -180 ); 
             model = "transmissiveModel";             
         };
-        */
+        
         
         camera = Camera { 
             depthOfFieldSettings = DepthOfFieldSettings { 
@@ -158,7 +158,7 @@
         }; 
 
         */
-        /*
+        
         transmissiveModel = ArticulatedModel::Specification { 
             filename = "ifs/square.ifs"; 
             preprocess = { 
@@ -174,7 +174,7 @@
             
             scale = 3; 
         }; 
-    */
+   
     
         partialCoverageModel = ArticulatedModel::Specification { 
             filename = "ifs/square.ifs"; 
@@ -184,6 +184,7 @@
                 setMaterial(all(), UniversalMaterial::Specification {
                     lambertian = "material/channel/partialcoverage.png";
                     alphaHint = "BLEND";
+                    inferAmbientOcclusionAtTransparentPixels = false;
                 });
             );
             
