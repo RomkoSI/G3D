@@ -437,6 +437,11 @@ public:
         return m_sampler;
     }
     
+    /** 
+        Returns the dimension of the textures in the material
+    */
+    Texture::Dimension textureDimension() const;
+
     bool hasTransmissive() const;
 
     bool hasEmissive() const;
@@ -468,6 +473,12 @@ public:
             return nan();
         }
     }
+
+    /** 
+        Checks that all textures in the material use the same dimensions, 
+        returns true if they do.
+     */
+    bool validateTextureDimensions() const;
 
     AlphaHint alphaHint() const {
         return m_alphaHint;

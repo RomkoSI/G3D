@@ -50,7 +50,7 @@
  \sa G3D::UniversalMaterial, G3D::UniversalMaterial::setShaderArgs, G3D::Args, uniform_Texture
 
 */
-#foreach (dim, n) in (2D, 2), (3D, 3), (2DArray, 2)
+#foreach (dim) in (2D), (3D), (2DArray)
     struct UniversalMaterial$(dim) {
         Texture$(dim)    lambertian;
         Texture$(dim)    glossy;
