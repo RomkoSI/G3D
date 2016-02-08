@@ -192,6 +192,12 @@ public:
         /** Mip level being rendered to */
         int                         m_mipLevel;
 
+        /** 
+            Individual layer to be bound. If -1, the texture is bound normally, 
+            if >= 0, it is bound using glFramebufferTextureLayer
+        */
+        int                         m_layer;
+
 		/** These parameters are used only for DUMMY attachment, which 
 			is used when the framebuffer is in no-attachment mode. 
 			Dummy attahcment do not have any texture 
@@ -202,13 +208,13 @@ public:
 		int							m_numSamples;
 		bool						m_fixedSamplesLocation;
 
-        Attachment(AttachmentPoint ap, const shared_ptr<Texture>& r, CubeFace c, int miplevel);
+        Attachment(AttachmentPoint ap, const shared_ptr<Texture>& r, CubeFace c, int miplevel, int layer);
         
 		/** Dummy attachment */
 		Attachment(AttachmentPoint ap, int width, int height, int numLayers, int numSamples, bool fixedSamplesLocation);
 
         /** Assumes the point is correct */
-        bool equals(const shared_ptr<Texture>& t, CubeFace f, int miplevel) const;
+        bool equals(const shared_ptr<Texture>& t, CubeFace f, int miplevel, int layer) const;
 
         bool equals(const shared_ptr<Attachment>& other) const;
 
@@ -242,6 +248,11 @@ public:
 
         inline int mipLevel() const {
             return m_mipLevel; 
+        }
+
+        /** Will be -1 if no layer selected */
+        inline int layer() const {
+            return m_layer;
         }
 
         const ImageFormat* format() const;
@@ -417,10 +428,11 @@ public:
        \param texture     Texture to bind to the Framebuffer.
        \param ap     Attachment point to bind texture to.
        \param mipLevel   Target MIP-map level to render to.
+       \param layer   Target layer render to. If -1, all layers are bound.
     */
     void set(AttachmentPoint ap, const shared_ptr<Texture>& texture, 
-             CubeFace face, int mipLevel = 0);
-    
+             CubeFace face, int mipLevel = 0, int layer = -1);
+
     
     /** Returns true if this attachment is currently non-NULL.*/
     bool has(AttachmentPoint ap) const;
