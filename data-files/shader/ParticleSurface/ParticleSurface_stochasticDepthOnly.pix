@@ -5,7 +5,7 @@
 #include <UniversalMaterial/UniversalMaterial.glsl>
 #include <UniversalMaterial/UniversalMaterial_sample.glsl>
 
-uniform UniversalMaterial2D material;
+uniform UniversalMaterial2DArray material;
 
 // This reduces the darkness of stochastic shadows cast by particle systems,
 // which tends to improve their overall appearance.
@@ -19,8 +19,7 @@ float random(Point3 p) {
 }
 
 void main() {
-    // TODO: use 2DArray texcoord
-    float alpha = sampleTexture(material.lambertian, texCoord.xy).a;
+    float alpha = sampleTexture(material.lambertian, texCoord).a;
 
     // Selectively kill based on a random number vs. alpha.
     if (random(wsPosition.xyz) > alpha * shadowCastingFactor) {

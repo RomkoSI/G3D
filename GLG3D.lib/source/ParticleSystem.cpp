@@ -147,11 +147,9 @@ shared_ptr<ParticleMaterial> ParticleMaterial::create(const UniversalMaterial::S
 }
 
 shared_ptr<Texture> convertToTextureArray(const String& name, shared_ptr<Texture> tex) {
-    /* TODO: make it an array (will involve shader changes)
-    shared_ptr<Texture> texArray = Texture::createEmpty(name, tex->width(), tex->height(), 
-                                        tex->encoding(), Texture::DIM_2D_ARRAY, false, 1);*/
-    shared_ptr<Texture> result = Texture::createEmpty(name, tex->width(), tex->height(),
-        tex->encoding(), Texture::DIM_2D);
+    shared_ptr<Texture> result = Texture::createEmpty(name, tex->width(), tex->height(), 
+                                        tex->encoding(), Texture::DIM_2D_ARRAY, false, 1);
+    
     Texture::copy(tex, result);
     result->generateMipMaps();
     return result;
