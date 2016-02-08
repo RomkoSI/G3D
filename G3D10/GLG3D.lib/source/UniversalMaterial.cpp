@@ -141,6 +141,23 @@ shared_ptr<UniversalMaterial> UniversalMaterial::create(const Specification& spe
     return create(FilePath::base(specification.m_lambertian.filename), specification);
 }
 
+bool UniversalMaterial::validateTextureDimensions() const {
+    // Check all textures in the material.
+    SmallArray<shared_ptr<Texture>, 5> textures;
+    textures.append(m_bsdf->lambertian().texture());
+    textures.append(m_bsdf->glossy().texture());
+    textures.append(m_bsdf->transmissive().texture());
+    textures.append(m_emissive.texture());
+    if (notNull(m_bump) && notNull(m_bump->normalBumpMap())) {
+        textures.append(m_bump->normalBumpMap()->texture());
+    }
+    Texture::Dimension dim = textures[0]->dimension();
+    bool allSame = true;
+    for (int i = 0; i < textures.size(); ++i) {
+        allSame = allSame && (textures[i]->dimension() == dim);
+    }
+    return allSame;
+}
 
 shared_ptr<UniversalMaterial> UniversalMaterial::create(const String& name, const Specification& specification) {
     MaterialCache& cache = _internal::materialCache();
@@ -217,8 +234,8 @@ shared_ptr<UniversalMaterial> UniversalMaterial::create(const String& name, cons
     
         value->computeDefines(value->m_macros);
         debugAssert(notNull(value->bsdf()->lambertian().texture()));
+        debugAssertM(value->validateTextureDimensions(), "Not all texture in material are the same dimension!");
     }
-
     return value;
 }
 
@@ -263,6 +280,9 @@ void UniversalMaterial::setShaderArgs(UniformTable& args, const String& prefix) 
         break;
     }
 
+    Texture::Dimension dim = textureDimension();
+    const shared_ptr<Texture>& textureZero          = Texture::zero(dim);
+    const shared_ptr<Texture>& textureOpaqueBlack   = Texture::opaqueBlack(dim);
     debugAssert(m_bsdf->glossy().texture());
     m_bsdf->lambertian().texture()->setShaderArgs(args, prefix + (structStyle ? "lambertian." : "LAMBERTIAN_"), 
         m_bsdf->lambertian().texture()->hasMipMaps() ? m_sampler : noMipSampler);
@@ -285,14 +305,14 @@ void UniversalMaterial::setShaderArgs(UniformTable& args, const String& prefix) 
         m_customMap->texture()->setShaderArgs(args, prefix + (structStyle ? "customMap." : "customMap_"), 
             m_customMap->texture()->hasMipMaps() ? m_sampler : noMipSampler);
     } else if (structStyle) {
-        Texture::zero()->setShaderArgs(args, prefix + "customMap.", noMipSampler);
+        textureZero->setShaderArgs(args, prefix + "customMap.", noMipSampler);
     }
 
     if (hasEmissive()) {
         m_emissive.texture()->setShaderArgs(args, prefix + (structStyle ? "emissive." : "EMISSIVE_"), 
             m_emissive.texture()->hasMipMaps() ? m_sampler : noMipSampler);
     } else if (structStyle) {
-        Texture::opaqueBlack()->setShaderArgs(args, prefix + "emissive.", noMipSampler);
+        textureOpaqueBlack->setShaderArgs(args, prefix + "emissive.", noMipSampler);
     }
     
     if (hasTransmissive()) {
@@ -300,7 +320,7 @@ void UniversalMaterial::setShaderArgs(UniformTable& args, const String& prefix) 
             (args, prefix + (structStyle ? "transmissive." : "TRANSMISSIVE_"),
              m_bsdf->transmissive().texture()->hasMipMaps() ? m_sampler : noMipSampler);
     } else if (structStyle) {
-        Texture::opaqueBlack()->setShaderArgs(args, prefix + "transmissive.", noMipSampler);
+        textureOpaqueBlack->setShaderArgs(args, prefix + "transmissive.", noMipSampler);
     }
     args.setUniform(prefix + "etaTransmit", m_bsdf->etaTransmit(), OPTIONAL);
     args.setUniform(prefix + "etaRatio", m_bsdf->etaReflect() / m_bsdf->etaTransmit(), OPTIONAL);
@@ -314,7 +334,7 @@ void UniversalMaterial::setShaderArgs(UniformTable& args, const String& prefix) 
             args.setUniform(prefix + "bumpMapBias",             m_bump->settings().bias, OPTIONAL);
         }
     } else if (structStyle) {
-        args.setUniform(prefix + "normalBumpMap", Texture::zero(), noMipSampler, OPTIONAL);
+        args.setUniform(prefix + "normalBumpMap", textureZero, noMipSampler, OPTIONAL);
         args.setUniform(prefix + "bumpMapScale", 1.0f, OPTIONAL);
         args.setUniform(prefix + "bumpMapBias",  0.0f, OPTIONAL);
     }
@@ -333,13 +353,13 @@ void UniversalMaterial::setShaderArgs(UniformTable& args, const String& prefix) 
             m_lightMap[1].texture()->setShaderArgs(args, prefix + (structStyle ? "lightMap1." : "lightMap1_"), Sampler::lightMap());
             m_lightMap[2].texture()->setShaderArgs(args, prefix + (structStyle ? "lightMap2." : "lightMap2_"), Sampler::lightMap());
         } else if (structStyle) {
-            Texture::opaqueBlack()->setShaderArgs(args, prefix + "lightMap1.", Sampler::lightMap());
-            Texture::opaqueBlack()->setShaderArgs(args, prefix + "lightMap2.", Sampler::lightMap());
+            textureOpaqueBlack->setShaderArgs(args, prefix + "lightMap1.", Sampler::lightMap());
+            textureOpaqueBlack->setShaderArgs(args, prefix + "lightMap2.", Sampler::lightMap());
         }
     } else if (structStyle) {
-        Texture::opaqueBlack()->setShaderArgs(args, prefix + "lightMap0.", Sampler::lightMap());
-        Texture::opaqueBlack()->setShaderArgs(args, prefix + "lightMap1.", Sampler::lightMap());
-        Texture::opaqueBlack()->setShaderArgs(args, prefix + "lightMap2.", Sampler::lightMap());
+        textureOpaqueBlack->setShaderArgs(args, prefix + "lightMap0.", Sampler::lightMap());
+        textureOpaqueBlack->setShaderArgs(args, prefix + "lightMap1.", Sampler::lightMap());
+        textureOpaqueBlack->setShaderArgs(args, prefix + "lightMap2.", Sampler::lightMap());
     }
     
     if (structStyle) {
@@ -380,7 +400,10 @@ void UniversalMaterial::computeDefines(String& defines) const {
     defines += m_customShaderPrefix;
 }
 
-
+Texture::Dimension UniversalMaterial::textureDimension() const {
+    debugAssertM(validateTextureDimensions(), "Not all texture in material are the same dimension!");
+    return m_bsdf->lambertian().texture()->dimension();
+}
 
 bool UniversalMaterial::coverageLessThan(const float alphaThreshold, const Point2& texCoord) const {
     const Component4& lambertian = bsdf()->lambertian();

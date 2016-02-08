@@ -309,11 +309,11 @@ GLenum Shader::canonicalType(GLenum e) {
     case GL_UNSIGNED_INT_IMAGE_2D:
 	//case GL_IMAGE_2D_MULTISAMPLE:
 #   endif
-    case GL_SAMPLER_2D_SHADOW_ARB:
-    case GL_SAMPLER_2D_ARB:
+    case GL_SAMPLER_2D_SHADOW:
+    case GL_SAMPLER_2D:
 	//case GL_SAMPLER_2D_MULTISAMPLE:
-    case GL_INT_SAMPLER_2D_EXT:
-    case GL_UNSIGNED_INT_SAMPLER_2D_EXT:
+    case GL_INT_SAMPLER_2D:
+    case GL_UNSIGNED_INT_SAMPLER_2D:
 	//case GL_TEXTURE_2D_MULTISAMPLE:
         return GL_TEXTURE_2D;
         
