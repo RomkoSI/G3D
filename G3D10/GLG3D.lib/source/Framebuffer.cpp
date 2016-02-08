@@ -177,7 +177,7 @@ void Framebuffer::set(AttachmentPoint ap, const shared_ptr<Texture>& texture) {
 }
 
    
-void Framebuffer::set(AttachmentPoint ap, const shared_ptr<Texture>& texture, CubeFace face, int mipLevel) {
+void Framebuffer::set(AttachmentPoint ap, const shared_ptr<Texture>& texture, CubeFace face, int mipLevel, int layer) {
 	alwaysAssertM(m_noAttachment==false, "Can't set attachment to a Frambuffer in no-attachment mode");
 
     if (isNull(texture)) {
@@ -187,9 +187,9 @@ void Framebuffer::set(AttachmentPoint ap, const shared_ptr<Texture>& texture, Cu
     }
     
     shared_ptr<Attachment> a = get(ap);
-    if (isNull(a) || ! (a->equals(texture, face, mipLevel))) {
+    if (isNull(a) || ! (a->equals(texture, face, mipLevel, layer))) {
         // This is a change
-        set(shared_ptr<Attachment>(new Attachment(ap, texture, face, mipLevel)));
+        set(shared_ptr<Attachment>(new Attachment(ap, texture, face, mipLevel, layer)));
     }
 }
 
@@ -460,14 +460,19 @@ void Framebuffer::blitTo
 
 ////////////////////////////////////////////////////////////////////
 
-Framebuffer::Attachment::Attachment(AttachmentPoint ap, const shared_ptr<Texture>& r, CubeFace c, int m) : 
+Framebuffer::Attachment::Attachment(AttachmentPoint ap, const shared_ptr<Texture>& r, CubeFace c, int m, int layer) : 
     m_clearValue(0.0f, 0.0f, 0.0f),
     m_type(TEXTURE), 
     m_point(ap),
     m_texture(r),
     m_cubeFace(c),
-    m_mipLevel(m) {
-
+    m_mipLevel(m),
+    m_layer(layer) {
+    r->depth();
+    alwaysAssertM(layer == -1 || 
+        r->dimension() == Texture::DIM_2D_ARRAY || 
+        r->dimension() == Texture::DIM_CUBE_MAP_ARRAY,
+        "Cannot attach a specific layer of a non-array texture.");
     alwaysAssertM(ap != DEPTH || ap != DEPTH_AND_STENCIL 
                     || r->format()->depthBits > 0, 
                     "Cannot attach a texture without any depth bits to DEPTH or DEPTH_AND_STENCIL");
@@ -479,6 +484,7 @@ Framebuffer::Attachment::Attachment(AttachmentPoint ap, int width, int height, i
     m_point(ap),
     m_cubeFace(CubeFace::NEG_X),
     m_mipLevel(0),
+    m_layer(-1),
 	m_width(width),
 	m_height(height),
 	m_numLayers(numLayers),
@@ -523,12 +529,13 @@ void Framebuffer::Attachment::resize(int w, int h){
     }
 }
 
-bool Framebuffer::Attachment::equals(const shared_ptr<Texture>& t, CubeFace c, int L) const {
+bool Framebuffer::Attachment::equals(const shared_ptr<Texture>& t, CubeFace c, int L, int layer) const {
     return
         (m_type == TEXTURE) &&
         (m_texture == t) &&
         (m_cubeFace == c) &&
-        (m_mipLevel == L);
+        (m_mipLevel == L) &&
+        (m_layer == layer);
 }
 
 
