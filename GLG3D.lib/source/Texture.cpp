@@ -357,34 +357,36 @@ shared_ptr<Texture> Texture::createColorCube(const Color4& color) {
 }
 
 
-const shared_ptr<Texture>& Texture::zero() {
-    static shared_ptr<Texture> t;
-    if (isNull(t)) {
+const shared_ptr<Texture>& Texture::zero(Dimension d) {
+    alwaysAssertM(d == DIM_2D || d == DIM_3D || d == DIM_2D_ARRAY, "Dimension must be 2D, 3D, or 2D Array");
+    static Table<int, shared_ptr<Texture> > textures;
+    if (!textures.containsKey(d)) {
         // Cache is empty                                                                                      
         CPUPixelTransferBuffer::Ref imageBuffer = CPUPixelTransferBuffer::create(8, 8, ImageFormat::RGBA8());
         System::memset(imageBuffer->buffer(), 0x00, imageBuffer->size());
-        t = Texture::fromPixelTransferBuffer("G3D::Texture::zero", imageBuffer);
+        textures.set(d, Texture::fromPixelTransferBuffer("G3D::Texture::zero", imageBuffer, ImageFormat::RGBA8(), d));
     }
     
-    return t;
+    return textures[d];
 }
 
 
-const shared_ptr<Texture>& Texture::opaqueBlack() {
-    static shared_ptr<Texture> t;
-    if (isNull(t)) {
+const shared_ptr<Texture>& Texture::opaqueBlack(Dimension d) {
+    alwaysAssertM(d == DIM_2D || d == DIM_3D || d == DIM_2D_ARRAY, "Dimension must be 2D, 3D, or 2D Array");
+    static Table<int, shared_ptr<Texture> > textures;
+    if (!textures.containsKey(d)) {
         // Cache is empty                                                                                      
         CPUPixelTransferBuffer::Ref imageBuffer = CPUPixelTransferBuffer::create(8, 8, ImageFormat::RGBA8());
         for (int i = 0; i < imageBuffer->width() * imageBuffer->height(); ++i) {
             Color4unorm8* pixels = static_cast<Color4unorm8*>(imageBuffer->buffer());
             pixels[i] = Color4unorm8(unorm8::zero(), unorm8::zero(), unorm8::zero(), unorm8::one());
         }
-        t = Texture::fromPixelTransferBuffer("Opaque Black", imageBuffer);
+        textures.set(d, Texture::fromPixelTransferBuffer("Opaque Black", imageBuffer, ImageFormat::RGBA8(), d));
         
         //cache = t;
     }
     
-    return t;
+    return textures[d];
 }
 
 
@@ -1704,13 +1706,20 @@ void Texture::copy
     CubeFace                srcCubeFace, 
     CubeFace                dstCubeFace, 
     RenderDevice*           rd,
-    bool                    resize) {
+    bool                    resize,
+    int                     srcLayer,
+    int                     dstLayer) {
 
     alwaysAssertM((src->format()->depthBits == 0) || (srcMipLevel == 0 && dstMipLevel == 0), 
             "Texture::copy only defined for mipLevel 0 for depth textures");
     alwaysAssertM((src->format()->depthBits == 0) == (dst->format()->depthBits == 0), "Cannot copy color texture to depth texture or vice-versa");
-    alwaysAssertM( ((src->dimension() == DIM_2D) || (src->dimension() == DIM_2D)), "Texture::copy only defined for 2D textures");
+    alwaysAssertM( ((src->dimension() == DIM_2D) || (src->dimension() == DIM_2D_ARRAY)), "Texture::copy only defined for 2D textures or texture arrays");
+    alwaysAssertM(((dst->dimension() == DIM_2D) || (dst->dimension() == DIM_2D_ARRAY)), "Texture::copy only defined for 2D textures or texture arrays");
+    alwaysAssertM((dst->dimension() == DIM_2D_ARRAY) || (dstLayer == 0), "Layer can only be 0 for non-array textures");
+    alwaysAssertM((src->dimension() == DIM_2D_ARRAY) || (srcLayer == 0), "Layer can only be 0 for non-array textures");
+
     alwaysAssertM( src && dst, "Both textures sent to Texture::copy must already exist");
+    alwaysAssertM(srcLayer == 0, "Texture::copy currently does not copying *from* a layered texture");
 
     if (resize) {
         if (srcMipLevel != dstMipLevel) {
@@ -1727,11 +1736,15 @@ void Texture::copy
         rd = RenderDevice::current;
     }
 
+    /** If it isn't an array texture, then don't try to bind a single layer */
+    if ((dst->dimension() != DIM_2D_ARRAY) && (dst->dimension() != DIM_CUBE_MAP_ARRAY)) {
+        dstLayer = -1;
+    }
     fbo->clear();
     if (src->format()->depthBits > 0) {
-        fbo->set(Framebuffer::DEPTH, dst, dstCubeFace, dstMipLevel);
+        fbo->set(Framebuffer::DEPTH, dst, dstCubeFace, dstMipLevel, dstLayer);
     } else {
-        fbo->set(Framebuffer::COLOR0, dst, dstCubeFace, dstMipLevel);
+        fbo->set(Framebuffer::COLOR0, dst, dstCubeFace, dstMipLevel, dstLayer);
     }
     
     rd->push2D(fbo); {

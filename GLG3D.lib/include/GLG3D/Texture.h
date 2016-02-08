@@ -373,8 +373,10 @@ public:
     /** \brief Returns a small opaque all-black (0,0,0,1) texture.  
     
         The result is memoized and shared. Do not mutate this texture
-        or future calls will return the mutated texture as well. */
-    static const shared_ptr<Texture>& opaqueBlack();
+        or future calls will return the mutated texture as well. 
+        \param d must be DIM_2D, DIM_3D, or DIM_2D_ARRAY
+      */
+    static const shared_ptr<Texture>& opaqueBlack(Dimension d = DIM_2D);
 
     /** \brief Returns a small opaque all-black (0,0,0,1) texture.  
     
@@ -385,8 +387,10 @@ public:
     /** \brief Returns a small, all zero Color4(0,0,0,0) texture.  
     
         The result is memoized and shared. Do not mutate this texture
-        or future calls will return the mutated texture as well. */
-    static const shared_ptr<Texture>& zero();
+        or future calls will return the mutated texture as well. 
+        \param d must be DIM_2D, DIM_3D, or DIM_2D_ARRAY
+     */
+    static const shared_ptr<Texture>& zero(Dimension d = DIM_2D);
 
     /** \brief Returns a small all-gray (0.5,0.5,0.5,1) texture.  
     
@@ -804,7 +808,9 @@ public:
         CubeFace            srcCubeFace = CubeFace::POS_X, 
         CubeFace            dstCubeFace = CubeFace::POS_X, 
         RenderDevice*       rd          = NULL,
-        bool                resize      = true);
+        bool                resize      = true,
+        int                 srcLayer    = 0,
+        int                 dstLayer    = 0);
 
     /** Resize the underlying OpenGL texture memory buffer, without
         reallocating the OpenGL texture ID.  This does not scale the
