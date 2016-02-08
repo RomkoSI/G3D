@@ -8,7 +8,7 @@
 
 #expect ALPHA_HINT "int"
 
-uniform UniversalMaterial2D material;
+uniform UniversalMaterial2DArray material;
 
 const float SOFT_PARTICLE_FADE_DISTANCE = 0.6;
 
@@ -36,7 +36,7 @@ void main() {
     float depth = texelFetch(depthBuffer, int2(gl_FragCoord.xy), 0).r;
     float opaqueCSZ = reconstructCSZ(depth, clipInfo);
 
-    Point2 offsetTexCoord = geoOutputs.texCoord.xy;
+    Point3 offsetTexCoord = geoOutputs.texCoord;
     Color3 lambertianColor;
     float coverage = 1.0;
     {

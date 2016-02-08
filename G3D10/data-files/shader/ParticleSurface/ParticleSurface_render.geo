@@ -16,7 +16,7 @@ layout(points) in;
 #include <LightingEnvironment/LightingEnvironment_uniforms.glsl>
 #include <Light/Light.glsl>
 #include <UniversalMaterial/UniversalMaterial.glsl>
-uniform UniversalMaterial2D material;
+uniform UniversalMaterial2DArray material;
 
 const float WRAP_SHADING_AMOUNT = 8.0;
 const float ENVIRONMENT_SCALE   = max(0.0, 1.0 - WRAP_SHADING_AMOUNT / 20.0);

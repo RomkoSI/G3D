@@ -12,7 +12,7 @@ layout(points) in;
 layout(triangle_strip, max_vertices = 4) out;
 
 
-uniform UniversalMaterial2D material;
+uniform UniversalMaterial2DArray material;
 
 // These arrays have a single element because they are GL_POINTS
 layout(location = 0) in Point3       wsCenterVertexOutput[];
