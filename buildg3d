@@ -387,6 +387,11 @@ def libTarget():
         copyIfNewer('fmod/lib-windows/fmod*_vc.lib', 'build/lib/')
         copyIfNewer('fmod/bin-windows/fmod64.dll', 'build/bin/')
 
+		# OpenVR libraries are precompiled binaries
+        copyIfNewer('openvr.lib/include/*', 'build/include/')
+        copyIfNewer('openvr.lib/win64/lib/*', 'build/lib/')
+        copyIfNewer('openvr.lib/win64/bin/*', 'build/bin/')
+
 		# Oculus libraries use precompiled binaries currently,
 		# so just copy them directly. They are only built on Windows
         copyIfNewer('LibOVR.lib/include/*', 'build/include/')
