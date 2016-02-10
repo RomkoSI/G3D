@@ -734,7 +734,7 @@ public:
         // When pos is specified, the search only includes characters at or before position pos, ignoring any possible occurrences after pos.
         int start = (int)m_length - 1;
         start = (size_t)start > pos ? (int)pos : start;
-        for (int j = (int)(m_length) - 1; j >= 0; --j) {
+        for (int j = start; j >= 0; --j) {
             const value_type c = m_data[j];
             for (int i = 0; i < n; ++i) {
                 if (c == s[i]) {
