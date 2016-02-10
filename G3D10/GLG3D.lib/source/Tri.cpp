@@ -21,9 +21,6 @@ Tri::Tri(const int i0, const int i1, const int i2,
          const lazy_ptr<ReferenceCountedObject>&   material,
          bool                        twoSided) :
     m_data(material) {
-    debugAssert(isNull(material) ||
-                (isValidHeapPointer(material.get()) &&
-                 (material.get() > (void*)0xf)));
     index[0] = i0;
     index[1] = i1;
     index[2] = i2;
