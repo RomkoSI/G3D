@@ -242,7 +242,7 @@ String Scene::sceneNameToFilename(const String& scene)  {
     }
 }
 
-Any Scene::load(const String& scene) {
+Any Scene::load(const String& scene, const LoadOptions& loadOptions) {
     shared_ptr<AmbientOcclusion> old = m_localLightingEnvironment.ambientOcclusion;
     const String& filename = sceneNameToFilename(scene);
     

@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2010-01-01
-  \edited  2015-05-22
+  \edited  2017-02-10
 */
 #ifndef GLG3D_Scene_h
 #define GLG3D_Scene_h
@@ -220,6 +220,17 @@ public:
         return m_lastEditingTime;
     }
 
+    class LoadOptions {
+    public:
+        /** Remove Entitys for which canMove = true. Default = false */
+        bool        stripStaticEntitys;
+
+        /** Remove Entitys for which canMove = false. Default = false */
+        bool        stripDynamicEntitys;
+
+        LoadOptions() : stripStaticEntitys(false), stripDynamicEntitys(false) {}
+    };
+
     /** \brief Replace the current scene with a new one parsed from a file.  See the starter project
         for examples
         Entity%s may have already moved since creation because they are simulated for 0s at start. 
@@ -229,7 +240,7 @@ public:
 
         \return The Any from which the scene was parsed.  This is useful for reading your own custom fields from.
     */
-    virtual Any load(const String& sceneName);
+    virtual Any load(const String& sceneName, const LoadOptions& loadOptions = LoadOptions());
     
     /** Returns the default camera, set by defaultCamera = "name" in the Scene file. */
     const shared_ptr<Camera> defaultCamera() const;
