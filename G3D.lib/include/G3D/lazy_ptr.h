@@ -13,6 +13,7 @@
 #include "G3D/GMutex.h"
 
 using std::function;
+using std::nullptr_t;
 
 namespace G3D {
 
