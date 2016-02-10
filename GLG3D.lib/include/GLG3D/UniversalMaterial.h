@@ -12,7 +12,7 @@
 #define GLG3D_UniversalMaterial_h
 
 #include "G3D/platform.h"
-#include "G3D/Proxy.h"
+#include "G3D/lazy_ptr.h"
 #include "G3D/HashTrait.h"
 #include "G3D/constants.h"
 #include "G3D/ReferenceCount.h"

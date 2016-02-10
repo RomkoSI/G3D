@@ -68,7 +68,7 @@ private:
 
     // Note that this is reference counted
     /* index into m_meshIndex */
-    class VertexIndexIndex : public Proxy<Material> {
+    class VertexIndexIndex : public lazy_ptr<Material> {
     public:
         int             index;
         typedef shared_ptr<VertexIndexIndex> Ref;
@@ -77,8 +77,8 @@ private:
         VertexIndexIndex(int i) : index(i) {};
 
     public:
-        static shared_ptr<Proxy<Material>> create(int i) {
-            return shared_ptr<Proxy<Material>>(new VertexIndexIndex(i));
+        static shared_ptr<lazy_ptr<Material>> create(int i) {
+            return shared_ptr<lazy_ptr<Material>>(new VertexIndexIndex(i));
         }
     };
 
