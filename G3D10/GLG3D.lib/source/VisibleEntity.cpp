@@ -116,7 +116,7 @@ void VisibleEntity::init
         debugPrintf("Warning: castsShadows field is deprecated.  Use expressiveLightScatteringProperties");
     }    
 
-    const shared_ptr<Model>* model = NULL;
+    const lazy_ptr<Model>* model = NULL;
     Any modelNameAny;
     if (propertyTable.getIfPresent("model", modelNameAny)) {
         const String& modelName     = modelNameAny.string();
@@ -131,7 +131,7 @@ void VisibleEntity::init
         ignore.verify(false, "'materialTable' is deprecated. Specify materials on the articulatedModelPose field of VisibleEntity.");
     }
 
-    init(notNull(model) ? *model : shared_ptr<Model>(), visible, expressiveLightScatteringProperties, artPoseSpline, md3PoseSequence, artPose);
+    init(notNull(model) ? model->resolve() : shared_ptr<Model>(), visible, expressiveLightScatteringProperties, artPoseSpline, md3PoseSequence, artPose);
 }
 
 
@@ -399,9 +399,9 @@ void VisibleEntity::onModelDropDownAction() {
         const String& modelName = choice.substr(0, i - 1);
 
         // Find the model with that name
-        const shared_ptr<Model>* model = m_scene->modelTable().getPointer(modelName);
+        const lazy_ptr<Model>* model = m_scene->modelTable().getPointer(modelName);
         if (notNull(model)) {
-            setModel(*model);
+            setModel(model->resolve());
         } else {
             setModel(shared_ptr<Model>());
         } // not null
@@ -414,8 +414,16 @@ void VisibleEntity::makeGUI(class GuiPane* pane, class GApp* app) {
 
     Array<String> modelNames("<none>");
     int selected = 0;
-    for (ModelTable::Iterator it = m_scene->modelTable().begin(); it.hasMore(); ++it) {        
-        modelNames.append(it->key + " (" + it->value->className() + ")");
+    for (ModelTable::Iterator it = m_scene->modelTable().begin(); it.hasMore(); ++it) {      
+        const lazy_ptr<Model>& m = it->value;
+
+        if (m.resolved()) {
+            modelNames.append(it->key + " (" + it->value.resolve()->className() + ")");
+        } else {
+            // The model type is unknown because it hasn't been loaded yet
+            modelNames.append(it->key);
+        }
+
         if (it->value == m_model) {
             selected = modelNames.size() - 1;
         }
