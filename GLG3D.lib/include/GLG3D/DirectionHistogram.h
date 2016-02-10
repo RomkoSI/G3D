@@ -77,8 +77,8 @@ private:
         VertexIndexIndex(int i) : index(i) {};
 
     public:
-        static Proxy<Material>::Ref create(int i) {
-            return Proxy<Material>::Ref(new VertexIndexIndex(i));
+        static shared_ptr<Proxy<Material>> create(int i) {
+            return shared_ptr<Proxy<Material>>(new VertexIndexIndex(i));
         }
     };
 

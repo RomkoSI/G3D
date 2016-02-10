@@ -84,7 +84,7 @@ public:
 };
 
 
-//typedef Table< String, Proxy<Model> >  ModelTable;
+//typedef Table< String, shared_ptr<Proxy<Model>> >  ModelTable;
 typedef Table< String, shared_ptr<Model> >  ModelTable;
 
 } // namespace G3D
