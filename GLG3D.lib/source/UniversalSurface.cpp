@@ -1016,7 +1016,7 @@ void UniversalSurface::getTrisHomogeneous
                      index[i + 2] + indexOffset,
 
                      cpuVertexArray,
-                     surface,
+                     lazy_ptr<ReferenceCountedObject>(dynamic_pointer_cast<ReferenceCountedObject>(surface)),
                      twoSided));
 
         } // for index

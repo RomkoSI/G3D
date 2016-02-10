@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-05-25
-  \edited  2013-03-19
+  \edited  2016-02-10
  */ 
 #include "GLG3D/Tri.h"
 #include "G3D/Ray.h"
@@ -18,9 +18,9 @@ namespace G3D {
 
 Tri::Tri(const int i0, const int i1, const int i2,
          const CPUVertexArray&       vertexArray,
-         const shared_ptr<lazy_ptr<Material> >& material,
+         const lazy_ptr<ReferenceCountedObject>&   material,
          bool                        twoSided) :
-    m_material(material) {
+    m_data(material) {
     debugAssert(isNull(material) ||
                 (isValidHeapPointer(material.get()) &&
                  (material.get() > (void*)0xf)));
@@ -41,7 +41,12 @@ Triangle Tri::toTriangle(const CPUVertexArray& vertexArray) const {
 
 
 shared_ptr<Surface> Tri::surface() const {
-    return dynamic_pointer_cast<Surface>(m_material);
+    return dynamic_pointer_cast<Surface>(m_data.resolve());
+}
+
+
+shared_ptr<Material> Tri::material() const {
+    return dynamic_pointer_cast<Material>(m_data.resolve());
 }
 
 

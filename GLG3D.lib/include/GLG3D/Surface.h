@@ -107,7 +107,7 @@ G3D_DECLARE_ENUM_CLASS(
    The use of timeOffset allows the caller to assume that the geometry
    deforms but has the same topology across an interval.
  */
-class Surface : public lazy_ptr<Material> {
+class Surface : public ReferenceCountedObject {
 public:
 
     /** Non-physical properties that a Surface might use to affect light transport. */
