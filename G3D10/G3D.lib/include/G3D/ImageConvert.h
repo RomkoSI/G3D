@@ -20,19 +20,19 @@ class ImageConvert {
 private:
     ImageConvert();
     
-    typedef PixelTransferBuffer::Ref (*ConvertFunc)(const PixelTransferBuffer::Ref& src, const ImageFormat* dstFormat);
-    static ConvertFunc findConverter(const PixelTransferBuffer::Ref& src, const ImageFormat* dstFormat);
+    typedef shared_ptr<PixelTransferBuffer> (*ConvertFunc)(const shared_ptr<PixelTransferBuffer>& src, const ImageFormat* dstFormat);
+    static ConvertFunc findConverter(const shared_ptr<PixelTransferBuffer>& src, const ImageFormat* dstFormat);
     
     // Converters
-    static PixelTransferBuffer::Ref convertRGBAddAlpha(const PixelTransferBuffer::Ref& src, const ImageFormat* dstFormat);
-    static PixelTransferBuffer::Ref convertRGBA8toBGRA8(const PixelTransferBuffer::Ref& src, const ImageFormat* dstFormat);
-    static PixelTransferBuffer::Ref convertFloatToUnorm8(const PixelTransferBuffer::Ref& src, const ImageFormat* dstFormat);
-    static PixelTransferBuffer::Ref convertUnorm8ToFloat(const PixelTransferBuffer::Ref& src, const ImageFormat* dstFormat);
+    static shared_ptr<PixelTransferBuffer> convertRGBAddAlpha(const shared_ptr<PixelTransferBuffer>& src, const ImageFormat* dstFormat);
+    static shared_ptr<PixelTransferBuffer> convertRGBA8toBGRA8(const shared_ptr<PixelTransferBuffer>& src, const ImageFormat* dstFormat);
+    static shared_ptr<PixelTransferBuffer> convertFloatToUnorm8(const shared_ptr<PixelTransferBuffer>& src, const ImageFormat* dstFormat);
+    static shared_ptr<PixelTransferBuffer> convertUnorm8ToFloat(const shared_ptr<PixelTransferBuffer>& src, const ImageFormat* dstFormat);
 
 public:
     /** Converts image buffer to another format if supported, otherwise returns null ref.
         If no conversion is necessary then \a src reference is returned and a new buffer is NOT created. */
-    static PixelTransferBuffer::Ref convertBuffer(const PixelTransferBuffer::Ref& src, const ImageFormat* dstFormat);
+    static shared_ptr<PixelTransferBuffer> convertBuffer(const shared_ptr<PixelTransferBuffer>& src, const ImageFormat* dstFormat);
 };
 
 } // namespace G3D

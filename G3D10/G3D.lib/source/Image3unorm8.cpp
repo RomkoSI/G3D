@@ -28,7 +28,7 @@ namespace G3D {
 void Image3unorm8::speedSerialize(class BinaryOutput& b) const {
     b.writeInt32(w);
     b.writeInt32(h);
-    _wrapMode.serialize(b);
+    m_wrapMode.serialize(b);
     b.writeInt32(ImageFormat::CODE_RGB8);
     
     // Write the data
@@ -37,7 +37,7 @@ void Image3unorm8::speedSerialize(class BinaryOutput& b) const {
 }
 
     
-Image3unorm8::Ref Image3unorm8::speedCreate(class BinaryInput& b) {
+shared_ptr<Image3unorm8> Image3unorm8::speedCreate(class BinaryInput& b) {
     const int w = b.readInt32();
     const int h = b.readInt32();
     WrapMode wrap;
@@ -49,7 +49,7 @@ Image3unorm8::Ref Image3unorm8::speedCreate(class BinaryInput& b) {
                   G3D::format("Cannot SpeedCreate an Image3unorm8 from %s",
                          ImageFormat::fromCode(fmt)->name().c_str()));
 
-    Ref im = createEmpty(w, h, wrap);
+    shared_ptr<Image3unorm8> im = createEmpty(w, h, wrap);
 
     // Read the data (note that this code would not work for R8() data due to a bug in the PNG loader as of July 4, 2011, but it will work for 
     // RGB8 data)
@@ -62,7 +62,7 @@ Image3unorm8::Ref Image3unorm8::speedCreate(class BinaryInput& b) {
 
     
 
-Image3unorm8::Ref Image3unorm8::fromImage1unorm8(const shared_ptr<class Image1unorm8>& im) {
+shared_ptr<Image3unorm8> Image3unorm8::fromImage1unorm8(const shared_ptr<class Image1unorm8>& im) {
     return fromArray(im->getCArray(), im->width(), im->height(), im->wrapMode());
 }
 
@@ -72,71 +72,71 @@ Image3unorm8::Image3unorm8(int w, int h, WrapMode wrap) : Map2D<Color3unorm8, Co
 }
 
 
-Image3unorm8::Ref Image3unorm8::fromImage3(const shared_ptr<Image3>& im) {
+shared_ptr<Image3unorm8> Image3unorm8::fromImage3(const shared_ptr<Image3>& im) {
     return fromArray(im->getCArray(), im->width(), im->height(), static_cast<WrapMode>(im->wrapMode()));
 }
 
 
-Image3unorm8::Ref Image3unorm8::fromImage4(const shared_ptr<Image4>& im) {
+shared_ptr<Image3unorm8> Image3unorm8::fromImage4(const shared_ptr<Image4>& im) {
     return fromArray(im->getCArray(), im->width(), im->height(), static_cast<WrapMode>(im->wrapMode()));
 }
 
 
 
-Image3unorm8::Ref Image3unorm8::createEmpty(int width, int height, WrapMode wrap) {
+shared_ptr<Image3unorm8> Image3unorm8::createEmpty(int width, int height, WrapMode wrap) {
     return shared_ptr<Image3unorm8>(new Type(width, height, wrap));
 }
 
 
-Image3unorm8::Ref Image3unorm8::createEmpty(WrapMode wrap) {
+shared_ptr<Image3unorm8> Image3unorm8::createEmpty(WrapMode wrap) {
     return createEmpty(0, 0, wrap);
 }
 
 
-Image3unorm8::Ref Image3unorm8::fromFile(const String& filename, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3unorm8> Image3unorm8::fromFile(const String& filename, WrapMode wrap) {
+    shared_ptr<Image3unorm8> out = createEmpty(wrap);
     out->load(filename);
     return out;
 }
 
 
-Image3unorm8::Ref Image3unorm8::fromArray(const class Color3unorm8* ptr, int w, int h, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3unorm8> Image3unorm8::fromArray(const class Color3unorm8* ptr, int w, int h, WrapMode wrap) {
+    shared_ptr<Image3unorm8> out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
 }
 
 
-Image3unorm8::Ref Image3unorm8::fromArray(const class Color1* ptr, int w, int h, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3unorm8> Image3unorm8::fromArray(const class Color1* ptr, int w, int h, WrapMode wrap) {
+    shared_ptr<Image3unorm8> out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
 }
 
 
-Image3unorm8::Ref Image3unorm8::fromArray(const class Color1unorm8* ptr, int w, int h, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3unorm8> Image3unorm8::fromArray(const class Color1unorm8* ptr, int w, int h, WrapMode wrap) {
+    shared_ptr<Image3unorm8> out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
 }
 
 
-Image3unorm8::Ref Image3unorm8::fromArray(const class Color3* ptr, int w, int h, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3unorm8> Image3unorm8::fromArray(const class Color3* ptr, int w, int h, WrapMode wrap) {
+    shared_ptr<Image3unorm8> out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
 }
 
 
-Image3unorm8::Ref Image3unorm8::fromArray(const class Color4unorm8* ptr, int w, int h, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3unorm8> Image3unorm8::fromArray(const class Color4unorm8* ptr, int w, int h, WrapMode wrap) {
+    shared_ptr<Image3unorm8> out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
 }
 
 
-Image3unorm8::Ref Image3unorm8::fromArray(const class Color4* ptr, int w, int h, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3unorm8> Image3unorm8::fromArray(const class Color4* ptr, int w, int h, WrapMode wrap) {
+    shared_ptr<Image3unorm8> out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
 }
@@ -186,6 +186,7 @@ void Image3unorm8::copyArray(const Color1unorm8* src, int w, int h) {
         dst[i].r = dst[i].g = dst[i].b = src[i].value;
     }
 }
+
 
 void Image3unorm8::copyArray(const Color1* src, int w, int h) {
     resize(w, h);
@@ -240,7 +241,7 @@ void Image3unorm8::copyArray(const Color4* src, int w, int h) {
 
 /** Saves in any of the formats supported by G3D::GImage. */
 void Image3unorm8::save(const String& filename) {
-    CPUPixelTransferBuffer::Ref buffer = CPUPixelTransferBuffer::create(width(), height(),  format(), MemoryManager::create());
+    shared_ptr<CPUPixelTransferBuffer> buffer = CPUPixelTransferBuffer::create(width(), height(),  format(), MemoryManager::create());
     System::memcpy(buffer->buffer(), getCArray(), (size_t)width() * height() * format()->cpuBitsPerPixel / 8);
     shared_ptr<Image> image = Image::fromPixelTransferBuffer(buffer);
     image->save(filename);
@@ -250,7 +251,7 @@ void Image3unorm8::save(const String& filename) {
 shared_ptr<class Image1unorm8> Image3unorm8::getChannel(int c) const {
     debugAssert(c >= 0 && c <= 2);
 
-    Image1unorm8Ref dst = Image1unorm8::createEmpty(width(), height(), wrapMode());
+    shared_ptr<Image1unorm8> dst = Image1unorm8::createEmpty(width(), height(), wrapMode());
     const Color3unorm8* srcArray = getCArray();
     Color1unorm8* dstArray = dst->getCArray();
 

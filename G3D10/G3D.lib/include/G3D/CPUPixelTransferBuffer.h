@@ -15,9 +15,6 @@ namespace G3D {
 /** A PixelTransferBuffer in main memory.
     \sa GLPixelTransferBuffer, Image */
 class CPUPixelTransferBuffer : public PixelTransferBuffer {
-public:
-    typedef shared_ptr<CPUPixelTransferBuffer> Ref;
-
 protected:
 
     shared_ptr<MemoryManager>   m_memoryManager;

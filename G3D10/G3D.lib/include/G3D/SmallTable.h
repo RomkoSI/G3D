@@ -62,7 +62,7 @@ namespace G3D {
 
 		Array<Entry> m_data;
 
-		MemoryManager::Ref  m_memoryManager;
+		shared_ptr<MemoryManager>  m_memoryManager;
 
 	public:
 

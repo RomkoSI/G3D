@@ -805,7 +805,7 @@ void MD2Model::Part::getGeometry(const Pose& pose, MeshAlg::Geometry& out, bool 
     
     const int numVertices = keyFrame[0].vertexArray.size();
 
-    AlignedMemoryManager::Ref mm = AlignedMemoryManager::create();
+    shared_ptr<AlignedMemoryManager> mm = AlignedMemoryManager::create();
 
     if ((out.vertexArray.memoryManager() != mm) ||
         (out.normalArray.memoryManager() != mm)) {

@@ -185,7 +185,7 @@ public:
 
 protected:
     
-    Storage ZERO;
+    Storage             ZERO;
 
     /** Width, in pixels. */
     uint32              w;
@@ -193,7 +193,7 @@ protected:
     /** Height, in pixels. */
     uint32              h;
 
-    WrapMode            _wrapMode;
+    WrapMode            m_wrapMode;
 
     /** 0 if no mutating method has been invoked 
         since the last call to setChanged(); */
@@ -245,7 +245,7 @@ public:
 
 protected:
 
-    Map2D(int w, int h, WrapMode wrap) : w(0), h(0), _wrapMode(wrap), m_changed(1) {
+    Map2D(int w, int h, WrapMode wrap) : w(0), h(0), m_wrapMode(wrap), m_changed(1) {
         ZERO = Storage(Compute(Storage()) * 0);
         resize(w, h);
     }
@@ -344,11 +344,11 @@ public:
     }
 
     inline const Storage& get(int x, int y) const {
-        return get(x, y, _wrapMode);
+        return get(x, y, m_wrapMode);
     }
 
     inline const Storage& get(const Vector2int16& p) const {
-        return get(p.x, p.y, _wrapMode);
+        return get(p.x, p.y, m_wrapMode);
     }
 
     inline const Storage& get(const Vector2int16& p, WrapMode wrap) const {
@@ -394,7 +394,7 @@ public:
     }
 
     void set(int x, int y, const Storage& v) {
-        set(x, y, v, _wrapMode);
+        set(x, y, v, m_wrapMode);
     }
 
 
@@ -492,7 +492,7 @@ public:
     }
 
     inline Compute nearest(float x, float y) const {
-        return nearest(x, y, _wrapMode);
+        return nearest(x, y, m_wrapMode);
     }
 
     inline Compute nearest(const Vector2& p) const {
@@ -550,11 +550,11 @@ public:
     }
 
     Compute bilinear(float x, float y) const {
-        return bilinear(x, y, _wrapMode);
+        return bilinear(x, y, m_wrapMode);
     }
 
     inline Compute bilinear(const Vector2& p) const {
-        return bilinear(p.x, p.y, _wrapMode);
+        return bilinear(p.x, p.y, m_wrapMode);
     }
 
     inline Compute bilinear(const Vector2& p, WrapMode wrap) const {
@@ -594,7 +594,7 @@ public:
     }
 
     Compute bicubic(float x, float y) const {
-        return bicubic(x, y, _wrapMode);
+        return bicubic(x, y, m_wrapMode);
     }
 
     inline Compute bicubic(const Vector2& p, WrapMode wrap) const {
@@ -602,7 +602,7 @@ public:
     }
 
     inline Compute bicubic(const Vector2& p) const {
-        return bicubic(p.x, p.y, _wrapMode);
+        return bicubic(p.x, p.y, m_wrapMode);
     }
 
     /** Pixel width */
@@ -634,12 +634,12 @@ public:
 
 
     WrapMode wrapMode() const {
-        return _wrapMode;
+        return m_wrapMode;
     }
 
 
     void setWrapMode(WrapMode m) {
-        _wrapMode = m;
+        m_wrapMode = m;
     }
 };
 

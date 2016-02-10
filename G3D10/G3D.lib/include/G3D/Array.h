@@ -106,7 +106,7 @@ private:
     size_t              num;
     size_t              numAllocated;
 
-    MemoryManager::Ref  m_memoryManager;
+    shared_ptr<MemoryManager>  m_memoryManager;
 
     /** \param n Number of elements
     */
@@ -424,7 +424,7 @@ public:
        resize(0, shrink);
    }
 
-   void clearAndSetMemoryManager(const MemoryManager::Ref& m) {
+   void clearAndSetMemoryManager(const shared_ptr<MemoryManager>& m) {
        clear();
        debugAssert(data == NULL);
        m_memoryManager = m;
@@ -436,7 +436,7 @@ public:
        clear(false);
    }
 
-   inline MemoryManager::Ref memoryManager() const {
+   inline shared_ptr<MemoryManager> memoryManager() const {
        return m_memoryManager;
    }
 

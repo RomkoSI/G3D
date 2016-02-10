@@ -33,8 +33,6 @@ public:
         m_mutex.unlock();
     }
     
-    typedef ReferenceCountedPointer<class BlockPoolMemoryManager> Ref;
-
     /** Return a pointer to \a s bytes of memory that are unused by
         the rest of the program.  The contents of the memory are
         undefined */
@@ -86,8 +84,8 @@ public:
     }
 
     /** Creates a new instance. Each instance is allowed to have its own block size. */
-    static BlockPoolMemoryManager::Ref create(size_t blockSize) {
-        return Ref(new BlockPoolMemoryManager(blockSize));
+    static shared_ptr<BlockPoolMemoryManager> create(size_t blockSize) {
+        return shared_ptr<BlockPoolMemoryManager>(new BlockPoolMemoryManager(blockSize));
     }
 };
 

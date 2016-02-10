@@ -77,8 +77,6 @@ public:
     /** Returns System::numCores(); put here to break a dependence on System.h */
     static int numCores();
 
-    typedef shared_ptr<class GThread> Ref;
-
     GThread(const String& name);
 
     virtual ~GThread();

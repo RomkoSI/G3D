@@ -56,15 +56,13 @@ private:
     AreaMemoryManager(size_t sizeHint);
 
 public:
-
-    typedef shared_ptr<AreaMemoryManager> Ref;
-
+    
     /** 
         \param sizeHint Total amount of memory expected to be allocated.
         The allocator will allocate memory from the system in increments
         of this size.
     */
-    static AreaMemoryManager::Ref create(size_t sizeHint = 10 * 1024 * 1024);
+    static shared_ptr<AreaMemoryManager> create(size_t sizeHint = 10 * 1024 * 1024);
 
     /** Invokes deallocateAll. */
     ~AreaMemoryManager();

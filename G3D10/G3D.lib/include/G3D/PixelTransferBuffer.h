@@ -26,9 +26,6 @@ namespace G3D {
   
  */
 class PixelTransferBuffer : public ReferenceCountedObject {
-public:
-    typedef shared_ptr<PixelTransferBuffer> Ref;
-
 protected:
 
     /** NULL if not currently mapped. */

@@ -310,7 +310,7 @@ const shared_ptr<Texture>& Texture::opaqueBlackCube() {
     static shared_ptr<Texture> t;
     if (isNull(t)) {
         // Cache is empty
-        CPUPixelTransferBuffer::Ref imageBuffer = CPUPixelTransferBuffer::create(4, 4, ImageFormat::RGB8());
+        shared_ptr<CPUPixelTransferBuffer> imageBuffer = CPUPixelTransferBuffer::create(4, 4, ImageFormat::RGB8());
         System::memset(imageBuffer->buffer(), 0x00, imageBuffer->size());
         Array< Array<const void*> > bytes;
         Array<const void*>& cubeFace = bytes.next();
@@ -362,7 +362,7 @@ const shared_ptr<Texture>& Texture::zero(Dimension d) {
     static Table<int, shared_ptr<Texture> > textures;
     if (!textures.containsKey(d)) {
         // Cache is empty                                                                                      
-        CPUPixelTransferBuffer::Ref imageBuffer = CPUPixelTransferBuffer::create(8, 8, ImageFormat::RGBA8());
+        shared_ptr<CPUPixelTransferBuffer> imageBuffer = CPUPixelTransferBuffer::create(8, 8, ImageFormat::RGBA8());
         System::memset(imageBuffer->buffer(), 0x00, imageBuffer->size());
         textures.set(d, Texture::fromPixelTransferBuffer("G3D::Texture::zero", imageBuffer, ImageFormat::RGBA8(), d));
     }
@@ -376,7 +376,7 @@ const shared_ptr<Texture>& Texture::opaqueBlack(Dimension d) {
     static Table<int, shared_ptr<Texture> > textures;
     if (!textures.containsKey(d)) {
         // Cache is empty                                                                                      
-        CPUPixelTransferBuffer::Ref imageBuffer = CPUPixelTransferBuffer::create(8, 8, ImageFormat::RGBA8());
+        shared_ptr<CPUPixelTransferBuffer> imageBuffer = CPUPixelTransferBuffer::create(8, 8, ImageFormat::RGBA8());
         for (int i = 0; i < imageBuffer->width() * imageBuffer->height(); ++i) {
             Color4unorm8* pixels = static_cast<Color4unorm8*>(imageBuffer->buffer());
             pixels[i] = Color4unorm8(unorm8::zero(), unorm8::zero(), unorm8::zero(), unorm8::one());
@@ -394,7 +394,7 @@ const shared_ptr<Texture>& Texture::opaqueGray() {
     static shared_ptr<Texture> t;
     if (isNull(t)) {
         // Cache is empty                                                                                      
-        CPUPixelTransferBuffer::Ref imageBuffer = CPUPixelTransferBuffer::create(8, 8, ImageFormat::RGBA8());
+        shared_ptr<CPUPixelTransferBuffer> imageBuffer = CPUPixelTransferBuffer::create(8, 8, ImageFormat::RGBA8());
         const Color4unorm8 c(Color4(0.5f, 0.5f, 0.5f, 1.0f));
         for (int i = 0; i < imageBuffer->width() * imageBuffer->height(); ++i) {
             Color4unorm8* pixels = static_cast<Color4unorm8*>(imageBuffer->buffer());
@@ -563,7 +563,7 @@ void Texture::configureTexture(const MipsPerCubeFace& mipsPerCubeFace) {
     m_textureID = newGLTextureID();
     debugAssertGLOk();
 
-    const PixelTransferBuffer::Ref& fullImage = mipsPerCubeFace[0][0];
+    const shared_ptr<PixelTransferBuffer>& fullImage = mipsPerCubeFace[0][0];
 
     // Get image dimensions
     m_width = fullImage->width();
@@ -1877,7 +1877,7 @@ Image3Ref Texture::toImage3() const {
 
 
 Image3unorm8Ref Texture::toImage3unorm8() const {    
-    Image3unorm8::Ref im = Image3unorm8::createEmpty(m_width, m_height, WrapMode::TILE); 
+    shared_ptr<Image3unorm8> im = Image3unorm8::createEmpty(m_width, m_height, WrapMode::TILE); 
     getTexImage(im->getCArray(), ImageFormat::RGB8());
     return im;
 }
@@ -1890,16 +1890,16 @@ shared_ptr<Map2D<float> > Texture::toDepthMap() const {
 }
 
 
-Image1Ref Texture::toDepthImage1() const {
-    Image1Ref im = Image1::createEmpty(m_width, m_height, WrapMode::TILE);
+shared_ptr<Image1> Texture::toDepthImage1() const {
+    shared_ptr<Image1> im = Image1::createEmpty(m_width, m_height, WrapMode::TILE);
     getTexImage(im->getCArray(), ImageFormat::DEPTH32F());
     return im;
 }
 
 
-Image1unorm8Ref Texture::toDepthImage1unorm8() const {
-    Image1Ref src = toDepthImage1();
-    Image1unorm8Ref dst = Image1unorm8::createEmpty(m_width, m_height, WrapMode::TILE);
+shared_ptr<Image1unorm8> Texture::toDepthImage1unorm8() const {
+    shared_ptr<Image1> src = toDepthImage1();
+    shared_ptr<Image1unorm8> dst = Image1unorm8::createEmpty(m_width, m_height, WrapMode::TILE);
     
     const Color1* s = src->getCArray();
     Color1unorm8* d = dst->getCArray();
@@ -1913,15 +1913,15 @@ Image1unorm8Ref Texture::toDepthImage1unorm8() const {
 }
 
 
-Image1Ref Texture::toImage1() const {
-    Image1Ref im = Image1::createEmpty(m_width, m_height, WrapMode::TILE); 
+shared_ptr<Image1> Texture::toImage1() const {
+    shared_ptr<Image1> im = Image1::createEmpty(m_width, m_height, WrapMode::TILE); 
     getTexImage(im->getCArray(), ImageFormat::L32F());
     return im;
 }
 
 
-Image1unorm8Ref Texture::toImage1unorm8() const {
-    Image1unorm8Ref im = Image1unorm8::createEmpty(m_width, m_height, WrapMode::TILE); 
+shared_ptr<Image1unorm8> Texture::toImage1unorm8() const {
+    shared_ptr<Image1unorm8> im = Image1unorm8::createEmpty(m_width, m_height, WrapMode::TILE); 
     getTexImage(im->getCArray(), ImageFormat::R8());
     return im;
 }

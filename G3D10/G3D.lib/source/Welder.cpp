@@ -261,7 +261,7 @@ private:
 #       endif
 
         // Create an area memory manager for fast deallocation
-        MemoryManager::Ref mm = AreaMemoryManager::create(iRound(sizeof(VN) * normalArray.size() * 1.5));
+        shared_ptr<MemoryManager> mm = AreaMemoryManager::create(iRound(sizeof(VN) * normalArray.size() * 1.5));
 
         const float cosThresholdAngle = (float)cos(normalSmoothingAngle);
 

@@ -203,7 +203,7 @@ void Image3::copyArray(const Color1* src, int w, int h) {
 /** Saves in any of the formats supported by G3D::GImage. */
 void Image3::save(const String& filename) {
     // To avoid saving as floating point image.  FreeImage cannot convert floating point to RGB8.
-    Image3unorm8::Ref unorm8 = Image3unorm8::fromImage3(dynamic_pointer_cast<Image3>(shared_from_this()));
+    shared_ptr<Image3unorm8> unorm8 = Image3unorm8::fromImage3(dynamic_pointer_cast<Image3>(shared_from_this()));
     unorm8->save(filename);
 }
 

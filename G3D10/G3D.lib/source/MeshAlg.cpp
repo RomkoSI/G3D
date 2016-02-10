@@ -35,7 +35,7 @@ void MeshAlg::generateGrid(
     bool                spaceCentered,
     bool                twoSided,
     const CoordinateFrame& xform,
-    const Image1::Ref&  height) {
+    const shared_ptr<Image1>&  height) {
         
     vertex.fastClear();
     texCoord.fastClear();

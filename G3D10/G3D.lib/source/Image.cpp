@@ -170,7 +170,7 @@ shared_ptr<Image> Image::fromPixelTransferBuffer(const shared_ptr<PixelTransferB
 
 
 void Image::convert(const ImageFormat* fmt) {
-    PixelTransferBuffer::Ref result = ImageConvert::convertBuffer(toPixelTransferBuffer(), fmt);
+    shared_ptr<PixelTransferBuffer> result = ImageConvert::convertBuffer(toPixelTransferBuffer(), fmt);
     if (notNull(result)) {
         set(result);
     } else {

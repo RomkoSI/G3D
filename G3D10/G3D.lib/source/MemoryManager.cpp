@@ -32,8 +32,8 @@ bool MemoryManager::isThreadsafe() const {
 }
 
 
-MemoryManager::Ref MemoryManager::create() {
-    static MemoryManager::Ref m(new MemoryManager());
+shared_ptr<MemoryManager> MemoryManager::create() {
+    static shared_ptr<MemoryManager> m(new MemoryManager());
     return m;
 }
 
@@ -58,8 +58,8 @@ bool AlignedMemoryManager::isThreadsafe() const {
 }
 
 
-AlignedMemoryManager::Ref AlignedMemoryManager::create() {
-    static AlignedMemoryManager::Ref m(new AlignedMemoryManager());
+shared_ptr<AlignedMemoryManager> AlignedMemoryManager::create() {
+    static shared_ptr<AlignedMemoryManager> m(new AlignedMemoryManager());
     return m;
 }
 
@@ -84,8 +84,8 @@ bool CRTMemoryManager::isThreadsafe() const {
 }
 
 
-CRTMemoryManager::Ref CRTMemoryManager::create() {
-    static CRTMemoryManager::Ref m(new CRTMemoryManager());
+shared_ptr<CRTMemoryManager> CRTMemoryManager::create() {
+    static shared_ptr<CRTMemoryManager> m(new CRTMemoryManager());
     return m;
 }
 }

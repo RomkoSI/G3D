@@ -303,7 +303,7 @@ private:
             return (packedChildAxis < 4);
         }
 
-        void setValueArray(const Array<Poly>& src, const MemoryManager::Ref& mm);
+        void setValueArray(const Array<Poly>& src, const shared_ptr<MemoryManager>& mm);
 
         /** Returns true if the split that divided the originals into
             low and high did not effectively reduce the number of
@@ -316,7 +316,7 @@ private:
             
             Called from the constructor. */
         void split(Array<Poly>& original, const Settings& settings, 
-                   const MemoryManager::Ref& mm);
+                   const shared_ptr<MemoryManager>& mm);
 
         /** Called from the constructor to choose a splitting plane
             and axis. Assumes that this->bounds is already set. */
@@ -404,11 +404,11 @@ private:
     public:
 
         Node(Array<Poly>& originals, const Settings& settings, 
-             const MemoryManager::Ref& mm);
+             const shared_ptr<MemoryManager>& mm);
 
         /** Call in lieu of delete to remove children.  Caller must
             free the Node itself.*/
-        void destroy(const MemoryManager::Ref& mm);
+        void destroy(const shared_ptr<MemoryManager>& mm);
 
         void draw(RenderDevice* rd, const CPUVertexArray& vertexArray, int level, bool showBoxes, int minNodeSize) const;
 
@@ -435,7 +435,7 @@ private:
     };
 
     /** Memory manager used to allocate Nodes and Tri arrays. */
-    MemoryManager::Ref   m_memoryManager;
+    shared_ptr<MemoryManager>   m_memoryManager;
 
     /** Allocated with m_memoryManager */
     Node*                m_root;

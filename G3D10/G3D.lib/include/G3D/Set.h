@@ -41,7 +41,7 @@ class Set {
 
 public:
 
-    void clearAndSetMemoryManager(const MemoryManager::Ref& m) {
+    void clearAndSetMemoryManager(const shared_ptr<MemoryManager>& m) {
         memberTable.clearAndSetMemoryManager(m);
     }
 
