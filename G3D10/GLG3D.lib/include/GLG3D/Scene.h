@@ -305,6 +305,10 @@ public:
     /** Enumerate the names of all available scenes. This is recomputed each time that it is called. */
     static Array<String> sceneNames();
 
+    /** If scene is a filename, returns it, else look up the string in the filename table and return the value.
+        If no entry exists, throw an exception */
+    static String sceneNameToFilename(const String& scene);
+
     /** Returns the Entity whose conservative bounds are first
         intersected by \a ray, excluding Entity%s in \a exclude.  
         Useful for mouse selection and coarse hit-scan collision detection.  

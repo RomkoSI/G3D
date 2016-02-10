@@ -226,27 +226,29 @@ void Scene::setTime(const SimTime t) {
     onSimulation(fnan());
 }
 
-
-Any Scene::load(const String& scene) {
-    shared_ptr<AmbientOcclusion> old = m_localLightingEnvironment.ambientOcclusion;
-    String filename;
-    clear();
-    m_modelTable.clear();
-    m_name = scene;
-
+String Scene::sceneNameToFilename(const String& scene)  {
     const bool isFilename = endsWith(toLower(scene), ".scn.any") || endsWith(toLower(scene), ".scene.any");
 
     if (isFilename) {
-        filename = scene;
+        return scene;
     } else {
         const String* f = filenameTable().getPointer(scene);
         if (f == NULL) {
-            throw "No scene with name '" + scene + "' found in (" + 
+            throw "No scene with name '" + scene + "' found in (" +
                 stringJoin(filenameTable().getKeys(), ", ") + ")";
         }
 
-        filename = *f;
+        return *f;
     }
+}
+
+Any Scene::load(const String& scene) {
+    shared_ptr<AmbientOcclusion> old = m_localLightingEnvironment.ambientOcclusion;
+    const String& filename = sceneNameToFilename(scene);
+    
+    clear();
+    m_modelTable.clear();
+    m_name = scene;
 
     Any any;
     any.load(filename);
