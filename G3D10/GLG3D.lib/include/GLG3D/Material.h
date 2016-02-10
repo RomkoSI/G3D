@@ -3,7 +3,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/ReferenceCount.h"
-#include "G3D/Proxy.h"
+#include "G3D/lazy_ptr.h"
 #include "GLG3D/Component.h"
 #include "GLG3D/Tri.h"
 
@@ -16,28 +16,28 @@ class Surfel;
     ray tracing since hardware rasterization rendering needs to be specialized
     for each Surface and Material subclass.
 
-  \section Proxy
-  Material is a Proxy subclass so that classes using it  mayassociate arbitrary data with UniversalMaterial%s 
+  \section lazy_ptr
+  Material is a lazy_ptr subclass so that classes using it  mayassociate arbitrary data with UniversalMaterial%s 
   or computing Materials on demand without having to subclass UniversalMaterial itself. 
   
   Subclassing UniversalMaterial is often undesirable because
   that class has complex initialization and data management routines.
-  Note that UniversalMaterial itself implements Proxy<UniversalMaterial>, so you can simply use a UniversalMaterial with any API
+  Note that UniversalMaterial itself implements lazy_ptr<UniversalMaterial>, so you can simply use a UniversalMaterial with any API
   (such as Tri) that requires a proxy.  
 
 
     \see UniversalMaterial
     \beta
  */
-class Material : public Proxy<Material> {
+class Material : public lazy_ptr<Material> {
 public:
 
-    // Inherited from Proxy
+    // Inherited from lazy_ptr
     virtual const shared_ptr<Material> resolve() const override {
         return dynamic_pointer_cast<Material>(const_cast<Material*>(this)->shared_from_this());
     }
 
-    // Inherited from Proxy
+    // Inherited from lazy_ptr
     virtual shared_ptr<Material> resolve() override {
         return dynamic_pointer_cast<Material>(shared_from_this());
     }

@@ -19,7 +19,7 @@
 #include "G3D/CoordinateFrame.h"
 #include "G3D/ReferenceCount.h"
 #include "G3D/Triangle.h"
-#include "G3D/Proxy.h"
+#include "G3D/lazy_ptr.h"
 #include "GLG3D/CPUVertexArray.h"
 
 
@@ -48,7 +48,7 @@ private:
     friend class TriTree;
 
     /** Usually a material, but can be abstracted  */
-    shared_ptr<Proxy<Material> >    m_material;
+    shared_ptr<lazy_ptr<Material> >    m_material;
 
     /** 
       The area of the triangle: (e0 x e1).length() * 0.5 
@@ -66,14 +66,14 @@ public:
 
     /** Assumes that normals are perpendicular to tangents, or that the tangents are zero.
 
-        \param material Create your own Proxy<Material> subclass to store application-specific data; BSDF, image, etc.
+        \param material Create your own lazy_ptr<Material> subclass to store application-specific data; BSDF, image, etc.
 
        without adding to the size of Tri or having to trampoline all of the UniversalMaterial factory methods.
        To extract the actual material from the proxy use Tri::material and Tri::data<T>.
     */
     Tri(const int i0, const int i1, const int i2,
         const CPUVertexArray& vertexArray,
-        const shared_ptr<Proxy<Material>>& material = shared_ptr<Proxy<Material>>(),
+        const shared_ptr<lazy_ptr<Material>>& material = shared_ptr<lazy_ptr<Material>>(),
         bool twoSided = false);
 
 
@@ -90,7 +90,7 @@ public:
     }
 
     /* Override the current material with the parameter */
-    void setData(const shared_ptr<Proxy<Material>>& newMaterial){
+    void setData(const shared_ptr<lazy_ptr<Material>>& newMaterial){
         m_material = newMaterial;
     }
 
@@ -164,13 +164,13 @@ public:
     /** \brief Resolve and return the material for this Tri.
       */
     shared_ptr<Material> material() const {
-        return Proxy<Material>::resolve(m_material);
+        return lazy_ptr<Material>::resolve(m_material);
     }
 
     shared_ptr<Surface> surface() const;
 
     /** 
-     Extract the data field.  Mostly useful when using a Proxy<Material> that is not a Material or Surface.
+     Extract the data field.  Mostly useful when using a lazy_ptr<Material> that is not a Material or Surface.
      \see surface(), material()
     */
     template<class T>

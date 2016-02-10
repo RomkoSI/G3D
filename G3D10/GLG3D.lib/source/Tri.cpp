@@ -18,7 +18,7 @@ namespace G3D {
 
 Tri::Tri(const int i0, const int i1, const int i2,
          const CPUVertexArray&       vertexArray,
-         const shared_ptr<Proxy<Material> >& material,
+         const shared_ptr<lazy_ptr<Material> >& material,
          bool                        twoSided) :
     m_material(material) {
     debugAssert(isNull(material) ||
