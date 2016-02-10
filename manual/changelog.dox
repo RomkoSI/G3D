@@ -97,6 +97,8 @@
 	   <li> Added default ArticulatedModel::Specification::refractionQuality hint </li>
 	   <li> G3D::Args::setNumIndices can now override the length of the attribute arrays or index arrays</li>
 	   <li> Added G3D::Array randomize for parallel arrays </li>
+	   <li> Renamed G3D::Proxy to G3D::lazy_ptr </li>
+	   <li> Added OpenVR API to the distribution </li>
       </ul>
     </p>
 
@@ -413,7 +415,7 @@
     <li> Removed G3D::Tri::otherSide() (it does not work with the new CPUVertexArrayFormat).  [Mike]</li>
     <li> Removed the CPUVertexArray* from Tri. Updated all methods that access information about Tri to take a const Ref to a CPUVertexArray, and added G3D::TriTree::getCPUVertexArray() (Tri is now 24 bytes in a 64 bit build) [Mike]</li>
     <li> Removed v0, e1, e2, from G3D::Tri. Added the methods e1 and e2. Changed Tri::m_doubleArea to Tri::m_area for intuition's sake (Tri is now 32 bytes in a 64 bit build)[Mike]</li>
-	<li> Completely redesigned G3D::Tri. It now stores only v0, e1, e2, three indices into a G3D::CPUVertexArray, a pointer to G3D::CPUVertexArray, a Proxy<UniversalMaterial>,
+	<li> Completely redesigned G3D::Tri. It now stores only v0, e1, e2, three indices into a G3D::CPUVertexArray, a pointer to G3D::CPUVertexArray, a lazy_ptr<UniversalMaterial>,
 	and doubleArea (72 bytes in a 64 bit build). [Mike]</li>
     <li> Now Passing  a pointer to the G3D::TriTree throughout all intersectRay functions, and uses it to set G3D::Tri::Intersector's primitive index [Mike]</li>
 	<li> Added G3D::Surface::getTris(), a static method which takes an array of surfaces and returns a G3D::CPUVertexArray and an Array<Tri> from the surfaces, by separating the
@@ -438,7 +440,7 @@
 	<li> G3D::Tri and G3D::Tri::Intersector no longer virtual, this decreases Tri size by 8 bytes in 64-bit builds [Mike]</li>
 	<li> Removed n the facenormal from G3D::Tri and replaced with doubleArea (e1.cross(e2).length()) [Mike]</li>
     <li> G3D::RenderDevice::applyRect</li>
-	<li> G3D::Proxy</li>
+	<li> G3D::lazy_ptr</li>
 	<li> VertexRange renamed to AttributeArray </li>
     <li> G3D::GuiTextureBox now saves out cubemaps at 4x the width and 2x the height of one of its faces, in the panoramic view [Mike]</li>
 	<li> Renamed VertexAndPixelShader to ShaderProgram, matching OpenGL terminology (this was deprecated anyway) </li>
