@@ -28,7 +28,7 @@
 #include "G3D/DoNotInitialize.h"
 #include "G3D/HaltonSequence.h"
 #include "G3D/platform.h"
-#include "G3D/Proxy.h"
+#include "G3D/lazy_ptr.h"
 #include "G3D/BIN.h"
 #include "G3D/FileNotFound.h"
 #include "G3D/units.h"
