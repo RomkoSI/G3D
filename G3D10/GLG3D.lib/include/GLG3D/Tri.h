@@ -48,7 +48,7 @@ private:
     friend class TriTree;
 
     /** Usually a material, but can be abstracted  */
-    shared_ptr<lazy_ptr<Material> >    m_material;
+    lazy_ptr<ReferenceCountedObject>      m_data;
 
     /** 
       The area of the triangle: (e0 x e1).length() * 0.5 
@@ -57,7 +57,7 @@ private:
       flag into the sign bit. If the sign bit is 1, the triangle
       should be treated as double sided.
       */
-    float                           m_area;
+    float                   m_area;
 
 public:
 
@@ -73,9 +73,8 @@ public:
     */
     Tri(const int i0, const int i1, const int i2,
         const CPUVertexArray& vertexArray,
-        const shared_ptr<lazy_ptr<Material>>& material = shared_ptr<lazy_ptr<Material>>(),
+        const lazy_ptr<ReferenceCountedObject>& material = lazy_ptr<ReferenceCountedObject>(),
         bool twoSided = false);
-
 
     Tri() {}
 
@@ -90,8 +89,8 @@ public:
     }
 
     /* Override the current material with the parameter */
-    void setData(const shared_ptr<lazy_ptr<Material>>& newMaterial){
-        m_material = newMaterial;
+    void setData(const lazy_ptr<ReferenceCountedObject>& newMaterial){
+        m_data = newMaterial;
     }
 
     /** Returns a bounding box */
@@ -163,19 +162,17 @@ public:
     
     /** \brief Resolve and return the material for this Tri.
       */
-    shared_ptr<Material> material() const {
-        return lazy_ptr<Material>::resolve(m_material);
-    }
+    shared_ptr<Material> material() const;
 
     shared_ptr<Surface> surface() const;
 
     /** 
-     Extract the data field.  Mostly useful when using a lazy_ptr<Material> that is not a Material or Surface.
+     Extract the data field.  Mostly useful when using data that is not a Material or Surface.
      \see surface(), material()
     */
     template<class T>
     shared_ptr<T> data() const {
-        return dynamic_pointer_cast<T>(m_material);
+        return dynamic_pointer_cast<T>(m_data.resolve());
     }
 
 
@@ -195,7 +192,7 @@ public:
             (index[0] == t.index[0]) &&
             (index[1] == t.index[1]) &&
             (index[2] == t.index[2]) &&
-            (m_material == t.m_material);
+            (m_data == t.m_data);
     }
 
 

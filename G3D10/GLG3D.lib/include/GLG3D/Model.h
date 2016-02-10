@@ -84,7 +84,7 @@ public:
 };
 
 
-//typedef Table< String, shared_ptr<lazy_ptr<Model>> >  ModelTable;
+//typedef Table< String, lazy_ptr<Model> >  ModelTable;
 typedef Table< String, shared_ptr<Model> >  ModelTable;
 
 } // namespace G3D

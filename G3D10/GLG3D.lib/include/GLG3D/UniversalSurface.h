@@ -319,14 +319,6 @@ public:
         return m_material;
     }
 
-    virtual const shared_ptr<Material> resolve() const override { 
-        return m_material; 
-    }
-
-    virtual shared_ptr<Material> resolve() override { 
-        return m_material; 
-    }
-
     virtual bool anyOpaque() const override;
 
     shared_ptr<GPUGeom>& gpuGeom() {

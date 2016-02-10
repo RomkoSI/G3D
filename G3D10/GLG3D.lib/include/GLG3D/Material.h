@@ -29,18 +29,8 @@ class Surfel;
     \see UniversalMaterial
     \beta
  */
-class Material : public lazy_ptr<Material> {
+class Material : public ReferenceCountedObject {
 public:
-
-    // Inherited from lazy_ptr
-    virtual const shared_ptr<Material> resolve() const override {
-        return dynamic_pointer_cast<Material>(const_cast<Material*>(this)->shared_from_this());
-    }
-
-    // Inherited from lazy_ptr
-    virtual shared_ptr<Material> resolve() override {
-        return dynamic_pointer_cast<Material>(shared_from_this());
-    }
 
     /** Returns true if this material has an alpha value less than \a alphaThreshold at texCoord. */
     virtual bool coverageLessThan(const float alphaThreshold, const Point2& texCoord) const = 0;

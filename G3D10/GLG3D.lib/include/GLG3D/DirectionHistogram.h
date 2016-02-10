@@ -66,20 +66,10 @@ private:
 
     int                 m_numSamples;
 
-    // Note that this is reference counted
-    /* index into m_meshIndex */
-    class VertexIndexIndex : public lazy_ptr<Material> {
+    class VertexIndexIndex : public ReferenceCountedObject {
     public:
-        int             index;
-        typedef shared_ptr<VertexIndexIndex> Ref;
-
-    private:
-        VertexIndexIndex(int i) : index(i) {};
-
-    public:
-        static shared_ptr<lazy_ptr<Material>> create(int i) {
-            return shared_ptr<lazy_ptr<Material>>(new VertexIndexIndex(i));
-        }
+        int index;
+        VertexIndexIndex(int i) : index(i) {}
     };
 
     /** Volume of a tetrahedron whose 4th vertex is at the origin.  

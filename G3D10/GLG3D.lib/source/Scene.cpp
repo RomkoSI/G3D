@@ -434,6 +434,7 @@ const shared_ptr<Entity> Scene::entity(const String& name) const {
 shared_ptr<Model> Scene::insert(const shared_ptr<Model>& model) {
     debugAssert(notNull(model));
     debugAssert(! m_modelTable.containsKey(model->name()));
+//    m_modelTable.set(model->name(), lazy_ptr<Model>(model));
     m_modelTable.set(model->name(), model);
     return model;
 }
