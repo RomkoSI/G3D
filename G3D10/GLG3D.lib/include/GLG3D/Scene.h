@@ -222,10 +222,10 @@ public:
 
     class LoadOptions {
     public:
-        /** Remove Entitys for which canMove = true. Default = false */
+        /** Remove Entitys for which canChange = true. Default = false */
         bool        stripStaticEntitys;
 
-        /** Remove Entitys for which canMove = false. Default = false */
+        /** Remove Entitys for which canChange = false. Default = false */
         bool        stripDynamicEntitys;
 
         LoadOptions() : stripStaticEntitys(false), stripDynamicEntitys(false) {}

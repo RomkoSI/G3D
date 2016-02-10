@@ -242,6 +242,7 @@ String Scene::sceneNameToFilename(const String& scene)  {
     }
 }
 
+
 Any Scene::load(const String& scene, const LoadOptions& loadOptions) {
     shared_ptr<AmbientOcclusion> old = m_localLightingEnvironment.ambientOcclusion;
     const String& filename = sceneNameToFilename(scene);
@@ -298,11 +299,16 @@ Any Scene::load(const String& scene, const LoadOptions& loadOptions) {
             if (entities.size() > 0) {
                 for (Table<String, Any>::Iterator it = entities.table().begin(); it.isValid(); ++it) {
                     const String& name = it->key;
-                    createEntity(name, it->value);
-                }
-            }
-        }
-    }
+
+                    const bool canChange = it->value.get("canChange", true);
+                    if ((canChange && ! loadOptions.stripDynamicEntitys) || 
+                        (! canChange && ! loadOptions.stripStaticEntitys)) {
+                        createEntity(name, it->value);
+                    } // if not stripped
+                } // for each entity
+            } // if there is anything in this table
+        } // if this entity group name exists
+    } // Try for both the current and legacy format entity group names
     
     shared_ptr<Texture> skyboxTexture = Texture::whiteCube();
 
