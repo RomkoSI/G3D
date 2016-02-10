@@ -34,8 +34,9 @@ class lazy_ptr {
 private:
 
     class Proxy : public ReferenceCountedObject {
-    private:
+    public:
         mutable bool                    m_resolved;
+    private:
         const function<shared_ptr<T>()> m_resolve;
         mutable shared_ptr<T>           m_object;
         mutable GMutex                  m_mutex;
@@ -107,6 +108,11 @@ public:
         return isNull() ? shared_ptr<T>() : m_proxy->resolve();
     }
 
+    /** True if this object can be resolved() without triggering any evaluation */
+    bool resolved() const {
+        return isNull() || m_proxy->m_resolved;
+    }
+
     /** \copydoc resolve */
     shared_ptr<T> resolve() {         
         return isNull() ? shared_ptr<T>() : m_proxy->resolve();
@@ -116,6 +122,34 @@ public:
         return (m_proxy == other.m_proxy) || 
             (! isNull() && ! other.isNull() &&
                 (*m_proxy == *other.m_proxy));
+    }
+
+    bool operator!=(const lazy_ptr<T>& other) const {
+        return *this != other;
+    }
+
+    /** Invokes resolve. If you intend to use multiple dereferences, it is faster to
+        invoke resolve() once and store the shared_ptr. */
+    const T& operator*() const {
+        return *resolve();
+    }
+
+    /** Invokes resolve. If you intend to use multiple dereferences, it is faster to
+        invoke resolve() once and store the shared_ptr. */
+    T& operator*() {
+        return *resolve();
+    }
+
+    /** Invokes resolve. If you intend to use multiple dereferences, it is faster to
+        invoke resolve() once and store the shared_ptr. */
+    const T* operator->() const {
+        return resolve().get();
+    }
+
+    /** Invokes resolve. If you intend to use multiple dereferences, it is faster to
+        invoke resolve() once and store the shared_ptr. */
+    T* operator->() {
+        return resolve().get();
     }
 };
 
