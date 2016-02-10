@@ -16,7 +16,7 @@ CPUPixelTransferBuffer::CPUPixelTransferBuffer(const ImageFormat* format, int wi
 }
 
 
-shared_ptr<CPUPixelTransferBuffer> CPUPixelTransferBuffer::create(int width, int height, const ImageFormat* format, MemoryManager::Ref memoryManager, int depth, int rowAlignment) {
+shared_ptr<CPUPixelTransferBuffer> CPUPixelTransferBuffer::create(int width, int height, const ImageFormat* format, shared_ptr<MemoryManager> memoryManager, int depth, int rowAlignment) {
     shared_ptr<CPUPixelTransferBuffer> imageBuffer(new CPUPixelTransferBuffer(format, width, height, depth, rowAlignment));
 
     // Allocate buffer with memory manager, this reference now owns the buffer
@@ -50,7 +50,7 @@ CPUPixelTransferBuffer::~CPUPixelTransferBuffer() {
 }
 
 
-void CPUPixelTransferBuffer::allocateBuffer(MemoryManager::Ref memoryManager) {
+void CPUPixelTransferBuffer::allocateBuffer(shared_ptr<MemoryManager> memoryManager) {
     debugAssert(isNull(m_memoryManager));
     debugAssert(m_buffer == NULL);
 

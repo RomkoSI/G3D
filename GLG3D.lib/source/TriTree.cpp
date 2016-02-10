@@ -94,7 +94,7 @@ inline static bool __fastcall intersect(const Ray& ray, const AABox& box, float 
     return Intersect::rayAABox(ray, box); 
 }
     
-void TriTree::Node::setValueArray(const Array<Poly>& src, const MemoryManager::Ref& mm) {
+void TriTree::Node::setValueArray(const Array<Poly>& src, const shared_ptr<MemoryManager>& mm) {
     if (src.size() == 0) {
         return;
     }
@@ -138,7 +138,7 @@ bool TriTree::Node::badSplit(int numOriginalSources, int numLow, int numHigh) {
 }
 
 
-void TriTree::Node::split(Array<Poly>& original, const Settings& settings, const MemoryManager::Ref& mm) {
+void TriTree::Node::split(Array<Poly>& original, const Settings& settings, const shared_ptr<MemoryManager>& mm) {
     // Order in which we'd like to split along axes
     Vector3::Axis preferredAxis[3];
     const Vector3& extent = bounds.extent();
@@ -195,7 +195,7 @@ void TriTree::Node::split(Array<Poly>& original, const Settings& settings, const
 }
 
 
-void TriTree::Node::destroy(const MemoryManager::Ref& mm) {
+void TriTree::Node::destroy(const shared_ptr<MemoryManager>& mm) {
     // Destroy children
     if (! isLeaf()) {
         for (int i = 0; i < 2; ++i) {
@@ -506,7 +506,7 @@ bool __fastcall TriTree::Node::intersectRay
 }
 
 
-TriTree::Node::Node(Array<Poly>& originals, const Settings& settings, const MemoryManager::Ref& mm) : 
+TriTree::Node::Node(Array<Poly>& originals, const Settings& settings, const shared_ptr<MemoryManager>& mm) : 
     bounds(Poly::computeBounds(originals)), 
     splitLocation(0),
     packedChildAxis(0),

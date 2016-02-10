@@ -26,73 +26,73 @@ Image1unorm8::Image1unorm8(int w, int h, WrapMode wrap) : Map2D<Color1unorm8, Co
 }
 
 
-Image1unorm8::Ref Image1unorm8::fromImage3unorm8(const shared_ptr<class Image3unorm8>& im) {
+shared_ptr<Image1unorm8> Image1unorm8::fromImage3unorm8(const shared_ptr<class Image3unorm8>& im) {
     return fromArray(im->getCArray(), im->width(), im->height(), im->wrapMode());
 }
 
 
-Image1unorm8::Ref Image1unorm8::fromImage1(const shared_ptr<Image1>& im) {
-    Ref out = createEmpty(static_cast<WrapMode>(im->wrapMode()));
+shared_ptr<Image1unorm8> Image1unorm8::fromImage1(const shared_ptr<Image1>& im) {
+    shared_ptr<Image1unorm8> out = createEmpty(static_cast<WrapMode>(im->wrapMode()));
     out->copyArray(im->getCArray(), im->width(), im->height());
 
     return out;
 }
 
 
-Image1unorm8::Ref Image1unorm8::createEmpty(int width, int height, WrapMode wrap) {
+shared_ptr<Image1unorm8> Image1unorm8::createEmpty(int width, int height, WrapMode wrap) {
     return shared_ptr<Image1unorm8>(new Type(width, height, wrap));
 }
 
 
-Image1unorm8::Ref Image1unorm8::createEmpty(WrapMode wrap) {
+shared_ptr<Image1unorm8> Image1unorm8::createEmpty(WrapMode wrap) {
     return createEmpty(0, 0, wrap);
 }
 
 
-Image1unorm8::Ref Image1unorm8::fromFile(const String& filename, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image1unorm8> Image1unorm8::fromFile(const String& filename, WrapMode wrap) {
+    shared_ptr<Image1unorm8> out = createEmpty(wrap);
     out->load(filename);
     return out;
 }
 
 
-Image1unorm8::Ref Image1unorm8::fromArray(const class Color3unorm8* ptr, int w, int h, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image1unorm8> Image1unorm8::fromArray(const class Color3unorm8* ptr, int w, int h, WrapMode wrap) {
+    shared_ptr<Image1unorm8> out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
 }
 
 
-Image1unorm8::Ref Image1unorm8::fromArray(const class Color1* ptr, int w, int h, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image1unorm8> Image1unorm8::fromArray(const class Color1* ptr, int w, int h, WrapMode wrap) {
+    shared_ptr<Image1unorm8> out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
 }
 
 
-Image1unorm8::Ref Image1unorm8::fromArray(const class Color1unorm8* ptr, int w, int h, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image1unorm8> Image1unorm8::fromArray(const class Color1unorm8* ptr, int w, int h, WrapMode wrap) {
+    shared_ptr<Image1unorm8> out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
 }
 
 
-Image1unorm8::Ref Image1unorm8::fromArray(const class Color3* ptr, int w, int h, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image1unorm8> Image1unorm8::fromArray(const class Color3* ptr, int w, int h, WrapMode wrap) {
+    shared_ptr<Image1unorm8> out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
 }
 
 
-Image1unorm8::Ref Image1unorm8::fromArray(const class Color4unorm8* ptr, int w, int h, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image1unorm8> Image1unorm8::fromArray(const class Color4unorm8* ptr, int w, int h, WrapMode wrap) {
+    shared_ptr<Image1unorm8> out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
 }
 
 
-Image1unorm8::Ref Image1unorm8::fromArray(const class Color4* ptr, int w, int h, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image1unorm8> Image1unorm8::fromArray(const class Color4* ptr, int w, int h, WrapMode wrap) {
+    shared_ptr<Image1unorm8> out = createEmpty(wrap);
     out->copyArray(ptr, w, h);
     return out;
 }
@@ -148,6 +148,7 @@ void Image1unorm8::copyArray(const Color3unorm8* src, int w, int h) {
     }
 }
 
+
 void Image1unorm8::copyArray(const Color3* src, int w, int h) {
     resize(w, h);
     int N = w * h;
@@ -200,7 +201,7 @@ void Image1unorm8::copyArray(const Color4* src, int w, int h) {
 
 /** Saves in any of the formats supported by G3D::GImage. */
 void Image1unorm8::save(const String& filename) {
-    CPUPixelTransferBuffer::Ref buffer = CPUPixelTransferBuffer::create(width(), height(), format(), MemoryManager::create());
+    shared_ptr<CPUPixelTransferBuffer> buffer = CPUPixelTransferBuffer::create(width(), height(), format(), MemoryManager::create());
     System::memcpy(buffer->buffer(), getCArray(),  (size_t)width() * height() * format()->cpuBitsPerPixel / 8);
     shared_ptr<Image> image = Image::fromPixelTransferBuffer(buffer);
     image->save(filename);

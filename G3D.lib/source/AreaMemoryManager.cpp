@@ -42,7 +42,7 @@ bool AreaMemoryManager::isThreadsafe() const {
 }
 
 
-AreaMemoryManager::Ref AreaMemoryManager::create(size_t sizeHint) {
+shared_ptr<AreaMemoryManager> AreaMemoryManager::create(size_t sizeHint) {
     return shared_ptr<AreaMemoryManager>(new AreaMemoryManager(sizeHint));
 }
 

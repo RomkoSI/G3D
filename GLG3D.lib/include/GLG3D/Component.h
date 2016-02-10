@@ -182,7 +182,7 @@ private:
         } else {
             // The alpha channel is unused, so compress this to RGB8.
             b.writeUInt8(3);
-            Image3unorm8::Ref im3 = Image3unorm8::fromImage4(im);
+            shared_ptr<Image3unorm8> im3 = Image3unorm8::fromImage4(im);
             im3->speedSerialize(b);
         }
     }
@@ -204,7 +204,7 @@ private:
         uint8 channels = b.readUInt8();
         alwaysAssertM(channels == 3, "Wrong number of channels when reading Image3unorm8");
 
-        Image3unorm8::Ref im = Image3unorm8::speedCreate(b);
+        shared_ptr<Image3unorm8> im = Image3unorm8::speedCreate(b);
 
         Texture::Dimension dim;
         if (isPow2(im->width()) && isPow2(im->height())) {
@@ -249,7 +249,7 @@ private:
         } else {
             alwaysAssertM(channels == 3, "Wrong number of channels");
 
-            Image3unorm8::Ref im = Image3unorm8::speedCreate(b);
+            shared_ptr<Image3unorm8> im = Image3unorm8::speedCreate(b);
 
             Texture::Dimension dim;
             if (isPow2(im->width()) && isPow2(im->height())) {

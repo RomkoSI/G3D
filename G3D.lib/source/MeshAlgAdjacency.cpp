@@ -45,7 +45,7 @@ private:
 public:
 
     MeshEdgeTable() {
-        AreaMemoryManager::Ref mm = AreaMemoryManager::create();
+        shared_ptr<AreaMemoryManager> mm = AreaMemoryManager::create();
         table.clearAndSetMemoryManager(mm);
     }
 

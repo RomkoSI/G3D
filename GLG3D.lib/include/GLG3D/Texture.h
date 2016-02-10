@@ -1155,7 +1155,7 @@ public:
     
     /** Extracts the data as ImageFormat::DEPTH32F and converts to 8-bit. Note that you may want to call 
         Image1unorm8::flipVertical if Texture::invertY is true.*/
-    Image1unorm8Ref toDepthImage1unorm8() const;
+    shared_ptr<Image1unorm8> toDepthImage1unorm8() const;
     
     inline unsigned int openGLID() const {
         return m_textureID;

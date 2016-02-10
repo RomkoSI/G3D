@@ -3,6 +3,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/Table.h"
+#include "G3D/Proxy.h"
 #include "G3D/ReferenceCount.h"
 #include "GLG3D/Surface.h"
 #include "GLG3D/Material.h"
@@ -83,6 +84,7 @@ public:
 };
 
 
+//typedef Table< String, Proxy<Model> >  ModelTable;
 typedef Table< String, shared_ptr<Model> >  ModelTable;
 
 } // namespace G3D

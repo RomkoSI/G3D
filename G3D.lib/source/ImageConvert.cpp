@@ -11,7 +11,7 @@
 namespace G3D {
 
 
-PixelTransferBuffer::Ref ImageConvert::convertBuffer(const PixelTransferBuffer::Ref& src, const ImageFormat* dstFormat) {
+shared_ptr<PixelTransferBuffer> ImageConvert::convertBuffer(const shared_ptr<PixelTransferBuffer>& src, const ImageFormat* dstFormat) {
     // Early return for no conversion
     if (src->format() == dstFormat) {
         return src;
@@ -21,12 +21,12 @@ PixelTransferBuffer::Ref ImageConvert::convertBuffer(const PixelTransferBuffer::
     if (converter) {
         return (*converter)(src, dstFormat);
     } else {
-        return PixelTransferBuffer::Ref();
+        return shared_ptr<PixelTransferBuffer>();
     }
 }
 
 
-ImageConvert::ConvertFunc ImageConvert::findConverter(const PixelTransferBuffer::Ref& src, const ImageFormat* dstFormat) {
+ImageConvert::ConvertFunc ImageConvert::findConverter(const shared_ptr<PixelTransferBuffer>& src, const ImageFormat* dstFormat) {
     debugAssert(notNull(src));
 
     // Only handle inter-RGB color space conversions for now
@@ -72,7 +72,7 @@ ImageConvert::ConvertFunc ImageConvert::findConverter(const PixelTransferBuffer:
 }
 
 
-shared_ptr<PixelTransferBuffer> ImageConvert::convertFloatToUnorm8(const PixelTransferBuffer::Ref& src, const ImageFormat* dstFormat) {
+shared_ptr<PixelTransferBuffer> ImageConvert::convertFloatToUnorm8(const shared_ptr<PixelTransferBuffer>& src, const ImageFormat* dstFormat) {
     shared_ptr<CPUPixelTransferBuffer> dst = CPUPixelTransferBuffer::create(src->width(), src->height(), dstFormat);
     
     const int     N = src->width() * src->height() * dstFormat->numComponents;
@@ -88,8 +88,8 @@ shared_ptr<PixelTransferBuffer> ImageConvert::convertFloatToUnorm8(const PixelTr
 }
 
 
-shared_ptr<PixelTransferBuffer> ImageConvert::convertUnorm8ToFloat(const PixelTransferBuffer::Ref& src, const ImageFormat* dstFormat) {
-    CPUPixelTransferBuffer::Ref dst = CPUPixelTransferBuffer::create(src->width(), src->height(), dstFormat);
+shared_ptr<PixelTransferBuffer> ImageConvert::convertUnorm8ToFloat(const shared_ptr<PixelTransferBuffer>& src, const ImageFormat* dstFormat) {
+    shared_ptr<CPUPixelTransferBuffer> dst = CPUPixelTransferBuffer::create(src->width(), src->height(), dstFormat);
     
     const int     N = src->width() * src->height() * dstFormat->numComponents;
     const unorm8* srcPtr = static_cast<const unorm8*>(src->mapRead());
@@ -104,10 +104,10 @@ shared_ptr<PixelTransferBuffer> ImageConvert::convertUnorm8ToFloat(const PixelTr
 }
 
 
-PixelTransferBuffer::Ref ImageConvert::convertRGBAddAlpha(const PixelTransferBuffer::Ref& src, const ImageFormat* dstFormat) {
+shared_ptr<PixelTransferBuffer> ImageConvert::convertRGBAddAlpha(const shared_ptr<PixelTransferBuffer>& src, const ImageFormat* dstFormat) {
     debugAssert(src->rowAlignment() == 1);
 
-    CPUPixelTransferBuffer::Ref dstImage = CPUPixelTransferBuffer::create(src->width(), src->height(), dstFormat);
+    shared_ptr<CPUPixelTransferBuffer> dstImage = CPUPixelTransferBuffer::create(src->width(), src->height(), dstFormat);
     const unorm8* oldPixels = static_cast<const unorm8*>(src->mapRead());
     for (int pixelIndex = 0; pixelIndex < src->width() * src->height(); ++pixelIndex) {
         switch (dstFormat->code) {
@@ -144,11 +144,11 @@ PixelTransferBuffer::Ref ImageConvert::convertRGBAddAlpha(const PixelTransferBuf
 }
 
 
-PixelTransferBuffer::Ref ImageConvert::convertRGBA8toBGRA8(const PixelTransferBuffer::Ref& src, const ImageFormat* dstFormat) {
+shared_ptr<PixelTransferBuffer> ImageConvert::convertRGBA8toBGRA8(const shared_ptr<PixelTransferBuffer>& src, const ImageFormat* dstFormat) {
     int width = src->width();
     int height = src->height();
 
-    CPUPixelTransferBuffer::Ref dstBuffer = CPUPixelTransferBuffer::create(width, height, dstFormat, AlignedMemoryManager::create());
+    shared_ptr<CPUPixelTransferBuffer> dstBuffer = CPUPixelTransferBuffer::create(width, height, dstFormat, AlignedMemoryManager::create());
 
     const unorm8* srcData = static_cast<const unorm8*>(src->mapRead());
     unorm8* dstData = static_cast<unorm8*>(dstBuffer->buffer());

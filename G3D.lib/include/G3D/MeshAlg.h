@@ -556,7 +556,7 @@ public:
         bool                spaceCentered = true,
         bool                twoSided = true,
         const CoordinateFrame& xform = CoordinateFrame(),
-        const Image1::Ref&  elevation = Image1::Ref());
+        const shared_ptr<Image1>&  elevation = shared_ptr<Image1>());
 
     /** Converts quadlist (QUADS), 
         triangle fan (TRIANGLE_FAN),

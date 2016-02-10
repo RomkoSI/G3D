@@ -650,7 +650,7 @@ void Win32Window::setIcon(const shared_ptr<Image>& src) {
             binaryMaskData[(y * (src->width() / 8)) + (x / 8)] |= bit;
         }
     }
-    PixelTransferBuffer::Ref bgraColorBuffer = ImageConvert::convertBuffer(colorData->toPixelTransferBuffer(), ImageFormat::BGRA8());
+    shared_ptr<PixelTransferBuffer> bgraColorBuffer = ImageConvert::convertBuffer(colorData->toPixelTransferBuffer(), ImageFormat::BGRA8());
 
 
     HBITMAP bwMask = ::CreateBitmap(src->width(), src->height(), 1, 1, binaryMaskData.getCArray());

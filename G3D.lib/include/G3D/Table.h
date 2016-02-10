@@ -143,17 +143,17 @@ private:
 
     public:
 
-        static Node* create(const Key& k, const Value& v, size_t h, Node* n, MemoryManager::Ref& mm) {
+        static Node* create(const Key& k, const Value& v, size_t h, Node* n, shared_ptr<MemoryManager>& mm) {
             Node* node = (Node*)mm->alloc(sizeof(Node));
             return new (node) Node(k, v, h, n);
         }
 
-        static Node* create(const Key& k, size_t hashCode, Node* n, MemoryManager::Ref& mm) {
+        static Node* create(const Key& k, size_t hashCode, Node* n, shared_ptr<MemoryManager>& mm) {
             Node* node = (Node*)mm->alloc(sizeof(Node));
             return new (node) Node(k, hashCode, n);
         }
 
-        static void destroy(Node* n, MemoryManager::Ref& mm) {
+        static void destroy(Node* n, shared_ptr<MemoryManager>& mm) {
             n->~Node();
             mm->free(n);
         }
@@ -161,7 +161,7 @@ private:
         /**
         Clones a whole chain;
         */
-        Node* clone(MemoryManager::Ref& mm) {
+        Node* clone(shared_ptr<MemoryManager>& mm) {
            return create(this->entry.key, this->entry.value, hashCode, (next == NULL) ? NULL : next->clone(mm), mm);
         }
     };
@@ -196,7 +196,7 @@ private:
      */
     size_t              m_numBuckets;
 
-    MemoryManager::Ref  m_memoryManager;
+    shared_ptr<MemoryManager>  m_memoryManager;
 
     void* alloc(size_t s) const {
         return m_memoryManager->alloc(s);
@@ -306,7 +306,7 @@ public:
     }
 
     /** Changes the internal memory manager to m */
-    void clearAndSetMemoryManager(const MemoryManager::Ref& m) {
+    void clearAndSetMemoryManager(const shared_ptr<MemoryManager>& m) {
         clear();
         debugAssert(m_bucket == NULL);
         m_memoryManager = m;

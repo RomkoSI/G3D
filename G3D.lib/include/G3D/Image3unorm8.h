@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2007-01-31
-  \edited  2011-06-27
+  \edited  2016-02-10
 */
 
 #ifndef G3D_Image3unorm8_h
@@ -28,7 +28,6 @@ class Image3unorm8 : public Map2D<Color3unorm8, Color3> {
 public:
 
     typedef Image3unorm8      Type;
-    typedef Image3unorm8Ref   Ref;
 
 protected:
 
@@ -47,31 +46,31 @@ public:
     void speedSerialize(class BinaryOutput& b) const;
 
     /** \sa SpeedLoad */
-    static Ref speedCreate(class BinaryInput& b);
+    static shared_ptr<class Image3unorm8> speedCreate(class BinaryInput& b);
 
     const class ImageFormat* format() const;
 
     /** Creates an all-zero width x height image. */
-    static Ref createEmpty(int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static shared_ptr<Image3unorm8> createEmpty(int width, int height, WrapMode wrap = WrapMode::ERROR);
 
 
     /** Creates a 0 x 0 image. */
-    static Ref createEmpty(WrapMode wrap = WrapMode::ERROR);
+    static shared_ptr<Image3unorm8> createEmpty(WrapMode wrap = WrapMode::ERROR);
 
-    static Ref fromFile(const String& filename, WrapMode wrap = WrapMode::ERROR);
+    static shared_ptr<Image3unorm8> fromFile(const String& filename, WrapMode wrap = WrapMode::ERROR);
 
-    static Ref fromGImage(const class GImage& im, WrapMode wrap = WrapMode::ERROR);
+    static shared_ptr<Image3unorm8> fromGImage(const class GImage& im, WrapMode wrap = WrapMode::ERROR);
 
-    static Ref fromArray(const class Color1unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
-    static Ref fromArray(const class Color3unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
-    static Ref fromArray(const class Color4unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
-    static Ref fromArray(const class Color1* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
-    static Ref fromArray(const class Color3* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
-    static Ref fromArray(const class Color4* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static shared_ptr<Image3unorm8> fromArray(const class Color1unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static shared_ptr<Image3unorm8> fromArray(const class Color3unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static shared_ptr<Image3unorm8> fromArray(const class Color4unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static shared_ptr<Image3unorm8> fromArray(const class Color1* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static shared_ptr<Image3unorm8> fromArray(const class Color3* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static shared_ptr<Image3unorm8> fromArray(const class Color4* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
 
-    static Ref fromImage3(const shared_ptr<class Image3>& im);
-    static Ref fromImage4(const shared_ptr<class Image4>& im);
-    static Ref fromImage1unorm8(const shared_ptr<class Image1unorm8>& im);
+    static shared_ptr<Image3unorm8> fromImage3(const shared_ptr<class Image3>& im);
+    static shared_ptr<Image3unorm8> fromImage4(const shared_ptr<class Image4>& im);
+    static shared_ptr<Image3unorm8> fromImage1unorm8(const shared_ptr<class Image1unorm8>& im);
 
     /** Loads from any of the file formats supported by G3D::GImage.  If there is an alpha channel on the input,
         it is stripped. */

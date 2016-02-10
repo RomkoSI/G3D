@@ -25,7 +25,7 @@ namespace G3D {
 void Image4unorm8::speedSerialize(class BinaryOutput& b) const {
     b.writeInt32(w);
     b.writeInt32(h);
-    _wrapMode.serialize(b);
+    m_wrapMode.serialize(b);
     b.writeInt32(ImageFormat::CODE_RGBA8);
     
     // Write the data
@@ -228,7 +228,7 @@ void Image4unorm8::copyArray(const Color3* src, int w, int h) {
 
 /** Saves in any of the formats supported by G3D::GImage. */
 void Image4unorm8::save(const String& filename) {
-    CPUPixelTransferBuffer::Ref buffer = CPUPixelTransferBuffer::create(width(), height(), format(), MemoryManager::create());
+    shared_ptr<CPUPixelTransferBuffer> buffer = CPUPixelTransferBuffer::create(width(), height(), format(), MemoryManager::create());
     System::memcpy(buffer->buffer(), getCArray(),  (size_t)width() * height() * format()->cpuBitsPerPixel / 8);
     shared_ptr<Image> image = Image::fromPixelTransferBuffer(buffer);
     image->save(filename);
@@ -238,7 +238,7 @@ void Image4unorm8::save(const String& filename) {
 shared_ptr<class Image1unorm8> Image4unorm8::getChannel(int c) const {
     debugAssert(c >= 0 && c <= 3);
 
-    Image1unorm8Ref dst = Image1unorm8::createEmpty(width(), height(), wrapMode());
+    shared_ptr<Image1unorm8> dst = Image1unorm8::createEmpty(width(), height(), wrapMode());
     const Color4unorm8* srcArray = getCArray();
     Color1unorm8* dstArray = dst->getCArray();
 

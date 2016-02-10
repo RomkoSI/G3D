@@ -28,8 +28,6 @@ protected:
 
 public:
 
-    typedef shared_ptr<class MemoryManager> Ref;
-
     /** Return a pointer to \a s bytes of memory that are unused by
         the rest of the program.  The contents of the memory are
         undefined */
@@ -46,7 +44,7 @@ public:
 
     /** Return the instance. There's only one instance of the default
         MemoryManager; it is cached after the first creation. */
-    static MemoryManager::Ref create();
+    static shared_ptr<MemoryManager> create();
 };
 
 /** 
@@ -58,9 +56,6 @@ protected:
     AlignedMemoryManager();
 
 public:
-
-    typedef shared_ptr<class AlignedMemoryManager> Ref;
-
     
     virtual void* alloc(size_t s);
 
@@ -68,7 +63,7 @@ public:
 
     virtual bool isThreadsafe() const;
 
-    static AlignedMemoryManager::Ref create();
+    static shared_ptr<AlignedMemoryManager> create();
 };
 
 
@@ -79,14 +74,14 @@ protected:
     CRTMemoryManager();
 
 public:
-    typedef shared_ptr<class MemoryManager> Ref;
+
     virtual void* alloc(size_t s);
     virtual void free(void* ptr);
     virtual bool isThreadsafe() const;
 
     /** There's only one instance of this memory manager; it is 
         cached after the first creation. */
-    static CRTMemoryManager::Ref create();
+    static shared_ptr<CRTMemoryManager> create();
 };
 
 }

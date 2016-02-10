@@ -73,7 +73,7 @@ public:
     */
     Tri(const int i0, const int i1, const int i2,
         const CPUVertexArray& vertexArray,
-        const Proxy<Material>::Ref& material = Proxy<Material>::Ref(),
+        const shared_ptr<Proxy<Material>>& material = shared_ptr<Proxy<Material>>(),
         bool twoSided = false);
 
 
