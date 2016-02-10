@@ -803,9 +803,6 @@ public:
 
 private:
 
-    /** Used by onSimulation for elapsed time. */
-    RealTime               m_now, m_lastTime;
-
     /** Used by onWait for elapsed time. */
     RealTime               m_lastWaitTime;
 
@@ -825,6 +822,9 @@ private:
     SimTime                m_simTime;
 
 protected:
+
+    /** Used by onSimulation for elapsed time. */
+    RealTime               m_now, m_lastTime;
 
     Array<shared_ptr<Surface> >   m_posed3D;
     Array<Surface2DRef>           m_posed2D;
