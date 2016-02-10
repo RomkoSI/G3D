@@ -1,11 +1,11 @@
 /**
- \file   G3D/Proxy.h
+ \file   G3D/lazy_ptr.h
  \author Morgan McGuire, http://graphics.cs.williams.edu
  \date   2012-03-16
- \edited 2012-03-16
+ \edited 2016-02-10
 */
-#ifndef G3D_Proxy_h
-#define G3D_Proxy_h
+#ifndef G3D_lazy_ptr_h
+#define G3D_lazy_ptr_h
 
 #include "G3D/platform.h"
 #include "G3D/ReferenceCount.h"
@@ -18,7 +18,7 @@ namespace G3D {
   a proxy is useful for implementing lazy loading of files.
 
   The G3D::Material and G3D::UniversalMaterial together comprise an example of using
-  Proxy for abstracting lazy loading and breaking dependency in subclasses.
+  lazy_ptr for abstracting lazy loading and breaking dependency in subclasses.
 
   It is sometimes useful to have a non-NULL proxy to a NULL object, for example, when
   attaching data or reporting an error.
@@ -26,7 +26,7 @@ namespace G3D {
   Analogous to shared_ptr and weak_ptr.
 */
 template<class T>
-class Proxy : public ReferenceCountedObject {
+class lazy_ptr : public ReferenceCountedObject {
 public:
 
     /** Returns a pointer to a T or a NULL pointer. If there
@@ -40,12 +40,12 @@ public:
     /** \brief Handles the resolve for the case where the proxy itself is NULL.
       
        \code
-         shared_ptr<Proxy<Foo>> p = ...;
+         shared_ptr<lazy_ptr<Foo>> p = ...;
 
-         const shared_ptr<Foo>& f = Proxy<Foo>::resolve(p);
+         const shared_ptr<Foo>& f = lazy_ptr<Foo>::resolve(p);
        \endcode
     */
-    static shared_ptr<T> resolve(const shared_ptr<Proxy<T>>& r) {
+    static shared_ptr<T> resolve(const shared_ptr<lazy_ptr<T>>& r) {
         return isNull(r) ? shared_ptr<T>() : r->resolve();
     }
 };
