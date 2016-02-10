@@ -272,6 +272,7 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
     <ClInclude Include="..\G3D.lib\include\G3D\HaltonSequence.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\InterpolateMode.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Journal.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\lazy_ptr.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Matrix3x4.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\OrderedTable.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Pathfinder.h" />
@@ -374,7 +375,6 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
     <ClInclude Include="..\G3D.lib\include\G3D\PrecomputedRandom.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Projection.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\prompt.h" />
-    <ClInclude Include="..\G3D.lib\include\G3D\Proxy.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Quat.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Queue.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Random.h" />
