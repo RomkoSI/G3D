@@ -90,7 +90,7 @@ public:
     }
 
     /* Override the current material with the parameter */
-    void setData(const Proxy<Material>::Ref& newMaterial){
+    void setData(const shared_ptr<Proxy<Material>>& newMaterial){
         m_material = newMaterial;
     }
 

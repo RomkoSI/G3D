@@ -150,7 +150,7 @@ DirectionHistogram::DirectionHistogram(int numSlices, const Vector3& axis) : m_s
             // Create two tris for each quad
             // Wind backwards; these tris have to face inward
 
-            const Proxy<Material>::Ref vii(VertexIndexIndex::create(q));
+            const shared_ptr<Proxy<Material>> vii(VertexIndexIndex::create(q));
             
             Tri A(i0, i3, i2, vertexArray, vii);
             Tri B(i0, i2, i1, vertexArray, vii);

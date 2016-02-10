@@ -22,11 +22,12 @@ namespace G3D {
 
   It is sometimes useful to have a non-NULL proxy to a NULL object, for example, when
   attaching data or reporting an error.
+
+  Analogous to shared_ptr and weak_ptr.
 */
 template<class T>
 class Proxy : public ReferenceCountedObject {
 public:
-    typedef shared_ptr< Proxy<T> > Ref;
 
     /** Returns a pointer to a T or a NULL pointer. If there
        are multiple levels of proxies, then this call resolves all of them. */
@@ -39,12 +40,12 @@ public:
     /** \brief Handles the resolve for the case where the proxy itself is NULL.
       
        \code
-         Proxy<Foo>::Ref p = ...;
+         shared_ptr<Proxy<Foo>> p = ...;
 
-         const Foo::Ref& f = Proxy<Foo>::resolve(p);
+         const shared_ptr<Foo>& f = Proxy<Foo>::resolve(p);
        \endcode
     */
-    static shared_ptr<T> resolve(const Ref& r) {
+    static shared_ptr<T> resolve(const shared_ptr<Proxy<T>>& r) {
         return isNull(r) ? shared_ptr<T>() : r->resolve();
     }
 };
