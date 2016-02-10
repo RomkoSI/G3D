@@ -119,6 +119,19 @@ public:
     }
 };
 
+
+
+template<class T>
+bool isNull(const lazy_ptr<T>& ptr) {
+    return ptr.isNull();
+}
+
+template<class T>
+bool notNull(const lazy_ptr<T>& ptr) {
+    return ! ptr.isNull();
+}
+
+
 } // namespace G3D
 
 #endif // G3D_lazy_ptr_h
