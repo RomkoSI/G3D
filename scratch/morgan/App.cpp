@@ -1,10 +1,43 @@
 /** \file App.cpp */
 #include "App.h"
+#include <functional>
+
+using std::function;
 
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
 G3D_START_AT_MAIN();
 
 int main(int argc, const char* argv[]) {
+
+    class Functor {
+    public:
+        Functor() {
+            debugPrintf("Functor()\n");
+        }
+
+        Functor(const Functor& f) {
+            debugPrintf("Functor(const Functor&)\n");
+        }
+
+        ~Functor() {
+            debugPrintf("~Functor()\n");
+        }
+
+        int operator()(bool b) const {
+            return 3;
+        }
+    };
+
+    function<int(bool)> f(Functor());
+
+    f(true);
+
+    return 0;
+
+}
+
+#if 0
+{
     {
         G3DSpecification g3dSpec;
         g3dSpec.audio = false;
@@ -41,7 +74,7 @@ int main(int argc, const char* argv[]) {
 
     return App(settings).run();
 }
-
+#endif
 
 App::App(const GApp::Settings& settings) : GApp(settings) {
 }
