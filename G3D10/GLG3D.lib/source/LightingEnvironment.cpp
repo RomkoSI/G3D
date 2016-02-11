@@ -47,6 +47,7 @@ void LightingEnvironment::copyScreenSpaceBuffers(const shared_ptr<Framebuffer>& 
     bool blitColor = true;
     bool blitDepth = notNull(m_copiedScreenDepthTexture);
     framebuffer->blitTo(RenderDevice::current, copyFB, false, false, blitDepth, false, blitColor);
+    copyFB->clear();
 }
 
 

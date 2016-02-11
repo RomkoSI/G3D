@@ -413,12 +413,20 @@ void Framebuffer::blitTo
     bool blitStencil,
     bool blitColor) const {
 
-    const int w = width();
-    const int h = height();
-
     const shared_ptr<Framebuffer>& oldDrawFramebuffer = rd->drawFramebuffer();
     const shared_ptr<Framebuffer>& oldReadFramebuffer = rd->readFramebuffer();
     const Rect2D oldClip = rd->clip2D();
+
+    // Make sure all attachments are properly bound before blitting
+    if (m_currentOutOfSync) {
+        const_cast<Framebuffer*>(this)->bind();
+    }
+    if (dst->m_currentOutOfSync) {
+        dst->bind();
+    }
+
+    const int w = width();
+    const int h = height();
 
     rd->setDrawFramebuffer(dst);
     rd->setClip2D(Rect2D::inf());
@@ -431,11 +439,15 @@ void Framebuffer::blitTo
 
     debugAssertM(!(linearInterpolation && (blitDepth || blitStencil)), "if blit depth or stencil is enabled Nearest inpterpolation must be used");
     if (notNull(dst)) {
-        debugAssertM((! blitDepth) || (dst->has(Framebuffer::DEPTH) && has(Framebuffer::DEPTH)), "To perform a depth blit both the source and destination Framebuffers must have a depth buffer attached");
-        debugAssertM((! blitStencil) || (dst->has(Framebuffer::STENCIL) && has(Framebuffer::STENCIL)), "To perform a stencil blit both the source and destination Framebuffers must have a stencil buffer attached");
+        bool dstHasDepth = (dst->has(Framebuffer::DEPTH) || dst->has(Framebuffer::DEPTH_AND_STENCIL));
+        bool hasDepth = (has(Framebuffer::DEPTH) || has(Framebuffer::DEPTH_AND_STENCIL));
+        bool dstHasStencil = (dst->has(Framebuffer::STENCIL) || dst->has(Framebuffer::DEPTH_AND_STENCIL));
+        bool hasStencil = (has(Framebuffer::STENCIL) || has(Framebuffer::DEPTH_AND_STENCIL));
+        debugAssertM((! blitDepth) ||  (hasDepth && dstHasDepth), "To perform a depth blit both the source and destination Framebuffers must have a depth buffer attached");
+        debugAssertM((! blitStencil) || (hasStencil && dstHasStencil), "To perform a stencil blit both the source and destination Framebuffers must have a stencil buffer attached");
         debugAssertM((! blitColor) || (dst->has(Framebuffer::COLOR0) && has(Framebuffer::COLOR0)), "To perform a color blit both the source and destination Framebuffers must have a color buffer attached");
     }
-
+    
     glBlitFramebuffer(0, invertY ? h : 0, w, invertY ? 0 : h, 0, 0, w, h, flags, linearInterpolation ? GL_LINEAR : GL_NEAREST);
     debugAssertGLOk();
 
@@ -468,7 +480,6 @@ Framebuffer::Attachment::Attachment(AttachmentPoint ap, const shared_ptr<Texture
     m_cubeFace(c),
     m_mipLevel(m),
     m_layer(layer) {
-    r->depth();
     alwaysAssertM(layer == -1 || 
         r->dimension() == Texture::DIM_2D_ARRAY || 
         r->dimension() == Texture::DIM_CUBE_MAP_ARRAY,
