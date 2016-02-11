@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2010-01-01
-  \edited  2017-02-10
+  \edited  2016-02-10
 */
 #ifndef GLG3D_Scene_h
 #define GLG3D_Scene_h
@@ -12,9 +12,10 @@
 #include "G3D/platform.h"
 #include "G3D/ReferenceCount.h"
 #include "G3D/Array.h"
+#include "G3D/SmallArray.h"
+#include "G3D/lazy_ptr.h"
 #include "GLG3D/Camera.h"
 #include "GLG3D/LightingEnvironment.h"
-#include "G3D/SmallArray.h"
 #include "GLG3D/ArticulatedModel.h"
 
 namespace G3D {
@@ -125,7 +126,7 @@ public:
     void registerEntitySubclass(const String& name, EntityFactory factory, bool errorIfAlreadyRegistered = true);
 
     /** Adds the model to the model table and returns it. */
-    virtual shared_ptr<Model> createModel(const Any& v, const String& name);
+    virtual lazy_ptr<Model> createModel(const Any& v, const String& name);
 
     const ModelTable& modelTable() const {
         return m_modelTable;

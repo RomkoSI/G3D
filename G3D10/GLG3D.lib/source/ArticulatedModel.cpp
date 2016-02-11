@@ -3,9 +3,9 @@
 
  \author Morgan McGuire, http://graphics.cs.williams.edu
  \created 2011-07-19
- \edited  2015-04-06
+ \edited  2016-02-10
  
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
 #include "GLG3D/ArticulatedModel.h"
@@ -54,6 +54,11 @@ shared_ptr<ArticulatedModel> ArticulatedModel::loadArticulatedModel(const Articu
     }
     
     return a;
+}
+
+
+lazy_ptr<Model> ArticulatedModel::lazyCreate(const ArticulatedModel::Specification& specification, const String& name) {
+    return lazy_ptr<Model>([specification, name]{ return ArticulatedModel::create(specification, name); });
 }
 
 

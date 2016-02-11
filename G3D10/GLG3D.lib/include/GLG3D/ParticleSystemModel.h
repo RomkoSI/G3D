@@ -4,10 +4,10 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2015-08-30
-  \edited  2015-09-17
+  \edited  2016-02-10
  
  G3D Library http://g3d.codeplex.com
- Copyright 2000-2015, Morgan McGuire morgan@cs.williams.edu
+ Copyright 2000-2016, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
  Use permitted under the BSD license
  */
@@ -231,6 +231,9 @@ protected:
 public:
     
     static shared_ptr<ParticleSystemModel> create(const Specification& specification, const String& name = "");
+    static lazy_ptr<Model> lazyCreate(const Specification& s, const String& name = "") {
+        return lazy_ptr<Model>( [s, name] { return ParticleSystemModel::create(s, name); } );
+    }
 
     /** Fade in and fade out time for emitter e. Used during ParticleSystem::onSimulation */
     const std::pair<float, float>& coverageFadeTime(int e) const {

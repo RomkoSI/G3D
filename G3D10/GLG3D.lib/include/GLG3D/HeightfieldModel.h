@@ -2,7 +2,7 @@
   \file GLG3D/HeightfieldModel.h
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
   \created 2012-12-25
-  \edited  2013-02-04
+  \edited  2016-02-10
 */
 #ifndef GLG3D_HeightfieldModel_h
 #define GLG3D_HeightfieldModel_h
@@ -221,6 +221,12 @@ public:
     static shared_ptr<HeightfieldModel> create(const Specification& spec, const String& name = "Heightfield") {
         return shared_ptr<HeightfieldModel>(new HeightfieldModel(spec, name));
     }
+
+
+    static lazy_ptr<Model> lazyCreate(const Specification& s, const String& name = "") {
+        return lazy_ptr<Model>( [s, name] { return HeightfieldModel::create(s, name); } );
+    }
+
 
     virtual const String& name() const override {
         return m_name;
