@@ -133,6 +133,11 @@ private:
 
 protected:
 
+    /** Intended for subclasses to redefine to themselves. This allows application subclasses
+        to invoke `super::onInit`, etc., and easily change their base class without rewriting
+        all methods. */
+    typedef GApp super;
+
     struct ovrState*        m_hmd;
 
     /** G3D wrapper for the currently-bound eye texture. This is created during App::onGraphics and then passed to Film::exposeAndRender by App::onGraphics3D.

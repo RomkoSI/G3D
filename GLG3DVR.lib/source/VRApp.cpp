@@ -18,7 +18,7 @@ All rights reserved.
 namespace G3D {
 
 VRApp::VRApp(const GApp::Settings& settings) :
-    GApp(makeFixedSize(settings)),
+    super(makeFixedSize(settings)),
     m_vrSubmitToDisplayMode(SubmitToDisplayMode::BALANCE),
     m_highQualityWarping(true),
     m_numSlowFrames(0),
@@ -80,7 +80,7 @@ const GApp::Settings& VRApp::makeFixedSize(const GApp::Settings& s) {
 
 
 void VRApp::onInit() {
-    GApp::onInit();
+    super::onInit();
     m_currentEyeIndex = 0;
     m_hmd->initRenderBuffers(window()->width(), window()->height());
 
@@ -197,7 +197,7 @@ void VRApp::sampleTrackingData() {
 void VRApp::resize(int w, int h) {
     // Size the framebuffer to the m_hmd texture resolution
     // Ignore the resolution of the physical window.
-    GApp::resize(m_hmd->eyeFramebufferQueue[0]->width(), m_hmd->eyeFramebufferQueue[0]->height());
+    super::resize(m_hmd->eyeFramebufferQueue[0]->width(), m_hmd->eyeFramebufferQueue[0]->height());
 }
 
 
@@ -254,7 +254,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
         }
 
         if ((submitToDisplayMode() == SubmitToDisplayMode::MAXIMIZE_THROUGHPUT) && (!renderDevice->swapBuffersAutomatically())) {
-            GApp::swapBuffers();
+            super::swapBuffers();
         }
         rd->clear();
 
@@ -506,7 +506,7 @@ void VRApp::onCleanup() {
 
 
 void VRApp::onAfterLoadScene(const Any& any, const String& sceneName) {
-    GApp::onAfterLoadScene(any, sceneName);
+    super::onAfterLoadScene(any, sceneName);
 
     // Give a grace period for initialization
     m_numSlowFrames = -30;
@@ -523,7 +523,7 @@ void VRApp::onAfterLoadScene(const Any& any, const String& sceneName) {
 
 bool VRApp::onEvent(const GEvent& event) {
     // Handle super-class events
-    if (GApp::onEvent(event)) { return true; }
+    if (super::onEvent(event)) { return true; }
 
     // HUD toggle
     if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == GKey::TAB)) { 

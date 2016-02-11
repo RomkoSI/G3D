@@ -4,9 +4,9 @@
    \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
    \created 2003-11-03
-   \edited  2015-09-06
+   \edited  2016-02-10
 
-   Copyright 2000-2015, Morgan McGuire.
+   Copyright 2000-2016, Morgan McGuire.
    All rights reserved.
 */
 
