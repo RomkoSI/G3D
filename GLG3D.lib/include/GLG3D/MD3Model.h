@@ -394,6 +394,10 @@ public:
 
     static shared_ptr<MD3Model> create(const Specification& spec, const String& name = "");
 
+    static lazy_ptr<Model> lazyCreate(const Specification& s, const String& name = "") {
+        return lazy_ptr<Model>( [s, name] { return MD3Model::create(s, name); } );
+    }
+
     virtual const String& name() const override {
         return m_name;
     }

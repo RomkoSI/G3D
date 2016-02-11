@@ -22,8 +22,12 @@ namespace G3D {
   demand or extending them with metadata without subclassing the object itself. For example,
   lazy loading of files.
 
-  The G3D::Material and G3D::UniversalMaterial together comprise an example of using
-  lazy_ptr for abstracting lazy loading and breaking dependency in subclasses.
+  Useful for implementing lazy loading, for example, as done by ArticulatedModel::lazyCreate:
+
+  ~~~~~~
+      lazy_ptr<ArticulatedModel>([specification, name]{ return ArticulatedModel::create(specification, name); });
+  ~~~~~~
+
 
   Analogous to shared_ptr and weak_ptr. Copies of lazy_ptrs retain the same underlying object,
   so it will only be resolved once.
@@ -37,11 +41,9 @@ private:
     class Proxy : public ReferenceCountedObject {
     public:
         mutable bool                    m_resolved;
-    private:
         const function<shared_ptr<T>()> m_resolve;
         mutable shared_ptr<T>           m_object;
         mutable GMutex                  m_mutex;
-    public:
 
         Proxy(const function<shared_ptr<T>()>& resolve, const shared_ptr<T>& object, bool resolved) : 
             m_resolved(resolved), m_resolve(resolve), m_object(object) {}

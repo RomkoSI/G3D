@@ -8,9 +8,9 @@
    \maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
    \created 2003-02-21
-   \edited  2013-03-17
+   \edited  2016-02-10
  
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
 
@@ -623,6 +623,9 @@ public:
         Note that this can also be invoked with the path name of a single tris.md2 
         file as an String, which will automatically cast to a MD2Model::Specification. */
     static shared_ptr<MD2Model> create(const Specification& s, const String& name = "");
+    static lazy_ptr<Model> lazyCreate(const Specification& s, const String& name = "") {
+        return lazy_ptr<Model>( [s, name] { return MD2Model::create(s, name); } );
+    }
 
     virtual const String& name() const override {
         return m_name;

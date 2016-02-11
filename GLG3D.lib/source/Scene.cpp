@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2010-01-01
-  \edited  2015-01-02
+  \edited  2016-02-10
 */
 
 #include "GLG3D/Scene.h"
@@ -62,6 +62,7 @@ static Array<String> searchPaths;
 void Scene::setSceneSearchPaths(const Array<String>& paths) {
     searchPaths.copyFrom(paths);
 }
+
 
 static void setDefaultSearchPaths() {
     // Add the current directory
@@ -190,7 +191,6 @@ void Scene::clear() {
     m_cameraArray.fastClear();
     m_localLightingEnvironment = LightingEnvironment();
     m_localLightingEnvironment.ambientOcclusion = old;
-    //m_localLightingEnvironment.ambientOcclusionSettings.enabled = false;
     m_skybox.reset();
     m_time = 0;
     m_sourceAny = NULL;
@@ -225,6 +225,7 @@ void Scene::setTime(const SimTime t) {
     onSimulation(fnan());
     onSimulation(fnan());
 }
+
 
 String Scene::sceneNameToFilename(const String& scene)  {
     const bool isFilename = endsWith(toLower(scene), ".scn.any") || endsWith(toLower(scene), ".scene.any");
@@ -293,6 +294,8 @@ Any Scene::load(const String& scene, const LoadOptions& loadOptions) {
     }
 
     // Instantiate the entities
+    // Try for both the current and extended format entity group names...intended to support using #include to merge
+    // different files with entitys in them
     for (int i = 0; i < 2; ++i) {
         if (any.containsKey(entitySectionName[i])) { 
             const Any& entities = any[entitySectionName[i]];
@@ -308,7 +311,8 @@ Any Scene::load(const String& scene, const LoadOptions& loadOptions) {
                 } // for each entity
             } // if there is anything in this table
         } // if this entity group name exists
-    } // Try for both the current and legacy format entity group names
+    } 
+
     
     shared_ptr<Texture> skyboxTexture = Texture::whiteCube();
 
@@ -386,21 +390,21 @@ Any Scene::load(const String& scene, const LoadOptions& loadOptions) {
 }
 
 
-shared_ptr<Model> Scene::createModel(const Any& v, const String& name) {
-    shared_ptr<Model> m;
-
+lazy_ptr<Model> Scene::createModel(const Any& v, const String& name) {
     v.verify(! m_modelTable.containsKey(name), "A model named '" + name + "' already exists in this scene.");
 
+    lazy_ptr<Model> m;
+
     if ((v.type() == Any::STRING) || v.nameBeginsWith("ArticulatedModel")) {
-        m = ArticulatedModel::create(v, name);
+        m = ArticulatedModel::lazyCreate(v, name);
     } else if (v.nameBeginsWith("MD2Model")) {
-        m = MD2Model::create(v, name);
+        m = MD2Model::lazyCreate(v, name);
     } else if (v.nameBeginsWith("MD3Model")) {
-        m = MD3Model::create(v, name);
+        m = MD3Model::lazyCreate(v, name);
     } else if (v.nameBeginsWith("HeightfieldModel")) {
-        m = HeightfieldModel::create(v, name);
+        m = HeightfieldModel::lazyCreate(v, name);
     } else if (v.nameBeginsWith("ParticleSystemModel")) {
-        m = ParticleSystemModel::create(v, name);
+        m = ParticleSystemModel::lazyCreate(v, name);
     }
 
     if (isNull(m)) {

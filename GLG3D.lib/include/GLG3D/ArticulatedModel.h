@@ -3,10 +3,10 @@
 
  \author Morgan McGuire, http://graphics.cs.williams.edu, Michael Mara, http://illuminationcodified.com
  \created 2011-07-19
- \edited  2015-09-07
+ \edited  2016-02-10
 
   G3D Library http://g3d.codeplex.com
-  Copyright 2000-2015, Morgan McGuire morgan@cs.williams.edu
+  Copyright 2000-2016, Morgan McGuire morgan@cs.williams.edu
   All rights reserved.
   Use permitted under the BSD license
 */
@@ -1240,6 +1240,9 @@ public:
       If the \a name is not the empty string, sets the name.
     */
     static shared_ptr<ArticulatedModel> create(const Specification& s, const String& name = "");
+
+    /** \copydoc create */
+    static lazy_ptr<Model> lazyCreate(const Specification& s, const String& name = "");
 
     static shared_ptr<ArticulatedModel> fromFile(const String& filename) {
         Specification s;
