@@ -15,6 +15,7 @@
 #include "GLG3D/Sampler.h"
 #include "GLG3D/ShadowMap.h"
 #include "GLG3D/Args.h"
+#include "GLG3D/RenderDevice.h"
 
 #ifndef _MSC_VER
    #define _timeb timeb
@@ -32,19 +33,20 @@ LightingEnvironment::LightingEnvironment() {
 
 
 void LightingEnvironment::copyScreenSpaceBuffers(const shared_ptr<Framebuffer>& framebuffer, const Vector2int16 colorGuardBand) {
-    const shared_ptr<Texture>& colorSource = framebuffer->texture(Framebuffer::COLOR0);
-    const shared_ptr<Texture>& depthSource = framebuffer->texture(Framebuffer::DEPTH);
 
-    if (isNull(m_copiedScreenColorTexture) || (colorSource->vector2Bounds() != m_copiedScreenColorTexture->vector2Bounds())) {
-        m_copiedScreenColorTexture = Texture::createEmpty("G3D::LightingEnvironment::m_copiedScreenColorTexture", colorSource->width(), colorSource->height(), colorSource->format(), Texture::DIM_2D, false);
+    if (isNull(m_copiedScreenColorTexture) || (framebuffer->texture(0)->vector2Bounds() != m_copiedScreenColorTexture->vector2Bounds())) {
+        m_copiedScreenColorTexture = Texture::createEmpty("G3D::LightingEnvironment::m_copiedScreenColorTexture", framebuffer->texture(0)->width(), framebuffer->texture(0)->height(), framebuffer->texture(0)->format(), Texture::DIM_2D, false);
         // m_copiedScreenDepthTexture = Texture::createEmpty("G3D::LightingEnvironment::m_copiedScreenDepthTexture", depthSource->width(), depthSource->height(), depthSource->format(), Texture::DIM_2D, false);
     }
 
     m_copiedScreenColorGuardBand = colorGuardBand;
-    colorSource->copyInto(m_copiedScreenColorTexture);
-    if (notNull(m_copiedScreenDepthTexture)) {
-        depthSource->copyInto(m_copiedScreenDepthTexture);
-    }
+
+    static shared_ptr<Framebuffer> copyFB = Framebuffer::create("LightingEnvironment::copyScreenSpaceBuffers");
+    copyFB->set(Framebuffer::COLOR0, m_copiedScreenColorTexture);
+    copyFB->set(Framebuffer::DEPTH, m_copiedScreenDepthTexture);
+    bool blitColor = true;
+    bool blitDepth = notNull(m_copiedScreenDepthTexture);
+    framebuffer->blitTo(RenderDevice::current, copyFB, false, false, blitDepth, false, blitColor);
 }
 
 
