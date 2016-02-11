@@ -54,13 +54,32 @@
         bool          notNull;
     };
 #endforeach
+   
 
-vec4 sampleTexture(Texture2D tex, vec2 coord) {
-    return texture(tex.sampler, coord) * tex.readMultiplyFirst + tex.readAddSecond;
-}
 
-vec4 sampleTexture(Texture2DArray tex, vec3 coord) {
-    return texture(tex.sampler, coord) * tex.readMultiplyFirst + tex.readAddSecond;
-}
+#foreach (dim, n, addr) in (1D, 1, 1), (2D, 2, 2), (3D, 3, 3), (Cube, 2, 3)
+//, (1DArray, 2, 2), (2DArray, 3, 3), (CubeArray, 2, 4), (1DShadow, 1, 3), (2DShadow, 2, 3), (CubeShadow, 2, 3), (2DRectShadow, 2, 2), (1DArrayShadow, 2, 3), (2DArrayShadow, 3, 3)
+    vec4 sampleTexture(Texture$(dim) tex, vec$(addr) coord) {
+        return texture(tex.sampler, coord) * tex.readMultiplyFirst + tex.readAddSecond;
+    }
+
+    vec4 sampleTextureLod(Texture$(dim) tex, vec$(addr) coord, float lod) {
+        return textureLod(tex.sampler, coord, lod) * tex.readMultiplyFirst + tex.readAddSecond;
+    }
+#endforeach
+
+/*
+#if __VERSION >= 400
+#foreach (dim, n, addr) in (CubeArrayShadow, 3, 3)
+    vec4 sampleTexture(Texture$(dim) tex, vec$(addr) coord) {
+        return texture(tex.sampler, coord) * tex.readMultiplyFirst + tex.readAddSecond;
+    }
+
+    vec4 sampleTextureLod(Texture$(dim) tex, vec$(addr) coord, float lod) {
+        return textureLod(tex.sampler, coord, lod) * tex.readMultiplyFirst + tex.readAddSecond;
+    }
+#endforeach
+#endif
+*/
 
 #endif
