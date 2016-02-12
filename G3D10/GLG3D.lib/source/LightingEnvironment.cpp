@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2013-03-13
-  \edited  2015-01-01
+  \edited  2016-02-12
  */ 
 #include "G3D/Any.h"
 #include "G3D/FileSystem.h"
@@ -32,22 +32,33 @@ LightingEnvironment::LightingEnvironment() {
 }
 
 
-void LightingEnvironment::copyScreenSpaceBuffers(const shared_ptr<Framebuffer>& framebuffer, const Vector2int16 colorGuardBand) {
+void LightingEnvironment::copyScreenSpaceBuffers(const shared_ptr<Framebuffer>& framebuffer, const Vector2int16 colorGuardBand, const Vector2int16 depthGuardBand) {
 
     if (isNull(m_copiedScreenColorTexture) || (framebuffer->texture(0)->vector2Bounds() != m_copiedScreenColorTexture->vector2Bounds())) {
         m_copiedScreenColorTexture = Texture::createEmpty("G3D::LightingEnvironment::m_copiedScreenColorTexture", framebuffer->texture(0)->width(), framebuffer->texture(0)->height(), framebuffer->texture(0)->format(), Texture::DIM_2D, false);
         // m_copiedScreenDepthTexture = Texture::createEmpty("G3D::LightingEnvironment::m_copiedScreenDepthTexture", depthSource->width(), depthSource->height(), depthSource->format(), Texture::DIM_2D, false);
     }
 
+    m_copiedScreenDepthGuardBand = depthGuardBand;
     m_copiedScreenColorGuardBand = colorGuardBand;
 
     static shared_ptr<Framebuffer> copyFB = Framebuffer::create("LightingEnvironment::copyScreenSpaceBuffers");
     copyFB->set(Framebuffer::COLOR0, m_copiedScreenColorTexture);
     copyFB->set(Framebuffer::DEPTH, m_copiedScreenDepthTexture);
-    bool blitColor = true;
-    bool blitDepth = notNull(m_copiedScreenDepthTexture);
-    framebuffer->blitTo(RenderDevice::current, copyFB, false, false, blitDepth, false, blitColor);
-    copyFB->clear();
+    
+    const bool invertY              = false;
+    const bool linearInterpolation  = false;
+    const bool blitColor            = true;
+    const bool blitStencil          = false;
+    const bool blitDepth            = notNull(m_copiedScreenDepthTexture);
+
+    framebuffer->blitTo(RenderDevice::current, copyFB, invertY, linearInterpolation, blitDepth, blitStencil, blitColor);
+
+    // Intentionally leave the attachments bound on the copyFB...although that prevents them from being collected if there is never
+    // another copy call, it will be faster in the common case of executing it once per frame.
+    //
+    // Also, invoking copyFB->clear() here erases the screen color texture to black (or prevents the blit from occuring---it is asyncrhonous, so I can't tell).
+    // That shouldn't happen, but simply removing the call avoids the bug.
 }
 
 
