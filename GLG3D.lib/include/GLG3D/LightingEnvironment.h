@@ -31,7 +31,12 @@ protected:
 
     shared_ptr<Texture>             m_copiedScreenColorTexture;
     shared_ptr<Texture>             m_copiedScreenDepthTexture;
+
+    /** \sa GBuffer:colorGuardBandThickness */
     Vector2int16                    m_copiedScreenColorGuardBand;
+
+    /** \sa GBuffer:depthGuardBandThickness */
+    Vector2int16                    m_copiedScreenDepthGuardBand;
     Any                             m_any;
 
     void  maybeCopyBuffers() const;
@@ -70,7 +75,7 @@ public:
         return m_any;
     }
 
-    void copyScreenSpaceBuffers(const shared_ptr<Framebuffer>& framebuffer, const Vector2int16 colorGuardBand);
+    void copyScreenSpaceBuffers(const shared_ptr<Framebuffer>& framebuffer, const Vector2int16 colorGuardBand, const Vector2int16 depthGuardBand);
 
     /** An image of the color buffer.  This is a copy of the
         previous buffer; it is never the Texture currently being
@@ -90,9 +95,14 @@ public:
         }
     }
 
-    /** For screenColorTexture() */
+    /** For screenColorTexture(). \sa GBuffer::colorGuardBandThickness */
     const Vector2int16 screenColorGuardBand() const {
         return m_copiedScreenColorGuardBand;
+    }
+
+    /** \sa GBuffer::depthGuardBandThickness */
+    const Vector2int16 screenDepthGuardBand() const {
+        return m_copiedScreenDepthGuardBand;
     }
 
     /** Used for screen-space reflection and refraction

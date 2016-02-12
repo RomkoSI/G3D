@@ -293,7 +293,12 @@ protected:
         Called from render() for RenderPassType::MULTIPASS_BLENDED_SAMPLES. */
     void modulateBackgroundByTransmission(RenderDevice* rd) const;
 
-    void bindScreenSpaceTexture(Args& args, const LightingEnvironment& lightingEnvironment, RenderDevice* rd, const Vector2int16 guardBandSize) const;
+    void bindScreenSpaceTexture
+       (Args&                                       args, 
+        const LightingEnvironment&                  lightingEnvironment,
+        RenderDevice*                               rd, 
+        const Vector2int16                          colorGuardBandSize,
+        const Vector2int16                          depthGuardBandSize) const;
             
 public:
 

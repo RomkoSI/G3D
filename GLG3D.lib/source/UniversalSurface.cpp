@@ -738,7 +738,7 @@ void UniversalSurface::render
     rd->setDepthWrite(anyUnblendedPass);
     rd->setDepthTest(RenderDevice::DEPTH_LESS);
 
-    bindScreenSpaceTexture(args, reducedLighting, rd, environment.screenColorGuardBand());
+    bindScreenSpaceTexture(args, reducedLighting, rd, environment.screenColorGuardBand(), environment.screenDepthGuardBand());
 
     if (hasRefractiveTransmission()) {
         args.setMacro("REFRACTION", 1);
@@ -792,7 +792,8 @@ void UniversalSurface::bindScreenSpaceTexture
    (Args&                       args, 
     const LightingEnvironment&  lightingEnvironment, 
     RenderDevice*               rd, 
-    const Vector2int16          guardBandSize) const {
+    const Vector2int16          colorGuardBandSize,
+    const Vector2int16          depthGuardBandSize) const {
 
     const CFrame& cameraFrame = rd->cameraToWorldMatrix();
 
@@ -821,10 +822,12 @@ void UniversalSurface::bindScreenSpaceTexture
     // Since we use the lengths only, do not bother taking to world space
     Vector2 backSizeMeters((ur - ul).length(), (ur - lr).length());
 
+
+    const Vector2 trimBand = depthGuardBandSize - colorGuardBandSize;
     args.setUniform("backSizeMeters", backSizeMeters);
     args.setUniform("background", lightingEnvironment.screenColorTexture(), Sampler::video());
-    args.setUniform("backgroundMinCoord", Vector2(guardBandSize + Vector2int16(1, 1)) / lightingEnvironment.screenColorTexture()->vector2Bounds());
-    args.setUniform("backgroundMaxCoord", Vector2(1,1) - Vector2(guardBandSize + Vector2int16(1, 1)) / lightingEnvironment.screenColorTexture()->vector2Bounds());
+    args.setUniform("backgroundMinCoord", Vector2(trimBand + Vector2int16(1, 1)) / lightingEnvironment.screenColorTexture()->vector2Bounds());
+    args.setUniform("backgroundMaxCoord", Vector2(1, 1) - Vector2(trimBand + Vector2int16(1, 1)) / lightingEnvironment.screenColorTexture()->vector2Bounds());
 }
 
 String UniversalSurface::name() const {
