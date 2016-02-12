@@ -43,7 +43,7 @@ bool UniversalSurface::canBeFullyRepresentedInGBuffer(const GBuffer::Specificati
 }
 
 
-bool UniversalSurface::anyOpaque() const {
+bool UniversalSurface::anyUnblended() const {
     // Transmissive if the largest color channel of the lowest values across the whole texture is nonzero
     const bool allTransmissive    = (m_material->bsdf()->transmissive().min().max() > 0.0f) && (! hasRefractiveTransmission());
     const bool allPartialCoverage = 
@@ -407,7 +407,7 @@ void UniversalSurface::renderIntoGBufferHomogeneous
                 continue;
             }
 
-            if (! surface->anyOpaque()) {
+            if (! surface->anyUnblended()) {
                 continue;
             }
 
@@ -610,7 +610,6 @@ shared_ptr<UniversalSurface> UniversalSurface::create
 
 
 bool UniversalSurface::requiresBlending() const {
-    // Note that non-refractive transmission is processed as opaque
     return hasNonRefractiveTransmission() ||
         (hasTransmission() && (m_material->refractionHint() == RefractionHint::DYNAMIC_FLAT_OIT)) ||
         (m_material->alphaHint() == AlphaHint::BLEND);
@@ -685,12 +684,12 @@ void UniversalSurface::render
     RenderPassType                      passType, 
     const String&                       declareWritePixel) const {
 
-    const bool anyOpaquePass = (passType == RenderPassType::OPAQUE_SAMPLES) || (passType == RenderPassType::OPAQUE_SAMPLES_WITH_SCREEN_SPACE_REFRACTION);
+    const bool anyUnblendedPass = (passType == RenderPassType::OPAQUE_SAMPLES) || (passType == RenderPassType::UNBLENDED_SCREEN_SPACE_REFRACTION_SAMPLES);
 
-    if ((anyOpaquePass && ! anyOpaque()) ||
+    if ((anyUnblendedPass && ! anyUnblended()) ||
         ((passType == RenderPassType::OPAQUE_SAMPLES) && hasRefractiveTransmission()) ||
-        ((passType == RenderPassType::OPAQUE_SAMPLES_WITH_SCREEN_SPACE_REFRACTION) && ! hasRefractiveTransmission()) ||
-        (! anyOpaquePass && ! requiresBlending())) {
+        ((passType == RenderPassType::UNBLENDED_SCREEN_SPACE_REFRACTION_SAMPLES) && ! hasRefractiveTransmission()) ||
+        (! anyUnblendedPass && ! requiresBlending())) {
         // Nothing to do in these cases
         return;
     }
@@ -725,7 +724,7 @@ void UniversalSurface::render
 
     Args args;
     reducedLighting.setShaderArgs(args, "");
-    args.setMacro("OPAQUE_PASS", anyOpaquePass);
+    args.setMacro("OPAQUE_PASS", anyUnblendedPass);
 
     if (passType == RenderPassType::SINGLE_PASS_UNORDERED_BLENDED_SAMPLES) {
         args.setMacro("DECLARE_writePixel", declareWritePixel);
@@ -736,7 +735,7 @@ void UniversalSurface::render
     rd->setObjectToWorldMatrix(m_frame);
     setShaderArgs(args, true);
 
-    rd->setDepthWrite(anyOpaquePass);
+    rd->setDepthWrite(anyUnblendedPass);
     rd->setDepthTest(RenderDevice::DEPTH_LESS);
 
     bindScreenSpaceTexture(args, reducedLighting, rd, environment.screenColorGuardBand());
@@ -747,7 +746,7 @@ void UniversalSurface::render
 
     switch (passType) {
     case RenderPassType::OPAQUE_SAMPLES:
-    case RenderPassType::OPAQUE_SAMPLES_WITH_SCREEN_SPACE_REFRACTION:
+    case RenderPassType::UNBLENDED_SCREEN_SPACE_REFRACTION_SAMPLES:
         rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
         if (twoSided) { rd->setCullFace(CullFace::NONE); }
         launchForwardShader(args);

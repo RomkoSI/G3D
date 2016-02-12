@@ -156,7 +156,7 @@ void DefaultRenderer::renderOpaqueScreenSpaceRefractingSamples
 
     BEGIN_PROFILER_EVENT("DefaultRenderer::renderOpaqueScreenSpaceRefractingSamples");
     //screenPrintf("renderOpaqueScreenSpaceRefractingSamples: %d", surfaceArray.length());
-    forwardShade(rd, surfaceArray, gbuffer, environment, RenderPassType::OPAQUE_SAMPLES_WITH_SCREEN_SPACE_REFRACTION, Surface::defaultWritePixelDeclaration(), ARBITRARY);
+    forwardShade(rd, surfaceArray, gbuffer, environment, RenderPassType::UNBLENDED_SCREEN_SPACE_REFRACTION_SAMPLES, Surface::defaultWritePixelDeclaration(), ARBITRARY);
     END_PROFILER_EVENT();
 }
 

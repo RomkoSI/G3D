@@ -73,7 +73,7 @@ protected:
              // Intentionally empty
         }
 
-        virtual bool anyOpaque() const override {
+        virtual bool anyUnblended() const override {
             return true;
         }
 
