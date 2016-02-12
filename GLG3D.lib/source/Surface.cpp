@@ -420,7 +420,7 @@ void Surface::renderHomogeneous
      RenderPassType                       passType, 
      const String&                        singlePassBlendedOutputMacro) const {
 
-    if ((passType == RenderPassType::OPAQUE_SAMPLES) || (passType == RenderPassType::OPAQUE_SAMPLES_WITH_SCREEN_SPACE_REFRACTION)) {
+    if ((passType == RenderPassType::OPAQUE_SAMPLES) || (passType == RenderPassType::UNBLENDED_SCREEN_SPACE_REFRACTION_SAMPLES)) {
         // Render front-to-back
         for (int i = surfaceArray.size() - 1; i >= 0; --i) {
             surfaceArray[i]->render(rd, lightingEnvironment, passType, singlePassBlendedOutputMacro);

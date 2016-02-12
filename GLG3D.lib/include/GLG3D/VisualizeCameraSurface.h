@@ -26,7 +26,7 @@ public:
 
     virtual String name() const override;
 
-    virtual bool anyOpaque() const override {
+    virtual bool anyUnblended() const override {
         return true;
     }
 

@@ -319,7 +319,7 @@ public:
         return m_material;
     }
 
-    virtual bool anyOpaque() const override;
+    virtual bool anyUnblended() const override;
 
     shared_ptr<GPUGeom>& gpuGeom() {
         return m_gpuGeom;

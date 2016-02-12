@@ -126,7 +126,7 @@ public:
             return false;
         }
 
-        virtual bool anyOpaque() const override {
+        virtual bool anyUnblended() const override {
             return true;
         }
 

@@ -91,8 +91,6 @@ protected:
         
         \param surfaceArray Visible surfaces sorted from front to back
 
-        \param opaquePass If true, sets the OPAQUE_PASS shader macro argument to 1, meaning that 
-         only opaque samples should be taken in this rendering pass.         
       */
     virtual void forwardShade
        (RenderDevice*                       rd, 

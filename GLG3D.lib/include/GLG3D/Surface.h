@@ -36,6 +36,11 @@ class SVO;
 
 extern bool ignoreBool;
 
+
+#ifdef OPAQUE
+#   undef OPAQUE
+#endif
+
 /**
   \brief Used by G3D::Surface and G3D::Renderer to specify the kind of rendering pass.
 */
@@ -45,9 +50,9 @@ G3D_DECLARE_ENUM_CLASS(
     /** Write to the depth buffer, only render 100% coverage, non-transmission samples, no blending allowed. */
     OPAQUE_SAMPLES,
 
-    /** Opaque samples that require screen-space refraction information, and so must be rendered after the usual
-        opaque pass.*/
-    OPAQUE_SAMPLES_WITH_SCREEN_SPACE_REFRACTION,
+    /** Samples that require screen-space refraction information, and so must be rendered after the usual
+        opaque pass. This pass is only for non-OIT refraction. */
+    UNBLENDED_SCREEN_SPACE_REFRACTION_SAMPLES,
 
     /** Do not write to the depth buffer. Only blended samples allowed. Use RenderDevice::DEPTH_LESS 
         to prevent writing to samples from the same surface that were opaque and already colored by previous 
@@ -396,7 +401,7 @@ public:
         are representable, and doing so will improve the quality of AmbientOcclusion
         and post-processing techniques like MotionBlur and DepthOfField.
 
-        \sa anyOpaque, requiresBlending
+        \sa anyUnblended, requiresBlending
       */
     virtual bool canBeFullyRepresentedInGBuffer(const GBuffer::Specification& specification) const = 0;
 
@@ -408,7 +413,7 @@ public:
         at a performance loss.
 
         \sa requiresBlending, canBeFullyRepresentedInGBuffer, AlphaHint, hasTransmission */
-    virtual bool anyOpaque() const = 0;
+    virtual bool anyUnblended() const = 0;
 
     /** \brief Does this surface require blending for some samples?
 
@@ -422,7 +427,7 @@ public:
         AlphaHint::BINARY and AlphaHint::COVERAGE_MASK
         surfaces that are not transmissive do <i>not</i> require blending.
 
-        \sa anyOpaque, canBeFullyRepresentedInGBuffer, hasTransmission
+        \sa anyUnblended, canBeFullyRepresentedInGBuffer, hasTransmission
      */
     virtual bool requiresBlending() const = 0;
 

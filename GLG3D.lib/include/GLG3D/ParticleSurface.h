@@ -58,7 +58,7 @@ protected:
 public:
     
     /** ParticleSystem is defined to act entirely transparently */
-    virtual bool anyOpaque() const override {
+    virtual bool anyUnblended() const override {
         return false;
     }
 

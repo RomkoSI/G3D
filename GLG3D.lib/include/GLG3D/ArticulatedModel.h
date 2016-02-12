@@ -35,10 +35,6 @@
 #include "G3D/TextOutput.h"
 #include "G3D/ParseOBJ.h"
 
-#ifdef OPAQUE
-#   undef OPAQUE
-#endif
-
 namespace G3D {
 
 #ifdef _MSC_VER

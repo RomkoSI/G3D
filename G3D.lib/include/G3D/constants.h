@@ -55,7 +55,7 @@ G3D_DECLARE_ENUM_CLASS(RefractionHint,
         /** Use a dynamically rendered 2D environment map; distort the background.  This looks good for many scenes
             but avoids the cost of rendering a cube map for DYNAMIC_ENV. UniversalSurface considers this hint
             to mean that blending is not required, so G3D::Renderer::cullAndSort will categorize
-            UniversalSurface with this hint as opaque and a G3D::Renderer will send them to the RenderPassType::OPAQUE_SAMPLES_WITH_SCREEN_SPACE_REFRACTION pass.
+            UniversalSurface with this hint as opaque and a G3D::Renderer will send them to the RenderPassType::UNBLENDED_SCREEN_SPACE_REFRACTION_SAMPLES pass.
             */
         DYNAMIC_FLAT,
 
