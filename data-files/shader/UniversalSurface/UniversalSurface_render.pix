@@ -214,13 +214,12 @@ void main() {
     // This csNormal computation compiles away if not using refraction
     Vector3 csNormal = normalize(mat3(g3d_WorldToCameraMatrix) * materialSample.shadingNormal);
 #   if UNBLENDED_PASS && defined(REFRACTION)
-    {
+    if (transmissionCoefficient.r + transmissionCoefficient.g + transmissionCoefficient.b > 0){
         // Refraction is handled as an "opaque" pass in the sense that it writes to the depth buffer
         // and paints the refraction onto the object's surface
 
         Radiance3 L_refracted = computeRefraction(background, backgroundMinCoord, backgroundMaxCoord, backgroundZ, csNormal, csPosition, material.etaRatio);
         L_o += L_refracted * transmissionCoefficient;
-
         // We're painting the background color directly onto the surface for refraction, so there is no additional
         // transmitted light (N.B. there may be partial coverage, however, which will be factored in by the blending)
         transmissionCoefficient = Color3(0.0);
