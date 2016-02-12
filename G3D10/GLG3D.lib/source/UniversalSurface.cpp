@@ -245,7 +245,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
             Args args;
             canonicalSurface->setShaderArgs(args);
 
-            args.setMacro("OPAQUE_PASS", 1);
+            args.setMacro("UNBLENDED_PASS", 1);
             args.setMacro("HAS_ALPHA", 0);
             args.setMacro("USE_PARALLAX_MAPPING", 0);
 
@@ -308,7 +308,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
             Args args;
             surface->setShaderArgs(args);
 
-            args.setMacro("OPAQUE_PASS", 1);
+            args.setMacro("UNBLENDED_PASS", 1);
             args.setMacro("HAS_ALPHA", 0);
             args.setMacro("USE_PARALLAX_MAPPING", 0);
 
@@ -360,7 +360,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         surface->setShaderArgs(args, true);
     	bindDepthPeelArgs(args, rd, previousDepthBuffer, minZSeparation);
         args.setUniform("transmissionWeight", transmissionWeight);
-        args.setMacro("OPAQUE_PASS", 1);
+        args.setMacro("UNBLENDED_PASS", 1);
         
         // N.B. Alpha testing is handled explicitly inside the shader.
         if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((surface->material()->alphaHint() == AlphaHint::BLEND) || (surface->material()->alphaHint() == AlphaHint::BINARY)))) {
@@ -724,7 +724,7 @@ void UniversalSurface::render
 
     Args args;
     reducedLighting.setShaderArgs(args, "");
-    args.setMacro("OPAQUE_PASS", anyUnblendedPass);
+    args.setMacro("UNBLENDED_PASS", anyUnblendedPass);
 
     if (passType == RenderPassType::SINGLE_PASS_UNORDERED_BLENDED_SAMPLES) {
         args.setMacro("DECLARE_writePixel", declareWritePixel);
