@@ -19,7 +19,7 @@
 
 // Needed to make UniversalMaterial_sample reject zero-coverage (or partial coverage)
 // pixels
-#define OPAQUE_PASS 1
+#define UNBLENDED_PASS 1
 
 #include <compatibility.glsl>
 #include <UniversalMaterial/UniversalMaterial.glsl>
@@ -171,7 +171,7 @@ void main() {
        vec3 wsN = materialSample.shadingNormal;
        vec3 tsN = materialSample.tsNormal;
 
-#      if OPAQUE_PASS && HAS_TRANSMISSIVE       
+#      if UNBLENDED_PASS && HAS_TRANSMISSIVE       
         if (materialSample.transmissionCoefficient.r + materialSample.transmissionCoefficient.g + materialSample.transmissionCoefficient.b != 0) {
             // This pixel needs blending
             discard;

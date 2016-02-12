@@ -308,7 +308,7 @@ void HeightfieldModel::Tile::renderAll
         // the args, we must bind a clean copy for each iteration of this loop
         // body.
         Args tileArgs(args);
-        tileArgs.setMacro("OPAQUE_PASS", rd->depthWrite());
+        tileArgs.setMacro("UNBLENDED_PASS", rd->depthWrite());
         tileArgs.setMacro("HAS_VERTEX_COLOR", false);
         tileArgs.setUniform("tilePixelOffset", tile->m_tileIndex * m_model->m_specification.pixelsPerTileSide);
         maybeBindPreviousMatrices(tileArgs, rd, bindPreviousMatrix, bindExpressivePreviousMatrix, tile, previousCameraFrame, expressivePreviousCameraFrame);

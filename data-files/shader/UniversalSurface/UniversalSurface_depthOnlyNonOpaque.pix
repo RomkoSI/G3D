@@ -88,7 +88,7 @@ void main() {
         }
 #   endif
 
-    bool discardIfFullCoverage = (OPAQUE_PASS == 0);
+    bool discardIfFullCoverage = (UNBLENDED_PASS == 0);
     bool discardIfZeroCoverage = true;
     UniversalMaterialSample materialSample = sampleUniversalMaterial2D(material, texCoord, vec2(0), tan_X, tan_Y, tan_Z, normalize(_tsE), backside, discardIfZeroCoverage, discardIfFullCoverage,
         vertexColor, ALPHA_HINT, PARALLAXSTEPS, bool(HAS_NORMAL_BUMP_MAP), bool(HAS_VERTEX_COLOR), bool(HAS_ALPHA), bool(HAS_TRANSMISSIVE), bool(HAS_EMISSIVE), NUM_LIGHTMAP_DIRECTIONS);

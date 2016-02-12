@@ -7,8 +7,8 @@
 #include <lightMap.glsl>
 #include <AlphaHint.glsl>
 
-#ifndef OPAQUE_PASS
-#   define OPAQUE_PASS 0
+#ifndef UNBLENDED_PASS
+#   define UNBLENDED_PASS 0
 #endif
 
 /** 
@@ -109,7 +109,7 @@ UniversalMaterialSample sampleUniversalMaterial$(dim)
         if (hasMaterialAlpha) {
             smpl.coverage = computeCoverage(alphaHint, temp.a);
             if (discardIfZeroCoverage) {
-#               if OPAQUE_PASS
+#               if UNBLENDED_PASS
                     if (smpl.coverage < 1.0) { discard; }
 #               else
                     // In the transparent pass, eliminate fully opaque pixels as well
