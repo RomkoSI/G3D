@@ -57,8 +57,8 @@
    
 
 
-#foreach (dim, n, addr) in (1D, 1, 1), (2D, 2, 2), (3D, 3, 3), (Cube, 2, 3)
-//, (1DArray, 2, 2), (2DArray, 3, 3), (CubeArray, 2, 4), (1DShadow, 1, 3), (2DShadow, 2, 3), (CubeShadow, 2, 3), (2DRectShadow, 2, 2), (1DArrayShadow, 2, 3), (2DArrayShadow, 3, 3)
+#foreach (dim, n, addr) in (1D, 1, 1), (2D, 2, 2), (3D, 3, 3), (Cube, 2, 3), (1DArray, 2, 2), (2DArray, 3, 3)
+//,(CubeArray, 2, 4), (1DShadow, 1, 3), (2DShadow, 2, 3), (CubeShadow, 2, 3), (2DRectShadow, 2, 2), (1DArrayShadow, 2, 3), (2DArrayShadow, 3, 3)
     vec4 sampleTexture(Texture$(dim) tex, vec$(addr) coord) {
         return texture(tex.sampler, coord) * tex.readMultiplyFirst + tex.readAddSecond;
     }
