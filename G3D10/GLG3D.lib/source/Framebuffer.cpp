@@ -556,7 +556,8 @@ bool Framebuffer::Attachment::equals(const shared_ptr<Attachment>& other) const 
         (m_point == other->m_point) &&
         (m_texture == other->m_texture) &&
         (m_cubeFace == other->m_cubeFace) &&
-        (m_mipLevel == other->m_mipLevel);
+        (m_mipLevel == other->m_mipLevel) &&
+        (m_layer == other->m_layer);
 }
 
 
@@ -571,9 +572,14 @@ void Framebuffer::Attachment::attach() const {
                 (GL_FRAMEBUFFER, GLenum(m_point),
                  GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)m_cubeFace, m_texture->openGLID(), m_mipLevel);
         } else if (is2DArray) {
-            glFramebufferTexture
-                (GL_FRAMEBUFFER, GLenum(m_point), 
-                m_texture->openGLID(), m_mipLevel);
+            if (m_layer >= 0) {
+                glFramebufferTextureLayer(GL_FRAMEBUFFER, GLenum(m_point),
+                    m_texture->openGLID(), m_mipLevel, m_layer);
+            } else {
+                glFramebufferTexture
+                    (GL_FRAMEBUFFER, GLenum(m_point),
+                        m_texture->openGLID(), m_mipLevel);
+            }
         } else {
             glFramebufferTexture2D
                 (GL_FRAMEBUFFER, GLenum(m_point),
