@@ -522,4 +522,9 @@ vec2 signNotZero(in vec2 v) {
     return vec2(signNotZero(v.x), signNotZero(v.y));
 }
 
+
+bool isFinite(float x) {
+    return ! isnan(x) && (abs(x) != inf);
+}
+
 #endif
