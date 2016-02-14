@@ -77,7 +77,7 @@ void main() {
         vec4 emissive = sampleTexture(material.emissive, offsetTexCoord);
         finalColor.rgb += emissive.rgb * emissive.a;
     }
-
+    
     writePixel(finalColor.rgb, finalColor.a, transmissionColor, collimation,
 #       ifdef REFRACTION
             material.etaRatio,
@@ -85,5 +85,6 @@ void main() {
             1.0,
 #       endif
         geoOutputs.csPosition, csNormal);
+    
 }
     

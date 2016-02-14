@@ -174,7 +174,7 @@ void constructOutputs(float x, float y, Vector3 normal, Vector3 wsEyeVector, out
     attributes.color.a = min(1.0, alpha * alphaBoost);
 
     int texelWidth = materialPropertiesVertexOutput[0].y;
-    attributes.texCoord.xy = Point2(x, y) * (0.5 * float(texelWidth) * material.lambertian.invSize.xy) + Vector2(0.5, 0.5);
+    attributes.texCoord.xy = ((Point2(x, y) * 0.5) + Vector2(0.5, 0.5)) * float(texelWidth) * material.lambertian.invSize.xy;
     attributes.texCoord.z = materialPropertiesVertexOutput[0].x;
 }
 
