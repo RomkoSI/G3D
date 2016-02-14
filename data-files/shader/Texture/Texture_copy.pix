@@ -1,11 +1,14 @@
 #version 330 // -*- c++ -*-
 
-/** 
-\file Texture_copy.pix 
+/**
+\file Texture_copy.pix
 */
 #include <compatibility.glsl>
 #expect DEPTH "1 if a depth buffer, 0 for a non-depth buffer"
+#expect IS_LAYERED "1 if source is a layered texture"
 
+uniform int layer;
+uniform sampler2DArray layeredSrc;
 uniform sampler2D   src;
 uniform float       scale;
 uniform vec2        shift;
@@ -17,10 +20,22 @@ uniform vec2        shift;
 
 
 void main() {
+    ivec2 ssC = ivec2(gl_FragCoord.xy * scale + shift);
+
+
 #   if (DEPTH == 1)
-        gl_FragDepth = texelFetch(src, ivec2(gl_FragCoord.xy * scale + shift), 0).r;
+#       if IS_LAYERED
+            gl_FragDepth = texelFetch(layeredSrc, ivec3(ssC, layer), 0).r;
+#       else
+            gl_FragDepth = texelFetch(src, ssC, 0).r;
+#       endif
+        
 #   else
-        result = texelFetch(src, ivec2(gl_FragCoord.xy * scale + shift), mipLevel);
+#       if IS_LAYERED
+            result = texelFetch(layeredSrc, ivec3(ssC, layer), mipLevel);
+#       else
+            result = texelFetch(src, ssC, mipLevel);
+#       endif
 #   endif
 }
 

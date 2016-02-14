@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2015-08-30
-  \edited  2015-09-15
+  \edited  2016-02-14
  
  G3D Library http://g3d.codeplex.com
  Copyright 2000-2015, Morgan McGuire morgan@cs.williams.edu
@@ -146,11 +146,36 @@ shared_ptr<ParticleMaterial> ParticleMaterial::create(const UniversalMaterial::S
     return create(UniversalMaterial::create(material));
 }
 
-shared_ptr<Texture> convertToTextureArray(const String& name, shared_ptr<Texture> tex) {
+static shared_ptr<Texture> convertToTextureArray(const String& name, shared_ptr<Texture> tex) {
     shared_ptr<Texture> result = Texture::createEmpty(name, tex->width(), tex->height(), 
                                         tex->encoding(), Texture::DIM_2D_ARRAY, false, 1);
     
     Texture::copy(tex, result);
+    result->generateMipMaps();
+    return result;
+}
+
+static shared_ptr<Texture> layeredTextureConcatenate(
+    const String& name,
+    const shared_ptr<Texture>& original, 
+    const shared_ptr<Texture>& newLayer,
+    const int numLayers) {
+    
+    const shared_ptr<Texture>& previousLayers = notNull(original) ? original : Texture::opaqueBlack(Texture::DIM_2D_ARRAY);
+
+    int width   = max(previousLayers->width(), newLayer->width());
+    int height  = max(previousLayers->height(), newLayer->height());
+    // TODO: Handle different texture formats?
+    shared_ptr<Texture> result = Texture::createEmpty(name, width, height, 
+        newLayer->encoding(), Texture::DIM_2D_ARRAY, false, numLayers);
+
+    for (int i = 0; i < numLayers - 1; ++i) {
+        int prevLayerIndex = min(i, previousLayers->depth() - 1);
+        Texture::copy(previousLayers, result, 0, 0, 1.0f, Vector2int16(0, 0), 
+            CubeFace::POS_X, CubeFace::POS_X, NULL, false, prevLayerIndex, i);
+    }
+    Texture::copy(newLayer, result, 0, 0, 1.0f, Vector2int16(0, 0),
+        CubeFace::POS_X, CubeFace::POS_X, NULL, false, 0, numLayers - 1);
     result->generateMipMaps();
     return result;
 }
@@ -165,8 +190,42 @@ int ParticleMaterial::insertMaterial(shared_ptr<UniversalMaterial> newMaterial) 
     shared_ptr<Texture> glossy          = newMaterial->bsdf()->glossy().texture();
     shared_ptr<Texture> transmissive    = newMaterial->bsdf()->transmissive().texture();
     shared_ptr<Texture> emissive        = newMaterial->emissive().texture();
+    int layerIndex = 0;
 
-    if (true || isNull(s_material)) { // TODO: Handle multiple materials
+    const String emissiveName     = "G3D::ParticleMaterial Emissive";
+    const String glossyName       = "G3D::ParticleMaterial Glossy";
+    const String lambertianName   = "G3D::ParticleMaterial Lambertian";
+    const String transmissiveName = "G3D::ParticleMaterial Transmissive";
+
+    if (isNull(s_material)) { 
+        
+        UniversalMaterial::Specification settings;
+        settings.setAlphaHint(AlphaHint::BLEND);
+        //settings.setBump                  TODO: support
+        //settings.setConstant              TODO: remove
+        //settings.setCustomShaderPrefix    TODO: remove
+        settings.setEmissive(convertToTextureArray(emissiveName, emissive));
+        //settings.setEta
+        settings.setGlossy(convertToTextureArray(glossyName, glossy));
+        settings.setLambertian(convertToTextureArray(lambertianName, lambertian));
+        //settings.setLightMaps;
+        //settings.setMirrorHint(MirrorQuality::);
+        settings.setRefractionHint(RefractionHint::NONE);
+        //settings.setSampler();
+        settings.setTransmissive(convertToTextureArray(transmissiveName, transmissive));
+        
+       
+        s_material = UniversalMaterial::create("Particle Uber-Material", settings);
+
+    } else {
+
+        shared_ptr<Texture> currentLambertian   = s_material->bsdf()->lambertian().texture();
+        shared_ptr<Texture> currentGlossy       = s_material->bsdf()->glossy().texture();
+        shared_ptr<Texture> currentTransmissive = s_material->bsdf()->transmissive().texture();
+        shared_ptr<Texture> currentEmissive     = s_material->emissive().texture();
+        
+        layerIndex = currentLambertian->depth();
+        int numLayers = layerIndex + 1;
         
 
         UniversalMaterial::Specification settings;
@@ -174,27 +233,18 @@ int ParticleMaterial::insertMaterial(shared_ptr<UniversalMaterial> newMaterial) 
         //settings.setBump                  TODO: support
         //settings.setConstant              TODO: remove
         //settings.setCustomShaderPrefix    TODO: remove
-        settings.setEmissive(convertToTextureArray("G3D::ParticleMaterial Emissive", emissive));
+        settings.setEmissive(layeredTextureConcatenate(emissiveName, currentEmissive, emissive, numLayers));
         //settings.setEta
-        settings.setGlossy(convertToTextureArray("G3D::ParticleMaterial Glossy", glossy));
-        settings.setLambertian(convertToTextureArray("G3D::ParticleMaterial Lambertian", lambertian));
+        settings.setGlossy(layeredTextureConcatenate(glossyName, currentGlossy, glossy, numLayers));
+        settings.setLambertian(layeredTextureConcatenate(lambertianName, currentLambertian, lambertian, numLayers));
         //settings.setLightMaps;
         //settings.setMirrorHint(MirrorQuality::);
         settings.setRefractionHint(RefractionHint::NONE);
         //settings.setSampler();
-        settings.setTransmissive(convertToTextureArray("G3D::ParticleMaterial Transmissive", transmissive));
-        
-       
+        settings.setTransmissive(layeredTextureConcatenate(transmissiveName, currentTransmissive, transmissive, numLayers));
         s_material = UniversalMaterial::create("Particle Uber-Material", settings);
-
-    } else {
-        // TODO: Mike Support multiple materials
-        /*s_material = material;
-        debugAssertM(material->bsdf()->lambertian().texture()->width() ==
-            material->bsdf()->lambertian().texture()->height(), "Particle materials must be square");
-        return shared_ptr<ParticleMaterial>(new ParticleMaterial(0, material->bsdf()->lambertian().texture()->width()));*/
     }
-    return 0;
+    return layerIndex;
 }
 
 shared_ptr<ParticleMaterial> ParticleMaterial::create(const shared_ptr<UniversalMaterial>& material) {

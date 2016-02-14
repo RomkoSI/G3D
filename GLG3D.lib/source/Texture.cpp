@@ -1719,8 +1719,7 @@ void Texture::copy
     alwaysAssertM((src->dimension() == DIM_2D_ARRAY) || (srcLayer == 0), "Layer can only be 0 for non-array textures");
 
     alwaysAssertM( src && dst, "Both textures sent to Texture::copy must already exist");
-    alwaysAssertM(srcLayer == 0, "Texture::copy currently does not copying *from* a layered texture");
-
+    
     if (resize) {
         if (srcMipLevel != dstMipLevel) {
             alwaysAssertM(dstMipLevel == 0, "If miplevels mismatch, dstMipLevel must be 0 in Texture::copy");
@@ -1757,9 +1756,17 @@ void Texture::copy
         }
         rd->clear();
 
+        
         Args args;
         args.setUniform("mipLevel", srcMipLevel);
-        args.setUniform("src",      src, Sampler::video());
+        
+        bool layered = (src->dimension() == Texture::DIM_2D_ARRAY);
+        args.setMacro("IS_LAYERED", layered ? 1 : 0);
+        args.setUniform("layer",    srcLayer);
+        args.setUniform("src", layered ? Texture::zero() : src, Sampler::video());
+        args.setUniform("layeredSrc", layered ? src : Texture::zero(Texture::DIM_2D_ARRAY), Sampler::video());
+
+
         args.setUniform("shift",    Vector2(shift));
         args.setUniform("scale",    scale);
         args.setMacro("DEPTH",      (src->format()->depthBits > 0) ? 1 : 0);
@@ -1811,6 +1818,13 @@ bool Texture::copyInto(shared_ptr<Texture>& dest, CubeFace cf, int mipLevel, Ren
         args.setUniform("mipLevel", mipLevel);
         const shared_ptr<Texture>& me = dynamic_pointer_cast<Texture>(const_cast<Texture*>(this)->shared_from_this());
         args.setUniform("src",      me, Sampler::buffer());
+
+        bool layered = (me->dimension() == Texture::DIM_2D_ARRAY);
+        args.setMacro("IS_LAYERED", layered ? 1 : 0);
+        args.setUniform("layer", 0);
+        args.setUniform("src", layered ? Texture::zero() : me, Sampler::video());
+        args.setUniform("layeredSrc", layered ? me : Texture::zero(Texture::DIM_2D_ARRAY), Sampler::video());
+
         args.setUniform("shift",    Vector2(0, 0));
         args.setUniform("scale",    1.0f);
         args.setMacro("DEPTH", (format()->depthBits > 0) ? 1 : 0);
