@@ -481,9 +481,10 @@ Framebuffer::Attachment::Attachment(AttachmentPoint ap, const shared_ptr<Texture
     m_mipLevel(m),
     m_layer(layer) {
     alwaysAssertM(layer == -1 || 
+        r->dimension() == Texture::DIM_3D ||
         r->dimension() == Texture::DIM_2D_ARRAY || 
         r->dimension() == Texture::DIM_CUBE_MAP_ARRAY,
-        "Cannot attach a specific layer of a non-array texture.");
+        "Cannot attach a specific layer of a non-array texture unless it is 3D.");
     alwaysAssertM(ap != DEPTH || ap != DEPTH_AND_STENCIL 
                     || r->format()->depthBits > 0, 
                     "Cannot attach a texture without any depth bits to DEPTH or DEPTH_AND_STENCIL");
@@ -567,23 +568,17 @@ void Framebuffer::Attachment::attach() const {
     if (m_type == TEXTURE) {
         const bool isCubeMap = (m_texture->dimension() == Texture::DIM_CUBE_MAP);
         const bool is2DArray = (m_texture->dimension() == Texture::DIM_2D_ARRAY);
+        const bool is3D      = (m_texture->dimension() == Texture::DIM_3D);
         if (isCubeMap) {
             glFramebufferTexture2D
                 (GL_FRAMEBUFFER, GLenum(m_point),
                  GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)m_cubeFace, m_texture->openGLID(), m_mipLevel);
-        } else if (is2DArray) {
-            if (m_layer >= 0) {
-                glFramebufferTextureLayer(GL_FRAMEBUFFER, GLenum(m_point),
-                    m_texture->openGLID(), m_mipLevel, m_layer);
-            } else {
-                glFramebufferTexture
-                    (GL_FRAMEBUFFER, GLenum(m_point),
-                        m_texture->openGLID(), m_mipLevel);
-            }
+        } else if ((is2DArray || is3D) && (m_layer >= 0)) {
+            glFramebufferTextureLayer(GL_FRAMEBUFFER, GLenum(m_point),
+                m_texture->openGLID(), m_mipLevel, m_layer);
         } else {
-            glFramebufferTexture2D
+            glFramebufferTexture
                 (GL_FRAMEBUFFER, GLenum(m_point),
-                 m_texture->openGLTextureTarget(), 
                  m_texture->openGLID(), m_mipLevel);
         }
     } 
