@@ -83,7 +83,7 @@ void Texture::getAllTextures(Array<weak_ptr<Texture> >& textures) {
 }
 
 
-Color4 Texture::readTexel(int x, int y, RenderDevice* rd, int mipLevel) const {
+Color4 Texture::readTexel(int x, int y, RenderDevice* rd, int mipLevel, int z) const {
     debugAssertGLOk();
     const shared_ptr<Framebuffer>& fbo = workingFramebuffer();
 
@@ -95,21 +95,23 @@ Color4 Texture::readTexel(int x, int y, RenderDevice* rd, int mipLevel) const {
 
     // Read back 1 pixel
     shared_ptr<Texture> me = dynamic_pointer_cast<Texture>(const_cast<Texture*>(this)->shared_from_this());
+    bool is3D = dimension() == DIM_2D_ARRAY || dimension() == DIM_3D;
+    int layer = is3D ? z : -1;
     if (format()->isIntegerFormat()) {
         int ints[4];
-        fbo->set(Framebuffer::COLOR0, me, CubeFace::POS_X, mipLevel);
+        fbo->set(Framebuffer::COLOR0, me, CubeFace::POS_X, mipLevel, layer);
         rd->pushState(fbo);
         glReadPixels(x, y, 1, 1, GL_RGBA_INTEGER, GL_INT, ints);
         c = Color4(float(ints[0]), float(ints[1]), float(ints[2]), float(ints[3]));
         rd->popState();
     } else if (format()->depthBits == 0) {
-        fbo->set(Framebuffer::COLOR0, me, CubeFace::POS_X, mipLevel);
+        fbo->set(Framebuffer::COLOR0, me, CubeFace::POS_X, mipLevel, layer);
         rd->pushState(fbo);
         glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, &c);
         rd->popState();
     } else {
         // This is a depth texture
-        fbo->set(Framebuffer::DEPTH, me, CubeFace::POS_X, mipLevel);
+        fbo->set(Framebuffer::DEPTH, me, CubeFace::POS_X, mipLevel, layer);
         rd->pushState(fbo);
         glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &c.r);
         rd->popState();
@@ -2897,6 +2899,7 @@ debugAssertGLOk();
 debugAssertGLOk();            
         const GLint xoffset = 0;
         const GLint yoffset = 0;
+        const GLint zoffset = 0;
             
         GLenum target = openGLTextureTarget();
         if (isCubeMap()) {
@@ -2916,19 +2919,38 @@ debugAssertGLOk();
             // Regular path
             ptr = src->mapRead();
         }
-            
-debugAssertGLOk();
-        glTexSubImage2D
-            (target, 
-                mipLevel,
-                xoffset,
-                yoffset,
-                src->width(), 
-                src->height(), 
-                src->format()->openGLBaseFormat,
-                src->format()->openGLDataFormat, 
-                ptr);
-debugAssertGLOk();
+        
+        if (dimension() == DIM_2D || dimension() == DIM_CUBE_MAP) {
+            debugAssertGLOk();
+            glTexSubImage2D
+                (target,
+                    mipLevel,
+                    xoffset,
+                    yoffset,
+                    src->width(),
+                    src->height(),
+                    src->format()->openGLBaseFormat,
+                    src->format()->openGLDataFormat,
+                    ptr);
+            debugAssertGLOk();
+        } else {
+            alwaysAssertM(dimension() == DIM_3D || dimension() == DIM_2D_ARRAY, 
+                "Texture::update only works with 2D, 3D, cubemap, and 2D array textures");
+            debugAssertGLOk();
+            glTexSubImage3D
+                (target,
+                    mipLevel,
+                    xoffset,
+                    yoffset,
+                    zoffset,
+                    src->width(),
+                    src->height(),
+                    src->depth(),
+                    src->format()->openGLBaseFormat,
+                    src->format()->openGLDataFormat,
+                    ptr);
+            debugAssertGLOk();
+        }
 
         if (notNull(glsrc)) {
             // Creating the fence for this operation is VERY expensive because it causes a pipeline stall [on NVIDIA GPUs],

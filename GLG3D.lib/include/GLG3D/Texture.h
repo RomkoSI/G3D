@@ -353,7 +353,7 @@ public:
     */
     static bool isSupportedImage(const String& filename);
     
-    /** @brief Returns a small all-white (1,1,1,1) texture.  
+    /** \brief Returns a small all-white (1,1,1,1) texture.  
     
         The result is memoized and shared. Do not mutate this texture
         or future calls will return the mutated texture as well. */
@@ -745,7 +745,7 @@ public:
 
         \sa toPixelTransferBuffer
     */
-    Color4 readTexel(int ix, int iy, class RenderDevice* rd = NULL, int mipLevel = 0) const;
+    Color4 readTexel(int ix, int iy, class RenderDevice* rd = NULL, int mipLevel = 0, int iz = 0) const;
 
     /**
      Creates an empty texture (useful for later reading from the screen).
