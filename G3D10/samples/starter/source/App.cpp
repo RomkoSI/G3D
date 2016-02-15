@@ -32,7 +32,7 @@ int main(int argc, const char* argv[]) {
     settings.window.asynchronous        = false;
 
     settings.depthGuardBandThickness    = Vector2int16(64, 64);
-    settings.colorGuardBandThickness    = Vector2int16(64, 64);
+    settings.colorGuardBandThickness    = Vector2int16(0, 0);
     settings.dataDir                    = FileSystem::currentDirectory();
     settings.screenshotDirectory        = "../journal/";
 

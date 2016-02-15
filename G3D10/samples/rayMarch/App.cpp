@@ -4,7 +4,7 @@
 G3D_START_AT_MAIN();
 
 int main(int argc, const char* argv[]) {
-    GApp::Settings settings(argc, argv);
+    VRApp::Settings settings(argc, argv);
 
     settings.window.caption             = "G3D GPU Ray Marching Sample";
     settings.window.width               = 1200; settings.window.height       = 650;
@@ -23,11 +23,11 @@ int main(int argc, const char* argv[]) {
 }
 
 
-App::App(const GApp::Settings& settings) : GApp(settings) {}
+App::App(const VRApp::Settings& settings) : super(settings) {}
 
 
 void App::onInit() {
-    GApp::onInit();
+    super::onInit();
     setFrameDuration(1.0f / 60.0f);
     showRenderingStats  = false;
     createDeveloperHUD();
