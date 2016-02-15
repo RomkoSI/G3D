@@ -1,10 +1,10 @@
 /**
-  @file Image4.cpp
+  \file Image4.cpp
 
-  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
-  @created 2007-01-31
-  @edited  2011-08-27
+  \created 2007-01-31
+  \edited  2016-02-15
 */
 
 
@@ -21,7 +21,7 @@
 
 namespace G3D {
 
-Image4::Image4(int w, int h, WrapMode wrap) : Map2D<Color4, Color4>(w, h, wrap) {
+Image4::Image4(int w, int h, WrapMode wrap, int d) : Map2D<Color4, Color4>(w, h, wrap, d) {
     setAll(Color4::zero());
 }
 
@@ -40,8 +40,8 @@ Image4::Ref Image4::fromImage4unorm8(const shared_ptr<Image4unorm8>& im) {
 }
 
 
-Image4::Ref Image4::createEmpty(int width, int height, WrapMode wrap) {
-    return shared_ptr<Image4>(new Type(width, height, wrap));
+Image4::Ref Image4::createEmpty(int width, int height, WrapMode wrap, int depth) {
+    return shared_ptr<Image4>(new Type(width, height, wrap, depth));
 }
 
 
@@ -92,52 +92,52 @@ void Image4::load(const String& filename) {
 }
 
 
-Image4::Ref Image4::fromArray(const class Color3unorm8* ptr, int w, int h, WrapMode wrap) {
+Image4::Ref Image4::fromArray(const class Color3unorm8* ptr, int w, int h, WrapMode wrap, int d) {
     Ref out = createEmpty(wrap);
-    out->copyArray(ptr, w, h);
+    out->copyArray(ptr, w, h, d);
     return out;
 }
 
 
-Image4::Ref Image4::fromArray(const class Color1* ptr, int w, int h, WrapMode wrap) {
+Image4::Ref Image4::fromArray(const class Color1* ptr, int w, int h, WrapMode wrap, int d) {
     Ref out = createEmpty(wrap);
-    out->copyArray(ptr, w, h);
+    out->copyArray(ptr, w, h, d);
     return out;
 }
 
 
-Image4::Ref Image4::fromArray(const class Color1unorm8* ptr, int w, int h, WrapMode wrap) {
+Image4::Ref Image4::fromArray(const class Color1unorm8* ptr, int w, int h, WrapMode wrap, int d) {
     Ref out = createEmpty(wrap);
-    out->copyArray(ptr, w, h);
+    out->copyArray(ptr, w, h, d);
     return out;
 }
 
 
-Image4::Ref Image4::fromArray(const class Color3* ptr, int w, int h, WrapMode wrap) {
+Image4::Ref Image4::fromArray(const class Color3* ptr, int w, int h, WrapMode wrap, int d) {
     Ref out = createEmpty(wrap);
-    out->copyArray(ptr, w, h);
+    out->copyArray(ptr, w, h, d);
     return out;
 }
 
 
-Image4::Ref Image4::fromArray(const class Color4unorm8* ptr, int w, int h, WrapMode wrap) {
+Image4::Ref Image4::fromArray(const class Color4unorm8* ptr, int w, int h, WrapMode wrap, int d) {
     Ref out = createEmpty(wrap);
-    out->copyArray(ptr, w, h);
+    out->copyArray(ptr, w, h, d);
     return out;
 }
 
 
-Image4::Ref Image4::fromArray(const class Color4* ptr, int w, int h, WrapMode wrap) {
+Image4::Ref Image4::fromArray(const class Color4* ptr, int w, int h, WrapMode wrap, int d) {
     Ref out = createEmpty(wrap);
-    out->copyArray(ptr, w, h);
+    out->copyArray(ptr, w, h, d);
     return out;
 }
 
 
-void Image4::copyArray(const Color4unorm8* src, int w, int h) {
-    resize(w, h);
+void Image4::copyArray(const Color4unorm8* src, int w, int h, int d) {
+    resize(w, h, d);
 
-    int N = w * h;
+    int N = w * h * d;
     Color4* dst = data.getCArray();
     // Convert int8 -> float
     for (int i = 0; i < N; ++i) {
@@ -146,10 +146,10 @@ void Image4::copyArray(const Color4unorm8* src, int w, int h) {
 }
 
 
-void Image4::copyArray(const Color3unorm8* src, int w, int h) {
-    resize(w, h);
+void Image4::copyArray(const Color3unorm8* src, int w, int h, int d) {
+    resize(w, h, d);
 
-    int N = w * h;
+    int N = w * h * d;
     Color4* dst = data.getCArray();
     
     // Add alpha and convert
@@ -159,16 +159,16 @@ void Image4::copyArray(const Color3unorm8* src, int w, int h) {
 }
 
 
-void Image4::copyArray(const Color4* src, int w, int h) {
-    resize(w, h);
-    System::memcpy(getCArray(), src, w * h * sizeof(Color4));
+void Image4::copyArray(const Color4* src, int w, int h, int d) {
+    resize(w, h, d);
+    System::memcpy(getCArray(), src, w * h * d * sizeof(Color4));
 }
 
 
-void Image4::copyArray(const Color3* src, int w, int h) {
-    resize(w, h);
+void Image4::copyArray(const Color3* src, int w, int h, int d) {
+    resize(w, h, d);
 
-    int N = w * h;
+    int N = w * h * d;
     Color4* dst = data.getCArray();
     
     // Add alpha
@@ -178,9 +178,9 @@ void Image4::copyArray(const Color3* src, int w, int h) {
 }
 
 
-void Image4::copyArray(const Color1unorm8* src, int w, int h) {
-    resize(w, h);
-    int N = w * h;
+void Image4::copyArray(const Color1unorm8* src, int w, int h, int d) {
+    resize(w, h, d);
+    int N = w * h * d;
 
     Color4* dst = getCArray();
     for (int i = 0; i < N; ++i) {
@@ -190,9 +190,9 @@ void Image4::copyArray(const Color1unorm8* src, int w, int h) {
 }
 
 
-void Image4::copyArray(const Color1* src, int w, int h) {
-    resize(w, h);
-    int N = w * h;
+void Image4::copyArray(const Color1* src, int w, int h, int d) {
+    resize(w, h, d);
+    int N = w * h * d;
 
     Color4* dst = getCArray();
     for (int i = 0; i < N; ++i) {
