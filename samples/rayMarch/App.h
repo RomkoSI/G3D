@@ -1,17 +1,20 @@
-/**
-  \file App.h
- */
-#ifndef App_h
-#define App_h
-#include <G3D/G3DAll.h>
+#pragma once
 
-class App : public GApp {
+#include <G3D/G3DAll.h>
+#include <GLG3DVR/VRApp.h>
+
+typedef
+    GApp 
+    // VRApp
+AppBase;
+
+class App : public AppBase {
 public:
+
+    typedef AppBase super;
     
-    App(const GApp::Settings& settings = GApp::Settings());
+    App(const VRApp::Settings& settings = VRApp::Settings());
 
     virtual void onInit() override;
     virtual void onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D) override;
 };
-
-#endif
