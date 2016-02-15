@@ -582,8 +582,8 @@ void GuiTextureBox::setShaderArgs(UniformTable& args, bool isCubemap){
         }
             
     }
-    args.setMacro("IS_2D_ARRAY", m_texture->depth() > 1);
-
+    args.setMacro("IS_2D_ARRAY", m_texture->dimension() == Texture::DIM_2D_ARRAY);
+    args.setMacro("IS_3D", m_texture->dimension() == Texture::DIM_3D);
     
 }
 
@@ -690,7 +690,7 @@ void GuiTextureBox::render(RenderDevice* rd, const shared_ptr<GuiTheme>& theme, 
                             if (m_readbackXY.x != ix || m_readbackXY.y != iy) {
                                 m_readbackXY.x = ix;
                                 m_readbackXY.y = iy;
-                                m_texel = m_texture->readTexel(ix, iy, rd, m_settings.mipLevel);
+                                m_texel = m_texture->readTexel(ix, iy, rd, m_settings.mipLevel, m_settings.layer);
                             }
                         }
                     }
