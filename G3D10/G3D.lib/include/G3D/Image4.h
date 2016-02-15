@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2007-01-31
-  \edited  2011-08-11
+  \edited  2016-02-15
 */
 
 
@@ -28,7 +28,7 @@ typedef shared_ptr<class Image4> Image4Ref;
  Image4unorm8 due to the large cost of converting int->float on modern
  machines.
 
- @sa G3D::Image4unorm8, G3D::GImage.
+ \sa G3D::Image4unorm8, G3D::Image.
  */
 class Image4 : public Map2D<Color4, Color4> {
 public:
@@ -38,33 +38,33 @@ public:
 
 protected:
 
-    Image4(int w, int h, WrapMode wrap);
+    Image4(int w, int h, WrapMode wrap, int d = 1);
 
-    void copyArray(const Color1* src, int w, int h);
-    void copyArray(const Color3* src, int w, int h);
-    void copyArray(const Color4* src, int w, int h);
-    void copyArray(const Color1unorm8* src, int w, int h);
-    void copyArray(const Color3unorm8* src, int w, int h);
-    void copyArray(const Color4unorm8* src, int w, int h);
+    void copyArray(const Color1* src, int w, int h, int d = 1);
+    void copyArray(const Color3* src, int w, int h, int d = 1);
+    void copyArray(const Color4* src, int w, int h, int d = 1);
+    void copyArray(const Color1unorm8* src, int w, int h, int d = 1);
+    void copyArray(const Color3unorm8* src, int w, int h, int d = 1);
+    void copyArray(const Color4unorm8* src, int w, int h, int d = 1);
 
 public:
 
     const class ImageFormat* format() const;
 
     /** Creates an all-zero width x height image. */
-    static Ref createEmpty(int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static Ref createEmpty(int width, int height, WrapMode wrap = WrapMode::ERROR, int depth = 1);
 
     /** Creates a 0 x 0 image. */
     static Ref createEmpty(WrapMode wrap = WrapMode::ERROR);
 
     static Ref fromFile(const String& filename, WrapMode wrap = WrapMode::ERROR);
     
-    static Ref fromArray(const class Color1unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
-    static Ref fromArray(const class Color3unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
-    static Ref fromArray(const class Color4unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
-    static Ref fromArray(const class Color1* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
-    static Ref fromArray(const class Color3* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
-    static Ref fromArray(const class Color4* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static Ref fromArray(const class Color1unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR, int d = 1);
+    static Ref fromArray(const class Color3unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR, int d = 1);
+    static Ref fromArray(const class Color4unorm8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR, int d = 1);
+    static Ref fromArray(const class Color1* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR, int d = 1);
+    static Ref fromArray(const class Color3* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR, int d = 1);
+    static Ref fromArray(const class Color4* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR, int d = 1);
 
     static Ref fromImage4unorm8(const shared_ptr<class Image4unorm8>& im);
 

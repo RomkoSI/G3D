@@ -1873,7 +1873,7 @@ void Texture::getTexImage(void* data, const ImageFormat* desiredFormat, CubeFace
 
 
 shared_ptr<Image4> Texture::toImage4() const {
-    const shared_ptr<Image4>& im = Image4::createEmpty(m_width, m_height, WrapMode::TILE); 
+    const shared_ptr<Image4>& im = Image4::createEmpty(m_width, m_height, WrapMode::TILE, m_depth); 
     getTexImage(im->getCArray(), ImageFormat::RGBA32F());
     return im;
 }
@@ -1886,7 +1886,7 @@ shared_ptr<Image4unorm8> Texture::toImage4unorm8() const {
 }
 
 Image3Ref Texture::toImage3() const {    
-    Image3::Ref im = Image3::createEmpty(m_width, m_height, WrapMode::TILE); 
+    Image3::Ref im = Image3::createEmpty(m_width, m_height, WrapMode::TILE, m_depth); 
     getTexImage(im->getCArray(), ImageFormat::RGB32F());
     return im;
 }
@@ -2825,7 +2825,7 @@ shared_ptr<GLPixelTransferBuffer> Texture::toPixelTransferBuffer(const ImageForm
     debugAssertGLOk();
     alwaysAssertM( !isSRGBFormat(outFormat) || isSRGBFormat(format()), "glGetTexImage doesn't do sRGB conversion, so we need to first copy an RGB texture to sRGB on the GPU. However, this functionality is broken as of the time of writing this code");
     if (isSRGBFormat(format()) && !isSRGBFormat(outFormat) ) { // Copy to non-srgb texture and read back.
-        const shared_ptr<Texture>& temp = Texture::createEmpty("Temporary copy", m_width, m_height, outFormat, m_dimension);
+        const shared_ptr<Texture>& temp = Texture::createEmpty("Temporary copy", m_width, m_height, outFormat, m_dimension, false, m_depth);
         Texture::copy(dynamic_pointer_cast<Texture>(const_cast<Texture*>(this)->shared_from_this()), temp);
         return temp->toPixelTransferBuffer(outFormat, mipLevel, face);
     }
@@ -2838,8 +2838,13 @@ shared_ptr<GLPixelTransferBuffer> Texture::toPixelTransferBuffer(const ImageForm
             outFormat = ImageFormat::RGBA8();
         }
     }
-    
-    const shared_ptr<GLPixelTransferBuffer>& buffer = GLPixelTransferBuffer::create(width() >> mipLevel, height() >> mipLevel, outFormat, NULL, 1, GL_STATIC_READ);
+    int mipDepth = 1;
+    if (dimension() == DIM_3D) {
+        mipDepth = depth() >> mipLevel;
+    } else if (dimension() == DIM_2D_ARRAY) {
+        mipDepth = depth();
+    }
+    const shared_ptr<GLPixelTransferBuffer>& buffer = GLPixelTransferBuffer::create(width() >> mipLevel, height() >> mipLevel, outFormat, NULL, mipDepth, GL_STATIC_READ);
     
     glBindBuffer(GL_PIXEL_PACK_BUFFER, buffer->glBufferID()); {
 

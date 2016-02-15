@@ -85,7 +85,7 @@ namespace G3D {
 
   Other "image" classes in G3D:
 
-  G3D::GImage - Supports file formats, fast, Color3uint8 and Color4uint8 formats.  No interpolation.
+  G3D::Image - Supports file formats, fast, Color3uint8 and Color4uint8 formats.  No interpolation.
 
   G3D::shared_ptr<Texture> - Represents image on the graphics card (not directly readable on the CPU).  Supports 2D, 3D, and a variety of interpolation methods, loads file formats.
 
@@ -163,8 +163,13 @@ namespace G3D {
   interpolation is constant outside [0, w - 1] and bicubic outside
   [3, w - 4].  The class does not offer quadratic interpolation because
   the interpolation filter could not center over a pixel.
+
+  In order to allow subclasses to mimic layered textures, Map2Ds can have an optional depth.
+  Only the constructor and resize() handles depth in this class, to access anything but layer 0
+  subclasses must implement the functionality themselves.
+
   
-  @author Morgan McGuire, http://graphics.cs.williams.edu
+  \author Morgan McGuire, http://graphics.cs.williams.edu
  */
 template< typename Storage, 
 typename Compute = typename G3D::_internal::_GetComputeType<Storage>::Type>
@@ -192,6 +197,9 @@ protected:
 
     /** Height, in pixels. */
     uint32              h;
+
+    /** Depth, in pixels, defaults to 1 */
+    uint32              d;
 
     WrapMode            m_wrapMode;
 
@@ -245,9 +253,9 @@ public:
 
 protected:
 
-    Map2D(int w, int h, WrapMode wrap) : w(0), h(0), m_wrapMode(wrap), m_changed(1) {
+    Map2D(int w, int h, WrapMode wrap, int d = 1) : w(0), h(0), d(1), m_wrapMode(wrap), m_changed(1) {
         ZERO = Storage(Compute(Storage()) * 0);
-        resize(w, h);
+        resize(w, h, d);
     }
 
 public:
@@ -259,17 +267,18 @@ public:
     */
     GMutex mutex;
 
-    static Ref create(int w = 0, int h = 0, WrapMode wrap = WrapMode::ERROR) {
-        return Ref(new Map2D(w, h, wrap));
+    static Ref create(int w = 0, int h = 0, WrapMode wrap = WrapMode::ERROR, int d = 1) {
+        return Ref(new Map2D(w, h, wrap, d));
     }
 
     /** Resizes without clearing, leaving garbage.
       */
-    void resize(uint32 newW, uint32 newH) {
-        if ((newW != w) || (newH != h)) {
+    void resize(uint32 newW, uint32 newH, uint32 newD = 1) {
+        if ((newW != w) || (newH != h) || (newD != d)) {
             w = newW;
             h = newH;
-            data.resize(w * h);
+            d = newD;
+            data.resize(w * h * d);
             setChanged(true);
         }
     }
