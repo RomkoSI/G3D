@@ -1028,7 +1028,7 @@ String FilePath::mangle(const String& filename) {
             outputFilename.append("_l");
             break;
         case ' ':
-            outputFilename.append("_x");
+            outputFilename.append("__");
             break;
         case '"':
             outputFilename.append("_y");
