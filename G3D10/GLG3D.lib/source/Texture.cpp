@@ -4,9 +4,9 @@
  \author Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2001-02-28
- \edited  2015-01-04
+ \edited  2016-02-16
 
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
 #include "G3D/Log.h"
@@ -263,22 +263,21 @@ static void generateCubeMapFilenames(const String& src, String realFilename[6], 
     }
 }
 
-
 int64 Texture::m_sizeOfAllTexturesInMemory = 0;
 
 /**
- Pushes all OpenGL texture state.
+ Legacy: sets the active texture to zero
  */
-// TODO: this is slow; push only absolutely necessary state
-// or back up state that will be corrupted.
-static void glStatePush();
+static void glStatePush() {
+    glActiveTexture(GL_TEXTURE0);
+}
 
 /**
- Pops all OpenGL texture state.
+ Legacy: unneeded
  */
 static void glStatePop() {
+}
 
-}  
 
 shared_ptr<Texture> Texture::singleChannelDifference(RenderDevice* rd, shared_ptr<Texture> t0, shared_ptr<Texture> t1, int channel) {
     debugAssertM(t0->width() == t1->width() && t0->height() == t1->height(), "singleChannelDifference requires the input textures to be of the same size");
@@ -294,6 +293,7 @@ shared_ptr<Texture> Texture::singleChannelDifference(RenderDevice* rd, shared_pt
     } rd->pop2D();
     return fb->texture(0);
 }
+
 
 const shared_ptr<Texture>& Texture::white() {
     static shared_ptr<Texture> t;
@@ -474,9 +474,6 @@ Texture::Texture
 
     glStatePush();
     {
-        // TODO: Explicitly pass these in instead of reading them
-        debugAssertGLOk();
-        
         GLenum target = dimensionToTarget(m_dimension, m_numSamples);
         glBindTexture(target, m_textureID);
         debugAssertGLOk();
@@ -491,11 +488,11 @@ Texture::Texture
         glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_WIDTH, &m_width);
         glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_HEIGHT, &m_height);
 
-        //m_depth = 1; //Why ? -Cyril 09/22/13
-        if (readbackTarget == GL_TEXTURE_3D) {
+        if ((readbackTarget == GL_TEXTURE_3D) || (readbackTarget == GL_TEXTURE_2D_ARRAY)) {
             glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_DEPTH, &m_depth);
+        } else {
+            m_depth = 1;
         }
-
         
         debugAssertGLOk();
         
@@ -2446,13 +2443,6 @@ void Texture::updateSamplerParameters(const Sampler& settings) {
     }
     
     m_cachedSamplerSettings = settings;
-}
-
-
-static void glStatePush() {
-    debugAssertGLOk();
-    glActiveTexture(GL_TEXTURE0);
-    debugAssertGLOk();
 }
 
 
