@@ -17,7 +17,7 @@ static const float START_YAW = -90.0f;
 
 void MD3Viewer::pose(RealTime dt){
     
-    model->simulatePose(currentPose, dt);
+    model->simulatePose(currentPose, SimTime(dt));
 
 }
 

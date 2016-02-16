@@ -755,12 +755,15 @@ shared_ptr<Texture> Texture::fromFile
         files.sort();
 
         Array < shared_ptr<Image> > images;
+        images.resize(files.length());
+        ThreadSet threadSet;
         for (int i = 0; i < files.size(); ++i) {
-            images.append(Image::fromFile(files[i], desiredEncoding.format));
+            threadSet.insert(shared_ptr<ImageLoaderThread>(new ImageLoaderThread(files[i], images[i])));
         }
+        threadSet.start(GThread::USE_CURRENT_THREAD);
+        threadSet.waitForCompletion();
 
         return Texture::fromPixelTransferBuffer(FilePath::base(filename[0]), Image::arrayToPixelTransferBuffer(images), desiredEncoding.format, dimension);
-
     }
 
     String realFilename[6];
