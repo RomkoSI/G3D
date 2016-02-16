@@ -99,6 +99,7 @@
 	   <li> Added G3D::Array randomize for parallel arrays </li>
 	   <li> Renamed G3D::Proxy to G3D::lazy_ptr </li>
 	   <li> Added OpenVR API to the distribution </li>
+	   <li> G3D::FilePath::mangle </li>
       </ul>
     </p>
 
