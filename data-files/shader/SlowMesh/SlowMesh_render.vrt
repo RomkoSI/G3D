@@ -18,7 +18,7 @@ void main() {
     color         = g3d_Color;
     gl_Position   = g3d_Vertex * g3d_ObjectToScreenMatrixTranspose;
 
-    gl_PointSize  = 15 / 
+    gl_PointSize  = pointSize / 
 #   if IS_PROJECTION    
         max(gl_Position.z, 0.001);
 #   else

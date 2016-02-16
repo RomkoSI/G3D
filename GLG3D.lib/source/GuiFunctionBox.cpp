@@ -334,11 +334,11 @@ int GuiFunctionBox::getNearestControlPoint(const Vector2& pos) {
 
 void GuiFunctionBox::drawControlPoints(RenderDevice* rd, const shared_ptr<GuiTheme>& skin) const {
     (void)skin;
-    float size = 15.0f;
+    float size = 10.0f;
 
     if (m_selected != NONE) {
         SlowMesh slowMesh(PrimitiveType::POINTS); 
-        slowMesh.setPointSize(size + 2.0f);
+        slowMesh.setPointSize(size + 4.0f);
         slowMesh.setColor(m_controlColor);
             Vector2 loc = controlPointLocation(m_selected);
 			slowMesh.makeVertex(loc);
