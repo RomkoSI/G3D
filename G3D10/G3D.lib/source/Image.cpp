@@ -423,7 +423,7 @@ shared_ptr<CPUPixelTransferBuffer> Image::arrayToPixelTransferBuffer(const Array
     const int width = images[0]->width();
     const int height = images[0]->height();
 
-    shared_ptr<CPUPixelTransferBuffer> buffer = CPUPixelTransferBuffer::create(width, height, images[0]->format(), AlignedMemoryManager::create(), images.size(), 1);
+    const shared_ptr<CPUPixelTransferBuffer>& buffer = CPUPixelTransferBuffer::create(width, height, images[0]->format(), AlignedMemoryManager::create(), images.size(), 1);
 
     const int bytesPerPixel = iCeil(buffer->format()->cpuBitsPerPixel / 8.0f);
     const int memoryPerImage = width*height*bytesPerPixel;
@@ -437,8 +437,10 @@ shared_ptr<CPUPixelTransferBuffer> Image::arrayToPixelTransferBuffer(const Array
             System::memcpy(data + i * memoryPerImage + row * memoryPerRow, currentImage->getScanLine(height - 1 - row), memoryPerRow);
         }
     }
+
     return buffer;
 }
+
 
 shared_ptr<CPUPixelTransferBuffer> Image::toPixelTransferBuffer(Rect2D rect) const {
     // clip to bounds of image
