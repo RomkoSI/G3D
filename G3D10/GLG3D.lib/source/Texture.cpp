@@ -383,7 +383,7 @@ const shared_ptr<Texture>& Texture::opaqueBlack(Dimension d) {
             Color4unorm8* pixels = static_cast<Color4unorm8*>(imageBuffer->buffer());
             pixels[i] = Color4unorm8(unorm8::zero(), unorm8::zero(), unorm8::zero(), unorm8::one());
         }
-        textures.set(d, Texture::fromPixelTransferBuffer("Opaque Black", imageBuffer, ImageFormat::RGBA8(), d));
+        textures.set(d, Texture::fromPixelTransferBuffer("G3D::Texture::opaqueBlack", imageBuffer, ImageFormat::RGBA8(), d));
         
         //cache = t;
     }
