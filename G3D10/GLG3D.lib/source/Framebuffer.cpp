@@ -421,7 +421,7 @@ void Framebuffer::blitTo
     if (m_currentOutOfSync) {
         const_cast<Framebuffer*>(this)->bind();
     }
-    if (dst->m_currentOutOfSync) {
+    if (notNull(dst) && dst->m_currentOutOfSync) {
         dst->bind();
     }
 
