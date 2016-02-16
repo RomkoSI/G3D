@@ -562,6 +562,9 @@ public:
 */
 class FilePath {
 public:
+    /** Converts \a filename into a legal filename by escaping
+        potentially dangerous characters to have in a filename */
+    static String mangle(const String& filename);
 
     /** Appends file onto dirname, ensuring a / if needed. */
     static String concat(const String& a, const String& b);

@@ -4,7 +4,7 @@
  \author Morgan McGuire, http://graphics.cs.williams.edu
  
  \author  2002-06-06
- \edited  2014-07-023
+ \edited  2016-02-16
  */
 #include "G3D/FileSystem.h"
 #include "G3D/System.h"
@@ -1014,6 +1014,52 @@ void FilePath::parse
         path.append(f.substr(prev, cur - prev));
         ++cur;
     }
+}
+
+
+String FilePath::mangle(const String& filename) {
+    String outputFilename;
+    for (int i = 0; i < filename.size(); ++i) {
+        switch (filename[i]) {
+        case ':':
+            outputFilename.append("_c");
+            break;
+        case ';':
+            outputFilename.append("_l");
+            break;
+        case ' ':
+            outputFilename.append("_x");
+            break;
+        case '"':
+            outputFilename.append("_y");
+            break;
+        case '\'':
+            outputFilename.append("_z");
+            break;
+        case '/':
+            outputFilename.append("_s");
+            break;
+        case '\\':
+            outputFilename.append("_b");
+            break;
+        case '.':
+            outputFilename.append("_p");
+            break;
+        case '*':
+            outputFilename.append("_a");
+            break;
+        case '?':
+            outputFilename.append("_q");
+            break;
+        case '_':
+            outputFilename.append("_u");
+            break;
+        default:
+            outputFilename.append(filename[i]);
+            break;
+        }
+    }
+    return outputFilename;
 }
 
 
