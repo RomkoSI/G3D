@@ -745,7 +745,7 @@ shared_ptr<Texture> Texture::fromFile
     const Preprocess&               preprocess,
     bool                            preferSRGBSpaceForAuto) {
     
-    if (filename[0].find(".exr") != String::npos && desiredEncoding.format == ImageFormat::AUTO()) {
+    if (endsWith(toLower(filename[0]), ".exr") && (desiredEncoding.format == ImageFormat::AUTO())) {
         desiredEncoding.format = ImageFormat::RGBA32F();
     }
     
@@ -758,6 +758,7 @@ shared_ptr<Texture> Texture::fromFile
         for (int i = 0; i < files.size(); ++i) {
             images.append(Image::fromFile(files[i], desiredEncoding.format));
         }
+
         return Texture::fromPixelTransferBuffer(FilePath::base(filename[0]), Image::arrayToPixelTransferBuffer(images), desiredEncoding.format, dimension);
 
     }
@@ -873,23 +874,26 @@ shared_ptr<Texture> Texture::fromFile
     f[4] = "";
     f[5] = "";
 
-    if (filename.find("*") != String::npos) {
-        String realFilename[6];
-        realFilename[0] = filename;
+    if (filename.find('*') != String::npos) {
         CubeMapConvention::CubeMapInfo info;
         String filenameBase, filenameExt;
         Texture::splitFilenameAtWildCard(filename, filenameBase, filenameExt);
-        if ( (FileSystem::exists(filenameBase + "east" + filenameExt)) || (FileSystem::exists(filenameBase + "lf" + filenameExt)) || 
-             (FileSystem::exists(filenameBase + "+x" + filenameExt)) || (FileSystem::exists(filenameBase + "PX" + filenameExt)) || 
-             (FileSystem::exists(filenameBase + "px" + filenameExt))) {
+
+        // Cube map formats:
+        if ((FileSystem::exists(filenameBase + "east" + filenameExt)) || (FileSystem::exists(filenameBase + "lf" + filenameExt)) || 
+            (FileSystem::exists(filenameBase + "+x" + filenameExt)) || (FileSystem::exists(filenameBase + "+X" + filenameExt)) || 
+            (FileSystem::exists(filenameBase + "PX" + filenameExt)) || 
+            (FileSystem::exists(filenameBase + "px" + filenameExt))) {
 
             dimension = DIM_CUBE_MAP;
         } else {
+            // Must be a texture array
             dimension = DIM_2D_ARRAY;
         }
     } else if ((dimension == DIM_CUBE_MAP) && (filename != "<white>")) {
         dimension = DIM_2D;
     }
+
     return fromFile(f, desiredEncoding, dimension, generateMipMaps, preprocess, preferSRGBSpaceForAuto);
 }
 
