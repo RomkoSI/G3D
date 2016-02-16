@@ -14,7 +14,7 @@
 
 void MD2Viewer::pose(RealTime dt){
 
-    currentPose.onSimulation(dt, MD2Model::Pose::Action());
+    currentPose.onSimulation(SimTime(dt), MD2Model::Pose::Action());
 
     const CoordinateFrame& cframe = CFrame::fromXYZYPRDegrees(0,0,3,180);
 
