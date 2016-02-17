@@ -425,32 +425,28 @@ int FileSystem::_rename(const String& _source, const String& _dest) {
 
 
 void FileSystem::_copyDir(const String& _source, const String& _dest) {
-	const String& source	= FilePath::removeTrailingSlash(FilePath::expandEnvironmentVariables(_source));
-	const String& dest		= FilePath::expandEnvironmentVariables(_dest);
-	const bool forceUpdate = true;
-	const Dir& entry = getContents(source, forceUpdate);
-
-	for (int i = 0; i < entry.nodeArray.size(); ++i) {
-		const String& sourceChild = _source + entry.nodeArray[i].name;
-		const String& destChild = _dest + entry.nodeArray[i].name;
-		if (entry.nodeArray[i].type == FileSystem::Type::FILE_TYPE) {
+    const String& source	= FilePath::removeTrailingSlash(FilePath::expandEnvironmentVariables(_source));
+    //const String& dest		= FilePath::expandEnvironmentVariables(_dest);
+    const bool forceUpdate = true;
+    const Dir& entry = getContents(source, forceUpdate);
+    
+    for (int i = 0; i < entry.nodeArray.size(); ++i) {
+        const String& sourceChild = _source + entry.nodeArray[i].name;
+        const String& destChild = _dest + entry.nodeArray[i].name;
+        if (entry.nodeArray[i].type == FileSystem::Type::FILE_TYPE) {
             // Workaround for directories in zip files, 
             // which improperly are assigned as FILE_TYPE
             // TODO: Fix need for workaround
-            if (endsWith(sourceChild, "/")) {
-
-            } else {
+            if (! endsWith(sourceChild, "/")) {
                 _copyFile(sourceChild, destChild);
             }
-		} else if (entry.nodeArray[i].type == FileSystem::Type::DIR_TYPE) {
-			_createDirectory(destChild);
-			_copyDir(sourceChild + "/", destChild + "/");
-		} else {
-			alwaysAssertM(false, "Unknown");
-		}
-	}
-
-	return;
+        } else if (entry.nodeArray[i].type == FileSystem::Type::DIR_TYPE) {
+            _createDirectory(destChild);
+            _copyDir(sourceChild + "/", destChild + "/");
+        } else {
+            alwaysAssertM(false, "Unknown file type");
+        }
+    }
 }
 
 
@@ -548,12 +544,13 @@ void FileSystem::_removeFile(const String& path) {
 String FileSystem::_NFDStandardizeFilename(const String& _path, const String& _cwd) {
     const String& filename = FilePath::canonicalize(_resolve(_path, _cwd));
     Array<String> sections = stringSplit(filename, '/');
-    size_t size = sections.size();
     Array<size_t> removalIndices;
+
     for (size_t i = 0; i < (size_t)sections.size(); ++i) {
         if (sections[i] == ".") {
             removalIndices.append(i);
         }
+
         else if (sections[i] == "..") {
             removalIndices.append(i);
             debugAssertM(i != 0, "Absolute path cannot begin with  \"..\"");
@@ -1019,43 +1016,43 @@ void FilePath::parse
 
 String FilePath::mangle(const String& filename) {
     String outputFilename;
-    for (int i = 0; i < filename.size(); ++i) {
+    for (size_t i = 0; i < filename.size(); ++i) {
         switch (filename[i]) {
         case ':':
-            outputFilename.append("_c");
+            outputFilename += "_c";
             break;
         case ';':
-            outputFilename.append("_l");
+            outputFilename += "_l";
             break;
         case ' ':
-            outputFilename.append("__");
+            outputFilename += "__";
             break;
         case '"':
-            outputFilename.append("_y");
+            outputFilename += "_y";
             break;
         case '\'':
-            outputFilename.append("_z");
+            outputFilename += "_z";
             break;
         case '/':
-            outputFilename.append("_s");
+            outputFilename += "_s";
             break;
         case '\\':
-            outputFilename.append("_b");
+            outputFilename += "_b";
             break;
         case '.':
-            outputFilename.append("_p");
+            outputFilename += "_p";
             break;
         case '*':
-            outputFilename.append("_a");
+            outputFilename += "_a";
             break;
         case '?':
-            outputFilename.append("_q");
+            outputFilename += "_q";
             break;
         case '_':
-            outputFilename.append("_u");
+            outputFilename += "_u";
             break;
         default:
-            outputFilename.append(filename[i]);
+            outputFilename += filename[i];
             break;
         }
     }
