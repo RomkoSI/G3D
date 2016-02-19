@@ -31,6 +31,8 @@ int main(int argc, const char* argv[]) {
     // Oculus already provides a huge guard band
     settings.depthGuardBandThickness    = Vector2int16(0, 0);
     settings.colorGuardBandThickness    = Vector2int16(0, 0);
+
+    // Async must be true for VR
     settings.window.asynchronous        = true;
 
     settings.renderer.deferredShading   = true;
