@@ -15,6 +15,7 @@ int main(int argc, const char* argv[]) {
     settings.window.fullScreen          = false;
     settings.window.resizable           = ! settings.window.fullScreen;
     settings.window.framed              = ! settings.window.fullScreen;
+    settings.window.asynchronous        = true;
     settings.depthGuardBandThickness    = Vector2int16(0, 0);
     settings.colorGuardBandThickness    = Vector2int16(0, 0);
     settings.dataDir                    = FileSystem::currentDirectory();

@@ -111,6 +111,7 @@ Camera::~Camera() {
 
 
 void Camera::setShaderArgs(UniformTable& args, const Vector2& screenSize, const String& prefix) const {
+    args.setUniform(prefix + "invFrame", m_frame.inverse());
     args.setUniform(prefix + "frame", m_frame);
     args.setUniform(prefix + "previousFrame", m_previousFrame);
 

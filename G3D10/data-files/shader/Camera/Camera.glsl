@@ -40,6 +40,7 @@
   \sa G3D::Camera, G3D::Camera::setShaderArgs, G3D::Args, uniform_GBuffer */
 struct Camera {
     mat4x3 frame;
+    mat4x3 invFrame;
     mat4x3 previousFrame;
     mat4x4 projectToPixelMatrix;
     float3 clipInfo;
