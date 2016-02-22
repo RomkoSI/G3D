@@ -18,7 +18,7 @@
    #   no guard band                          
    *   1/maxBlurRadius scale, after guard band is removed
 
- G3D Library http://g3d.codeplex.com
+ G3D Library http://g3d.cs.williams.edu
  Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
  */

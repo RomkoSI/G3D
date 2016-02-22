@@ -4,7 +4,7 @@
  \created 2006-05-01
  \edited  2014-07-13
 
- G3D Library http://g3d.codeplex.com
+ G3D Library http://g3d.cs.williams.edu
  Copyright 2000-2015, Morgan McGuire, http://graphics.cs.williams.edu
  All rights reserved.
 */

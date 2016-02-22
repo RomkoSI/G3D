@@ -5,7 +5,7 @@
 
  by Morgan McGuire
  */
-#include <G3D/G3DAll.h> // http://g3d.codeplex.com
+#include <G3D/G3DAll.h> // http://g3d.cs.williams.edu
 
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
 G3D_START_AT_MAIN();

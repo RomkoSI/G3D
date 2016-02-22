@@ -10,7 +10,7 @@
  All rights reserved.
 
  From the G3D Innovation Engine
- http://g3d.codeplex.com
+ http://g3d.cs.williams.edu
  */
 #ifndef G3D_Intersect
 #define G3D_Intersect

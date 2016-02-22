@@ -1,8 +1,8 @@
 // -*- c++ -*-
 /** \file Texture/Texture.glsl 
 
- G3D Innovation Engine (http://g3d.codeplex.com)
- Copyright 2000-2015, Morgan McGuire.
+ G3D Innovation Engine (http://g3d.cs.williams.edu)
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 

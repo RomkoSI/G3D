@@ -6,7 +6,7 @@
   \created 2015-08-30
   \edited  2016-02-14
  
- G3D Library http://g3d.codeplex.com
+ G3D Library http://g3d.cs.williams.edu
  Copyright 2000-2015, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
  Use permitted under the BSD license
@@ -370,7 +370,8 @@ shared_ptr<Entity> ParticleSystem::create
    (const String&               name, 
     Scene*                      scene, 
     AnyTableReader&             propertyTable, 
-    const ModelTable&           modelTable) {
+    const ModelTable&           modelTable,
+    const Scene::LoadOptions&   options) {
 
     const shared_ptr<ParticleSystem> ps(new ParticleSystem());
 

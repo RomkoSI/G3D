@@ -23,7 +23,7 @@ void EmptyViewer::onGraphics2D(RenderDevice* rd, App* app) {
     screenPrintf("\n");
     screenPrintf("Built " __TIME__ " " __DATE__);
     screenPrintf("%s", System::version().c_str());
-    screenPrintf("http://g3d.codeplex.com");
+    screenPrintf("http://g3d.cs.williams.edu");
     screenPrintf("\n");
     screenPrintf("\n");
     screenPrintf("Drag and drop a media file here to view it.\n");

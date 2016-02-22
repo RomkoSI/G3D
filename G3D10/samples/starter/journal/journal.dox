@@ -17,7 +17,7 @@ and LaTeX-like [Doxygen commands](http://www.stack.nl/~dimitri/doxygen/manual/co
 for formatting in this file. The most frequently used of these are:
 
 \verbatim
-[Link syntax](http://g3d.codeplex.com)
+[Link syntax](http://g3d.cs.williams.edu)
 
 Table    | Syntax
 -------: | ---------
@@ -38,7 +38,7 @@ for (int i = 0; i < 10; ++i) {
 
 which produce:
 
-[Link syntax](http://g3d.codeplex.com)
+[Link syntax](http://g3d.cs.williams.edu)
 
 Table  | Syntax
 -----: | ---------

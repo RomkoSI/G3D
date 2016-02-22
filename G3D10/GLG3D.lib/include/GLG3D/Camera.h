@@ -4,10 +4,10 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2005-07-20
-  \edited  2014-07-14
+  \edited  2016-02-22
 
-  G3D Library http://g3d.codeplex.com
-  Copyright 2000-2015, Morgan McGuire morgan@cs.williams.edu
+  G3D Library http://g3d.cs.williams.edu
+  Copyright 2000-2016, Morgan McGuire morgan@cs.williams.edu
   All rights reserved.
   Use permitted under the BSD license
 */
@@ -21,6 +21,7 @@
 #include "G3D/Plane.h"
 #include "G3D/debugAssert.h"
 #include "G3D/Projection.h"
+#include "GLG3D/Scene.h"
 #include "GLG3D/DepthOfFieldSettings.h"
 #include "GLG3D/FilmSettings.h"
 #include "GLG3D/Entity.h"
@@ -83,7 +84,8 @@ protected:
 
 public:
 
-    static shared_ptr<Entity> create(const String& name, Scene* scene, AnyTableReader& propertyTable, const ModelTable& modelTable = ModelTable());
+    static shared_ptr<Entity> create(const String& name, Scene* scene, AnyTableReader& propertyTable, const ModelTable& modelTable = ModelTable(),
+                                     const Scene::LoadOptions& options = Scene::LoadOptions());
 
     static shared_ptr<Camera> create(const String& name = "Camera");
 

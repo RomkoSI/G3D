@@ -1,7 +1,7 @@
 // -*- c++ -*-
 /** \file UniversalMaterial/UniversalMaterial.glsl 
 
- G3D Innovation Engine (http://g3d.codeplex.com)
+ G3D Innovation Engine (http://g3d.cs.williams.edu)
  Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
 */

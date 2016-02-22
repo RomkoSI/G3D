@@ -171,12 +171,12 @@ Scene::Scene(const shared_ptr<AmbientOcclusion>& ambientOcclusion) :
     m_lastEditingTime(0) {
 
     m_localLightingEnvironment.ambientOcclusion = ambientOcclusion;
-    registerEntitySubclass("VisibleEntity", &VisibleEntity::create);
+    registerEntitySubclass("VisibleEntity",  &VisibleEntity::create);
     registerEntitySubclass("ParticleSystem", &ParticleSystem::create);
-    registerEntitySubclass("Light",         &Light::create);
-    registerEntitySubclass("Camera",        &Camera::create);
-    registerEntitySubclass("MarkerEntity",  &MarkerEntity::create);
-    registerEntitySubclass("Skybox",        &Skybox::create);
+    registerEntitySubclass("Light",          &Light::create);
+    registerEntitySubclass("Camera",         &Camera::create);
+    registerEntitySubclass("MarkerEntity",   &MarkerEntity::create);
+    registerEntitySubclass("Skybox",         &Skybox::create);
 }
 
 
@@ -302,12 +302,7 @@ Any Scene::load(const String& scene, const LoadOptions& loadOptions) {
             if (entities.size() > 0) {
                 for (Table<String, Any>::Iterator it = entities.table().begin(); it.isValid(); ++it) {
                     const String& name = it->key;
-
-                    const bool canChange = it->value.get("canChange", true);
-                    if ((canChange && ! loadOptions.stripDynamicEntitys) || 
-                        (! canChange && ! loadOptions.stripStaticEntitys)) {
-                        createEntity(name, it->value);
-                    } // if not stripped
+                    createEntity(name, it->value, loadOptions);
                 } // for each entity
             } // if there is anything in this table
         } // if this entity group name exists
@@ -530,18 +525,21 @@ shared_ptr<Entity> Scene::insert(const shared_ptr<Entity>& entity) {
 }
 
 
-shared_ptr<Entity> Scene::createEntity(const String& name, const Any& any) {
-    return createEntity(any.name(), name, any);
+shared_ptr<Entity> Scene::createEntity(const String& name, const Any& any, const Scene::LoadOptions& options) {
+    return createEntity(any.name(), name, any, options);
 }
 
 
-shared_ptr<Entity> Scene::createEntity(const String& entityType, const String& name, const Any& any) {
+shared_ptr<Entity> Scene::createEntity(const String& entityType, const String& name, const Any& any, const Scene::LoadOptions& options) {
     shared_ptr<Entity> entity;
     AnyTableReader propertyTable(any);
 
     const EntityFactory* factory = m_entityFactory.getPointer(entityType);
     if (notNull(factory)) {
-        entity = insert((**factory)(name, this, propertyTable, m_modelTable));
+        entity = (**factory)(name, this, propertyTable, m_modelTable, options);
+        if (notNull(entity)) {
+            insert(entity);
+        }            
     } else {
         any.verify(false, String("Unrecognized Entity type: \"") + entityType + "\"");
     }
