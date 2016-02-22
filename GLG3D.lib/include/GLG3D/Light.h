@@ -4,8 +4,12 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2003-11-12
-  \edited  2014-07-17
-*/
+  \edited  2016-02-22
+
+  G3D Innovation Engine
+  Copyright 2000-2016, Morgan McGuire.
+  All rights reserved.
+ */
 
 #ifndef GLG3D_Light_h
 #define GLG3D_Light_h
@@ -19,6 +23,7 @@
 #include "G3D/CoordinateFrame.h"
 #include "G3D/enumclass.h"
 #include "G3D/Spline.h"
+#include "GLG3D/Scene.h"
 #include "GLG3D/Entity.h"
 #include "GLG3D/ShadowMap.h"
 
@@ -212,7 +217,12 @@ public:
     }
 
     /** \param scene may be NULL */
-    static shared_ptr<Entity> create(const String& name, Scene* scene, AnyTableReader& propertyTable, const ModelTable& modelTable = ModelTable());
+    static shared_ptr<Entity> create
+       (const String&               name, 
+        Scene*                      scene,
+        AnyTableReader&             propertyTable, 
+        const ModelTable&           modelTable = ModelTable(),
+        const Scene::LoadOptions&   options = Scene::LoadOptions());
 
     /** Is vector w_i (from a point in the scene to the light) within the field of view (e.g., spotlight cone) of this light?  Called from biradiance(). */
     bool inFieldOfView(const Vector3& w_i) const;

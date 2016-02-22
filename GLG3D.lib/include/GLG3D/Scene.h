@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2010-01-01
-  \edited  2016-02-10
+  \edited  2016-02-22
 */
 #ifndef GLG3D_Scene_h
 #define GLG3D_Scene_h
@@ -14,7 +14,6 @@
 #include "G3D/Array.h"
 #include "G3D/SmallArray.h"
 #include "G3D/lazy_ptr.h"
-#include "GLG3D/Camera.h"
 #include "GLG3D/LightingEnvironment.h"
 #include "GLG3D/ArticulatedModel.h"
 
@@ -50,9 +49,20 @@ class SceneVisualizationSettings;
 */
 class Scene : public ReferenceCountedObject {
 public:
+    
+    class LoadOptions {
+    public:
+        /** Remove VisibleEntitys for which canChange = true. Default = false */
+        bool        stripStaticVisibleEntitys;
+
+        /** Remove VisibleEntitys for which canChange = false. Default = false */
+        bool        stripDynamicVisibleEntitys;
+
+        LoadOptions() : stripStaticVisibleEntitys(false), stripDynamicVisibleEntitys(false) {}
+    };
 
     /** \sa registerEntityType */
-    typedef shared_ptr<Entity> (*EntityFactory)(const String& name, Scene* scene, AnyTableReader& propertyTable, const ModelTable& modelTable);
+    typedef shared_ptr<Entity> (*EntityFactory)(const String& name, Scene* scene, AnyTableReader& propertyTable, const ModelTable& modelTable, const Scene::LoadOptions& options);
 
 protected:
     enum VisitorState {NOT_VISITED, VISITING, ALREADY_VISITED};
@@ -185,12 +195,12 @@ public:
     /** Create an Entity and insert() it into the Scene.
         \sa registerEntitySubclass, m_modelTable
      */
-    virtual shared_ptr<Entity> createEntity(const String& name, const Any& any);
+    virtual shared_ptr<Entity> createEntity(const String& name, const Any& any, const Scene::LoadOptions& options = Scene::LoadOptions());
 
     /** For creating an entity with an explicit type such as Skybox
         where the \a any may be a simple
         filename instead of a named Any::TABLE. */
-    virtual shared_ptr<Entity> createEntity(const String& entityType, const String& name, const Any& any);
+    virtual shared_ptr<Entity> createEntity(const String& entityType, const String& name, const Any& any, const Scene::LoadOptions& options = Scene::LoadOptions());
 
     /** \param ambientOcclusion Object to use for the LightingEnvironment */
     static shared_ptr<Scene> create(const shared_ptr<AmbientOcclusion>& ambientOcclusion);
@@ -221,16 +231,6 @@ public:
         return m_lastEditingTime;
     }
 
-    class LoadOptions {
-    public:
-        /** Remove Entitys for which canChange = true. Default = false */
-        bool        stripStaticEntitys;
-
-        /** Remove Entitys for which canChange = false. Default = false */
-        bool        stripDynamicEntitys;
-
-        LoadOptions() : stripStaticEntitys(false), stripDynamicEntitys(false) {}
-    };
 
     /** \brief Replace the current scene with a new one parsed from a file.  See the starter project
         for examples

@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2003-11-12
-  \edited  2015-09-27
+  \edited  2016-02-22
 */
 #include "G3D/Sphere.h"
 #include "G3D/CoordinateFrame.h"
@@ -22,7 +22,9 @@
 
 namespace G3D {
 
-shared_ptr<Entity> Light::create(const String& name, Scene* scene, AnyTableReader& propertyTable, const ModelTable& modelTable) {
+shared_ptr<Entity> Light::create(const String& name, Scene* scene, AnyTableReader& propertyTable, const ModelTable& modelTable,
+    const Scene::LoadOptions& options) {
+
     const shared_ptr<Light> light(new Light());
 
     light->Entity::init(name, scene, propertyTable);

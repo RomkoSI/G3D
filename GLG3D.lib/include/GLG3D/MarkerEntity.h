@@ -2,7 +2,7 @@
  \file GLG3D/MarkerEntity.h
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
- Copyright 2011-2013, Morgan McGuire
+ Copyright 2011-2016, Morgan McGuire
  */
 #ifndef GLG3D_MarkerEntity_h
 #define GLG3D_MarkerEntity_h
@@ -13,6 +13,7 @@
 #include "G3D/Sphere.h"
 #include "G3D/Color3.h"
 #include "G3D/CoordinateFrame.h"
+#include "GLG3D/Scene.h"
 
 namespace G3D {
 
@@ -55,19 +56,20 @@ public:
     static shared_ptr<MarkerEntity> create(const String& name);
 
     static shared_ptr<Entity> create 
-        (const String&                      name,
-         Scene*                             scene,
-         AnyTableReader&                    propertyTable,
-         const ModelTable&                  modelTable = ModelTable());
+        (const String&                          name,
+         Scene*                                 scene,
+         AnyTableReader&                        propertyTable,
+         const ModelTable&                      modelTable = ModelTable(),
+         const Scene::LoadOptions&              options    = Scene::LoadOptions());
 
     static shared_ptr<MarkerEntity> create
-       (const String& name,
+       (const String&                           name,
         Scene*                                  scene,
-        const Array<Box>&                       osBoxArray =  Array<Box>(Box(Point3(-0.25f, -0.25f, -0.25f), Point3(0.25f, 0.25f, 0.25f))),
-        const Color3&                           color = Color3::white(),
-        const CFrame&                           frame = CFrame(),
-        const shared_ptr<Track>&                track = shared_ptr<Entity::Track>(),
-        bool                                    canChange = true,
+        const Array<Box>&                       osBoxArray  = Array<Box>(Box(Point3(-0.25f, -0.25f, -0.25f), Point3(0.25f, 0.25f, 0.25f))),
+        const Color3&                           color       = Color3::white(),
+        const CFrame&                           frame       = CFrame(),
+        const shared_ptr<Track>&                track       = shared_ptr<Entity::Track>(),
+        bool                                    canChange   = true,
         bool                                    shouldBeSaved = true);
 
     virtual Any toAny(const bool forceAll = false) const override;

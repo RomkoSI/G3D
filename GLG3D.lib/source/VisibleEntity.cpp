@@ -3,7 +3,7 @@
 
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
   \created 2012-07-27
-  \edited  2014-07-30
+  \edited  2016-02-22
  */
 #include "GLG3D/VisibleEntity.h"
 #include "G3D/Box.h"
@@ -26,14 +26,25 @@ shared_ptr<Entity> VisibleEntity::create
    (const String&                           name,
     Scene*                                  scene,
     AnyTableReader&                         propertyTable,
-    const ModelTable&                       modelTable) {
+    const ModelTable&                       modelTable,
+    const Scene::LoadOptions&               options) {
 
-    shared_ptr<VisibleEntity> visibleEntity(new VisibleEntity());
-    visibleEntity->Entity::init(name, scene, propertyTable);
-    visibleEntity->VisibleEntity::init(propertyTable, modelTable);
-    propertyTable.verifyDone();
+        
+    bool canChange = false;
+    propertyTable.getIfPresent("canChange", canChange);
 
-    return visibleEntity;
+    if ((canChange && ! options.stripDynamicVisibleEntitys) || 
+        (! canChange && ! options.stripStaticVisibleEntitys)) {
+
+        shared_ptr<VisibleEntity> visibleEntity(new VisibleEntity());
+        visibleEntity->Entity::init(name, scene, propertyTable);
+        visibleEntity->VisibleEntity::init(propertyTable, modelTable);
+        propertyTable.verifyDone();
+
+        return visibleEntity;
+    } else {
+        return nullptr;
+    }
 }
 
 

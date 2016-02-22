@@ -26,9 +26,7 @@
 
 namespace G3D {
 
-shared_ptr<Camera> Camera::create
-(const String& name) {
-    
+shared_ptr<Camera> Camera::create(const String& name) {    
     Any a(Any::TABLE);
     AnyTableReader reader(a);
     return dynamic_pointer_cast<Camera>(create(name, NULL, reader, ModelTable()));
@@ -39,7 +37,8 @@ shared_ptr<Entity> Camera::create
 (const String&      name,
  Scene*             scene,
  AnyTableReader&    reader,
- const ModelTable&  modelTable) {
+ const ModelTable&  modelTable,
+ const Scene::LoadOptions& options) {
 
      (void)modelTable;
 

@@ -60,7 +60,8 @@ shared_ptr<Entity> Skybox::create
    (const String&                           name,
     Scene*                                  scene,
     AnyTableReader&                         propertyTable,
-    const ModelTable&                       modelTable) {
+    const ModelTable&                       modelTable,
+    const Scene::LoadOptions&               options) {
 
     (void)modelTable;
 

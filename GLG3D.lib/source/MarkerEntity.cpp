@@ -49,7 +49,8 @@ shared_ptr<Entity> MarkerEntity::create
    (const String&                      name,
     Scene*                             scene,
     AnyTableReader&                    propertyTable,
-    const ModelTable&                  modelTable) {
+    const ModelTable&                  modelTable,
+    const Scene::LoadOptions&          options) {
 
     shared_ptr<MarkerEntity> m(new MarkerEntity());
     m->Entity::init(name, scene, propertyTable);

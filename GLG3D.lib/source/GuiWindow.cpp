@@ -6,7 +6,7 @@
  \created 2007-06-02
  \edited  2013-08-20
 
- G3D Library http://g3d.codeplex.com
+ G3D Library http://g3d.cs.williams.edu
  Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
  */

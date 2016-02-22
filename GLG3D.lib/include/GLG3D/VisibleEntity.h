@@ -3,7 +3,7 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  G3D Innovation Engine
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
 #ifndef GLG3D_VisibleEntity_h
@@ -14,7 +14,7 @@
 #include "GLG3D/ArticulatedModel.h"
 #include "GLG3D/MD2Model.h"
 #include "GLG3D/MD3Model.h"
-
+#include "GLG3D/Scene.h"
 
 namespace G3D {
 
@@ -181,7 +181,8 @@ public:
         (const String&                           name,
          Scene*                                  scene,
          AnyTableReader&                         propertyTable,
-         const ModelTable&                       modelTable);
+         const ModelTable&                       modelTable,
+         const Scene::LoadOptions&               options);
 
     static shared_ptr<VisibleEntity> create
        (const String&                           name,

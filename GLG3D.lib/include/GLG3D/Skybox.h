@@ -2,13 +2,16 @@
  \file GLG3D/Skybox.h
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
- Copyright 2011-2014, Morgan McGuire
+  G3D Innovation Engine
+  Copyright 2000-2016, Morgan McGuire.
+  All rights reserved.
  */
 #ifndef GLG3D_Skybox_h
 #define GLG3D_Skybox_h
 
 #include "G3D/SplineExtrapolationMode.h"
 #include "GLG3D/Entity.h"
+#include "GLG3D/Scene.h"
 #include "GLG3D/Texture.h"
 
 namespace G3D {
@@ -58,7 +61,8 @@ public:
        (const String&                           name,
         Scene*                                  scene,
         AnyTableReader&                         propertyTable,
-        const ModelTable&                       modelTable);
+        const ModelTable&                       modelTable,
+        const Scene::LoadOptions&               options = Scene::LoadOptions());
 
     static shared_ptr<Skybox> create
        (const String& name,

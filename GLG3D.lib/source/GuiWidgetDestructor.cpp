@@ -5,7 +5,7 @@
  \created 2014-07-23
  \edited  2014-07-23
 
- G3D Library http://g3d.codeplex.com
+ G3D Library http://g3d.cs.williams.edu
  Copyright 2000-2015, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
  Use permitted under the BSD license

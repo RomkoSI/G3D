@@ -15,7 +15,7 @@ namespace G3D {
 String license() {
     return format(
 "--------------------------------------------------------------------------\n"
-"This program uses the G3D Innovation Engine (http://g3d.codeplex.com), which\n"
+"This program uses the G3D Innovation Engine (http://g3d.cs.williams.edu), which\n"
 "is licensed under the \"Modified BSD\" Open Source license below.  The G3D Innovation Engine\n"
 "source code is Copyright (C) 2000-2014, Morgan McGuire, All rights reserved.\n"
 "%s\n"

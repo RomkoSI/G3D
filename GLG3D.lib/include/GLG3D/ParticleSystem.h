@@ -4,10 +4,10 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2015-08-30
-  \edited  2015-09-15
+  \edited  2016-02-22
  
- G3D Library http://g3d.codeplex.com
- Copyright 2000-2015, Morgan McGuire morgan@cs.williams.edu
+ G3D Library http://g3d.cs.williams.edu
+ Copyright 2000-2016, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
  Use permitted under the BSD license
  */
@@ -23,11 +23,12 @@
 #include "G3D/enumclass.h"
 #include "G3D/Vector3.h"
 #include "G3D/WeakCache.h"
+#include "G3D/Random.h"
+#include "GLG3D/Scene.h"
 #include "GLG3D/UniversalMaterial.h"
 #include "GLG3D/Entity.h"
 #include "GLG3D/ParticleSystemModel.h"
 #include "GLG3D/VisibleEntity.h"
-#include "G3D/Random.h"
 
 using std::unique_ptr;
 
@@ -408,7 +409,8 @@ public:
     (const String&                  name,
      Scene*                         scene,
      AnyTableReader&                propertyTable,
-     const ModelTable&              modelTable);
+     const ModelTable&              modelTable,
+     const Scene::LoadOptions&      options);
 
     /** For programmatic construction at runtime */
     static shared_ptr<ParticleSystem> create 
