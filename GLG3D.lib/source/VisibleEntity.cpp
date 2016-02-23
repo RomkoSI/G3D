@@ -32,6 +32,8 @@ shared_ptr<Entity> VisibleEntity::create
         
     bool canChange = false;
     propertyTable.getIfPresent("canChange", canChange);
+    // Pretend that we haven't peeked at this value
+    setReadStatus("canChange", false);
 
     if ((canChange && ! options.stripDynamicVisibleEntitys) || 
         (! canChange && ! options.stripStaticVisibleEntitys)) {
