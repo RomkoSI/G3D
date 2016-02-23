@@ -917,6 +917,15 @@ public:
         return m_any;
     }
 
+    /** Force the flag used for detecting if a field has been read */
+    void setReadStatus(const String& s, bool read) {
+        if (read) {
+            m_alreadyRead.remove(s);
+        } else {
+            m_alreadyRead.insert(s);
+        }
+    }
+
 #if 0
     /** Returns the current key */
     const String& key() const;
