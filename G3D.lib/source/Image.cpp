@@ -93,32 +93,28 @@ shared_ptr<Image> Image::fromFile(const String& filename, const ImageFormat* ima
     } catch (const String& e) {
         throw Error(e, filename);
     }
-    return shared_ptr<Image>();
+
+    return nullptr;
 }
 
 
 shared_ptr<Image> Image::fromBinaryInput(BinaryInput& bi, const ImageFormat* imageFormat) {
-    Image* img = new Image;
+    shared_ptr<Image> img(new Image());
     
     fipMemoryIO memoryIO(const_cast<uint8*>(bi.getCArray() + bi.getPosition()), static_cast<DWORD>(bi.getLength() - bi.getPosition()));
 
     if (! img->m_image->loadFromMemory(memoryIO)) {
-        delete img;
 
-        // todo: replace Image::Error handling with isNull() and notNull() checks in 
         throw Image::Error("Unsupported file format or unable to allocate FreeImage buffer", bi.getFilename());
-        return shared_ptr<Image>();
+        return nullptr;
     }
 
     const ImageFormat* detectedFormat = determineImageFormat(img->m_image);
     
     if (isNull(detectedFormat)) {
-        delete img;
-        img = NULL;
 
-        // todo: replace Image::Error handling with isNull() and notNull() checks in 
         throw Image::Error("Loaded image pixel format does not map to any existing ImageFormat", bi.getFilename());
-        return shared_ptr<Image>();
+        return nullptr;
     }
     
     if (imageFormat == ImageFormat::AUTO()) {
@@ -126,10 +122,8 @@ shared_ptr<Image> Image::fromBinaryInput(BinaryInput& bi, const ImageFormat* ima
     } else {
         debugAssert(detectedFormat->canInterpretAs(imageFormat));
         if (! detectedFormat->canInterpretAs(imageFormat)) {
-            delete img;
-
             throw Image::Error(G3D::format("Loaded image pixel format is not compatible with requested ImageFormat (%s)", imageFormat->name().c_str()), bi.getFilename());
-            return shared_ptr<Image>();
+            return nullptr;
         }
         img->m_format = imageFormat;
     }
@@ -151,14 +145,12 @@ shared_ptr<Image> Image::fromBinaryInput(BinaryInput& bi, const ImageFormat* ima
             break;
             
         default:
-            delete img;
-            
             throw Image::Error("Loaded image data in unsupported palette format", bi.getFilename());
             return shared_ptr<Image>();
         }
     }
     
-    return shared_ptr<Image>(img);
+    return img;
 }
 
 
