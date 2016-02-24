@@ -147,7 +147,11 @@ bool UniversalMaterial::validateTextureDimensions() const {
     textures.append(m_bsdf->lambertian().texture());
     textures.append(m_bsdf->glossy().texture());
     textures.append(m_bsdf->transmissive().texture());
-    textures.append(m_emissive.texture());
+
+    if (notNull(m_emissive.texture())) {
+        textures.append(m_emissive.texture());
+    }
+
     if (notNull(m_bump) && notNull(m_bump->normalBumpMap())) {
         textures.append(m_bump->normalBumpMap()->texture());
     }
