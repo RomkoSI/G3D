@@ -5,7 +5,7 @@
   Copyright 2002-2014, Morgan McGuire
 
   \created 2002-05-27
-  \edited  2014-02-01
+  \edited  2016-02-24
  */
 
 #include "G3D/platform.h"
@@ -19,6 +19,11 @@
 #include "G3D/ImageConvert.h"
 #include "G3D/PixelTransferBuffer.h"
 #include "G3D/CPUPixelTransferBuffer.h"
+
+// Forward declaration for OpenEXR to avoid bringing in the entire header
+namespace Imf {
+void staticInitialize();
+}
 
 namespace G3D {
 
@@ -62,6 +67,10 @@ void Image::initFreeImage() {
 
     if (! hasInitialized) {
         FreeImage_Initialise();
+        // FreeImage's ILM-based mutexes are broken, making actual lazy initialization of the OpenEXR library
+        // not threadsafe. So, we explicitly call that protected by our own 
+        // mutex.
+        Imf::staticInitialize();
         hasInitialized = true;
     }
 }
