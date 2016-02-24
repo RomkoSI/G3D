@@ -3,7 +3,7 @@
  \file UniversalSurface_gbuffer.vrt
  \author Morgan McGuire
  \created 2007-10-22
- \edited  2013-06-11 
+ \edited  2016-02-23 
  */
 #include <UniversalSurface/UniversalSurface_vertex.glsl>
 
@@ -17,10 +17,6 @@
 #   if defined(CS_POSITION_CHANGE) || defined(SS_POSITION_CHANGE) || defined(SS_EXPRESSIVE_MOTION)
         uniform sampler2D   prevBoneMatrixTexture;
 #   endif
-#endif
-
-#if defined(NUM_LIGHTMAP_DIRECTIONS) && (NUM_LIGHTMAP_DIRECTIONS > 0)
-    in vec2 g3d_TexCoord1;
 #endif
 
 #if defined(CS_POSITION_CHANGE) || defined(SS_POSITION_CHANGE)
