@@ -121,7 +121,6 @@ shared_ptr<Image> Image::fromBinaryInput(BinaryInput& bi, const ImageFormat* ima
     const ImageFormat* detectedFormat = determineImageFormat(img->m_image);
     
     if (isNull(detectedFormat)) {
-
         throw Image::Error("Loaded image pixel format does not map to any existing ImageFormat", bi.getFilename());
         return nullptr;
     }
@@ -135,6 +134,11 @@ shared_ptr<Image> Image::fromBinaryInput(BinaryInput& bi, const ImageFormat* ima
             return nullptr;
         }
         img->m_format = imageFormat;
+    }
+
+    // Convert 1-bit images to 8-bit so that they correspond to an OpenGL format
+    if ((img->m_image->getImageType() == FIT_BITMAP) && (img->m_image->getBitsPerPixel() == 1)) {
+        img->convertToL8();
     }
 
     // Convert palettized images so row data can be copied easier
@@ -994,8 +998,10 @@ static const ImageFormat* determineImageFormat(const fipImage* image) {
     {
         case FIT_BITMAP:
         {
-            switch (image->getBitsPerPixel())
+            const int bits = image->getBitsPerPixel();
+            switch (bits)
             {
+                case 1: // Fall through
                 case 8:
                     imageFormat = ImageFormat::L8();
                     break;
