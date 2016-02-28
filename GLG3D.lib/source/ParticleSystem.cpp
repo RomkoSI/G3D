@@ -625,8 +625,9 @@ void ParticleSystem::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
             }
         }
 
-        // TODO: Morgan have the model indicate if physics is enabled for this system
-        applyPhysics(float(absoluteTime), float(deltaTime));
+        if (model->hasPhysics()) {
+            applyPhysics(float(absoluteTime), float(deltaTime));
+        }
     }
 }
 

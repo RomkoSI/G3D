@@ -31,6 +31,8 @@ ParticleSystemModel::Specification::Specification(const Any& a) {
         a.get("emitterArray", array);
         array.getArray(emitterArray);
     }
+
+    hasPhysics = a.get("hasPhysics", true);    
 }
 
 
