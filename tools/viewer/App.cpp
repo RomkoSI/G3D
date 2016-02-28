@@ -64,10 +64,10 @@ void App::onInit() {
     lighting->lightArray.last()->shadowMap()->setBias(0.1f);
 
     Texture::Encoding e;
-    e.readMultiplyFirst = Color4(Color3(1.4f));
-    e.format = ImageFormat::SRGB8();
+    e.readMultiplyFirst = Color4(Color3(0.5f));
+    e.format = ImageFormat::RGB32F();
 
-    lighting->environmentMapArray.append(Texture::fromFile(System::findDataFile("uffizi/uffizi*.jpg"), e, Texture::DIM_CUBE_MAP));
+    lighting->environmentMapArray.append(Texture::fromFile(System::findDataFile("uffizi/uffizi-*.exr"), e, Texture::DIM_CUBE_MAP));
     lighting->ambientOcclusionSettings.numSamples   = 24;
     lighting->ambientOcclusionSettings.radius       = 0.75f * units::meters();
     lighting->ambientOcclusionSettings.intensity    = 2.0f;
