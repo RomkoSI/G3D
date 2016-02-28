@@ -62,7 +62,7 @@ Color3 computeGlossyEnvironmentMapLighting(Vector3 wsR, bool isMirror, float glo
 #   for (int e = 0; e < NUM_ENVIRONMENT_MAPS; ++e)
     {
         float MIPlevel = isMirror ? 0.0 : (environmentMap$(e)_glossyMIPConstant + MIPshift);
-#       if (__VERSION__ >= 400) || (defined(GL_ARB_texture_query_lod) && ! defined(G3D_OSX)) // TODO: make this work on OS X
+#       if (__VERSION__ >= 400) || (defined(GL_ARB_texture_query_lod) && ! defined(G3D_OSX))
             MIPlevel = max(MIPlevel, textureQueryLod(environmentMap$(e)_buffer, wsR).y);
 #       endif
         E_glossyAmbient += 
