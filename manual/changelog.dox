@@ -100,6 +100,8 @@
 	   <li> Renamed G3D::Proxy to G3D::lazy_ptr </li>
 	   <li> Added OpenVR API to the distribution </li>
 	   <li> G3D::FilePath::mangle </li>
+	   <li> Threadsafed EXR image loading </li>
+	   <li> Added support for loading 1-bit PNG </li>
       </ul>
     </p>
 
