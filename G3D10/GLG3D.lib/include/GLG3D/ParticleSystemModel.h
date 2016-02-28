@@ -200,7 +200,10 @@ public:
 
         Array<Emitter::Specification>    emitterArray;
 
-        Specification() {}
+        /** Must be enabled on all emitters in the particle system simultaneously */
+        bool    hasPhysics;
+
+        Specification() : hasPhysics(true) {}
 
         explicit Specification(const Emitter::Specification& spec) {
             emitterArray.append(spec);
@@ -214,6 +217,7 @@ public:
 
         Any toAny() const;
     };
+
 protected:
 
     String                              m_name;
@@ -224,6 +228,7 @@ protected:
     Array<std::pair<float, float>>      m_coverageFadeTime;
     bool                                m_hasCoverageFadeTime;
     bool                                m_hasExpireTime;
+    bool                                m_hasPhysics;
 
     ParticleSystemModel(const Specification& spec, const String& name);
     void init();
@@ -238,6 +243,10 @@ public:
     /** Fade in and fade out time for emitter e. Used during ParticleSystem::onSimulation */
     const std::pair<float, float>& coverageFadeTime(int e) const {
         return m_coverageFadeTime[e];
+    }
+
+    bool hasPhysics() const {
+        return m_hasPhysics;
     }
 
     /** True if any fadeTime is non-zero */

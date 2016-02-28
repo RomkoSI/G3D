@@ -37,7 +37,9 @@ static const ImageFormat* colorImageFormat(bool useHalfPrecisionColor) {
 
 
 static const ImageFormat* colorInputImageFormat(bool useHalfPrecisionColor) { 
-    return useHalfPrecisionColor ? ImageFormat::R11G11B10F() : ImageFormat::RGBA32F();
+    return useHalfPrecisionColor ? 
+        (GLCaps::supportsTexture(ImageFormat::R11G11B10F()) ? ImageFormat::R11G11B10F() : ImageFormat::RGB16F())
+        : ImageFormat::RGBA32F();
 }
 
 static const ImageFormat* normalImageFormat(bool useOct16) {
