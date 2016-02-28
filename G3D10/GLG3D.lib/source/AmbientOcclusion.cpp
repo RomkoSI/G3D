@@ -118,6 +118,8 @@ void AmbientOcclusion::PerViewBuffers::resizeBuffers(const String& name, shared_
     if (isNull(cszBuffer) || (csZFormat != cszBuffer->format())) {
         debugAssert(width > 0 && height > 0);
         cszBuffer = Texture::createEmpty(name + format("::cszBuffer%d", cszBufferIndex), width, height, csZFormat, Texture::DIM_2D, true);
+        cszBuffer->visualization.min = -50.0f;
+        cszBuffer->visualization.max = -0.1f;
 
         // The buffers have to be explicitly cleared or they won't allocate MIP maps on OS X
         cszBuffer->clear();
