@@ -120,11 +120,7 @@ vec3 getPosition(ivec2 ssP, sampler2D cszBuffer) {
 int getMipLevel(float ssR) {
     // Derivation:
     //  mipLevel = floor(log(ssR / MAX_OFFSET));
-#   ifdef GL_EXT_gpu_shader5
-    return clamp(findMSB(int(ssR)) - LOG_MAX_OFFSET, 0, MAX_MIP_LEVEL);
-#   else
     return clamp(int(floor(log2(ssR))) - LOG_MAX_OFFSET, 0, MAX_MIP_LEVEL);
-#   endif
 }
 
 /** Read the camera-space position of the point at screen-space pixel ssP + unitOffset * ssR.  Assumes length(unitOffset) == 1.
