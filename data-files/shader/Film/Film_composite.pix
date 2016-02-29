@@ -34,8 +34,6 @@ out vec4 result;
 // From https://www.shadertoy.com/view/4sf3D2
 float hash(vec2 p) {return fract(sin(p.x * 1e2 + p.y) * 1e5 + sin(p.y * 1e3) * 1e3); }
 
-
-float pow4(float x) { return x * x * x * x; }
 void main(void) {
 
     int2 X = int2(g3d_TexCoord.st * g3d_FragCoordExtent) + guardBandSize;

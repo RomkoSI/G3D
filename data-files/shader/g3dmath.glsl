@@ -56,6 +56,16 @@ void swap(inout $(gentype) a, inout $(gentype) b) {
     b = temp;
 }
 
+
+/** Compute x^4 */
+$(gentype) pow4($(gentype) x) {
+    // x^2
+    x *= 2;
+
+    // x^4;
+    return x * x;
+}
+
 /** Compute x^6 */
 $(gentype) pow6($(gentype) x) {
     // x^3
@@ -234,7 +244,7 @@ float packGlossyExponent(in float x) {
 
 #if G3D_SHADER_STAGE == G3D_FRAGMENT_SHADER
 /**
- Computes pow2(mipLevel), avoiding the expensive log2 call needed for the 
+ Computes 2^mipLevel, avoiding the expensive log2 call needed for the 
  actual MIP level.
  */
 float computeSampleRate(vec2 texCoord, vec2 samplerSize) {
