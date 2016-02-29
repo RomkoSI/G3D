@@ -83,8 +83,8 @@ UniversalMaterialSample sampleUniversalMaterial$(dim)
     const vec3 BLACK = vec3(0.0, 0.0, 0.0);
     Point$(n) offsetTexCoord;
     smpl.tsNormal = Vector3(0.0,0.0,1.0);
+    float rawNormalLength = 1.0;
     if (hasNormalBumpMap) {
-        float rawNormalLength = 1.0;
         if (parallaxSteps > 0) {
             bumpMap(material.normalBumpMap, material.bumpMapScale, material.bumpMapBias, texCoord, tan_X, tan_Y, tan_Z, backside, normalize(tsEye), smpl.shadingNormal, offsetTexCoord, smpl.tsNormal, rawNormalLength, parallaxSteps);
         } else {
@@ -155,18 +155,17 @@ UniversalMaterialSample sampleUniversalMaterial$(dim)
     // We separate out the normal used for glossy reflection from the one used for shading in general
     // to allow subclasses to easily compute anisotropic highlights
     smpl.glossyShadingNormal = smpl.shadingNormal;
-       
+
     {
         vec4 temp = sampleTexture(material.glossy, offsetTexCoord);
         smpl.fresnelReflectionAtNormalIncidence = temp.rgb;
         smpl.smoothness = temp.a;
     }
     
-    if (hasNormalBumpMap) {
-        // TODO: apply toksvig computation to smoothness, material.glossy.a
-        //  glossyExponent = computeToksvigGlossyExponent(glossyExponent, rawNormalLength);
+    if (hasNormalBumpMap && (rawNormalLength < 1.0)) {
+        // Convert normal variance to roughness
+        smpl.smoothness *= pow64(pow64(rawNormalLength));
     }
-
 
     if (hasTransmissive) {
         vec4 tmp = sampleTexture(material.transmissive, offsetTexCoord);

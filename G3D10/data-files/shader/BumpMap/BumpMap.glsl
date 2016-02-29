@@ -45,13 +45,16 @@
 void bumpMapBlinn78(in sampler2D normalBumpMap, in float bumpMapScale, in float bumpMapBias, in vec2 texCoord, in vec3 tan_X, in vec3 tan_Y, in vec3 tan_Z, in float backside, in vec3 tsE, out vec3 wsN, out vec2 offsetTexCoord, out vec3 tsN, out float rawNormalLength, int maxIterations) {
         
     offsetTexCoord = texCoord;
+
+    // Bias the MIP-map lookup to avoid specular aliasing
+    float biasFactor = 1.75;
             
     // Take the normal map values back to (-1, 1) range to compute a tangent space normal
-    tsN = texture(normalBumpMap, offsetTexCoord).xyz * 2.0 + vec3(-1.0);
+    tsN = textureGrad(normalBumpMap, offsetTexCoord, dFdx(offsetTexCoord) * biasFactor, dFdy(offsetTexCoord) * biasFactor).xyz * 2.0 + vec3(-1.0);
 
     // As we approach the full-res MIP map, let the rawNormal length be 1.0.  This avoids having
     // bilinear interpolation create short normals under the magnification filter
-    rawNormalLength = lerp(1.0, length(tsN), min(1.0, computeSampleRate(offsetTexCoord, textureSize(normalBumpMap, 0))));
+    rawNormalLength = lerp(1.0, length(tsN), min(1.0, computeSampleRate(offsetTexCoord * biasFactor, textureSize(normalBumpMap, 0))));
 
     // note that the columns might be slightly non-orthogonal due to interpolation
     mat3 tangentToWorld = mat3(tan_X, tan_Y, tan_Z);
@@ -77,12 +80,15 @@ void bumpMapWelsh04(in sampler2D normalBumpMap, in float bumpMapScale, in float 
 
     offsetTexCoord = texCoord.xy + vec2(tsE.x, -tsE.y) * bump;
             
+    // Bias the MIP-map lookup to avoid specular aliasing
+    float biasFactor = 1.75;
+
     // Take the normal map values back to (-1, 1) range to compute a tangent space normal
-    tsN = texture(normalBumpMap, offsetTexCoord).xyz * 2.0 + vec3(-1.0);
+    tsN = textureGrad(normalBumpMap, offsetTexCoord, dFdx(offsetTexCoord) * biasFactor, dFdy(offsetTexCoord) * biasFactor).xyz * 2.0 + vec3(-1.0);
 
     // As we approach the full-res MIP map, let the rawNormal length be 1.0.  This avoids having
     // bilinear interpolation create short normals under the magnification filter
-    rawNormalLength = lerp(1.0, length(tsN), min(1.0, computeSampleRate(offsetTexCoord, textureSize(normalBumpMap, 0))));
+    rawNormalLength = lerp(1.0, length(tsN), min(1.0, computeSampleRate(offsetTexCoord * biasFactor, textureSize(normalBumpMap, 0))));
 
     // note that the columns might be slightly not orthogonal due to interpolation
     mat3 tangentToWorld = mat3(tan_X, tan_Y, tan_Z);
