@@ -148,7 +148,6 @@ public:
     }
 
     /** 
-        
         Maps the view frustum to the cube [-1, +1]^3 in the OpenGL style.
 
         \param verticalRadians Vertical field of view from top to bottom
@@ -169,11 +168,22 @@ public:
         return P;        
     }
 
-    static Matrix4x4 ortho() {
-        // TODO
-        return Matrix4x4();
+    /** 
+        Maps the view frustum to the cube [-1, +1]^3 in the OpenGL
+        style by orthographic projection in which (0, 0) will become
+        the top-left corner of the screen after the viewport is
+        applied and (pixelWidth - 1, pixelHeight - 1) will be the
+        lower-right corner.
+        
+        \param nearZ Negative number
+        \param farZ Negative number less than (higher magnitude than) nearZ. Must be finite
+    */
+    static Matrix4x4 ortho(float pixelWidth, float pixelHeight, float nearZ, float farZ) {
+        return Matrix4x4(2.0f / pixelWidth, 0.0f, 0.0f, -1.0f,
+                         0.0f, 2.0f / pixelHeight, 0.0f, -1.0f,
+                         0.0f, 0.0f, 2.0f / (nearZ - farZ), (farZ + nearZ) / (nearZ - farZ),
+                         0.0f, 0.0f, 0.0f, 1.0f);
     }
-    
 
     Matrix4x4 transpose() const {
         return Matrix4x4(data[ 0], data[ 4], data[ 8], data[12],

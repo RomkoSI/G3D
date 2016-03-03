@@ -31,27 +31,42 @@ GLFWwindow* window = nullptr;
 int main(const int argc, const char* argv[]) {
     window = initOpenGL(1280, 720, "minGL4");
 
-    float points[] = {
-        0.0f,  0.5f,  0.0f,
-        0.5f, -0.5f,  0.0f,
-        -0.5f, -0.5f,  0.0f
+    glEnable(GL_DEBUG_OUTPUT);
+
+    const Vector3 cpuPosition[] = {
+        Vector3( 0.0f,  0.5f,  0.0f),
+        Vector3( 0.5f, -0.5f,  0.0f),
+        Vector3(-0.5f, -0.5f,  0.0f)
     };
 
-    GLuint vbo = 0;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, 9 * sizeof (float), points, GL_STATIC_DRAW);
+    const Vector3 cpuNormal[] = {
+        Vector3( 1.0f, 0.0f, 0.0f),
+        Vector3( 0.0f, 1.0f, 0.0f),
+        Vector3( 0.0f, 0.0f, 1.0f),
+    };
 
-    GLuint vao = 0;
+    // Bind a single vertex array (done this way since OpenGL 3)
+    GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
-    glEnableVertexAttribArray (0);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+    const int N = 3;
+    GLuint positionBuffer = GL_NONE;
+    glGenBuffers(1, &positionBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, N * sizeof(Vector3), cpuPosition, GL_STATIC_DRAW);
+
+    GLuint normalBuffer = GL_NONE;
+    glGenBuffers(1, &normalBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+    glBufferData(GL_ARRAY_BUFFER, N * sizeof(Vector3), cpuNormal, GL_STATIC_DRAW);
 
     const GLuint shader = loadShader("min.vrt", "min.pix");
 
-    int modelViewProjectionMatrixLocation = glGetUniformLocation(shader, "modelViewProjectionMatrix");
+    // Binding points for attributes and uniforms
+    const GLint positionAttribute                = glGetAttribLocation(shader, "position");
+    const GLint normalAttribute                  = glGetAttribLocation(shader, "normal");
+    const GLint modelViewProjectionMatrixUniform = glGetUniformLocation(shader, "modelViewProjectionMatrix");
 
     Matrix4x4 objectToWorldMatrix;
     Matrix4x4 worldToCameraMatrix;
@@ -67,11 +82,17 @@ int main(const int argc, const char* argv[]) {
         glUseProgram(shader);
 
         const Matrix4x4& modelViewProjectionMatrix = projectionMatrix * worldToCameraMatrix * objectToWorldMatrix;
-        glUniformMatrix4fv(modelViewProjectionMatrixLocation, 1, GL_TRUE, modelViewProjectionMatrix.data);
+        glUniformMatrix4fv(modelViewProjectionMatrixUniform, 1, GL_TRUE, modelViewProjectionMatrix.data);
 
-        glBindVertexArray(vao);
+        glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+        glVertexAttribPointer(positionAttribute, N, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(positionAttribute);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+        glVertexAttribPointer(normalAttribute, N, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(normalAttribute);
+
+        glDrawArrays(GL_TRIANGLES, 0, N);
 
         // Check for events
         glfwPollEvents();
