@@ -28,10 +28,15 @@
 
 GLFWwindow* window = nullptr;
 
+void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+    fprintf(stderr, "GL Debug: %s\n", message);
+}
+
 int main(const int argc, const char* argv[]) {
     window = initOpenGL(1280, 720, "minGL4");
 
     glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(debugCallback, nullptr);
 
     const Vector3 cpuPosition[] = {
         /*
