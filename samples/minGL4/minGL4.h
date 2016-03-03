@@ -180,8 +180,8 @@ public:
     */
     static Matrix4x4 ortho(float pixelWidth, float pixelHeight, float nearZ, float farZ) {
         return Matrix4x4(2.0f / pixelWidth, 0.0f, 0.0f, -1.0f,
-                         0.0f, 2.0f / pixelHeight, 0.0f, -1.0f,
-                         0.0f, 0.0f, 2.0f / (nearZ - farZ), (farZ + nearZ) / (nearZ - farZ),
+                         0.0f, -2.0f / pixelHeight, 0.0f, 1.0f,
+                         0.0f, 0.0f, -2.0f / (nearZ - farZ), (farZ + nearZ) / (nearZ - farZ),
                          0.0f, 0.0f, 0.0f, 1.0f);
     }
 
@@ -276,11 +276,8 @@ std::string loadTextFile(const std::string& filename) {
 }
 
 
-GLuint loadShader(const std::string& vertexFilename, const std::string& pixelFilename) {
+GLuint compileShader(const std::string& vertexShaderSource, const std::string& pixelShaderSource) {
     GLuint shader = glCreateProgram();
-
-    const std::string& vertexShaderSource = loadTextFile(vertexFilename);
-    const std::string& pixelShaderSource  = loadTextFile(pixelFilename);
 
     const char* vSrcArray[] = {vertexShaderSource.c_str()};
     const char* pSrcArray[] = {pixelShaderSource.c_str()};
@@ -298,4 +295,68 @@ GLuint loadShader(const std::string& vertexFilename, const std::string& pixelFil
     glLinkProgram(shader);
 
     return shader;
+}
+
+
+GLuint loadShader(const std::string& vertexFilename, const std::string& pixelFilename) {
+    const std::string& vertexShaderSource = loadTextFile(vertexFilename);
+    const std::string& pixelShaderSource  = loadTextFile(pixelFilename);
+    return compileShader(vertexShaderSource, pixelShaderSource);
+}
+
+
+/** Submits OpenGL geometry to attribute positionAttribute for a 2D rectangle */
+void drawRect(GLint positionAttribute, int width, int height, float z = -1.0f) {
+    static GLuint positionBuffer = GL_NONE;
+
+    if (positionBuffer == GL_NONE) {
+        // Only allocate during the first call
+        glGenBuffers(1, &positionBuffer);
+    }
+    
+    const Vector3 cpuPosition[] = {
+        Vector3( 0.0f,   0.0f, z),
+        Vector3( 0.0f, height, z),
+        Vector3(width, height, z),
+        Vector3(width,   0.0f, z)
+    };
+
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vector3), cpuPosition, GL_DYNAMIC_DRAW);
+
+    glVertexAttribPointer(positionAttribute, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(positionAttribute);
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
+
+#define SHADER_SOURCE(s) "#version 410\n" #s
+void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farPlaneZ, float verticalFieldOfView) {
+    static const GLuint skyShader = 
+        compileShader(SHADER_SOURCE
+                      (
+                       uniform (location = 0) mat4x4 MVP;
+                       in vec3 position;
+
+                       void main () {
+                           gl_Position = MVP * vec4(position, 1.0);
+                       }), 
+
+                      SHADER_SOURCE
+                      (
+                       out vec4 pixelColor;
+                       void main() { 
+                           pixelColor = vec4(0.0, 1.0, 1.0, 1.0);
+                       }));
+
+    // Orthographic matrix
+    glUniformMatrix4fv(0, 1, GL_TRUE, Matrix4x4::ortho(windowWidth, windowHeight, nearPlaneZ, farPlaneZ).data);
+
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
+    glUseProgram(skyShader);
+
+    const int positionAttribute = 0;
+    drawRect(positionAttribute, windowWidth, windowHeight, farPlaneZ);
 }
