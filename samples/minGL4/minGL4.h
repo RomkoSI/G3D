@@ -124,6 +124,12 @@ GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
         ::exit(1);
     } 
 
+    // Without these, shaders actually won't initialize properly
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     GLFWwindow* window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
     if (! window) {
         fprintf(stderr, "ERROR: could not open window with GLFW\n");
@@ -131,6 +137,7 @@ GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
         ::exit(2);
     }
     glfwMakeContextCurrent(window);
+
                                   
     // Start GLEW extension handler, with improved support for new features
     glewExperimental = GL_TRUE;
