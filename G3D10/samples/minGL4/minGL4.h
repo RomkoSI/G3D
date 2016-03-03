@@ -30,6 +30,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 
 class Vector3 {
 public:
@@ -99,10 +100,10 @@ public:
     }
 
     static Matrix4x4 zero() {
-        return m(0.0f, 0.0f, 0.0f, 0.0f,
-                 0.0f, 0.0f, 0.0f, 0.0f,
-                 0.0f, 0.0f, 0.0f, 0.0f,
-                 0.0f, 0.0f, 0.0f, 0.0f);
+        return Matrix4x4(0.0f, 0.0f, 0.0f, 0.0f,
+                         0.0f, 0.0f, 0.0f, 0.0f,
+                         0.0f, 0.0f, 0.0f, 0.0f,
+                         0.0f, 0.0f, 0.0f, 0.0f);
     }
 
     static Matrix4x4 roll(float radians) {
@@ -154,11 +155,11 @@ public:
         \param nearZ Negative number
         \param farZ Negative number less than (higher magnitude than) nearZ. May be negative infinity 
     */
-    static Matrix4x4 perspective(float pixelWidth, float pixelHeight, float verticalRadians, float nearZ, float farZ, float subpixelShiftX = 0.0f, float subpixelShiftY = 0.0f) const {
+    static Matrix4x4 perspective(float pixelWidth, float pixelHeight, float verticalRadians, float nearZ, float farZ, float subpixelShiftX = 0.0f, float subpixelShiftY = 0.0f) {
         const float k = 1.0f / tan(verticalRadians / 2.0f);
 
-        const float c = (infinite) ? -1.0f : (nearZ + farZ) / (nearZ - farZ);
-        const float d = (infinite) ?  1.0f : farZ / (nearZ - farZ);
+        const float c = (farZ == -INFINITY) ? -1.0f : (nearZ + farZ) / (nearZ - farZ);
+        const float d = (farZ == -INFINITY) ?  1.0f : farZ / (nearZ - farZ);
 
         Matrix4x4 P(k * pixelWidth / pixelHeight, 0.0f, subpixelShiftX * k / (nearZ * pixelWidth), 0.0f,
                     0.0f, k, subpixelShiftY * k / (nearZ * pixelHeight), 0.0f,
