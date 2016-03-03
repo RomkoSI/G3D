@@ -1,7 +1,7 @@
-#version 400 // -*- c++ -*-
+#version 410 // -*- c++ -*-
 
-out vec4 frag_colour;
+out vec4 pixelColor;
 void main () {
-  frag_colour = vec4 (0.5, 0.0, 0.5, 1.0);
+     pixelColor = vec4(0.5, 0.0, 0.5, 1.0);
 }
 
