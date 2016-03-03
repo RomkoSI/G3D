@@ -21,24 +21,17 @@
  */
 
 #include "minGL4.h"
+#include <stdio.h>
 
 int main(const int argc, const char* argv[]) {
-    // Start GL context and O/S window using the GLFW helper library
     if (! glfwInit()) {
-        fprintf (stderr, "ERROR: could not start GLFW3\n");
+        fprintf(stderr, "ERROR: could not start GLFW\n");
         return 1;
     } 
 
-#   ifdef G3D_OSX
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,    3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,    2);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,    GL_TRUE);
-        glfwWindowHint(GLFW_OPENGL_PROFILE,           GLFW_OPENGL_CORE_PROFILE);
-#   endif
-
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "minGL4", NULL, NULL);
+    const GLFWwindow* window = glfwCreateWindow(1280, 720, "minGL4", NULL, NULL);
     if (! window) {
-        fprintf(stderr, "ERROR: could not open window with GLFW3\n");
+        fprintf(stderr, "ERROR: could not open window with GLFW\n");
         glfwTerminate();
         return 1;
     }
