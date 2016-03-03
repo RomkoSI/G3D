@@ -154,13 +154,13 @@ public:
         \param nearZ Negative number
         \param farZ Negative number less than (higher magnitude than) nearZ. May be negative infinity 
     */
-    static Matrix4x4 perspective(float pixelWidth, float pixelHeight, float verticalRadians, float nearZ, float farZ, float subpixelShiftX = 0.0f, float subpixelShiftY = 0.0f) {
+    static Matrix4x4 perspective(float pixelWidth, float pixelHeight, float nearZ, float farZ, float verticalRadians, float subpixelShiftX = 0.0f, float subpixelShiftY = 0.0f) {
         const float k = 1.0f / tan(verticalRadians / 2.0f);
 
         const float c = (farZ == -INFINITY) ? -1.0f : (nearZ + farZ) / (nearZ - farZ);
         const float d = (farZ == -INFINITY) ?  1.0f : farZ / (nearZ - farZ);
 
-        Matrix4x4 P(k * pixelWidth / pixelHeight, 0.0f, subpixelShiftX * k / (nearZ * pixelWidth), 0.0f,
+        Matrix4x4 P(k * pixelHeight / pixelWidth, 0.0f, subpixelShiftX * k / (nearZ * pixelWidth), 0.0f,
                     0.0f, k, subpixelShiftY * k / (nearZ * pixelHeight), 0.0f,
                     0.0f, 0.0f, c, -2.0f * nearZ * d,
                     0.0f, 0.0f, -1.0f, 0.0f);

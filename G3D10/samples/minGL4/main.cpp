@@ -34,9 +34,19 @@ int main(const int argc, const char* argv[]) {
     glEnable(GL_DEBUG_OUTPUT);
 
     const Vector3 cpuPosition[] = {
-        Vector3( 0.0f,  0.5f,  0.0f),
-        Vector3( 0.5f, -0.5f,  0.0f),
-        Vector3(-0.5f, -0.5f,  0.0f)
+        /*
+        Vector3(0, 0, -1),
+        Vector3(1000, 0, -1),
+        Vector3(0, 1000, -1)
+        */
+        /*
+        Vector3( 0.0f,  2.5f, -10.0f),
+        Vector3(-0.7f, -1.0f, -10.0f),
+        Vector3( 0.7f, -1.0f, -10.0f)
+        */
+        Vector3( 0.0f,  0.0f, -2.0f),
+        Vector3( 1.0f,  0.0f, -2.0f),
+        Vector3( 0.0f,  1.0f, -2.0f)
     };
 
     const Vector3 cpuNormal[] = {
@@ -56,21 +66,17 @@ int main(const int argc, const char* argv[]) {
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
     glBufferData(GL_ARRAY_BUFFER, N * sizeof(Vector3), cpuPosition, GL_STATIC_DRAW);
 
-    GLuint normalBuffer = GL_NONE;
-    glGenBuffers(1, &normalBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-    glBufferData(GL_ARRAY_BUFFER, N * sizeof(Vector3), cpuNormal, GL_STATIC_DRAW);
+    GLuint colorBuffer = GL_NONE;
+    glGenBuffers(1, &colorBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, N * sizeof(Vector3), cpuColor, GL_STATIC_DRAW);
 
     const GLuint shader = loadShader("min.vrt", "min.pix");
 
     // Binding points for attributes and uniforms
     const GLint positionAttribute                = glGetAttribLocation(shader, "position");
-    const GLint normalAttribute                  = glGetAttribLocation(shader, "normal");
+    const GLint colorAttribute                  = glGetAttribLocation(shader, "color");
     const GLint modelViewProjectionMatrixUniform = glGetUniformLocation(shader, "modelViewProjectionMatrix");
-
-    Matrix4x4 objectToWorldMatrix;
-    Matrix4x4 worldToCameraMatrix;
-    Matrix4x4 projectionMatrix;
 
     // Main loop:
     while (! glfwWindowShouldClose(window)) {
@@ -78,7 +84,19 @@ int main(const int argc, const char* argv[]) {
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
-        
+        glDisable(GL_CULL_FACE);
+
+        int windowWidth = 1, windowHeight = 1;
+        const float nearPlaneZ = -0.1f;
+        const float farPlaneZ = -100.0f;
+        const float verticalFieldOfView = 60.0f * M_PI / 180.0f;
+        glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+        Matrix4x4 objectToWorldMatrix;
+        Matrix4x4 worldToCameraMatrix;
+        Matrix4x4 projectionMatrix = Matrix4x4::perspective(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView);
+            //Matrix4x4::ortho(windowWidth, windowHeight, nearPlaneZ, farPlaneZ);
+       
         glUseProgram(shader);
 
         const Matrix4x4& modelViewProjectionMatrix = projectionMatrix * worldToCameraMatrix * objectToWorldMatrix;
@@ -88,9 +106,9 @@ int main(const int argc, const char* argv[]) {
         glVertexAttribPointer(positionAttribute, N, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(positionAttribute);
 
-        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-        glVertexAttribPointer(normalAttribute, N, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(normalAttribute);
+        glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+        glVertexAttribPointer(colorAttribute, N, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(colorAttribute);
 
         glDrawArrays(GL_TRIANGLES, 0, N);
 

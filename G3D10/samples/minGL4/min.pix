@@ -1,11 +1,11 @@
 #version 410 // -*- c++ -*-
 
-in vec3 color;
+in vec3 _color;
 
 out vec4 pixelColor;
 
 
 void main () {
-     pixelColor = vec4(color, 1.0);
+     pixelColor = vec4(_color, 1.0);
 }
 
