@@ -92,7 +92,8 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D)
             }
             const shared_ptr<UniversalSurface::GPUGeom>& gpuGeom = surface->gpuGeom();
             args.setAttributeArray("Position", gpuGeom->vertex);
-            args.setIndexArray(gpuGeom->index);
+            args.setIndexStream(gpuGeom->index);
+            
             CoordinateFrame cf;
             surface->getCoordinateFrame(cf);
             rd->setObjectToWorldMatrix(cf);
