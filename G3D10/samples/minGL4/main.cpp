@@ -57,15 +57,19 @@ int main(const int argc, const char* argv[]) {
 #   endif
 
     const Vector3 cpuPosition[] = {
+        // Right triangle in pixel coords:
         /*
-        Vector3(0, 0, -1),
-        Vector3(1000, 0, -1),
-        Vector3(0, 1000, -1)
+        Vector3(0, 0, 0),
+        Vector3(1280, 0, 0),
+        Vector3(0, 720, 0)
         */
         
+        // Isoscoles triangle:
         Vector3( 0.0f,  1.0f, 0.0f),
         Vector3(-1.0f, -1.0f, 0.0f),
         Vector3( 1.0f, -1.0f, 0.0f)
+
+        // Right triangle:
         /*
         Vector3( 0.0f,  0.0f, 0.0f),
         Vector3( 1.0f,  0.0f, 0.0f),
@@ -101,8 +105,8 @@ int main(const int argc, const char* argv[]) {
     const GLuint shader = loadShader("min.vrt", "min.pix");
 
     // Binding points for attributes and uniforms discovered from the shader
-    const GLint positionAttribute                = glGetAttribLocation(shader, "position");
-    const GLint colorAttribute                   = glGetAttribLocation(shader, "color");
+    const GLint positionAttribute                = glGetAttribLocation(shader,  "position");
+    const GLint colorAttribute                   = glGetAttribLocation(shader,  "color");
     const GLint modelViewProjectionMatrixUniform = glGetUniformLocation(shader, "modelViewProjectionMatrix");
 
     int windowWidth = 1, windowHeight = 1;
@@ -136,21 +140,24 @@ int main(const int argc, const char* argv[]) {
         // Render to the off-screen HDR framebuffer
         // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
 
-        glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LESS);
-        glDisable(GL_CULL_FACE);
-
         const float nearPlaneZ = -0.1f;
         const float farPlaneZ = -100.0f;
         const float verticalFieldOfView = 45.0f * M_PI / 180.0f;
 
-        Matrix4x4 objectToWorldMatrix = Matrix4x4::pitch(timer * 0.015f) * Matrix4x4::roll(timer * 0.01f);
-        Matrix4x4 worldToCameraMatrix = Matrix4x4::translate(0, 0, -3.0f);
-        Matrix4x4 projectionMatrix = Matrix4x4::perspective(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView);
-            //Matrix4x4::ortho(windowWidth, windowHeight, nearPlaneZ, farPlaneZ);
+        glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Draw the background
+        drawSky(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView);
+
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+        glDisable(GL_CULL_FACE);
+        glDepthMask(GL_TRUE);
+
+        const Matrix4x4 objectToWorldMatrix;// = Matrix4x4::pitch(timer * 0.015f) * Matrix4x4::roll(timer * 0.01f);
+        const Matrix4x4& worldToCameraMatrix = Matrix4x4::translate(0, 0, -3.0f);
+        const Matrix4x4& projectionMatrix = Matrix4x4::perspective(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView);
        
         glUseProgram(shader);
 
