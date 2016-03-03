@@ -133,6 +133,7 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
   <ItemGroup>
     <ClCompile Include="..\G3D.lib\source\AABox.cpp" />
     <ClCompile Include="..\G3D.lib\source\Any.cpp" />
+    <ClCompile Include="..\G3D.lib\source\AnyTableReader.cpp" />
     <ClCompile Include="..\G3D.lib\source\AreaMemoryManager.cpp" />
     <ClCompile Include="..\G3D.lib\source\BinaryFormat.cpp" />
     <ClCompile Include="..\G3D.lib\source\BinaryInput.cpp" />

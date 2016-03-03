@@ -356,9 +356,6 @@
     <ClCompile Include="..\GLG3D.lib\source\SceneEditorWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\G3D.lib\source\AnyTableReader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\GLG3D.lib\source\AttributeArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
