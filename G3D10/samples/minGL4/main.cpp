@@ -25,18 +25,23 @@
  */
 
 #include "minGL4.h"
+#include <iostream>
 
 GLFWwindow* window = nullptr;
 
-void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
     fprintf(stderr, "GL Debug: %s\n", message);
 }
 
 int main(const int argc, const char* argv[]) {
     window = initOpenGL(1280, 720, "minGL4");
 
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(debugCallback, nullptr);
+#   ifdef _DEBUG
+       glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+       glEnable(GL_DEBUG_OUTPUT);
+       // Not working!
+       //   glDebugMessageCallback(debugCallback, nullptr);
+#   endif
 
     const Vector3 cpuPosition[] = {
         /*
@@ -54,7 +59,7 @@ int main(const int argc, const char* argv[]) {
         Vector3( 0.0f,  1.0f, -2.0f)
     };
 
-    const Vector3 cpuNormal[] = {
+    const Vector3 cpuColor[] = {
         Vector3( 1.0f, 0.0f, 0.0f),
         Vector3( 0.0f, 1.0f, 0.0f),
         Vector3( 0.0f, 0.0f, 1.0f),

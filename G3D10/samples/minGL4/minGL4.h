@@ -242,6 +242,10 @@ GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+#   ifdef _DEBUG
+       glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+#   endif
+
     GLFWwindow* window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
     if (! window) {
         fprintf(stderr, "ERROR: could not open window with GLFW\n");
