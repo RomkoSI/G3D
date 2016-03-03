@@ -79,11 +79,12 @@ int main(const int argc, const char* argv[]) {
         Vector3( 0.0f, 0.0f, 1.0f),
     };
 
-    // Bind a single vertex array (done this way since OpenGL 3)
+    // Bind a single global vertex array (done this way since OpenGL 3)
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
+    // Create separate vertex buffers for each attribute
     const int N = 3;
     GLuint positionBuffer = GL_NONE;
     glGenBuffers(1, &positionBuffer);
@@ -97,10 +98,30 @@ int main(const int argc, const char* argv[]) {
 
     const GLuint shader = loadShader("min.vrt", "min.pix");
 
-    // Binding points for attributes and uniforms
+    // Binding points for attributes and uniforms discovered from the shader
     const GLint positionAttribute                = glGetAttribLocation(shader, "position");
     const GLint colorAttribute                   = glGetAttribLocation(shader, "color");
     const GLint modelViewProjectionMatrixUniform = glGetUniformLocation(shader, "modelViewProjectionMatrix");
+
+    int windowWidth = 1, windowHeight = 1;
+    glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+    // Init framebuffer and targets
+    GLuint framebuffer = GL_NONE;
+    if (false) {
+        glGenFramebuffers(1, &framebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+        GLuint colorBuffer = GL_NONE;
+        glGenTextures(1, &colorBuffer);
+        glBindTexture(GL_TEXTURE_2D, colorBuffer);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight, 0, GL_RGBA16F, GL_FLOAT, nullptr);
+
+        GLuint depthBuffer = GL_NONE;
+        glGenTextures(1, &depthBuffer);
+        glBindTexture(GL_TEXTURE_2D, depthBuffer);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, windowWidth, windowHeight, 0, GL_R32F, GL_FLOAT, nullptr);
+    }
 
     // Main loop:
     int timer = 0;
@@ -112,11 +133,9 @@ int main(const int argc, const char* argv[]) {
         glDepthFunc(GL_LESS);
         glDisable(GL_CULL_FACE);
 
-        int windowWidth = 1, windowHeight = 1;
         const float nearPlaneZ = -0.1f;
         const float farPlaneZ = -100.0f;
         const float verticalFieldOfView = 45.0f * M_PI / 180.0f;
-        glfwGetWindowSize(window, &windowWidth, &windowHeight);
 
         Matrix4x4 objectToWorldMatrix = Matrix4x4::pitch(timer * 0.015f) * Matrix4x4::roll(timer * 0.01f);
         Matrix4x4 worldToCameraMatrix = Matrix4x4::translate(0, 0, -3.0f);
