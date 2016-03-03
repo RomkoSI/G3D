@@ -28,7 +28,7 @@
 
   TODO:
     - Fix ortho projection
-    - Add framebuffer
+    - Render to HDR framebuffer and then post + gamma to the screen
     - Draw cube
     - Draw ground plane
     - Render background sphere
@@ -133,6 +133,9 @@ int main(const int argc, const char* argv[]) {
     // Main loop:
     int timer = 0;
     while (! glfwWindowShouldClose(window)) {
+        // Render to the off-screen HDR framebuffer
+        // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+
         glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -166,6 +169,16 @@ int main(const int argc, const char* argv[]) {
 
         // Check for events
         glfwPollEvents();
+
+        /*
+        // Blit the HDR framebuffer to the LDR hardware framebuffer
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBlitFramebuffer(0, 0, windowWidth, windowHeight, 
+                          0, 0, windowWidth, windowHeight, 
+                          GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+                          GL_NEAREST);
+        */
 
         // Display what has been drawn
         glfwSwapBuffers(window);
