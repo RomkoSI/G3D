@@ -51,6 +51,10 @@ int main(const int argc, const char* argv[]) {
 
     GLuint shader = loadShader("min.vrt", "min.pix");
 
+    Matrix4x4 objectToWorldMatrix;
+    Matrix4x4 worldToCameraMatrix;
+    Matrix4x4 projectionMatrix;
+
     // Main loop:
     while (! glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
