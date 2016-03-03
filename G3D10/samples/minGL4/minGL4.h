@@ -21,10 +21,10 @@
 #   include <GL/xglew.h>
 #endif
 #include <GLFW/glfw3.h> 
-#include <stdio.h>
+#include <cstring>
 
 
-class Vector4 {
+class Vector3 {
 public:
     float x, y, z;
     /** initializes to zero */
@@ -33,6 +33,12 @@ public:
     explicit Vector3(const class Vector4&);
     float dot(const Vector3& other) const {
         return x * other.x + y * other.y + z * other.z;
+    }
+    float& operator[](int i) {
+        return (&x)[i];
+    }
+    float operator[](int i) const {
+        return (&x)[i];
     }
 };
 
@@ -46,6 +52,12 @@ public:
     Vector4(const Vector3& v, float w) : x(v.x), y(v.y), z(v.z), w(w) {}
     float dot(const Vector4& other) const {
         return x * other.x + y * other.y + z * other.z + w * other.w;
+    }
+    float& operator[](int i) {
+        return (&x)[i];
+    }
+    float operator[](int i) const {
+        return (&x)[i];
     }
 };
 
@@ -81,7 +93,6 @@ public:
     }
 
     Matrix4x4 operator*(const Matrix4x4& B) const {
-        const Matrix4x4& A(*this);
         Matrix4x4 D;
         for (int r = 0; r < 4; ++r) {
             for (int c = 0; c < 4; ++c) {
