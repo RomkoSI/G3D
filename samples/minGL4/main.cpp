@@ -49,7 +49,9 @@ int main(const int argc, const char* argv[]) {
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
-    GLuint shader = loadShader("min.vrt", "min.pix");
+    const GLuint shader = loadShader("min.vrt", "min.pix");
+
+    int modelViewProjectionMatrixLocation = glGetUniformLocation(shader, "modelViewProjectionMatrix");
 
     Matrix4x4 objectToWorldMatrix;
     Matrix4x4 worldToCameraMatrix;
@@ -63,6 +65,10 @@ int main(const int argc, const char* argv[]) {
         glDepthFunc(GL_LESS);
         
         glUseProgram(shader);
+
+        const Matrix4x4& modelViewProjectionMatrix = projectionMatrix * worldToCameraMatrix * objectToWorldMatrix;
+        glUniformMatrix4fv(modelViewProjectionMatrixLocation, 1, GL_TRUE, modelViewProjectionMatrix.data);
+
         glBindVertexArray(vao);
 
         glDrawArrays(GL_TRIANGLES, 0, 3);

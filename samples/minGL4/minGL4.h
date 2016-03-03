@@ -74,10 +74,62 @@ public:
     /** row-major */
     float data[16];
 
+    /** row-major */
+    Matrix4x4(float a, float b, float c, float d,
+              float e, float f, float g, float h,
+              float i, float j, float k, float l,
+              float m, float n, float o, float p) {
+        data[0]  = a; data[1]  = b; data[2]  = c; data[3]  = d;
+        data[4]  = e; data[5]  = f; data[6]  = g; data[7]  = h;
+        data[8]  = i; data[9]  = j; data[10] = k; data[11] = l;
+        data[12] = m; data[13] = n; data[14] = o; data[15] = p;
+    }
+
     /** initializes to the identity matrix */
     Matrix4x4() {
         memset(data, 0, sizeof(float) * 16);
         data[0] = data[5] = data[10] = data[15] = 1.0f;
+    }
+
+    static Matrix4x4 zero() {
+        return m(0.0f, 0.0f, 0.0f, 0.0f,
+                 0.0f, 0.0f, 0.0f, 0.0f,
+                 0.0f, 0.0f, 0.0f, 0.0f,
+                 0.0f, 0.0f, 0.0f, 0.0f);
+    }
+
+    static Matrix3x3 roll(float radians) {
+        const float c = cos(radians);
+        const float s = sin(radians);
+        return Matrix4x4(   c,  -s,  0.0f, 0.0f, 
+                            s,   c,  0.0f, 0.0f,
+                         0.0f, 0.0f, 1.0f, 0.0f,
+                         0.0f, 0.0f, 0.0f, 1.0f);
+    }
+
+    static Matrix3x3 yaw(float radians) {
+        const float c = cos(radians);
+        const float s = sin(radians);
+        return Matrix4x4(   c, 0.0f,    s, 0.0f, 
+                         0.0f, 1.0f, 0.0f, 0.0f,
+                            s, 0.0f,    c, 0.0f,
+                         0.0f, 0.0f, 0.0f, 1.0f);
+    }
+
+    static Matrix3x3 pitch(float radians) {
+        const float c = cos(radians);
+        const float s = sin(radians);
+        return Matrix4x4(1.0f, 0.0f, 0.0f, 0.0f, 
+                         0.0f, 1.0f, 0.0f, 0.0f,
+                         0.0f,    c,  -s, 0.0f,
+                         0.0f,    s,   c, 1.0f);
+    }
+
+    Matrix4x4 transpose() const {
+        return Matrix4x4(data[ 0], data[ 4], data[ 8], data[12],
+                         data[ 1], data[ 5], data[ 9], data[13],
+                         data[ 2], data[ 6], data[10], data[14],
+                         data[ 3], data[ 7], data[11], data[15]);
     }
 
     float& operator()(int r, int c) {

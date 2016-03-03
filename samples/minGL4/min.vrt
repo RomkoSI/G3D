@@ -1,7 +1,9 @@
 #version 410 // -*- c++ -*-
 
-in vec3 vp;
+in vec3 position;
+
+uniform mat4x4 modelViewProjectionMatrix;
 
 void main () {
-   gl_Position = vec4 (vp, 1.0);
+   gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);
 }
