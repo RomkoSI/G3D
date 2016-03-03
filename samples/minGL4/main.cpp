@@ -22,6 +22,16 @@
   for image loading, parsing, fonts, noise, etc.:
 
      https://github.com/nothings/stb
+
+  See a SDL-based minimal OpenGL program at:
+     https://gist.github.com/manpat/112f3f31c983ccddf044
+
+  TODO:
+    - Fix ortho projection
+    - Add framebuffer
+    - Draw cube
+    - Draw ground plane
+    - Render background sphere
  */
 
 #include "minGL4.h"
@@ -30,8 +40,11 @@
 GLFWwindow* window = nullptr;
 
 void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
-    fprintf(stderr, "GL Debug: %s\n", message);
+    if ((type == GL_DEBUG_TYPE_ERROR) || (type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR)) {
+        fprintf(stderr, "GL Debug: %s\n", message);
+    }
 }
+
 
 int main(const int argc, const char* argv[]) {
     window = initOpenGL(1280, 720, "minGL4");
@@ -39,8 +52,8 @@ int main(const int argc, const char* argv[]) {
 #   ifdef _DEBUG
        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
        glEnable(GL_DEBUG_OUTPUT);
-       // Not working!
-       //   glDebugMessageCallback(debugCallback, nullptr);
+       // Causes a segmentation fault on OS X
+       // glDebugMessageCallback(debugCallback, nullptr);
 #   endif
 
     const Vector3 cpuPosition[] = {
@@ -49,14 +62,15 @@ int main(const int argc, const char* argv[]) {
         Vector3(1000, 0, -1),
         Vector3(0, 1000, -1)
         */
+        
+        Vector3( 0.0f,  1.0f, 0.0f),
+        Vector3(-1.0f, -1.0f, 0.0f),
+        Vector3( 1.0f, -1.0f, 0.0f)
         /*
-        Vector3( 0.0f,  2.5f, -10.0f),
-        Vector3(-0.7f, -1.0f, -10.0f),
-        Vector3( 0.7f, -1.0f, -10.0f)
+        Vector3( 0.0f,  0.0f, 0.0f),
+        Vector3( 1.0f,  0.0f, 0.0f),
+        Vector3( 0.0f,  1.0f, 0.0f)
         */
-        Vector3( 0.0f,  0.0f, -2.0f),
-        Vector3( 1.0f,  0.0f, -2.0f),
-        Vector3( 0.0f,  1.0f, -2.0f)
     };
 
     const Vector3 cpuColor[] = {
@@ -85,10 +99,11 @@ int main(const int argc, const char* argv[]) {
 
     // Binding points for attributes and uniforms
     const GLint positionAttribute                = glGetAttribLocation(shader, "position");
-    const GLint colorAttribute                  = glGetAttribLocation(shader, "color");
+    const GLint colorAttribute                   = glGetAttribLocation(shader, "color");
     const GLint modelViewProjectionMatrixUniform = glGetUniformLocation(shader, "modelViewProjectionMatrix");
 
     // Main loop:
+    int timer = 0;
     while (! glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -99,11 +114,11 @@ int main(const int argc, const char* argv[]) {
         int windowWidth = 1, windowHeight = 1;
         const float nearPlaneZ = -0.1f;
         const float farPlaneZ = -100.0f;
-        const float verticalFieldOfView = 60.0f * M_PI / 180.0f;
+        const float verticalFieldOfView = 45.0f * M_PI / 180.0f;
         glfwGetWindowSize(window, &windowWidth, &windowHeight);
 
-        Matrix4x4 objectToWorldMatrix;
-        Matrix4x4 worldToCameraMatrix;
+        Matrix4x4 objectToWorldMatrix = Matrix4x4::pitch(timer * 0.015f) * Matrix4x4::roll(timer * 0.01f);
+        Matrix4x4 worldToCameraMatrix = Matrix4x4::translate(0, 0, -3.0f);
         Matrix4x4 projectionMatrix = Matrix4x4::perspective(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView);
             //Matrix4x4::ortho(windowWidth, windowHeight, nearPlaneZ, farPlaneZ);
        
@@ -132,6 +147,8 @@ int main(const int argc, const char* argv[]) {
         if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE)) {
             glfwSetWindowShouldClose(window, 1);
         }
+
+        ++timer;
     }
 
     // Close the GL context and release all resources
