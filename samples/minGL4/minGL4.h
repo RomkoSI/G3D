@@ -3,6 +3,8 @@
   \author Morgan McGuire, http://graphics.cs.williams.edu
 
   Minimal headers emulating a basic set of 3D graphics classes.
+
+  All 3D math from http://graphicscodex.com
 */
 #pragma once
 
@@ -143,6 +145,34 @@ public:
                          0.0f, 0.0f, 1.0f,    z,
                          0.0f, 0.0f, 0.0f, 1.0f);
     }
+
+    /** 
+        
+        Maps the view frustum to the cube [-1, +1]^3 in the OpenGL style.
+
+        \param verticalRadians Vertical field of view from top to bottom
+        \param nearZ Negative number
+        \param farZ Negative number less than (higher magnitude than) nearZ. May be negative infinity 
+    */
+    static Matrix4x4 perspective(float pixelWidth, float pixelHeight, float verticalRadians, float nearZ, float farZ, float subpixelShiftX = 0.0f, float subpixelShiftY = 0.0f) const {
+        const float k = 1.0f / tan(verticalRadians / 2.0f);
+
+        const float c = (infinite) ? -1.0f : (nearZ + farZ) / (nearZ - farZ);
+        const float d = (infinite) ?  1.0f : farZ / (nearZ - farZ);
+
+        Matrix4x4 P(k * pixelWidth / pixelHeight, 0.0f, subpixelShiftX * k / (nearZ * pixelWidth), 0.0f,
+                    0.0f, k, subpixelShiftY * k / (nearZ * pixelHeight), 0.0f,
+                    0.0f, 0.0f, c, -2.0f * nearZ * d,
+                    0.0f, 0.0f, -1.0f, 0.0f);
+
+        return P;        
+    }
+
+    static Matrix4x4 ortho() {
+        // TODO
+        return Matrix4x4();
+    }
+    
 
     Matrix4x4 transpose() const {
         return Matrix4x4(data[ 0], data[ 4], data[ 8], data[12],
