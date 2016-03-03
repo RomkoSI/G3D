@@ -117,7 +117,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\G3D.lib\source\AnyTableReader.cpp" />
     <ClCompile Include="..\G3D.lib\source\Frustum.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\AmbientOcclusion.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\AmbientOcclusionSettings.cpp" />

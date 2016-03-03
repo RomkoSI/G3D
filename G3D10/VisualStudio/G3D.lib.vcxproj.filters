@@ -377,6 +377,9 @@
     <ClCompile Include="..\G3D.lib\source\Vector4uint16.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\G3D.lib\source\AnyTableReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\G3D.lib\include\G3D\AABox.h">
