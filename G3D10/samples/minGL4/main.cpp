@@ -57,17 +57,18 @@ int main(const int argc, const char* argv[]) {
 #   endif
 
     const Vector3 cpuPosition[] = {
-        // Right triangle in pixel coords:
         /*
+        // Right triangle in pixel coords:
         Vector3(0, 0, 0),
         Vector3(1280, 0, 0),
         Vector3(0, 720, 0)
         */
-        
+
         // Isoscoles triangle:
         Vector3( 0.0f,  1.0f, 0.0f),
         Vector3(-1.0f, -1.0f, 0.0f),
         Vector3( 1.0f, -1.0f, 0.0f)
+       
 
         // Right triangle:
         /*
@@ -157,8 +158,10 @@ int main(const int argc, const char* argv[]) {
 
         const Matrix4x4 objectToWorldMatrix;// = Matrix4x4::pitch(timer * 0.015f) * Matrix4x4::roll(timer * 0.01f);
         const Matrix4x4& worldToCameraMatrix = Matrix4x4::translate(0, 0, -3.0f);
-        const Matrix4x4& projectionMatrix = Matrix4x4::perspective(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView);
-       
+        const Matrix4x4& projectionMatrix =
+            Matrix4x4::perspective(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView);
+        //Matrix4x4::ortho(windowWidth, windowHeight, nearPlaneZ, farPlaneZ);
+        
         glUseProgram(shader);
 
         const Matrix4x4& modelViewProjectionMatrix = projectionMatrix * worldToCameraMatrix * objectToWorldMatrix;

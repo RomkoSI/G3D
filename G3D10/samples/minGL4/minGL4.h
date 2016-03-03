@@ -316,8 +316,8 @@ void drawRect(GLint positionAttribute, int width, int height, float z = -1.0f) {
     
     const Vector3 cpuPosition[] = {
         Vector3( 0.0f,   0.0f, z),
-        Vector3( 0.0f, height, z),
         Vector3(width, height, z),
+        Vector3( 0.0f, height, z),
         Vector3(width,   0.0f, z)
     };
 
@@ -327,7 +327,7 @@ void drawRect(GLint positionAttribute, int width, int height, float z = -1.0f) {
     glVertexAttribPointer(positionAttribute, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(positionAttribute);
     
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 
@@ -335,17 +335,16 @@ void drawRect(GLint positionAttribute, int width, int height, float z = -1.0f) {
 void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farPlaneZ, float verticalFieldOfView) {
     static const GLuint skyShader = 
         compileShader(SHADER_SOURCE
-                      (
-                       uniform (location = 0) mat4x4 MVP;
-                       in vec3 position;
+                      (layout(location = 0) uniform mat4x4 MVP;
+                       layout(location = 0) in vec3 position;
 
-                       void main () {
+                       void main() {
                            gl_Position = MVP * vec4(position, 1.0);
                        }), 
 
                       SHADER_SOURCE
-                      (
-                       out vec4 pixelColor;
+                      (out vec4 pixelColor;
+                       
                        void main() { 
                            pixelColor = vec4(0.0, 1.0, 1.0, 1.0);
                        }));
@@ -353,10 +352,12 @@ void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farP
     // Orthographic matrix
     glUniformMatrix4fv(0, 1, GL_TRUE, Matrix4x4::ortho(windowWidth, windowHeight, nearPlaneZ, farPlaneZ).data);
 
-    glDisable(GL_DEPTH_TEST);
-    glDepthMask(GL_FALSE);
     glUseProgram(skyShader);
 
-    const int positionAttribute = 0;
-    drawRect(positionAttribute, windowWidth, windowHeight, farPlaneZ);
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
+    glEnable(GL_DEPTH_CLAMP);
+
+    const GLint positionAttribute = 0;
+    drawRect(positionAttribute, windowWidth, windowHeight, farPlaneZ + 0.1f);
 }
