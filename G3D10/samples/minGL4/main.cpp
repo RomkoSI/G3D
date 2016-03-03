@@ -18,38 +18,64 @@
   X, and thus the newest OpenGL that can be used across the major PC
   operating systems of Windows, Linux, OS X, and Steam.
 
+  See the stb libraries for single-header, dependency-free support
+  for image loading, parsing, fonts, noise, etc.:
+
+     https://github.com/nothings/stb
  */
 
 #include "minGL4.h"
-#include <stdio.h>
+
+GLFWwindow* window = nullptr;
 
 int main(const int argc, const char* argv[]) {
-    if (! glfwInit()) {
-        fprintf(stderr, "ERROR: could not start GLFW\n");
-        return 1;
-    } 
+    window = initOpenGL(1280, 720, "minGL4");
 
-    const GLFWwindow* window = glfwCreateWindow(1280, 720, "minGL4", NULL, NULL);
-    if (! window) {
-        fprintf(stderr, "ERROR: could not open window with GLFW\n");
-        glfwTerminate();
-        return 1;
+    float points[] = {
+        0.0f,  0.5f,  0.0f,
+        0.5f, -0.5f,  0.0f,
+        -0.5f, -0.5f,  0.0f
+    };
+
+    GLuint vbo = 0;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, 9 * sizeof (float), points, GL_STATIC_DRAW);
+
+    GLuint vao = 0;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glEnableVertexAttribArray (0);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+    GLuint shader = loadShader("min.vrt", "min.pix");
+
+    // Main loop:
+    while (! glfwWindowShouldClose(window)) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+        
+        glUseProgram(shader);
+        glBindVertexArray(vao);
+
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        // Check for events
+        glfwPollEvents();
+
+        // Display what has been drawn
+        glfwSwapBuffers(window);
+
+        // Handle events
+        if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE)) {
+            glfwSetWindowShouldClose(window, 1);
+        }
     }
-    glfwMakeContextCurrent(window);
-                                  
-    // Start GLEW extension handler, with improved support for new features
-    glewExperimental = GL_TRUE;
-    glewInit();
 
-    printf("Renderer:       %s\n", glGetString(GL_RENDERER));
-    printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-
-    /* OTHER STUFF GOES HERE NEXT */
-  
-    // close GL context and any other GLFW resources
+    // Close the GL context and release all resources
     glfwTerminate();
     return 0;
 }

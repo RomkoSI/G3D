@@ -21,8 +21,13 @@
 #   include <GL/xglew.h>
 #endif
 #include <GLFW/glfw3.h> 
-#include <cstring>
 
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
+#include <string>
+#include <fstream>
+#include <sstream>
 
 class Vector3 {
 public:
@@ -110,3 +115,61 @@ public:
         return d;
     }
 };
+
+
+
+GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
+    if (! glfwInit()) {
+        fprintf(stderr, "ERROR: could not start GLFW\n");
+        ::exit(1);
+    } 
+
+    GLFWwindow* window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+    if (! window) {
+        fprintf(stderr, "ERROR: could not open window with GLFW\n");
+        glfwTerminate();
+        ::exit(2);
+    }
+    glfwMakeContextCurrent(window);
+                                  
+    // Start GLEW extension handler, with improved support for new features
+    glewExperimental = GL_TRUE;
+    glewInit();
+
+    printf("Renderer:       %s\n", glGetString(GL_RENDERER));
+    printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+
+    return window;
+}
+
+
+std::string loadTextFile(const std::string& filename) {
+    std::stringstream buffer;
+    buffer << std::ifstream(filename.c_str()).rdbuf();
+    return buffer.str();
+}
+
+
+GLuint loadShader(const std::string& vertexFilename, const std::string& pixelFilename) {
+    GLuint shader = glCreateProgram();
+
+    const std::string& vertexShaderSource = loadTextFile(vertexFilename);
+    const std::string& pixelShaderSource  = loadTextFile(pixelFilename);
+
+    const char* vSrcArray[] = {vertexShaderSource.c_str()};
+    const char* pSrcArray[] = {pixelShaderSource.c_str()};
+    
+    GLuint vs = glCreateShader (GL_VERTEX_SHADER);
+    glShaderSource(vs, 1, vSrcArray, NULL);
+    glCompileShader(vs);
+    
+    GLuint ps = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(ps, 1, pSrcArray, NULL);
+    glCompileShader(ps);
+    
+    glAttachShader(shader, ps);
+    glAttachShader(shader, vs);
+    glLinkProgram(shader);
+
+    return shader;
+}
