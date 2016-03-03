@@ -6,6 +6,7 @@ out vec4 pixelColor;
 
 
 void main () {
-     pixelColor = vec4(_color, 1.0);
+     // Approximately gamma correct
+     pixelColor = vec4(sqrt(_color), 1.0);
 }
 
