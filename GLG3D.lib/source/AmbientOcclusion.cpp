@@ -299,6 +299,8 @@ void AmbientOcclusion::resizeBuffers(const shared_ptr<Texture>& depthTexture, bo
         m_hBlurredBuffer      = Texture::createEmpty(m_name + "::m_hBlurredBuffer", width, height, intermediateFormat, Texture::DIM_2D);
         m_resultBuffer        = Texture::createEmpty(m_name + "::m_resultBuffer", width, height, GLCaps::supportsTextureDrawBuffer(ImageFormat::R8()) ? ImageFormat::R8() : ImageFormat::RGB8(), Texture::DIM_2D);
         
+        m_resultBuffer->visualization.channels = Texture::Visualization::RasL;
+
         m_packedKeyBuffer = Framebuffer::create(m_name + "::m_packedKeyFramebuffer");
         m_packedKeyBuffer->set(Framebuffer::COLOR0, Texture::createEmpty(m_name + "::m_packedKeyBuffer", width, height, ImageFormat::RGBA16()));
         
@@ -492,6 +494,7 @@ void AmbientOcclusion::blurOneDirection
         args.append(m_uniformTable);
         args.setUniform(SYMBOL_source,          source, Sampler::buffer());
         args.setUniform(SYMBOL_axis,            axis);
+        args.setUniform("invRadius",            1.0f / settings.radius);
 
         args.setUniform(SYMBOL_projInfo, projConstant);
         args.setMacro("HIGH_QUALITY", settings.highQualityBlur);

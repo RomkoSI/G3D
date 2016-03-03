@@ -38,6 +38,9 @@
 #expect CS_Z_PACKED_TOGETHER "1 to enable, 0 to disable"
 #expect TEMPORALLY_VARY_SAMPLES "1 to enable, 0 to disable"
 
+//TODO: actually pass the far plane. It is currently hard-coded to 1km in AmbientOcclusion_constants.glsl
+//#expect FAR_PLANE_Z "(negative) z-coordinate of the far plane"
+
 #include <AmbientOcclusion/AmbientOcclusion_constants.glsl>
 
 #define HIGH_QUALITY 1
