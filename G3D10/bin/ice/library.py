@@ -116,7 +116,7 @@ if not isOSX:
 else:
     maybeG3DX11 = []
     maybeGLFWX11 = []
-    maybeGLFWOSX = ['IOKit', 'CoreVideo']
+    maybeGLFWOSX = ['IOKit', 'CoreVideo', 'Cocoa', 'AppleGL']
     maybeAppleGL = ['AppleGL']
     maybeFwk    = FRAMEWORK
     maybeFFMPEG = ['FFMPEG-util', 'FFMPEG-codec', 'FFMPEG-format', 'FFMPEG-swscale']
@@ -136,9 +136,9 @@ Library('zip',         STATIC,    'zip',     'zip',      None,       None,    ['
 Library('glut',        maybeFwk,  'glut',    'glut',    'GLUT',     'GLUT',   ['glut.h'],       [],                                            [],           False),
 Library('OpenGL',      maybeFwk,  'GL',      'GL',      'OpenGL',   'OpenGL', ['gl.h'],         ['glBegin', 'glVertex3'],                      [],           False),
 Library('assimp',      STATIC,    'assimp',  'assimpd',  None,       None,    ['assimp/Importer.hpp'],  []              ,                      [],           False),
-Library('glfw',        STATIC,    'glfw',    'glfwd',    None,       None,    ['GL/glfw3.h'],   ['glfwCreateWindow','_glfwCreateWindow'],      glfwDepend),
-Library('glew',        STATIC,    'glew',    'glewd',    None,       None,    ['GL/glew.h'],    ['_glewGetExtension','glewGetExtension'],      []),
-Library('nfd',         STATIC,    'nfd',    'nfdd',    None,       None,    ['nfd.h'],    ['_NFD_OpenDialog'],      []),
+Library('glfw',        STATIC,    'glfw',    'glfwd',    None,       None,    ['glfw3.h'],      ['glfwCreateWindow','_glfwCreateWindow'],      glfwDepend),
+Library('glew',        STATIC,    'glew',    'glewd',    None,       None,    ['glew.h'],       ['_glewGetExtension','glewGetExtension'],      []),
+Library('nfd',         STATIC,    'nfd',     'nfdd',     None,       None,    ['nfd.h'],        ['_NFD_OpenDialog'],      []),
 Library('enet',        STATIC,    'enet',    'enetd',    None,       None,    ['enet.h'],       ['enet_host_create'],                          []),
 Library('freeimage',   STATIC,    'freeimage', 'freeimaged', None,   None,    ['FreeImagePlus.h', 'FreeImage.h'],                              [],    []),
 Library('GLU',         maybeFwk,  'GLU',     'GLU',      None,       None,    ['glu.h'],        ['gluBuild2DMipmaps'],                         ['OpenGL'],   False),
