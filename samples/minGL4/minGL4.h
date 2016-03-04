@@ -229,7 +229,6 @@ public:
 };
 
 
-
 GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
     if (! glfwInit()) {
         fprintf(stderr, "ERROR: could not start GLFW\n");
@@ -264,6 +263,13 @@ GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
 
     printf("Renderer:       %s\n", glGetString(GL_RENDERER));
     printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+
+    // Bind a single global vertex array (done this way since OpenGL 3)
+    {
+        GLuint vao;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+    }
 
     return window;
 }
@@ -331,33 +337,28 @@ void drawRect(GLint positionAttribute, int width, int height, float z = -1.0f) {
 }
 
 
-#define SHADER_SOURCE(s) "#version 410\n" #s
+/** Submits a full-screen quad at the far plane and runs a procedural sky shader on it */
 void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farPlaneZ, float verticalFieldOfView) {
+#   define SHADER_SOURCE(s) "#version 410\n" #s
     static const GLuint skyShader = 
         compileShader(SHADER_SOURCE
-                      (layout(location = 0) uniform mat4x4 MVP;
-                       layout(location = 0) in vec3 position;
-
-                       void main() {
-                           gl_Position = MVP * vec4(position, 1.0);
+                      (void main() {
+                          gl_Position = vec4(gl_VertexID >> 1, gl_VertexID & 1, 0.0, 1.0) * 2.0 - 1.0;
                        }), 
-
                       SHADER_SOURCE
                       (out vec4 pixelColor;
                        
                        void main() { 
-                           pixelColor = vec4(0.0, 1.0, 1.0, 1.0);
+                           pixelColor = vec4(gl_FragCoord.xy / 1000.0, 1.0, 1.0);
                        }));
-
-    // Orthographic matrix
-    glUniformMatrix4fv(0, 1, GL_TRUE, Matrix4x4::ortho(windowWidth, windowHeight, nearPlaneZ, farPlaneZ).data);
 
     glUseProgram(skyShader);
 
-    glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
-    glEnable(GL_DEPTH_CLAMP);
+    //glEnable(GL_DEPTH_CLAMP);
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-    const GLint positionAttribute = 0;
-    drawRect(positionAttribute, windowWidth, windowHeight, farPlaneZ + 0.1f);
+#   undef SHADER_SOURCE
 }
