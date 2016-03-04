@@ -343,9 +343,13 @@ void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farP
         compileShader(SHADER_SOURCE
                       (void main() {
                           gl_Position = vec4(gl_VertexID >> 1, gl_VertexID & 1, 0.0, 0.5) * 4.0 - 1.0;
-                       }),
+                      }),
+
                       SHADER_SOURCE
-                      (out vec4 pixelColor;
+                      (out vec3 pixelColor;
+
+                       layout(location = 0) uniform vec2 resolution;
+                       layout(location = 1) uniform float tanVerticalFieldOfView;
                        
                        float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
 
@@ -386,7 +390,7 @@ void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farP
                                col = vec3(pow(d, clamp(150.0 / (pow(max(t - 2.0, 0.1), res) + 1.0), 0.1, 15.0))) * shade + 0.1;
                            } else {        
                                col = vec3(0.3, 0.55, 0.8) * (1.0 - 0.8 * rd.y) * 0.9;
-                               float sundot = clamp(dot(rd, sun), 0.0, 1.0);
+                               float sundot = clamp(dot(rd, sun) / length(sun), 0.0, 1.0);
                                col += 0.25 * vec3(1.0, 0.7, 0.4) * pow(sundot, 8.0);
                                col += 0.75 * vec3(1.0, 0.8, 0.5) * pow(sundot, 64.0);
                                col = mix(col, vec3(1.0, 0.95, 1.0), 0.5 * smoothstep(0.5, 0.8, fbm((ro.xz + rd.xz * (250000.0 - ro.y) / rd.y) * 0.000008)));
@@ -395,15 +399,21 @@ void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farP
                        }
 
                        void main() { 
+                           vec3 ro = vec3(0.0);
+                           vec3 rd = normalize(vec3(gl_FragCoord.xy - resolution.xy / 2.0, resolution.y / ( -2.0 * tanVerticalFieldOfView / 2.0)));
                            
-                           pixelColor = vec4(gl_FragCoord.xy / 1000.0, 1.0, 1.0);
+                           pixelColor = 
+                               //render(vec3(1, 0.5, 0.0), ro, rd, resolution.x);
+                               vec3(gl_FragCoord.xy / 1000.0, 1.0);
                        }));
 
-    glUseProgram(skyShader);
 
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
-    
+
+    glUseProgram(skyShader);
+    glUniform2f(0, windowWidth, windowHeight);
+    glUniform1f(1, tan(verticalFieldOfView));
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
 #   undef SHADER_SOURCE
