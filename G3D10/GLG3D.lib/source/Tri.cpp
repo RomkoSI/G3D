@@ -43,7 +43,17 @@ shared_ptr<Surface> Tri::surface() const {
 
 
 shared_ptr<Material> Tri::material() const {
-    return dynamic_pointer_cast<Material>(m_data.resolve());
+    shared_ptr<Material> material = dynamic_pointer_cast<Material>(m_data.resolve());
+    if (notNull(material)) {
+        return material;
+    } 
+
+    shared_ptr<UniversalSurface> surface = dynamic_pointer_cast<UniversalSurface>(m_data.resolve());
+    if (notNull(surface)) {
+        return surface->material();
+    }
+
+    return shared_ptr<Material>();
 }
 
 
