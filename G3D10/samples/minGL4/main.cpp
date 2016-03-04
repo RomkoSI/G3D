@@ -84,12 +84,6 @@ int main(const int argc, const char* argv[]) {
         Vector3( 0.0f, 0.0f, 1.0f),
     };
 
-    // Bind a single global vertex array (done this way since OpenGL 3)
-    {
-        GLuint vao;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-    }
 
     // Create separate vertex buffers for each attribute
     const int N = 3;
