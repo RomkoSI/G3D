@@ -354,9 +354,8 @@ void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farP
 
     glUseProgram(skyShader);
 
-    //glDisable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
-    //glEnable(GL_DEPTH_CLAMP);
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
