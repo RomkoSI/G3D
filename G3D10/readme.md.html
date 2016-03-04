@@ -32,9 +32,9 @@ projects, as well as for its own sample programs and automated tests.
 The asset packs are large, so they are an optional download.
 
 To install *all* of the asset packs, SVN check out 
-`https://g3d.svn.codeplex.com/svn/data10` to `%g3d%/data10`.
+`http://g3d.cs.williams.edu/g3d/data10` to `%g3d%/data10`.
 Or, if you prefer, check out only the [subdirectories of
-data10](https://g3d.codeplex.com/SourceControl/latest#data10/readme.md)
+data10](http://g3d.cs.williams.edu/websvn/listing.php?repname=g3d&path=%2Fdata10%2F&#a5b91a96ce30627431194980d9304afd2)
 that you need into `%g3d%/data10/`.
 
 
@@ -42,7 +42,7 @@ that you need into `%g3d%/data10/`.
 
 1. Create a directory for G3D, such as `c:\g3d`, and set a `%g3d%` **system** environment variable to its path. 
    - This is not required, but the instructions below are relative to this variable
-2. SVN check out `https://g3d.svn.codeplex.com/svn/G3D10` to `%g3d%/G3D10`
+2. SVN check out `http://g3d.cs.williams.edu/g3d/G3D10` to `%g3d%/G3D10`
 3. Set the **user** environment variable `G3D10DATA=%g3d%/build/data`
 4. Set the system-wide VC Directories in `Microsoft.Cpp.Win64.user.props` explicitly, or through the Visual Studio IDE (View->Other Windows->Property Manager, G3D->starter->Release|x64->Microsoft.Cpp.x64.user->properties->VC++ Directories):
    - Include: `%g3d%/build/include`
@@ -101,16 +101,12 @@ asset packs, this is:
 You can create your own private asset packs and add them to this
 variable, of course.
 
-The development team uses the [Markdown
-Preview](https://chrome.google.com/webstore/detail/markdown-preview/jmchmkecamhbiokiopfpnfgbidieafmd?hl=en)
-Chrome extension to view documents like this readme.md file directly
-in a web browser.
 
 OS X
 -------------------------------------------------------------------------
 Because OS X video drivers are produced by Apple as part of the
-operating system, they tend to lag the features on Windows by about a
-year. The G3D build on OS X uses legacy support to emulate these
+operating system, they tend to lag the features on Windows by about 18 months.
+The G3D build on OS X uses legacy support to emulate these
 features for you. If you have a choice, we recommend developing on
 Windows.
 

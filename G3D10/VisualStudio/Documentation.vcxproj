@@ -34,7 +34,7 @@
     <None Include="..\manual\immediatemode.dox" />
     <None Include="..\manual\stylesheet.css" />
     <None Include="..\manual\topic-index.dox" />
-    <None Include="..\readme.md" />
+    <None Include="..\readme.md.html" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{3BCF1B24-F228-4D95-B100-9300E0886C85}</ProjectGuid>
