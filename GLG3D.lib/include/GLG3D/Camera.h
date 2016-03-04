@@ -291,8 +291,7 @@ public:
 
       The ray origin is at the camera-space origin, that is, in world space
       it is at Camera::coordinateFrame().translation.  To start it at the image plane,
-      move it forward by imagePlaneDepth/ray.direction.z along the camera's
-      look vector.
+      move it forward by imagePlaneDepth/ray.direction.z along the ray's direction.
 
       Integer (x, y) values correspond to
       the upper left corners of pixels.  If you want to cast rays
