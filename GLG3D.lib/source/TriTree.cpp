@@ -60,9 +60,7 @@ void TriTree::setContents
         for (int i = 0; i < m_triArray.size(); ++i) {
             const Tri& tri = m_triArray[i];
             shared_ptr<Material> material = tri.material();
-            if (notNull(material)) {
-                material->setStorage(newStorage);
-            }
+            material->setStorage(newStorage);
         }
     }
 
