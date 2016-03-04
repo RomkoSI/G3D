@@ -1127,16 +1127,24 @@ void Shader::handleRecoverableError(RecoverableErrorType eType,  const Args& arg
 
         // the output after the message string has had all warnings removed
         std::string output;
-
+        
         size_t begining = 0;
         size_t split = m.find("\n");
+        const int MAX_LINES = 15;
+        const int LINE_WIDTH = 340;
 
+        int lines = 0;
         while (split != std::string::npos) {
             const std::string singleError = m.substr(begining, split);
             String lowerCaseError = toLower(singleError.c_str());
             //The error is considered valid if it does not both the words extensioin and warning
             if (lowerCaseError.find("warning") == String::npos || lowerCaseError.find("extension") == String::npos) {
-                output.append(singleError + "\n");
+                lines += GuiTheme::lastThemeLoaded.lock()->bounds(GuiText(output.c_str())).x / 320;
+                if (lines <= MAX_LINES) {
+                    output.append(singleError + "\n");
+                } else {
+                    break;
+                }
             }
             begining = split + 1;
             split = m.find("\n", begining);
