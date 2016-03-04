@@ -351,12 +351,12 @@ void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farP
 
                        float noise(vec2 x) { 
                            vec2 i = floor(x);
-                           vec2 f = fract(x);
                            float a = hash(i);
                            float b = hash(i + vec2(1.0, 0.0));
                            float c = hash(i + vec2(0.0, 1.0));
                            float d = hash(i + vec2(1.0, 1.0));
                            
+                           vec2 f = fract(x);
                            vec2 u = f * f * (3.0 - 2.0 * f);
                            return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
                        }
@@ -370,9 +370,8 @@ void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farP
                            return f / 0.9375;
                        }
 
-                       vec3 render(in vec3 light, in vec3 ro, in vec3 rd, in float resolution) {
-                           vec3 col;
-    
+                       vec3 render(in vec3 sun, in vec3 ro, in vec3 rd, in float resolution) {
+                           vec3 col;    
                            if (rd.y < 0.0) {
                                float t = -ro.y / rd.y;
                                vec2 P = ro.xz + t * rd.xz;
@@ -387,7 +386,7 @@ void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farP
                                col = vec3(pow(d, clamp(150.0 / (pow(max(t - 2.0, 0.1), res) + 1.0), 0.1, 15.0))) * shade + 0.1;
                            } else {        
                                col = vec3(0.3, 0.55, 0.8) * (1.0 - 0.8 * rd.y) * 0.9;
-                               float sundot = clamp(dot(rd, light), 0.0, 1.0);
+                               float sundot = clamp(dot(rd, sun), 0.0, 1.0);
                                col += 0.25 * vec3(1.0, 0.7, 0.4) * pow(sundot, 8.0);
                                col += 0.75 * vec3(1.0, 0.8, 0.5) * pow(sundot, 64.0);
                                col = mix(col, vec3(1.0, 0.95, 1.0), 0.5 * smoothstep(0.5, 0.8, fbm((ro.xz + rd.xz * (250000.0 - ro.y) / rd.y) * 0.000008)));
@@ -396,6 +395,7 @@ void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farP
                        }
 
                        void main() { 
+                           
                            pixelColor = vec4(gl_FragCoord.xy / 1000.0, 1.0, 1.0);
                        }));
 
