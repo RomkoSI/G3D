@@ -336,18 +336,62 @@ void drawRect(GLint positionAttribute, int width, int height, float z = -1.0f) {
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
-
 /** Submits a full-screen quad at the far plane and runs a procedural sky shader on it */
 void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farPlaneZ, float verticalFieldOfView) {
 #   define SHADER_SOURCE(s) "#version 410\n" #s
     static const GLuint skyShader = 
         compileShader(SHADER_SOURCE
                       (void main() {
-                          gl_Position = vec4(gl_VertexID >> 1, gl_VertexID & 1, 0.0, 1.0) * 2.0 - 1.0;
-                       }), 
+                          gl_Position = vec4(gl_VertexID >> 1, gl_VertexID & 1, 0.0, 0.5) * 4.0 - 1.0;
+                       }),
                       SHADER_SOURCE
                       (out vec4 pixelColor;
                        
+                       float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
+
+                       float noise(vec2 x) { 
+                       /*
+                           vec2 i = floor(x), f = fract(x);
+                           float a = hash(i), b = hash(i + vec2(1.0, 0.0)), c = hash(i + vec2(0.0, 1.0)), float d = hash(i + vec2(1.0, 1.0));
+                       */
+                           vec2 u = f * f * (3.0 - 2.0 * f);
+                           return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+                       }
+                       
+                       float fbm(vec2 p) {
+                           const mat2 m2 = mat2(0.8, -0.6, 0.6, 0.8);   
+                           float f = 0.5000 * noise(p); p = m2 * p * 2.02;
+                           f += 0.2500 * noise(p); p = m2 * p * 2.03;
+                           f += 0.1250 * noise(p); p = m2 * p * 2.01;
+                           f += 0.0625 * noise(p);
+                           return f / 0.9375;
+                       }
+
+                       vec3 render(in vec3 light, in vec3 ro, in vec3 rd, in float resolution) {
+                           vec3 col;
+    
+                           if (rd.y < 0.0) {
+                               float t = -ro.y / rd.y;
+                               vec2 P = ro.xz + t * rd.xz;
+                               vec2 Q = floor(P);
+                               P = mod(P, 1.0);
+
+                               const float gridLineWidth = 0.1;
+                               float res = clamp(2048.0 / resolution, 1.0, 3.0);
+                               P = 1.0 - abs(P - 0.5) * 2.0;
+                               float d = clamp(min(P.x, P.y) / (gridLineWidth * clamp(t + res * 2.0, 1.0, 2.0)) + 0.5, 0.0, 1.0);
+                               float shade = mix(hash(100.0 + Q * 0.1) * 0.4, 0.3, min(t * t * 0.001, 1.0)) + 0.6;
+                               col = vec3(pow(d, clamp(150.0 / (pow(max(t - 2.0, 0.1), res) + 1.0), 0.1, 15.0))) * shade + 0.1;
+                           } else {        
+                               col = vec3(0.3, 0.55, 0.8) * (1.0 - 0.8 * rd.y) * 0.9;
+                               float sundot = clamp(dot(rd, light), 0.0, 1.0);
+                               col += 0.25 * vec3(1.0, 0.7, 0.4) * pow(sundot, 8.0);
+                               col += 0.75 * vec3(1.0, 0.8, 0.5) * pow(sundot, 64.0);
+                               col = mix(col, vec3(1.0, 0.95, 1.0), 0.5 * smoothstep(0.5, 0.8, fbm((ro.xz + rd.xz * (250000.0 - ro.y) / rd.y) * 0.000008)));
+                           }
+                           return mix(col, vec3(0.7, 0.75, 0.8), pow(1.0 - max(abs(rd.y), 0.0), 8.0));
+                       }
+
                        void main() { 
                            pixelColor = vec4(gl_FragCoord.xy / 1000.0, 1.0, 1.0);
                        }));
@@ -357,7 +401,7 @@ void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farP
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
     
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
 #   undef SHADER_SOURCE
 }
