@@ -71,9 +71,33 @@ public:
                        z * other.x - x * other.z,
                        x * other.y - y * other.x);
     }
+    
+    Vector3& operator+=(const Vector3& v) {
+        x += v.x; y += v.y; z += v.z;
+        return *this;
+    }
+    
+    Vector3 operator+(const Vector3& v) const {
+        return Vector3(x + v.x, y + v.y, z + v.z);
+    }
+
+    Vector3& operator-=(const Vector3& v) {
+        x -= v.x; y -= v.y; z -= v.z;
+        return *this;
+    }
+
+    Vector3 operator-(const Vector3& v) const {
+        return Vector3(x - v.x, y - v.y, z - v.z);
+    }
+
+    Vector3 operator-() const {
+        return Vector3(-x, -y, -z);
+    }
+
     float& operator[](int i) {
         return (&x)[i];
     }
+
     float operator[](int i) const {
         return (&x)[i];
     }
@@ -141,8 +165,7 @@ public:
     }
 
     static Matrix4x4 roll(float radians) {
-        const float c = cos(radians);
-        const float s = sin(radians);
+        const float c = cos(radians), s = sin(radians);
         return Matrix4x4(   c,  -s,  0.0f, 0.0f, 
                             s,   c,  0.0f, 0.0f,
                          0.0f, 0.0f, 1.0f, 0.0f,
@@ -150,8 +173,7 @@ public:
     }
 
     static Matrix4x4 yaw(float radians) {
-        const float c = cos(radians);
-        const float s = sin(radians);
+        const float c = cos(radians), s = sin(radians);
         return Matrix4x4(   c, 0.0f,    s, 0.0f, 
                          0.0f, 1.0f, 0.0f, 0.0f,
                            -s, 0.0f,    c, 0.0f,
@@ -159,12 +181,11 @@ public:
     }
 
     static Matrix4x4 pitch(float radians) {
-        const float c = cos(radians);
-        const float s = sin(radians);
+        const float c = cos(radians), s = sin(radians);
         return Matrix4x4(1.0f, 0.0f, 0.0f, 0.0f, 
-                         0.0f, 1.0f, 0.0f, 0.0f,
-                         0.0f,    c,  -s, 0.0f,
-                         0.0f,    s,   c, 1.0f);
+                         0.0f,    c,   -s, 0.0f,
+                         0.0f,    s,    c, 0.0f,
+                         0.0f, 0.0f, 0.0f, 1.0f);
     }
 
     static Matrix4x4 scale(float x, float y, float z) {
@@ -179,6 +200,10 @@ public:
                          0.0f, 1.0f, 0.0f,    y,
                          0.0f, 0.0f, 1.0f,    z,
                          0.0f, 0.0f, 0.0f, 1.0f);
+    }
+
+    static Matrix4x4 translate(const Vector3& v) {
+        return translate(v.x, v.y, v.z);
     }
 
     /** 
