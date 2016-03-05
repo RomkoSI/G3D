@@ -465,7 +465,6 @@ GLuint createShaderProgram(const std::string& vertexShaderSource, const std::str
     glAttachShader(shader, compileShaderStage(GL_FRAGMENT_SHADER, pixelShaderSource));
     glLinkProgram(shader);
 
-
     return shader;
 }
 
