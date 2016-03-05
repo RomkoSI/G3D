@@ -53,7 +53,7 @@ int main(const int argc, const char* argv[]) {
        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
        glEnable(GL_DEBUG_OUTPUT);
        // Causes a segmentation fault on OS X
-       // glDebugMessageCallback(debugCallback, nullptr);
+       glDebugMessageCallback(debugCallback, nullptr);
 #   endif
 
     const Vector3 cpuPosition[] = {
@@ -97,7 +97,7 @@ int main(const int argc, const char* argv[]) {
     glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
     glBufferData(GL_ARRAY_BUFFER, N * sizeof(Vector3), cpuColor, GL_STATIC_DRAW);
 
-    const GLuint shader = loadShader("min.vrt", "min.pix");
+    const GLuint shader = loadShaderProgram("min.vrt", "min.pix");
 
     // Binding points for attributes and uniforms discovered from the shader
     const GLint positionAttribute                = glGetAttribLocation(shader,  "position");

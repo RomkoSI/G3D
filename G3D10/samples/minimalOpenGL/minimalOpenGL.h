@@ -26,13 +26,11 @@
 
 
 #ifdef G3D_WINDOWS
-    // Link against OpenGL and libraries
-//#   pragma comment(lib, "ole32")
+    // Link against OpenGL
 #   pragma comment(lib, "opengl32")
 #   pragma comment(lib, "glew_x64")
 #   pragma comment(lib, "glfw_x64")
 #endif
-
 
 #include <cstring>
 #include <cstdio>
@@ -41,6 +39,8 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <cassert>
+#include <vector>
 
 #define PI (3.1415927f)
 
@@ -253,7 +253,6 @@ GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 #   ifdef _DEBUG
@@ -294,65 +293,58 @@ std::string loadTextFile(const std::string& filename) {
 }
 
 
-GLuint compileShader(const std::string& vertexShaderSource, const std::string& pixelShaderSource) {
-    GLuint shader = glCreateProgram();
+GLuint compileShaderStage(GLenum stage, const std::string& source) {
+    GLuint shader = glCreateShader(stage);
+    const char* srcArray[] = { source.c_str() };
 
-    const char* vSrcArray[] = {vertexShaderSource.c_str()};
-    const char* pSrcArray[] = {pixelShaderSource.c_str()};
-    
-    GLuint vs = glCreateShader (GL_VERTEX_SHADER);
-    glShaderSource(vs, 1, vSrcArray, NULL);
-    glCompileShader(vs);
-    
-    GLuint ps = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(ps, 1, pSrcArray, NULL);
-    glCompileShader(ps);
-    
-    glAttachShader(shader, ps);
-    glAttachShader(shader, vs);
-    glLinkProgram(shader);
+    glShaderSource(shader, 1, srcArray, NULL);
+    glCompileShader(shader);
+
+    GLint success = 0;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+    if (success == GL_FALSE) {
+        GLint logSize = 0;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logSize);
+
+        std::vector<GLchar> errorLog(logSize);
+        glGetShaderInfoLog(shader, logSize, &logSize, &errorLog[0]);
+
+        fprintf(stderr, "Error while compiling\n %s\n\nError: %s\n", source.c_str(), &errorLog[0]);
+        assert(false);
+
+        glDeleteShader(shader);
+        shader = GL_NONE;
+    }
 
     return shader;
 }
 
 
-GLuint loadShader(const std::string& vertexFilename, const std::string& pixelFilename) {
+GLuint createShaderProgram(const std::string& vertexShaderSource, const std::string& pixelShaderSource) {
+    GLuint shader = glCreateProgram();
+
+    glAttachShader(shader, compileShaderStage(GL_VERTEX_SHADER, vertexShaderSource));
+    glAttachShader(shader, compileShaderStage(GL_FRAGMENT_SHADER, pixelShaderSource));
+    glLinkProgram(shader);
+
+
+    return shader;
+}
+
+
+GLuint loadShaderProgram(const std::string& vertexFilename, const std::string& pixelFilename) {
     const std::string& vertexShaderSource = loadTextFile(vertexFilename);
     const std::string& pixelShaderSource  = loadTextFile(pixelFilename);
-    return compileShader(vertexShaderSource, pixelShaderSource);
+    return createShaderProgram(vertexShaderSource, pixelShaderSource);
 }
 
-
-/** Submits OpenGL geometry to attribute positionAttribute for a 2D rectangle */
-void drawRect(GLint positionAttribute, int width, int height, float z = -1.0f) {
-    static GLuint positionBuffer = GL_NONE;
-
-    if (positionBuffer == GL_NONE) {
-        // Only allocate during the first call
-        glGenBuffers(1, &positionBuffer);
-    }
-    
-    const Vector3 cpuPosition[] = {
-        Vector3( 0.0f,   0.0f, z),
-        Vector3(float(width), float(height), z),
-        Vector3( 0.0f, float(height), z),
-        Vector3(float(width),   0.0f, z)
-    };
-
-    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vector3), cpuPosition, GL_DYNAMIC_DRAW);
-
-    glVertexAttribPointer(positionAttribute, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(positionAttribute);
-    
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-}
 
 /** Submits a full-screen quad at the far plane and runs a procedural sky shader on it */
 void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlaneZ, float verticalFieldOfView) {
-#   define SHADER_SOURCE(s) "#version 410\n" #s
+#   define SHADER_SOURCE(s) "#version 410\n#extension GL_ARB_explicit_uniform_location : require\n" #s
     static const GLuint skyShader = 
-        compileShader(SHADER_SOURCE
+        createShaderProgram(SHADER_SOURCE
                       (void main() {
                           gl_Position = vec4(gl_VertexID >> 1, gl_VertexID & 1, 0.0, 0.5) * 4.0 - 1.0;
                       }),
@@ -411,12 +403,12 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
                        }
 
                        void main() { 
-                           vec3 ro = vec3(0.0);
+                           vec3 ro = vec3(0.0, 1.0, 0.0);
                            vec3 rd = normalize(vec3(gl_FragCoord.xy - resolution.xy / 2.0, resolution.y / ( -2.0 * tanVerticalFieldOfView / 2.0)));
                            
                            pixelColor = 
-                               //render(vec3(1, 0.5, 0.0), ro, rd, resolution.x);
-                               vec3(gl_FragCoord.xy / 1000.0, 1.0);
+                               render(vec3(1, 0.5, 0.0), ro, rd, resolution.x);
+                               //vec3(gl_FragCoord.xy / 1000.0, 1.0);
                        }));
 
 
