@@ -108,6 +108,15 @@ int main(const int argc, const char* argv[]) {
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 
+    GLuint trilinearSampler = GL_NONE;
+    {
+        glGenSamplers(1, &trilinearSampler);
+        glSamplerParameteri(trilinearSampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glSamplerParameteri(trilinearSampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glSamplerParameter(trilinearSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glSamplerParameter(trilinearSampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+
     // Main loop:
     int timer = 0;
     while (! glfwWindowShouldClose(window)) {
@@ -216,32 +225,5 @@ int main(const int argc, const char* argv[]) {
 #ifdef _WINDOWS
     int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {
         return main(0, nullptr);
-    }
-#endif
-
-
-
-#if 0
-
-    // Init framebuffer and targets
-    GLuint framebuffer = GL_NONE;
-    {
-        glGenFramebuffers(1, &framebuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-        GLuint colorBuffer = GL_NONE;
-        glGenTextures(1, &colorBuffer);
-        glBindTexture(GL_TEXTURE_2D, colorBuffer);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight, 0, GL_RGBA16F, GL_FLOAT, nullptr);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuffer, 0);
-
-        GLuint depthBuffer = GL_NONE;
-        glGenTextures(1, &depthBuffer);
-        glBindTexture(GL_TEXTURE_2D, depthBuffer);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, windowWidth, windowHeight, 0, GL_R32F, GL_FLOAT, nullptr);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBuffer, 0);
-
-        // Restore the hardware framebuffer
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 #endif
