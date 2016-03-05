@@ -1,12 +1,12 @@
 #version 410 // -*- c++ -*-
 
 in vec3 position;
-in vec3 color;
+in vec3 normal;
 
 out vec3 _color;
 uniform mat4x4 modelViewProjectionMatrix;
 
 void main () {
-    _color = color;
+    _color = normal;
     gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);
 }
