@@ -1,5 +1,5 @@
 /**
-  \file minGL4/minGL4.h
+  \file minimalOpenGL/minimalOpenGL.h
   \author Morgan McGuire, http://graphics.cs.williams.edu
 
   Minimal headers emulating a basic set of 3D graphics classes.
