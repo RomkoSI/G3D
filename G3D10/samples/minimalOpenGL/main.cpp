@@ -1,5 +1,5 @@
 /**
-  \file minGL4/main.cpp
+  \file minimalOpenGL/main.cpp
   \author Morgan McGuire, http://graphics.cs.williams.edu
 
   This is a minimal example of an OpenGL 4 program using only
@@ -34,7 +34,7 @@
     - Render background sphere
  */
 
-#include "minGL4.h"
+#include "minimalOpenGL.h"
 #include <iostream>
 
 GLFWwindow* window = nullptr;
