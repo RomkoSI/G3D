@@ -42,17 +42,9 @@ GLFWwindow* window = nullptr;
 
 
 int main(const int argc, const char* argv[]) {
-    window = initOpenGL(1280, 720, "minGL4");
+    window = initOpenGL(1280, 720, "minimalOpenGL");
 
-    {
-        // 1m^3 cube centered at the origin
-        const float cpuPositionArray[] = {-.5f, .5f, -.5f, -.5f, .5f, .5f, .5f, .5f, .5f, .5f, .5f, -.5f, -.5f, .5f, -.5f, -.5f, -.5f, -.5f, -.5f, -.5f, .5f, -.5f, .5f, .5f, .5f, .5f, .5f, .5f, -.5f, .5f, .5f, -.5f, -.5f, .5f, .5f, -.5f, .5f, .5f, -.5f, .5f, -.5f, -.5f, -.5f, -.5f, -.5f, -.5f, .5f, -.5f, -.5f, .5f, .5f, -.5f, -.5f, .5f, .5f, -.5f, .5f, .5f, .5f, .5f, -.5f, -.5f, .5f, -.5f, -.5f, -.5f, .5f, -.5f, -.5f, .5f, -.5f, .5f};
-        const float cpuNormalArray[]   = {0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f};
-        const float cpuTexCoordArray[] = {0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f};
-        const int   indexArray[]       = {0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
-        const int   numVertices        = 24;
-        const int   numIndices         = 36;
-    }
+    const Geometry& geom = Geometry::cube();
 
     const Vector3 cpuPosition[] = {
         /*
@@ -62,10 +54,10 @@ int main(const int argc, const char* argv[]) {
         Vector3(0, 720, 0)
         */
 
-        // Isoscoles triangle:
-        Vector3( 0.0f,  1.0f, 0.0f),
-        Vector3(-1.0f, -1.0f, 0.0f),
-        Vector3( 1.0f, -1.0f, 0.0f)
+        // Isosceles triangle:
+        Vector3( 0.0f, 2.0f, 0.0f),
+        Vector3(-1.0f, 0.0f, 0.0f),
+        Vector3( 1.0f, 0.0f, 0.0f)
        
 
         // Right triangle:
@@ -140,14 +132,12 @@ int main(const int argc, const char* argv[]) {
         glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        const Matrix4x4 objectToWorldMatrix;// = Matrix4x4::pitch(timer * 0.015f) * Matrix4x4::roll(timer * 0.01f);
-        const Matrix4x4& worldToCameraMatrix = Matrix4x4::translate(0.0f, 0.0f, -3.0f);
-        const Matrix4x4& projectionMatrix =
-            Matrix4x4::perspective(float(windowWidth), float(windowHeight), nearPlaneZ, farPlaneZ, verticalFieldOfView);
-        //Matrix4x4::ortho(windowWidth, windowHeight, nearPlaneZ, farPlaneZ);
+        const Matrix4x4 objectToWorldMatrix;
+        const Matrix4x4& cameraToWorldMatrix = Matrix4x4::translate(0.0, 1.0, 3.0f);// *Matrix4x4::yaw(timer * 0.001f);
+        const Matrix4x4& projectionMatrix = Matrix4x4::perspective(float(windowWidth), float(windowHeight), nearPlaneZ, farPlaneZ, verticalFieldOfView);
 
         // Draw the background
-        drawSky(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView);
+        drawSky(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView, cameraToWorldMatrix);
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
@@ -156,7 +146,7 @@ int main(const int argc, const char* argv[]) {
         
         glUseProgram(shader);
 
-        const Matrix4x4& modelViewProjectionMatrix = projectionMatrix * worldToCameraMatrix * objectToWorldMatrix;
+        const Matrix4x4& modelViewProjectionMatrix = projectionMatrix * cameraToWorldMatrix.inverse() * objectToWorldMatrix;
         glUniformMatrix4fv(modelViewProjectionMatrixUniform, 1, GL_TRUE, modelViewProjectionMatrix.data);
 
         glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
