@@ -41,6 +41,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 #include <cassert>
 #include <vector>
@@ -401,7 +402,7 @@ public:
 
 
 std::ostream& operator<<(std::ostream& os, const Vector3& v) {
-    return os << "Vector3(" << v.x << ", " << v.y << ")";
+    return os << "Vector3(" << std::setprecision(2) << v.x << ", " << v.y << ")";
 }
 
 
@@ -411,10 +412,17 @@ std::ostream& operator<<(std::ostream& os, const Vector4& v) {
 
 
 std::ostream& operator<<(std::ostream& os, const Matrix4x4& M) {
-    return os << "Matrix4x4(" << M.data[0] << ", " << M.data[1] << ", " << M.data[2] << ", " << M.data[3] << ",\n" <<
-         M.data[4] << ", " << M.data[5] << ", " << M.data[6] << ", " << M.data[7] << ",\n" <<
-         M.data[8] << ", " << M.data[9] << ", " << M.data[10] << ", " << M.data[11] << ",\n" <<
-         M.data[12] << ", " << M.data[13] << ", " << M.data[14] << ", " << M.data[15] << ")";
+    os << "\nMatrix4x4(";
+    
+    for (int r = 0, i = 0; r < 4; ++r) {
+        for (int c = 0; c < 4; ++c, ++i) {
+            os << M.data[i];
+            if (c < 3) { os << ", "; }
+        }
+        if (r < 3) { os << ",\n          "; }
+    }
+
+    return os << ")\n";
 }
 
 GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
