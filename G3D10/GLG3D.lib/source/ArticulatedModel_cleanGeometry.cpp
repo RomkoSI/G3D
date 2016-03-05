@@ -14,7 +14,6 @@
 #include "G3D/FastPointHashGrid.h"
 
 namespace G3D {
-
     
 void ArticulatedModel::cleanGeometry(const CleanGeometrySettings& settings) {
     for (int g = 0; g < m_geometryArray.size(); ++g) {

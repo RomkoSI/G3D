@@ -42,6 +42,14 @@
 #include <cassert>
 #include <vector>
 
+
+void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+    if ((type == GL_DEBUG_TYPE_ERROR) || (type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR)) {
+        fprintf(stderr, "GL Debug: %s\n", message);
+    }
+}
+
+
 #define PI (3.1415927f)
 
 class Vector3 {
@@ -267,10 +275,18 @@ GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
     }
     glfwMakeContextCurrent(window);
 
-                                  
     // Start GLEW extension handler, with improved support for new features
     glewExperimental = GL_TRUE;
     glewInit();
+
+#   ifdef _DEBUG
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glEnable(GL_DEBUG_OUTPUT);
+#       ifndef G3D_OSX
+            // Causes a segmentation fault on OS X
+            glDebugMessageCallback(debugCallback, nullptr);
+#       endif
+#   endif
 
     printf("Renderer:       %s\n", glGetString(GL_RENDERER));
     printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
