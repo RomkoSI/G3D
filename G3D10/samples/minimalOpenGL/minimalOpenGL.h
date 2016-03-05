@@ -570,7 +570,7 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
     (out vec3 pixelColor;
 
     uniform vec2  resolution;
-    uniform float tanHalfVerticalFieldOfViewUniform;
+    uniform float tanHalfVerticalFieldOfView;
     uniform mat4  cameraToWorldMatrix;
 
     float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
@@ -624,15 +624,15 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
     void main() {
         vec3 rd = normalize(mat3(cameraToWorldMatrix) *
             vec3(gl_FragCoord.xy - resolution.xy / 2.0,
-                 resolution.y * 0.5 / -tanHalfVerticalFieldOfViewUniform));
+                 resolution.y * 0.5 / -tanHalfVerticalFieldOfView));
 
         pixelColor = render(vec3(1, 0.5, 0.0), cameraToWorldMatrix[3].xyz, rd, resolution.x);
             //vec3(gl_FragCoord.xy / 1000.0, 1.0);
     }));
 
-    static const GLint resolutionUniform             = glGetUniformLocation(skyShader, "resolution");
+    static const GLint resolutionUniform                 = glGetUniformLocation(skyShader, "resolution");
     static const GLint tanHalfVerticalFieldOfViewUniform = glGetUniformLocation(skyShader, "tanHalfVerticalFieldOfView");
-    static const GLint cameraToWorldMatrixUniform    = glGetUniformLocation(skyShader, "cameraToWorldMatrix");
+    static const GLint cameraToWorldMatrixUniform        = glGetUniformLocation(skyShader, "cameraToWorldMatrix");
 
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
