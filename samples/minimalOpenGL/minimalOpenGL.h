@@ -561,8 +561,7 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
 #   define VERTEX_SHADER(s) "#version 410\n" #s
 #   define PIXEL_SHADER(s) VERTEX_SHADER(s)
 
-    static const GLuint skyShader =
-        createShaderProgram(VERTEX_SHADER
+    static const GLuint skyShader = createShaderProgram(VERTEX_SHADER
     (void main() {
         gl_Position = vec4(gl_VertexID >> 1, gl_VertexID & 1, 0.0, 0.5) * 4.0 - 1.0;
     }),
@@ -623,15 +622,12 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
     }
 
     void main() {
-        vec3 ro = cameraToWorldMatrix[3].xyz;
-        vec3 rd = normalize(mat3(cameraToWorldMatrix) * 
+        vec3 rd = normalize(mat3(cameraToWorldMatrix) *
             vec3(gl_FragCoord.xy - resolution.xy / 2.0,
-                resolution.y / -tanVerticalFieldOfView));
+                 resolution.y / -tanVerticalFieldOfView));
 
-        pixelColor = 
-            render(vec3(1, 0.5, 0.0), ro, rd, resolution.x);
+        pixelColor = render(vec3(1, 0.5, 0.0), cameraToWorldMatrix[3].xyz, rd, resolution.x);
             //vec3(gl_FragCoord.xy / 1000.0, 1.0);
-
     }));
 
     static const GLint resolutionUniform             = glGetUniformLocation(skyShader, "resolution");
