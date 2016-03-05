@@ -188,8 +188,8 @@ int main(const int argc, const char* argv[]) {
 }
 
 
-#ifdef G3D_WINDOWS
-int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {
-    return main(0, nullptr);
-}
+#ifdef _WINDOWS
+    int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {
+        return main(0, nullptr);
+    }
 #endif
