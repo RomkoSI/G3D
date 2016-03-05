@@ -7,6 +7,6 @@ out vec3 _color;
 uniform mat4x4 modelViewProjectionMatrix;
 
 void main () {
-    _color = normal;
+    _color = normal * 0.5 + 0.5;
     gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);
 }

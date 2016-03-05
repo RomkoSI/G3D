@@ -42,6 +42,9 @@ int main(const int argc, const char* argv[]) {
     const int windowWidth = 1280, windowHeight = 720;
     window = initOpenGL(windowWidth, windowHeight, "minimalOpenGL");
 
+    Vector3 cameraTranslation(0.0f, 1.5f, 5.0f);
+    Vector3 cameraRotation;
+
     /////////////////////////////////////////////////////////////////
     // Load vertex array buffers
     const int N = 3;
@@ -83,7 +86,13 @@ int main(const int argc, const char* argv[]) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         const Matrix4x4& objectToWorldMatrix = Matrix4x4::translate(0.0f, 0.5f, 0.0f) * Matrix4x4::yaw(PI / 4.0f);
-        const Matrix4x4& cameraToWorldMatrix = Matrix4x4::translate(0.0, 1.0, 3.0f) * Matrix4x4::yaw(timer * 0.001f);
+
+        const Matrix4x4& cameraToWorldMatrix =
+            Matrix4x4::translate(cameraTranslation) *
+            Matrix4x4::roll(cameraRotation.z) *
+            Matrix4x4::yaw(cameraRotation.y) *
+            Matrix4x4::pitch(cameraRotation.x);
+        
         const Matrix4x4& projectionMatrix = Matrix4x4::perspective(float(windowWidth), float(windowHeight), nearPlaneZ, farPlaneZ, verticalFieldOfView);
 
         // Draw the background
@@ -124,6 +133,34 @@ int main(const int argc, const char* argv[]) {
         // Handle events
         if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE)) {
             glfwSetWindowShouldClose(window, 1);
+        }
+
+        // WASD keyboard movement
+        const float cameraMoveSpeed = 0.01f;
+        if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_W)) { cameraTranslation += Vector3(cameraToWorldMatrix * Vector4(0, 0, -cameraMoveSpeed, 0)); }
+        if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_S)) { cameraTranslation += Vector3(cameraToWorldMatrix * Vector4(0, 0, +cameraMoveSpeed, 0)); }
+        if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_A)) { cameraTranslation += Vector3(cameraToWorldMatrix * Vector4(-cameraMoveSpeed, 0, 0, 0)); }
+        if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_D)) { cameraTranslation += Vector3(cameraToWorldMatrix * Vector4(+cameraMoveSpeed, 0, 0, 0)); }
+        if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_C)) { cameraTranslation.y -= cameraMoveSpeed; }
+        if ((GLFW_PRESS == glfwGetKey(window, GLFW_KEY_SPACE)) || (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_Z))) { cameraTranslation.y += cameraMoveSpeed; }
+
+        // Keep the camera above the ground
+        if (cameraTranslation.y < 0.01f) { cameraTranslation.y = 0.01f; }
+
+        static bool inDrag = false;
+        const float cameraTurnSpeed = 0.005f;
+        if (GLFW_PRESS == glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)) {
+            static double startX, startY;
+            double currentX, currentY;
+
+            glfwGetCursorPos(window, &currentX, &currentY);
+            if (inDrag) {
+                cameraRotation.y -= float(currentX - startX) * cameraTurnSpeed;
+                cameraRotation.x -= float(currentY - startY) * cameraTurnSpeed;
+            }
+            inDrag = true; startX = currentX; startY = currentY;
+        } else {
+            inDrag = false;
         }
 
         ++timer;
