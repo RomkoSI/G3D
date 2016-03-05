@@ -2,6 +2,16 @@
   \file minimalOpenGL/main.cpp
   \author Morgan McGuire, http://graphics.cs.williams.edu
 
+  Features demonstrated:
+   * Window, OpenGL, and extension initialization
+   * Triangle mesh rendering (GL Vertex Array Buffer)
+   * Texture map loading (GL Texture Object)
+   * Shader loading (GL Program and Shader Objects)
+   * Ray tracing
+   * Procedural texture
+   * Tiny vector math library
+   * Mouse and keyboard handling
+
   This is a minimal example of an OpenGL 4 program using only
   GLFW and GLEW libraries to simplify initialization. It does
   not depend on G3D or any other external libraries at all. 
@@ -222,15 +232,4 @@ int main(const int argc, const char* argv[]) {
         // Restore the hardware framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
-
-
-    /*
-    // Blit the HDR framebuffer to the LDR hardware framebuffer
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, windowWidth, windowHeight,
-    0, 0, windowWidth, windowHeight,
-    GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
-    GL_NEAREST);
-    */
 #endif
