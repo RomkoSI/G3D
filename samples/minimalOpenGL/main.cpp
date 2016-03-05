@@ -28,10 +28,8 @@
      https://gist.github.com/manpat/112f3f31c983ccddf044
 
   TODO:
-    - Draw a cube + fake shadow
     - Show how to load a texture map
-    - Matrix3x3
-    - Add key bindings  
+    - Fix the ground plane under rotation
 */
 
 #include "minimalOpenGL.h"
