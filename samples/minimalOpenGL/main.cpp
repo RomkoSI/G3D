@@ -28,7 +28,6 @@
      https://gist.github.com/manpat/112f3f31c983ccddf044
 
   TODO:
-   - Fix the ground plane under rotation
    - Show how to load a texture map
 */
 
@@ -38,6 +37,9 @@ GLFWwindow* window = nullptr;
 const int windowWidth = 1280, windowHeight = 720;
 
 int main(const int argc, const char* argv[]) {
+    std::cout << "Minimal OpenGL 4.1 Example by Morgan McGuire\nW, A, S, D, C, Z keys to translate\nMouse click and drag to rotate\n";
+    std::cout << std::fixed;
+
     window = initOpenGL(windowWidth, windowHeight, "minimalOpenGL");
 
     Vector3 cameraTranslation(0.0f, 1.5f, 5.0f);
@@ -45,16 +47,27 @@ int main(const int argc, const char* argv[]) {
 
     /////////////////////////////////////////////////////////////////
     // Load vertex array buffers
-    const int N = 3;
     GLuint positionBuffer = GL_NONE;
     glGenBuffers(1, &positionBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::position), Cube::position, GL_STATIC_DRAW);
 
+    GLuint texCoordBuffer = GL_NONE;
+    glGenBuffers(1, &texCoordBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, texCoordBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::texCoord), Cube::texCoord, GL_STATIC_DRAW);
+
     GLuint normalBuffer = GL_NONE;
     glGenBuffers(1, &normalBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::normal), Cube::normal, GL_STATIC_DRAW);
+
+    GLuint tangentBuffer = GL_NONE;
+    glGenBuffers(1, &tangentBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, tangentBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::tangent), Cube::tangent, GL_STATIC_DRAW);
+
+    const int numVertices = sizeof(Cube::position) / sizeof(Cube::position[0]);
 
     GLuint indexBuffer = GL_NONE;
     glGenBuffers(1, &indexBuffer);
@@ -68,10 +81,10 @@ int main(const int argc, const char* argv[]) {
     // Binding points for attributes and uniforms discovered from the shader
     const GLint positionAttribute                = glGetAttribLocation(shader,  "position");
     const GLint normalAttribute                  = glGetAttribLocation(shader,  "normal");
+    const GLint texCoordAttribute                = glGetAttribLocation(shader,  "texCoord");
+    const GLint tangentAttribute                 = glGetAttribLocation(shader,  "tangent");
     const GLint modelViewProjectionMatrixUniform = glGetUniformLocation(shader, "modelViewProjectionMatrix");
 
-    std::cout << std::fixed;
-//    std::cout << (Matrix4x4::translate(0.0f, 0.5f, 0.0f) * Matrix4x4::yaw(PI / 4.0f));
 
     // Main loop:
     int timer = 0;
@@ -109,12 +122,20 @@ int main(const int argc, const char* argv[]) {
         glUniformMatrix4fv(modelViewProjectionMatrixUniform, 1, GL_TRUE, modelViewProjectionMatrix.data);
 
         glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-        glVertexAttribPointer(positionAttribute, N, GL_FLOAT, GL_FALSE, 0, 0);
+        glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(positionAttribute);
 
         glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-        glVertexAttribPointer(normalAttribute, N, GL_FLOAT, GL_FALSE, 0, 0);
+        glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(normalAttribute);
+
+        glBindBuffer(GL_ARRAY_BUFFER, tangentBuffer);
+        glVertexAttribPointer(tangentAttribute, 4, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(tangentAttribute);
+
+        glBindBuffer(GL_ARRAY_BUFFER, texCoordBuffer);
+        glVertexAttribPointer(texCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(texCoordAttribute);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 
