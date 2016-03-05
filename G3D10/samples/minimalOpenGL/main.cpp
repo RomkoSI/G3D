@@ -69,6 +69,9 @@ int main(const int argc, const char* argv[]) {
     const GLint normalAttribute                  = glGetAttribLocation(shader,  "normal");
     const GLint modelViewProjectionMatrixUniform = glGetUniformLocation(shader, "modelViewProjectionMatrix");
 
+    std::cout << std::fixed;
+    std::cout << (Matrix4x4::translate(0.0f, 0.5f, 0.0f) * Matrix4x4::yaw(PI / 4.0f));
+
     // Main loop:
     int timer = 0;
     while (! glfwWindowShouldClose(window)) {
@@ -79,7 +82,7 @@ int main(const int argc, const char* argv[]) {
         glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        const Matrix4x4& objectToWorldMatrix = Matrix4x4::translate(0.0f, 0.5f, 0.0f) * Matrix4x4::yaw(PI / 4.0f);
+        const Matrix4x4& objectToWorldMatrix = Matrix4x4::translate(0.0f, 0.5f, 0.0f) * Matrix4x4::roll(PI / 4.0f);
         const Matrix4x4& cameraToWorldMatrix = Matrix4x4::translate(0.0, 1.0, 3.0f);// *Matrix4x4::yaw(timer * 0.001f);
         const Matrix4x4& projectionMatrix = Matrix4x4::perspective(float(windowWidth), float(windowHeight), nearPlaneZ, farPlaneZ, verticalFieldOfView);
 
