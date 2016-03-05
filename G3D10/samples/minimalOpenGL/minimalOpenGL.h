@@ -659,3 +659,37 @@ namespace Cube {
     const float texCoord[] = { 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f };
     const int   index[]    = { 0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23 };
 };
+
+
+void loadBMP(const std::string& filename, int& width, int& height, int& channels, std::vector<std::uint8_t>& data) {
+    std::fstream hFile(filename.c_str(), std::ios::in | std::ios::binary);
+    if (! hFile.is_open()) { throw std::invalid_argument("Error: File Not Found."); }
+
+    hFile.seekg(0, std::ios::end);
+    size_t len = hFile.tellg();
+    hFile.seekg(0, std::ios::beg);
+    std::vector<std::uint8_t> header(len);
+    hFile.read(reinterpret_cast<char*>(header.data()), 54);
+
+    if ((header[0] != 'B') && (header[1] != 'M')) {
+        hFile.close();
+        throw std::invalid_argument("Error: File is not a BMP.");
+    }
+
+    if ((header[28] != 24) && (header[28] != 32)) {
+        hFile.close();
+        throw std::invalid_argument("Error: File is not uncompressed 24 or 32 bits per pixel.");
+    }
+
+    const short bitsPerPixel = header[28];
+    channels = bitsPerPixel / 8;
+    width  = header[18] + (header[19] << 8);
+    height = header[22] + (header[23] << 8);
+    std::uint32_t offset = header[10] + (header[11] << 8);
+    std::uint32_t size = ((width * bitsPerPixel + 31) / 32) * 4 * height;
+    data.resize(size);
+
+    hFile.seekg(offset, std::ios::beg);
+    hFile.read(reinterpret_cast<char*>(data.data()), size);
+    hFile.close();
+}

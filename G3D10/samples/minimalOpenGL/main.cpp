@@ -28,16 +28,16 @@
      https://gist.github.com/manpat/112f3f31c983ccddf044
 
   TODO:
-    - Show how to load a texture map
-    - Fix the ground plane under rotation
+   - Fix the ground plane under rotation
+   - Show how to load a texture map
 */
 
 #include "minimalOpenGL.h"
 
 GLFWwindow* window = nullptr;
+const int windowWidth = 1280, windowHeight = 720;
 
 int main(const int argc, const char* argv[]) {
-    const int windowWidth = 1280, windowHeight = 720;
     window = initOpenGL(windowWidth, windowHeight, "minimalOpenGL");
 
     Vector3 cameraTranslation(0.0f, 1.5f, 5.0f);
