@@ -9,23 +9,25 @@
 #pragma once
 
 #ifdef __APPLE__
-#   define G3D_OSX
+#   define _OSX
 #elif defined(_WIN64)
-#   define G3D_WINDOWS
+#   ifndef _WINDOWS
+#       define _WINDOWS
+#   endif
 #elif defined(__linux__)
-#   define G3D_LINUX
+#   define _LINUX
 #endif
 
 #include <GL/glew.h>
-#ifdef G3D_WINDOWS
+#ifdef _WINDOWS
 #   include <GL/wglew.h>
-#elif defined(G3D_LINUX)
+#elif defined(_LINUX)
 #   include <GL/xglew.h>
 #endif
 #include <GLFW/glfw3.h> 
 
 
-#ifdef G3D_WINDOWS
+#ifdef _WINDOWS
     // Link against OpenGL
 #   pragma comment(lib, "opengl32")
 #   pragma comment(lib, "glew_x64")
@@ -282,7 +284,7 @@ GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
 #   ifdef _DEBUG
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glEnable(GL_DEBUG_OUTPUT);
-#       ifndef G3D_OSX
+#       ifndef _OSX
             // Causes a segmentation fault on OS X
             glDebugMessageCallback(debugCallback, nullptr);
 #       endif
