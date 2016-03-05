@@ -4,8 +4,8 @@
 
   This is a minimal example of an OpenGL 4 program using only
   GLFW and GLEW libraries to simplify initialization. It does
-  not depend on G3D at all. You could use SDL or another thin
-  library instead of those two.
+  not depend on G3D or any other external libraries at all. 
+  You could use SDL or another thin library instead of those two.
   
   This is useful as a testbed when isolating driver bugs and 
   seeking a minimal context. 
@@ -24,15 +24,16 @@
      https://github.com/nothings/stb
 
   See a SDL-based minimal OpenGL program at:
+
      https://gist.github.com/manpat/112f3f31c983ccddf044
 
   TODO:
-    - Fix ortho projection
-    - Render to HDR framebuffer and then post + gamma to the screen
-    - Draw cube
-    - Draw ground plane
-    - Render background sphere
- */
+    - Draw a cube + fake shadow
+    - Show how to load a texture map
+    - Matrix4x4 inverse
+    - Matrix3x3
+    - Add key bindings  
+*/
 
 #include "minimalOpenGL.h"
 #include <iostream>
@@ -129,6 +130,12 @@ int main(const int argc, const char* argv[]) {
         glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        const Matrix4x4 objectToWorldMatrix;// = Matrix4x4::pitch(timer * 0.015f) * Matrix4x4::roll(timer * 0.01f);
+        const Matrix4x4& worldToCameraMatrix = Matrix4x4::translate(0.0f, 0.0f, -3.0f);
+        const Matrix4x4& projectionMatrix =
+            Matrix4x4::perspective(float(windowWidth), float(windowHeight), nearPlaneZ, farPlaneZ, verticalFieldOfView);
+        //Matrix4x4::ortho(windowWidth, windowHeight, nearPlaneZ, farPlaneZ);
+
         // Draw the background
         drawSky(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView);
 
@@ -137,11 +144,6 @@ int main(const int argc, const char* argv[]) {
         glDisable(GL_CULL_FACE);
         glDepthMask(GL_TRUE);
 
-        const Matrix4x4 objectToWorldMatrix;// = Matrix4x4::pitch(timer * 0.015f) * Matrix4x4::roll(timer * 0.01f);
-        const Matrix4x4& worldToCameraMatrix = Matrix4x4::translate(0.0f, 0.0f, -3.0f);
-        const Matrix4x4& projectionMatrix =
-            Matrix4x4::perspective(float(windowWidth), float(windowHeight), nearPlaneZ, farPlaneZ, verticalFieldOfView);
-        //Matrix4x4::ortho(windowWidth, windowHeight, nearPlaneZ, farPlaneZ);
         
         glUseProgram(shader);
 
