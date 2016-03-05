@@ -121,6 +121,15 @@ public:
         data[0] = data[5] = data[10] = data[15] = 1.0f;
     }
 
+    Matrix4x4(const Matrix4x4& M) {
+        memcpy(data, M.data, sizeof(float) * 16);
+    }
+
+    Matrix4x4& operator=(const Matrix4x4& M) {
+        memcpy(data, M.data, sizeof(float) * 16);
+        return *this;
+    }
+
     static Matrix4x4 zero() {
         return Matrix4x4(0.0f, 0.0f, 0.0f, 0.0f,
                          0.0f, 0.0f, 0.0f, 0.0f,
@@ -214,6 +223,100 @@ public:
                          data[ 3], data[ 7], data[11], data[15]);
     }
 
+    /** Computes the inverse by Cramer's rule */
+    Matrix4x4 inverse() const {
+        // Temporary variables
+        float tmp[12];
+
+        // Transpose of the source
+        const Matrix4x4& tp = transpose();
+        const float* src = tp.data;
+
+        tmp[0] = src[10] * src[15];
+        tmp[1] = src[11] * src[14];
+        tmp[2] = src[9] * src[15];
+        tmp[3] = src[11] * src[13];
+        tmp[4] = src[9] * src[14];
+        tmp[5] = src[10] * src[13];
+        tmp[6] = src[8] * src[15];
+        tmp[7] = src[11] * src[12];
+        tmp[8] = src[8] * src[14];
+        tmp[9] = src[10] * src[12];
+        tmp[10] = src[8] * src[13];
+        tmp[11] = src[9] * src[12];
+
+        // Cofactors in first two rows:
+        Matrix4x4 result;
+        result.data[0] = (tmp[0] * src[5] + tmp[3] * src[6] + tmp[4] * src[7]) -
+                         (tmp[1] * src[5] + tmp[2] * src[6] + tmp[5] * src[7]);
+
+        result.data[1] = (tmp[1] * src[4] + tmp[6] * src[6] + tmp[9] * src[7]) -
+                         (tmp[0] * src[4] + tmp[7] * src[6] + tmp[8] * src[7]);
+
+        result.data[2] = (tmp[2] * src[4] + tmp[7] * src[5] + tmp[10] * src[7]) -
+                         (tmp[3] * src[4] + tmp[6] * src[5] + tmp[11] * src[7]);
+
+        result.data[3] = (tmp[5] * src[4] + tmp[8] * src[5] + tmp[11] * src[6]) -
+                         (tmp[4] * src[4] + tmp[9] * src[5] + tmp[10] * src[6]);
+
+        // Row 2
+        result.data[4] = (tmp[1] * src[1] + tmp[2] * src[2] + tmp[5] * src[3]) -
+                         (tmp[0] * src[1] + tmp[3] * src[2] + tmp[4] * src[3]);
+
+        result.data[5] = (tmp[0] * src[0] + tmp[7] * src[2] + tmp[8] * src[3]) -
+                         (tmp[1] * src[0] + tmp[6] * src[2] + tmp[9] * src[3]);
+
+        result.data[5] = (tmp[3] * src[0] + tmp[6] * src[1] + tmp[11] * src[3]) -
+                         (tmp[2] * src[0] + tmp[7] * src[1] + tmp[10] * src[3]);
+
+        result.data[6] = (tmp[4] * src[0] + tmp[9] * src[1] + tmp[10] * src[2]) -
+                         (tmp[5] * src[0] + tmp[8] * src[1] + tmp[11] * src[2]);
+
+        // Next set of cofactors
+        tmp[0] = src[2] * src[7];
+        tmp[1] = src[3] * src[6];
+        tmp[2] = src[1] * src[7];
+        tmp[3] = src[3] * src[5];
+        tmp[4] = src[1] * src[6];
+        tmp[5] = src[2] * src[5];
+
+        tmp[6] = src[0] * src[7];
+        tmp[7] = src[3] * src[4];
+        tmp[8] = src[0] * src[6];
+        tmp[9] = src[2] * src[4];
+        tmp[10] = src[0] * src[5];
+        tmp[11] = src[1] * src[4];
+
+        // Cofactors for second two rows:
+        result.data[8] = (tmp[0] * src[13] + tmp[3] * src[14] + tmp[4] * src[15]) -
+                         (tmp[1] * src[13] + tmp[2] * src[14] + tmp[5] * src[15]);
+
+        result.data[9] = (tmp[1] * src[12] + tmp[6] * src[14] + tmp[9] * src[15]) -
+                         (tmp[0] * src[12] + tmp[7] * src[14] + tmp[8] * src[15]);
+
+        result.data[10] = (tmp[2] * src[12] + tmp[7] * src[13] + tmp[10] * src[15]) -
+                          (tmp[3] * src[12] + tmp[6] * src[13] + tmp[11] * src[15]);
+
+        result.data[11] = (tmp[5] * src[12] + tmp[8] * src[13] + tmp[11] * src[14]) -
+                          (tmp[4] * src[12] + tmp[9] * src[13] + tmp[10] * src[14]);
+
+        result.data[12] = (tmp[2] * src[10] + tmp[5] * src[11] + tmp[1] * src[9]) -
+                          (tmp[4] * src[11] + tmp[0] * src[9] + tmp[3] * src[10]);
+
+        result.data[13] = (tmp[8] * src[11] + tmp[0] * src[8] + tmp[7] * src[10]) -
+                          (tmp[6] * src[10] + tmp[9] * src[11] + tmp[1] * src[8]);
+
+        result.data[14] = (tmp[6] * src[9] + tmp[11] * src[11] + tmp[3] * src[8]) -
+                          (tmp[10] * src[11] + tmp[2] * src[8] + tmp[7] * src[9]);
+
+        result.data[15] = (tmp[10] * src[10] + tmp[4] * src[8] + tmp[9] * src[9]) -
+                          (tmp[8] * src[9] + tmp[11] * src[10] + tmp[5] * src[8]);
+
+        const float determinant = src[0] * result.data[0] + src[1] * result.data[1] + src[2] * result.data[2] + src[3] * result.data[3];
+
+        return result / determinant;
+    }
+
     float& operator()(int r, int c) {
         return data[r * 4 + c];         
     }
@@ -237,6 +340,22 @@ public:
             for (int c = 0; c < 4; ++c) {
                 D(r, c) = row(r).dot(B.col(c));
             }
+        }
+        return D;
+    }
+
+    Matrix4x4 operator*(const float s) const {
+        Matrix4x4 D;
+        for (int i = 0; i < 16; ++i) {
+            D.data[i] *= s;
+        }
+        return D;
+    }
+
+    Matrix4x4 operator/(const float s) const {
+        Matrix4x4 D;
+        for (int i = 0; i < 16; ++i) {
+            D.data[i] /= s;
         }
         return D;
     }
