@@ -24,6 +24,16 @@
 #endif
 #include <GLFW/glfw3.h> 
 
+
+#ifdef G3D_WINDOWS
+    // Link against OpenGL and libraries
+//#   pragma comment(lib, "ole32")
+#   pragma comment(lib, "opengl32")
+#   pragma comment(lib, "glew_x64")
+#   pragma comment(lib, "glfw_x64")
+#endif
+
+
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
@@ -31,6 +41,8 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+
+#define PI (3.1415927f)
 
 class Vector3 {
 public:
@@ -322,9 +334,9 @@ void drawRect(GLint positionAttribute, int width, int height, float z = -1.0f) {
     
     const Vector3 cpuPosition[] = {
         Vector3( 0.0f,   0.0f, z),
-        Vector3(width, height, z),
-        Vector3( 0.0f, height, z),
-        Vector3(width,   0.0f, z)
+        Vector3(float(width), float(height), z),
+        Vector3( 0.0f, float(height), z),
+        Vector3(float(width),   0.0f, z)
     };
 
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
@@ -337,7 +349,7 @@ void drawRect(GLint positionAttribute, int width, int height, float z = -1.0f) {
 }
 
 /** Submits a full-screen quad at the far plane and runs a procedural sky shader on it */
-void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farPlaneZ, float verticalFieldOfView) {
+void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlaneZ, float verticalFieldOfView) {
 #   define SHADER_SOURCE(s) "#version 410\n" #s
     static const GLuint skyShader = 
         compileShader(SHADER_SOURCE
@@ -412,7 +424,7 @@ void drawSky(float windowWidth, float windowHeight, float nearPlaneZ, float farP
     glDepthMask(GL_FALSE);
 
     glUseProgram(skyShader);
-    glUniform2f(0, windowWidth, windowHeight);
+    glUniform2f(0, float(windowWidth), float(windowHeight));
     glUniform1f(1, tan(verticalFieldOfView));
     glDrawArrays(GL_TRIANGLES, 0, 3);
 

@@ -137,7 +137,7 @@ int main(const int argc, const char* argv[]) {
 
         const float nearPlaneZ = -0.1f;
         const float farPlaneZ = -100.0f;
-        const float verticalFieldOfView = 45.0f * M_PI / 180.0f;
+        const float verticalFieldOfView = 45.0f * PI / 180.0f;
 
         glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -151,9 +151,9 @@ int main(const int argc, const char* argv[]) {
         glDepthMask(GL_TRUE);
 
         const Matrix4x4 objectToWorldMatrix;// = Matrix4x4::pitch(timer * 0.015f) * Matrix4x4::roll(timer * 0.01f);
-        const Matrix4x4& worldToCameraMatrix = Matrix4x4::translate(0, 0, -3.0f);
+        const Matrix4x4& worldToCameraMatrix = Matrix4x4::translate(0.0f, 0.0f, -3.0f);
         const Matrix4x4& projectionMatrix =
-            Matrix4x4::perspective(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView);
+            Matrix4x4::perspective(float(windowWidth), float(windowHeight), nearPlaneZ, farPlaneZ, verticalFieldOfView);
         //Matrix4x4::ortho(windowWidth, windowHeight, nearPlaneZ, farPlaneZ);
         
         glUseProgram(shader);
