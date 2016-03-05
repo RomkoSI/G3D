@@ -223,98 +223,126 @@ public:
                          data[ 3], data[ 7], data[11], data[15]);
     }
 
-    /** Computes the inverse by Cramer's rule */
+    /** Computes the inverse by Cramer's rule (based on MESA implementation) */
     Matrix4x4 inverse() const {
-        // Temporary variables
-        float tmp[12];
-
-        // Transpose of the source
-        const Matrix4x4& tp = transpose();
-        const float* src = tp.data;
-
-        tmp[0] = src[10] * src[15];
-        tmp[1] = src[11] * src[14];
-        tmp[2] = src[9] * src[15];
-        tmp[3] = src[11] * src[13];
-        tmp[4] = src[9] * src[14];
-        tmp[5] = src[10] * src[13];
-        tmp[6] = src[8] * src[15];
-        tmp[7] = src[11] * src[12];
-        tmp[8] = src[8] * src[14];
-        tmp[9] = src[10] * src[12];
-        tmp[10] = src[8] * src[13];
-        tmp[11] = src[9] * src[12];
-
-        // Cofactors in first two rows:
         Matrix4x4 result;
-        result.data[0] = (tmp[0] * src[5] + tmp[3] * src[6] + tmp[4] * src[7]) -
-                         (tmp[1] * src[5] + tmp[2] * src[6] + tmp[5] * src[7]);
+        const float* m = data;
+        float* inv = result.data;
 
-        result.data[1] = (tmp[1] * src[4] + tmp[6] * src[6] + tmp[9] * src[7]) -
-                         (tmp[0] * src[4] + tmp[7] * src[6] + tmp[8] * src[7]);
+        inv[0] = m[5] * m[10] * m[15] -
+            m[5] * m[11] * m[14] -
+            m[9] * m[6] * m[15] +
+            m[9] * m[7] * m[14] +
+            m[13] * m[6] * m[11] -
+            m[13] * m[7] * m[10];
 
-        result.data[2] = (tmp[2] * src[4] + tmp[7] * src[5] + tmp[10] * src[7]) -
-                         (tmp[3] * src[4] + tmp[6] * src[5] + tmp[11] * src[7]);
+        inv[4] = -m[4] * m[10] * m[15] +
+            m[4] * m[11] * m[14] +
+            m[8] * m[6] * m[15] -
+            m[8] * m[7] * m[14] -
+            m[12] * m[6] * m[11] +
+            m[12] * m[7] * m[10];
 
-        result.data[3] = (tmp[5] * src[4] + tmp[8] * src[5] + tmp[11] * src[6]) -
-                         (tmp[4] * src[4] + tmp[9] * src[5] + tmp[10] * src[6]);
+        inv[8] = m[4] * m[9] * m[15] -
+            m[4] * m[11] * m[13] -
+            m[8] * m[5] * m[15] +
+            m[8] * m[7] * m[13] +
+            m[12] * m[5] * m[11] -
+            m[12] * m[7] * m[9];
 
-        // Row 2
-        result.data[4] = (tmp[1] * src[1] + tmp[2] * src[2] + tmp[5] * src[3]) -
-                         (tmp[0] * src[1] + tmp[3] * src[2] + tmp[4] * src[3]);
+        inv[12] = -m[4] * m[9] * m[14] +
+            m[4] * m[10] * m[13] +
+            m[8] * m[5] * m[14] -
+            m[8] * m[6] * m[13] -
+            m[12] * m[5] * m[10] +
+            m[12] * m[6] * m[9];
 
-        result.data[5] = (tmp[0] * src[0] + tmp[7] * src[2] + tmp[8] * src[3]) -
-                         (tmp[1] * src[0] + tmp[6] * src[2] + tmp[9] * src[3]);
+        inv[1] = -m[1] * m[10] * m[15] +
+            m[1] * m[11] * m[14] +
+            m[9] * m[2] * m[15] -
+            m[9] * m[3] * m[14] -
+            m[13] * m[2] * m[11] +
+            m[13] * m[3] * m[10];
 
-        result.data[5] = (tmp[3] * src[0] + tmp[6] * src[1] + tmp[11] * src[3]) -
-                         (tmp[2] * src[0] + tmp[7] * src[1] + tmp[10] * src[3]);
+        inv[5] = m[0] * m[10] * m[15] -
+            m[0] * m[11] * m[14] -
+            m[8] * m[2] * m[15] +
+            m[8] * m[3] * m[14] +
+            m[12] * m[2] * m[11] -
+            m[12] * m[3] * m[10];
 
-        result.data[6] = (tmp[4] * src[0] + tmp[9] * src[1] + tmp[10] * src[2]) -
-                         (tmp[5] * src[0] + tmp[8] * src[1] + tmp[11] * src[2]);
+        inv[9] = -m[0] * m[9] * m[15] +
+            m[0] * m[11] * m[13] +
+            m[8] * m[1] * m[15] -
+            m[8] * m[3] * m[13] -
+            m[12] * m[1] * m[11] +
+            m[12] * m[3] * m[9];
 
-        // Next set of cofactors
-        tmp[0] = src[2] * src[7];
-        tmp[1] = src[3] * src[6];
-        tmp[2] = src[1] * src[7];
-        tmp[3] = src[3] * src[5];
-        tmp[4] = src[1] * src[6];
-        tmp[5] = src[2] * src[5];
+        inv[13] = m[0] * m[9] * m[14] -
+            m[0] * m[10] * m[13] -
+            m[8] * m[1] * m[14] +
+            m[8] * m[2] * m[13] +
+            m[12] * m[1] * m[10] -
+            m[12] * m[2] * m[9];
 
-        tmp[6] = src[0] * src[7];
-        tmp[7] = src[3] * src[4];
-        tmp[8] = src[0] * src[6];
-        tmp[9] = src[2] * src[4];
-        tmp[10] = src[0] * src[5];
-        tmp[11] = src[1] * src[4];
+        inv[2] = m[1] * m[6] * m[15] -
+            m[1] * m[7] * m[14] -
+            m[5] * m[2] * m[15] +
+            m[5] * m[3] * m[14] +
+            m[13] * m[2] * m[7] -
+            m[13] * m[3] * m[6];
 
-        // Cofactors for second two rows:
-        result.data[8] = (tmp[0] * src[13] + tmp[3] * src[14] + tmp[4] * src[15]) -
-                         (tmp[1] * src[13] + tmp[2] * src[14] + tmp[5] * src[15]);
+        inv[6] = -m[0] * m[6] * m[15] +
+            m[0] * m[7] * m[14] +
+            m[4] * m[2] * m[15] -
+            m[4] * m[3] * m[14] -
+            m[12] * m[2] * m[7] +
+            m[12] * m[3] * m[6];
 
-        result.data[9] = (tmp[1] * src[12] + tmp[6] * src[14] + tmp[9] * src[15]) -
-                         (tmp[0] * src[12] + tmp[7] * src[14] + tmp[8] * src[15]);
+        inv[10] = m[0] * m[5] * m[15] -
+            m[0] * m[7] * m[13] -
+            m[4] * m[1] * m[15] +
+            m[4] * m[3] * m[13] +
+            m[12] * m[1] * m[7] -
+            m[12] * m[3] * m[5];
 
-        result.data[10] = (tmp[2] * src[12] + tmp[7] * src[13] + tmp[10] * src[15]) -
-                          (tmp[3] * src[12] + tmp[6] * src[13] + tmp[11] * src[15]);
+        inv[14] = -m[0] * m[5] * m[14] +
+            m[0] * m[6] * m[13] +
+            m[4] * m[1] * m[14] -
+            m[4] * m[2] * m[13] -
+            m[12] * m[1] * m[6] +
+            m[12] * m[2] * m[5];
 
-        result.data[11] = (tmp[5] * src[12] + tmp[8] * src[13] + tmp[11] * src[14]) -
-                          (tmp[4] * src[12] + tmp[9] * src[13] + tmp[10] * src[14]);
+        inv[3] = -m[1] * m[6] * m[11] +
+            m[1] * m[7] * m[10] +
+            m[5] * m[2] * m[11] -
+            m[5] * m[3] * m[10] -
+            m[9] * m[2] * m[7] +
+            m[9] * m[3] * m[6];
 
-        result.data[12] = (tmp[2] * src[10] + tmp[5] * src[11] + tmp[1] * src[9]) -
-                          (tmp[4] * src[11] + tmp[0] * src[9] + tmp[3] * src[10]);
+        inv[7] = m[0] * m[6] * m[11] -
+            m[0] * m[7] * m[10] -
+            m[4] * m[2] * m[11] +
+            m[4] * m[3] * m[10] +
+            m[8] * m[2] * m[7] -
+            m[8] * m[3] * m[6];
 
-        result.data[13] = (tmp[8] * src[11] + tmp[0] * src[8] + tmp[7] * src[10]) -
-                          (tmp[6] * src[10] + tmp[9] * src[11] + tmp[1] * src[8]);
+        inv[11] = -m[0] * m[5] * m[11] +
+            m[0] * m[7] * m[9] +
+            m[4] * m[1] * m[11] -
+            m[4] * m[3] * m[9] -
+            m[8] * m[1] * m[7] +
+            m[8] * m[3] * m[5];
 
-        result.data[14] = (tmp[6] * src[9] + tmp[11] * src[11] + tmp[3] * src[8]) -
-                          (tmp[10] * src[11] + tmp[2] * src[8] + tmp[7] * src[9]);
+        inv[15] = m[0] * m[5] * m[10] -
+            m[0] * m[6] * m[9] -
+            m[4] * m[1] * m[10] +
+            m[4] * m[2] * m[9] +
+            m[8] * m[1] * m[6] -
+            m[8] * m[2] * m[5];
 
-        result.data[15] = (tmp[10] * src[10] + tmp[4] * src[8] + tmp[9] * src[9]) -
-                          (tmp[8] * src[9] + tmp[11] * src[10] + tmp[5] * src[8]);
-
-        const float determinant = src[0] * result.data[0] + src[1] * result.data[1] + src[2] * result.data[2] + src[3] * result.data[3];
-
-        return result / determinant;
+        float det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
+        return result / det;
     }
 
     float& operator()(int r, int c) {
@@ -347,7 +375,7 @@ public:
     Matrix4x4 operator*(const float s) const {
         Matrix4x4 D;
         for (int i = 0; i < 16; ++i) {
-            D.data[i] *= s;
+            D.data[i] = data[i] * s;
         }
         return D;
     }
@@ -355,7 +383,7 @@ public:
     Matrix4x4 operator/(const float s) const {
         Matrix4x4 D;
         for (int i = 0; i < 16; ++i) {
-            D.data[i] /= s;
+            D.data[i] = data[i] / s;
         }
         return D;
     }
@@ -369,6 +397,23 @@ public:
     }
 };
 
+
+std::ostream& operator<<(std::ostream& os, const Vector3& v) {
+    return os << "Vector3(" << v.x << ", " << v.y << ")";
+}
+
+
+std::ostream& operator<<(std::ostream& os, const Vector4& v) {
+    return os << "Vector4(" << v.x << ", " << v.y << ", " << v.z << ")";
+}
+
+
+std::ostream& operator<<(std::ostream& os, const Matrix4x4& M) {
+    return os << "Matrix4x4(" << M.data[0] << ", " << M.data[1] << ", " << M.data[2] << ", " << M.data[3] << ",\n" <<
+         M.data[4] << ", " << M.data[5] << ", " << M.data[6] << ", " << M.data[7] << ",\n" <<
+         M.data[8] << ", " << M.data[9] << ", " << M.data[10] << ", " << M.data[11] << ",\n" <<
+         M.data[12] << ", " << M.data[13] << ", " << M.data[14] << ", " << M.data[15] << ")";
+}
 
 GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
     if (! glfwInit()) {
@@ -477,84 +522,129 @@ GLuint loadShaderProgram(const std::string& vertexFilename, const std::string& p
 
 
 /** Submits a full-screen quad at the far plane and runs a procedural sky shader on it */
-void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlaneZ, float verticalFieldOfView) {
-#   define SHADER_SOURCE(s) "#version 410\n#extension GL_ARB_explicit_uniform_location : require\n" #s
-    static const GLuint skyShader = 
-        createShaderProgram(SHADER_SOURCE
-                      (void main() {
-                          gl_Position = vec4(gl_VertexID >> 1, gl_VertexID & 1, 0.0, 0.5) * 4.0 - 1.0;
-                      }),
+void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlaneZ, float verticalFieldOfView, const Matrix4x4& cameraToWorldMatrix) {
+#   define VERTEX_SHADER(s) "#version 410\n" #s
+#   define PIXEL_SHADER(s) VERTEX_SHADER(s)
 
-                      SHADER_SOURCE
-                      (out vec3 pixelColor;
+    static const GLuint skyShader =
+        createShaderProgram(VERTEX_SHADER
+    (void main() {
+        gl_Position = vec4(gl_VertexID >> 1, gl_VertexID & 1, 0.0, 0.5) * 4.0 - 1.0;
+    }),
 
-                       layout(location = 0) uniform vec2 resolution;
-                       layout(location = 1) uniform float tanVerticalFieldOfView;
-                       
-                       float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
+    PIXEL_SHADER
+    (out vec3 pixelColor;
 
-                       float noise(vec2 x) { 
-                           vec2 i = floor(x);
-                           float a = hash(i);
-                           float b = hash(i + vec2(1.0, 0.0));
-                           float c = hash(i + vec2(0.0, 1.0));
-                           float d = hash(i + vec2(1.0, 1.0));
-                           
-                           vec2 f = fract(x);
-                           vec2 u = f * f * (3.0 - 2.0 * f);
-                           return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-                       }
-                       
-                       float fbm(vec2 p) {
-                           const mat2 m2 = mat2(0.8, -0.6, 0.6, 0.8);   
-                           float f = 0.5000 * noise(p); p = m2 * p * 2.02;
-                           f += 0.2500 * noise(p); p = m2 * p * 2.03;
-                           f += 0.1250 * noise(p); p = m2 * p * 2.01;
-                           f += 0.0625 * noise(p);
-                           return f / 0.9375;
-                       }
+    uniform vec2  resolution;
+    uniform float tanVerticalFieldOfView;
+    uniform mat4  cameraToWorldMatrix;
 
-                       vec3 render(in vec3 sun, in vec3 ro, in vec3 rd, in float resolution) {
-                           vec3 col;    
-                           if (rd.y < 0.0) {
-                               float t = -ro.y / rd.y;
-                               vec2 P = ro.xz + t * rd.xz;
-                               vec2 Q = floor(P);
-                               P = mod(P, 1.0);
+    float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
 
-                               const float gridLineWidth = 0.1;
-                               float res = clamp(2048.0 / resolution, 1.0, 3.0);
-                               P = 1.0 - abs(P - 0.5) * 2.0;
-                               float d = clamp(min(P.x, P.y) / (gridLineWidth * clamp(t + res * 2.0, 1.0, 2.0)) + 0.5, 0.0, 1.0);
-                               float shade = mix(hash(100.0 + Q * 0.1) * 0.4, 0.3, min(t * t * 0.001, 1.0)) + 0.6;
-                               col = vec3(pow(d, clamp(150.0 / (pow(max(t - 2.0, 0.1), res) + 1.0), 0.1, 15.0))) * shade + 0.1;
-                           } else {        
-                               col = vec3(0.3, 0.55, 0.8) * (1.0 - 0.8 * rd.y) * 0.9;
-                               float sundot = clamp(dot(rd, sun) / length(sun), 0.0, 1.0);
-                               col += 0.25 * vec3(1.0, 0.7, 0.4) * pow(sundot, 8.0);
-                               col += 0.75 * vec3(1.0, 0.8, 0.5) * pow(sundot, 64.0);
-                               col = mix(col, vec3(1.0, 0.95, 1.0), 0.5 * smoothstep(0.5, 0.8, fbm((ro.xz + rd.xz * (250000.0 - ro.y) / rd.y) * 0.000008)));
-                           }
-                           return mix(col, vec3(0.7, 0.75, 0.8), pow(1.0 - max(abs(rd.y), 0.0), 8.0));
-                       }
+    float noise(vec2 x) {
+        vec2 i = floor(x);
+        float a = hash(i);
+        float b = hash(i + vec2(1.0, 0.0));
+        float c = hash(i + vec2(0.0, 1.0));
+        float d = hash(i + vec2(1.0, 1.0));
 
-                       void main() { 
-                           vec3 ro = vec3(0.0, 1.0, 0.0);
-                           vec3 rd = normalize(vec3(gl_FragCoord.xy - resolution.xy / 2.0, resolution.y / ( -2.0 * tanVerticalFieldOfView / 2.0)));
-                           
-                           pixelColor = 
-                               render(vec3(1, 0.5, 0.0), ro, rd, resolution.x);
-                               //vec3(gl_FragCoord.xy / 1000.0, 1.0);
-                       }));
+        vec2 f = fract(x);
+        vec2 u = f * f * (3.0 - 2.0 * f);
+        return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+    }
 
+    float fbm(vec2 p) {
+        const mat2 m2 = mat2(0.8, -0.6, 0.6, 0.8);
+        float f = 0.5000 * noise(p); p = m2 * p * 2.02;
+        f += 0.2500 * noise(p); p = m2 * p * 2.03;
+        f += 0.1250 * noise(p); p = m2 * p * 2.01;
+        f += 0.0625 * noise(p);
+        return f / 0.9375;
+    }
+
+    vec3 render(in vec3 sun, in vec3 ro, in vec3 rd, in float resolution) {
+        vec3 col;
+        if (rd.y < 0.0) {
+            float t = -ro.y / rd.y;
+            vec2 P = ro.xz + t * rd.xz;
+            vec2 Q = floor(P);
+            P = mod(P, 1.0);
+
+            const float gridLineWidth = 0.1;
+            float res = clamp(2048.0 / resolution, 1.0, 3.0);
+            P = 1.0 - abs(P - 0.5) * 2.0;
+            float d = clamp(min(P.x, P.y) / (gridLineWidth * clamp(t + res * 2.0, 1.0, 2.0)) + 0.5, 0.0, 1.0);
+            float shade = mix(hash(100.0 + Q * 0.1) * 0.4, 0.3, min(t * t * 0.001, 1.0)) + 0.6;
+            col = vec3(pow(d, clamp(150.0 / (pow(max(t - 2.0, 0.1), res) + 1.0), 0.1, 15.0))) * shade + 0.1;
+        }
+        else {
+            col = vec3(0.3, 0.55, 0.8) * (1.0 - 0.8 * rd.y) * 0.9;
+            float sundot = clamp(dot(rd, sun) / length(sun), 0.0, 1.0);
+            col += 0.25 * vec3(1.0, 0.7, 0.4) * pow(sundot, 8.0);
+            col += 0.75 * vec3(1.0, 0.8, 0.5) * pow(sundot, 64.0);
+            col = mix(col, vec3(1.0, 0.95, 1.0), 0.5 * smoothstep(0.5, 0.8, fbm((ro.xz + rd.xz * (250000.0 - ro.y) / rd.y) * 0.000008)));
+        }
+        return mix(col, vec3(0.7, 0.75, 0.8), pow(1.0 - max(abs(rd.y), 0.0), 8.0));
+    }
+
+    void main() {
+        vec3 ro = cameraToWorldMatrix[3].xyz;
+        vec3 rd = normalize(mat3(cameraToWorldMatrix) * 
+            vec3(gl_FragCoord.xy - resolution.xy / 2.0,
+                resolution.y / -tanVerticalFieldOfView));
+
+        pixelColor = 
+            render(vec3(1, 0.5, 0.0), ro, rd, resolution.x);
+            //vec3(gl_FragCoord.xy / 1000.0, 1.0);
+
+    }));
+
+    static const GLint resolutionUniform             = glGetUniformLocation(skyShader, "resolution");
+    static const GLint tanVerticalFieldOfViewUniform = glGetUniformLocation(skyShader, "tanVerticalFieldOfView");
+    static const GLint cameraToWorldMatrixUniform    = glGetUniformLocation(skyShader, "cameraToWorldMatrix");
 
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
 
     glUseProgram(skyShader);
-    glUniform2f(0, float(windowWidth), float(windowHeight));
-    glUniform1f(1, tan(verticalFieldOfView));
+    glUniform2f(resolutionUniform, float(windowWidth), float(windowHeight));
+    glUniform1f(tanVerticalFieldOfViewUniform, tan(verticalFieldOfView));
+    glUniformMatrix4fv(cameraToWorldMatrixUniform, 1, GL_TRUE, cameraToWorldMatrix.data);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
-#   undef SHADER_SOURCE
+#   undef PIXEL_SHADER
+#   undef VERTEX_SHADER
 }
+
+
+class Geometry {
+public:
+    std::vector<float> position;
+    std::vector<float> normal;
+    std::vector<float> tangent;
+    std::vector<float> texCoord;
+    std::vector<int>   index;
+
+protected:
+    enum Cube {};
+    enum Teapot {};
+
+    // 1m^3 cube centered at the origin
+    Geometry(Cube) :
+        position({ -.5f, .5f, -.5f, -.5f, .5f, .5f, .5f, .5f, .5f, .5f, .5f, -.5f, -.5f, .5f, -.5f, -.5f, -.5f, -.5f, -.5f, -.5f, .5f, -.5f, .5f, .5f, .5f, .5f, .5f, .5f, -.5f, .5f, .5f, -.5f, -.5f, .5f, .5f, -.5f, .5f, .5f, -.5f, .5f, -.5f, -.5f, -.5f, -.5f, -.5f, -.5f, .5f, -.5f, -.5f, .5f, .5f, -.5f, -.5f, .5f, .5f, -.5f, .5f, .5f, .5f, .5f, -.5f, -.5f, .5f, -.5f, -.5f, -.5f, .5f, -.5f, -.5f, .5f, -.5f, .5f }),
+        normal({ 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f }),
+        tangent({ 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, -1.f, 1.f, -1.f, 0.f, 0.f, 1.f, -1.f, 0.f, 0.f, 1.f, -1.f, 0.f, 0.f, 1.f, -1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f }),
+        texCoord({ 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f }),
+        index({ 0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23 }) {}
+
+public:
+
+    static const Geometry& cube() {
+        // Using the assignment operator here is inelegant, but MSVC parses
+        // the direct initializer as a local function definition otherwise.
+        static const Geometry cube = Geometry(Cube());
+        return cube;
+    }
+
+    //    static const Geometry& teapot() { static const Geometry teapot = Geometry(Teapot()); return teapot; }
+};
