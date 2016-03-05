@@ -23,7 +23,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="minGL4.h">
+    <ClInclude Include="minimalOpenGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
