@@ -549,13 +549,6 @@ GLuint createShaderProgram(const std::string& vertexShaderSource, const std::str
 }
 
 
-GLuint loadShaderProgram(const std::string& vertexFilename, const std::string& pixelFilename) {
-    const std::string& vertexShaderSource = loadTextFile(vertexFilename);
-    const std::string& pixelShaderSource  = loadTextFile(pixelFilename);
-    return createShaderProgram(vertexShaderSource, pixelShaderSource);
-}
-
-
 /** Submits a full-screen quad at the far plane and runs a procedural sky shader on it */
 void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlaneZ, float verticalFieldOfView, const Matrix4x4& cameraToWorldMatrix) {
 #   define VERTEX_SHADER(s) "#version 410\n" #s
@@ -657,6 +650,10 @@ namespace Cube {
 };
 
 
+GLint loadTexture() {
+}
+
+/** Loads a 24- or 32-bit BMP file into memory */
 void loadBMP(const std::string& filename, int& width, int& height, int& channels, std::vector<std::uint8_t>& data) {
     std::fstream hFile(filename.c_str(), std::ios::in | std::ios::binary);
     if (! hFile.is_open()) { throw std::invalid_argument("Error: File Not Found."); }

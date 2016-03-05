@@ -86,7 +86,7 @@ int main(const int argc, const char* argv[]) {
 
     /////////////////////////////////////////////////////////////////////
     // Create the main shader
-    const GLuint shader = loadShaderProgram("min.vrt", "min.pix");
+    const GLuint shader = createShaderProgram(loadTextFile("min.vrt"), loadTextFile("min.pix"));
 
     // Binding points for attributes and uniforms discovered from the shader
     const GLint positionAttribute                = glGetAttribLocation(shader,  "position");
@@ -95,6 +95,18 @@ int main(const int argc, const char* argv[]) {
     const GLint tangentAttribute                 = glGetAttribLocation(shader,  "tangent");
     const GLint modelViewProjectionMatrixUniform = glGetUniformLocation(shader, "modelViewProjectionMatrix");
 
+    // Load a texture map
+    GLuint colorTexture = GL_NONE;
+    {
+        int textureWidth, textureHeight, channels;
+        std::vector<std::uint8_t> data;
+        loadBMP("color.bmp", textureWidth, textureHeight, channels, data);
+
+        glGenTextures(1, &colorTexture);
+        glBindTexture(GL_TEXTURE_2D, colorTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, textureWidth, textureHeight, 0, (channels == 3) ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
 
     // Main loop:
     int timer = 0;
