@@ -570,7 +570,7 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
     (out vec3 pixelColor;
 
     uniform vec2  resolution;
-    uniform float tanVerticalFieldOfView;
+    uniform float tanHalfVerticalFieldOfViewUniform;
     uniform mat4  cameraToWorldMatrix;
 
     float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
@@ -624,14 +624,14 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
     void main() {
         vec3 rd = normalize(mat3(cameraToWorldMatrix) *
             vec3(gl_FragCoord.xy - resolution.xy / 2.0,
-                 resolution.y / -tanVerticalFieldOfView));
+                 resolution.y * 0.5 / -tanHalfVerticalFieldOfViewUniform));
 
         pixelColor = render(vec3(1, 0.5, 0.0), cameraToWorldMatrix[3].xyz, rd, resolution.x);
             //vec3(gl_FragCoord.xy / 1000.0, 1.0);
     }));
 
     static const GLint resolutionUniform             = glGetUniformLocation(skyShader, "resolution");
-    static const GLint tanVerticalFieldOfViewUniform = glGetUniformLocation(skyShader, "tanVerticalFieldOfView");
+    static const GLint tanHalfVerticalFieldOfViewUniform = glGetUniformLocation(skyShader, "tanHalfVerticalFieldOfView");
     static const GLint cameraToWorldMatrixUniform    = glGetUniformLocation(skyShader, "cameraToWorldMatrix");
 
     glDisable(GL_DEPTH_TEST);
@@ -639,7 +639,7 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
 
     glUseProgram(skyShader);
     glUniform2f(resolutionUniform, float(windowWidth), float(windowHeight));
-    glUniform1f(tanVerticalFieldOfViewUniform, tan(verticalFieldOfView));
+    glUniform1f(tanHalfVerticalFieldOfViewUniform, tan(verticalFieldOfView * 0.5f));
     glUniformMatrix4fv(cameraToWorldMatrixUniform, 1, GL_TRUE, cameraToWorldMatrix.data);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
