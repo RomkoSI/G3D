@@ -6,9 +6,16 @@ in vec2 texCoord;
 in vec4 tangent;
 
 out vec3 _color;
+out vec3 _normal;
+out vec2 _texCoord;
+
+uniform mat3x3 objectToWorldNormalMatrix;
 uniform mat4x4 modelViewProjectionMatrix;
 
 void main () {
-    _color = (normal * 0.5 + 0.5) * texCoord.xyy;
+    _color      = (normal * 0.5 + 0.5) * texCoord.xyy;
+    _texCoord   = texCoord;
+    _normal     = normalize(objectToWorldNormalMatrix * normal);
+
     gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);
 }
