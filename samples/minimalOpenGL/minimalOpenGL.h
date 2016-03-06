@@ -814,9 +814,6 @@ namespace Cube {
 };
 
 
-GLint loadTexture() {
-}
-
 /** Loads a 24- or 32-bit BMP file into memory */
 void loadBMP(const std::string& filename, int& width, int& height, int& channels, std::vector<std::uint8_t>& data) {
     std::fstream hFile(filename.c_str(), std::ios::in | std::ios::binary);
@@ -849,4 +846,30 @@ void loadBMP(const std::string& filename, int& width, int& height, int& channels
     hFile.seekg(offset, std::ios::beg);
     hFile.read(reinterpret_cast<char*>(data.data()), size);
     hFile.close();
+
+    // Flip the y axis
+    std::vector<std::uint8_t> tmp;
+    tmp.resize(width * channels);
+    for (int i = height / 2; i >= 0; --i) {
+        const int j = height - 1 - i;
+        // Swap the rows
+        memcpy(tmp.data(), &data[i * width * channels], width * channels);
+        memcpy(&data[i * width * channels], &data[j * width * channels], width * channels);
+        memcpy(&data[j * width * channels], tmp.data(), width * channels);
+    }
+
+    // Convert BGR[A] format to RGB[A] format
+    if (channels == 4) {
+        // BGRA
+        std::uint32_t* p = reinterpret_cast<std::uint32_t*>(data.data());
+        for (int i = width * height - 1; i >= 0; --i) {
+            const unsigned int x = p[i];
+            p[i] = ((x >> 24) & 0xFF) | (((x >> 16) & 0xFF) << 8) | (((x >> 8) & 0xFF) << 16) | ((x & 0xFF) << 24);
+        }
+    } else {
+        // BGR
+        for (int i = (width * height - 1) * 3; i >= 0; i -= 3) {
+            std::swap(data[i], data[i + 2]);
+        }
+    }
 }

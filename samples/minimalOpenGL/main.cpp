@@ -83,6 +83,7 @@ int main(const int argc, const char* argv[]) {
     glGenBuffers(1, &indexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Cube::index), Cube::index, GL_STATIC_DRAW);
+    const int numIndices = sizeof(Cube::index) / sizeof(Cube::index[0]);
 
     /////////////////////////////////////////////////////////////////////
     // Create the main shader
@@ -189,8 +190,7 @@ int main(const int argc, const char* argv[]) {
         glBindTexture(GL_TEXTURE_2D, colorTexture);
         glBindSampler(0, trilinearSampler);
 
-
-        glDrawElements(GL_TRIANGLES, sizeof(Cube::index) / sizeof(Cube::index[0]), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
 
         ////////////////////////////////////////////////////////////////////////
 
