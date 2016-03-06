@@ -5,18 +5,17 @@
  */
 #include <compatibility.glsl>
 #include <Texture/Texture.glsl>
+
+
+#expect SAMPLER_TYPE "gsamplerXX"
+
+uniform_Texture(SAMPLER_TYPE, tex_);
+
 #if IS_GL_TEXTURE_RECTANGLE == 1
-#extension GL_ARB_texture_rectangle : enable
-    uniform_Texture(sampler2D, tex_);
+#   extension GL_ARB_texture_rectangle : enable
 #else
-#   if IS_2D_ARRAY
+#   if IS_2D_ARRAY || IS_3D
 #       expect LAYER
-        uniform_Texture(sampler2DArray, tex_);
-#   elif IS_3D
-#       expect LAYER
-        uniform_Texture(sampler3D, tex_);
-#   else
-        uniform_Texture(sampler2D, tex_);
 #   endif
 #endif
 uniform float     adjustGamma;

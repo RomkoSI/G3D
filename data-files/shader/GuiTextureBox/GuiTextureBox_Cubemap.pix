@@ -1,9 +1,12 @@
 #version 330
+
+#expect SAMPLER_TYPE "gsamplerXX"
+
 /**
   \file GuiTextureBox_Cubemap.pix
   \author Morgan McGuire, http://graphics.cs.williams.edu, Michael Mara
  */
-uniform samplerCube tex_buffer;
+uniform SAMPLER_TYPE tex_buffer;
 uniform float     adjustGamma;
 uniform mat4      colorShift;
 uniform float     bias;

@@ -566,10 +566,46 @@ void GuiTextureBox::showInspector() {
 }
 
 
-void GuiTextureBox::setShaderArgs(UniformTable& args, bool isCubemap){
+void GuiTextureBox::setShaderArgs(UniformTable& args) {
+    bool isCubemap = m_texture->dimension() == Texture::Dimension::DIM_CUBE_MAP ||
+        m_texture->dimension() == Texture::Dimension::DIM_CUBE_MAP_ARRAY;
+
     args.setMacro("IS_GL_TEXTURE_RECTANGLE", m_texture->dimension() == Texture::DIM_2D_RECT ? 1 : 0);
+    args.setMacro("IS_2D_ARRAY", m_texture->dimension() == Texture::DIM_2D_ARRAY);
+    args.setMacro("IS_3D", m_texture->dimension() == Texture::DIM_3D);
+
     args.setMacro("DRAW_INVERTED", m_drawInverted);
     m_texture->setShaderArgs(args, "tex_", m_texture->hasMipMaps() ? Sampler::visualization() : Sampler::buffer());
+    
+    // Generate the correct gsamplerXX string for this texture type
+    String samplerType = "sampler";
+    switch (m_texture->dimension()) {
+    case Texture::Dimension::DIM_2D:
+    case Texture::Dimension::DIM_2D_RECT:
+        samplerType += "2D";
+        break;
+    case Texture::Dimension::DIM_2D_ARRAY:
+        samplerType += "2DArray";
+        break;
+    case Texture::Dimension::DIM_3D:
+        samplerType += "3D";
+        break;
+    case Texture::Dimension::DIM_CUBE_MAP:
+        samplerType += "Cube";
+        break;
+    case Texture::Dimension::DIM_CUBE_MAP_ARRAY:
+        samplerType += "CubeArray";
+        break;
+    }
+    Texture::TexelType tType = m_texture->texelType();
+    if (tType == Texture::TexelType::INTEGER) {
+        samplerType = "i" + samplerType;
+    } else if (tType == Texture::TexelType::UNSIGNED_INTEGER) {
+        samplerType = "u" + samplerType;
+    }
+
+    args.setMacro("SAMPLER_TYPE", samplerType);
+    
     m_settings.setShaderArgs(args);
 
     if(isCubemap){
@@ -582,8 +618,6 @@ void GuiTextureBox::setShaderArgs(UniformTable& args, bool isCubemap){
         }
             
     }
-    args.setMacro("IS_2D_ARRAY", m_texture->dimension() == Texture::DIM_2D_ARRAY);
-    args.setMacro("IS_3D", m_texture->dimension() == Texture::DIM_3D);
     
 }
 
@@ -603,7 +637,7 @@ void GuiTextureBox::drawTexture(RenderDevice* rd, const Rect2D& r) const {
     // Draw texture
     if (m_settings.needsShader()) {
         Args args;
-        const_cast<GuiTextureBox*>(this)->setShaderArgs(args, m_texture->isCubeMap());
+        const_cast<GuiTextureBox*>(this)->setShaderArgs(args);
         args.setRect(r);
        
         if (m_texture->isCubeMap()) {
