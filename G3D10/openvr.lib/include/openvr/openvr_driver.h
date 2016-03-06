@@ -224,6 +224,8 @@ enum ETrackedDeviceProperty
 	Prop_DeviceProvidesBatteryStatus_Bool		= 1026,
 	Prop_DeviceCanPowerOff_Bool					= 1027,
 	Prop_Firmware_ProgrammingTarget_String		= 1028,
+	Prop_DeviceClass_Int32						= 1029,
+	Prop_HasCamera_Bool							= 1030,
 
 	// Properties that are unique to TrackedDeviceClass_HMD
 	Prop_ReportsTimeSinceVSync_Bool				= 2000,
@@ -256,6 +258,9 @@ enum ETrackedDeviceProperty
 	Prop_CameraFirmwareVersion_Uint64			= 2027,
 	Prop_CameraFirmwareDescription_String		= 2028,
 	Prop_DisplayFPGAVersion_Uint64				= 2029,
+	Prop_DisplayBootloaderVersion_Uint64		= 2030,
+	Prop_DisplayHardwareVersion_Uint64			= 2031,
+	Prop_AudioFirmwareVersion_Uint64			= 2032,
 
 	// Properties that are unique to TrackedDeviceClass_Controller
 	Prop_AttachedDeviceId_String				= 3000,
@@ -348,6 +353,7 @@ enum EVREventType
 	VREvent_IpdChanged					= 105,
 	VREvent_EnterStandbyMode			= 106,
 	VREvent_LeaveStandbyMode			= 107,
+	VREvent_TrackedDeviceRoleChanged	= 108,
 
 	VREvent_ButtonPress					= 200, // data is controller
 	VREvent_ButtonUnpress				= 201, // data is controller
@@ -368,6 +374,9 @@ enum EVREventType
 	VREvent_SceneFocusGained			= 403, // data is process
 	VREvent_SceneApplicationChanged		= 404, // data is process - The App actually drawing the scene changed (usually to or from the compositor)
 	VREvent_SceneFocusChanged			= 405, // data is process - New app got access to draw the scene
+
+	VREvent_HideRenderModels			= 410, // Sent to the scene application to request hiding render models temporarily
+	VREvent_ShowRenderModels			= 411, // Sent to the scene application to request restoring render model visibility
 
 	VREvent_OverlayShown				= 500,
 	VREvent_OverlayHidden				= 501,
@@ -397,8 +406,10 @@ enum EVREventType
 	VREvent_ChaperoneUniverseHasChanged	= 801,
 	VREvent_ChaperoneTempDataHasChanged = 802,
 	VREvent_ChaperoneSettingsHaveChanged = 803,
+	VREvent_SeatedZeroPoseReset			= 804,
 
 	VREvent_BackgroundSettingHasChanged	= 850,
+	VREvent_CameraSettingsHaveChanged	= 851,
 
 	VREvent_StatusUpdate				= 900,
 
@@ -409,6 +420,7 @@ enum EVREventType
 
 	VREvent_KeyboardClosed				= 1200,
 	VREvent_KeyboardCharInput			= 1201,
+	VREvent_KeyboardDone				= 1202, // Sent when DONE button clicked on keyboard
 
 	VREvent_ApplicationTransitionStarted	= 1300,
 	VREvent_ApplicationTransitionAborted	= 1301,
@@ -416,6 +428,8 @@ enum EVREventType
 
 	VREvent_Compositor_MirrorWindowShown	= 1400,
 	VREvent_Compositor_MirrorWindowHidden	= 1401,
+	VREvent_Compositor_ChaperoneBoundsShown = 1410,
+	VREvent_Compositor_ChaperoneBoundsHidden = 1411,
 
 	VREvent_TrackedCamera_StartVideoStream  = 1500,
 	VREvent_TrackedCamera_StopVideoStream   = 1501,
@@ -581,6 +595,11 @@ struct VREvent_PerformanceTest_t
 	uint32_t m_nFidelityLevel;
 };
 
+struct VREvent_SeatedZeroPoseReset_t
+{
+	bool bResetBySystemMenu;
+};
+
 /** If you change this you must manually update openvr_interop.cs.py */
 typedef union
 {
@@ -597,6 +616,7 @@ typedef union
 	VREvent_Chaperone_t chaperone;
 	VREvent_PerformanceTest_t performanceTest;
 	VREvent_TouchPadMove_t touchPadMove;
+	VREvent_SeatedZeroPoseReset_t seatedZeroPoseReset;
 } VREvent_Data_t;
 
 /** An event posted by the server to all running applications */
@@ -811,6 +831,9 @@ enum EVRInitError
 	VRInitError_IPC_MutexInitFailed		= 304,
 	VRInitError_IPC_Failed					= 305,
 
+	VRInitError_Compositor_Failed		= 400,
+	VRInitError_Compositor_D3D11HardwareRequired = 401,
+
 	VRInitError_VendorSpecific_UnableToConnectToOculusRuntime = 1000,
 
 	VRInitError_VendorSpecific_HmdFound_CantOpenDevice 			= 1101,
@@ -914,6 +937,8 @@ VR_CAMERA_DECL_ALIGN( 8 ) struct CameraVideoStreamFrame_t
 	uint32_t m_nISPReferenceTimeStamp;
 	uint32_t m_nSyncCounter;
 
+	uint32_t m_nCamSyncEvents;
+
 	uint32_t m_nExposureTime;
 
 	uint32_t m_nBufferIndex;			// Identifies which buffer the image data is hosted
@@ -956,7 +981,8 @@ namespace vr
 	public:
 		virtual const char *GetSettingsErrorNameFromEnum( EVRSettingsError eError ) = 0;
 
-		virtual void Sync( EVRSettingsError *peError = nullptr ) = 0;
+		// Returns true if file sync occurred (force or settings dirty)
+		virtual bool Sync( bool bForce = false, EVRSettingsError *peError = nullptr ) = 0;
 
 		virtual bool GetBool( const char *pchSection, const char *pchSettingsKey, bool bDefaultValue, EVRSettingsError *peError = nullptr ) = 0;
 		virtual void SetBool( const char *pchSection, const char *pchSettingsKey, bool bValue, EVRSettingsError *peError = nullptr ) = 0;
@@ -966,6 +992,9 @@ namespace vr
 		virtual void SetFloat( const char *pchSection, const char *pchSettingsKey, float flValue, EVRSettingsError *peError = nullptr ) = 0;
 		virtual void GetString( const char *pchSection, const char *pchSettingsKey, char *pchValue, uint32_t unValueLen, const char *pchDefaultValue, EVRSettingsError *peError = nullptr ) = 0;
 		virtual void SetString( const char *pchSection, const char *pchSettingsKey, const char *pchValue, EVRSettingsError *peError = nullptr ) = 0;
+		
+		virtual void RemoveSection( const char *pchSection, EVRSettingsError *peError = nullptr ) = 0;
+		virtual void RemoveKeyInSection( const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = nullptr ) = 0;
 	};
 
 	//-----------------------------------------------------------------------------
@@ -976,6 +1005,7 @@ namespace vr
 	static const char * const k_pch_SteamVR_ForcedDriverKey_String = "forcedDriver";
 	static const char * const k_pch_SteamVR_ForcedHmdKey_String = "forcedHmd";
 	static const char * const k_pch_SteamVR_DisplayDebug_Bool = "displayDebug";
+	static const char * const k_pch_SteamVR_DebugProcessPipe_String = "debugProcessPipe";
 	static const char * const k_pch_SteamVR_EnableDistortion_Bool = "enableDistortion";
 	static const char * const k_pch_SteamVR_DisplayDebugX_Int32 = "displayDebugX";
 	static const char * const k_pch_SteamVR_DisplayDebugY_Int32 = "displayDebugY";
@@ -989,7 +1019,11 @@ namespace vr
 	static const char * const k_pch_SteamVR_PowerOffOnExit_Bool = "powerOffOnExit";
 	static const char * const k_pch_SteamVR_StandbyAppRunningTimeout_Float = "standbyAppRunningTimeout";
 	static const char * const k_pch_SteamVR_StandbyNoAppTimeout_Float = "standbyNoAppTimeout";
-
+	static const char * const k_pch_SteamVR_DirectMode_Bool = "directMode";
+	static const char * const k_pch_SteamVR_DirectModeEdidVid_Int32 = "directModeEdidVid";
+	static const char * const k_pch_SteamVR_DirectModeEdidPid_Int32 = "directModeEdidPid";
+	static const char * const k_pch_SteamVR_UsingSpeakers_Bool = "usingSpeakers";
+	static const char * const k_pch_SteamVR_SpeakersForwardYawOffsetDegrees_Float = "speakersForwardYawOffsetDegrees";
 
 	//-----------------------------------------------------------------------------
 	// lighthouse keys
@@ -1014,7 +1048,6 @@ namespace vr
 
 	static const char * const k_pch_Null_Section = "driver_null";
 	static const char * const k_pch_Null_EnableNullDriver_Bool = "enable";
-	static const char * const k_pch_Null_Id_String = "id";
 	static const char * const k_pch_Null_SerialNumber_String = "serialNumber";
 	static const char * const k_pch_Null_ModelNumber_String = "modelNumber";
 	static const char * const k_pch_Null_WindowX_Int32 = "windowX";
@@ -1049,56 +1082,29 @@ namespace vr
 	static const char * const k_pch_Perf_NotifyOnlyOnce_Bool = "warnOnlyOnce";
 	static const char * const k_pch_Perf_AllowTimingStore_Bool = "allowTimingStore";
 	static const char * const k_pch_Perf_SaveTimingsOnExit_Bool = "saveTimingsOnExit";
+	static const char * const k_pch_Perf_TestData_Float = "perfTestData";
+
+	//-----------------------------------------------------------------------------
+	// camera keys
+	static const char * const k_pch_Camera_Section = "camera";
 
 	//-----------------------------------------------------------------------------
 
 	static const char * const IVRSettings_Version = "IVRSettings_001";
 
-	/** Returns the current IVRSettings pointer or NULL the interface could not be found. */
-	VR_INTERFACE vr::IVRSettings *VR_CALLTYPE VRSettings();
-
+	//-----------------------------------------------------------------------------
+	// audio keys
+	static const char * const k_pch_audio_Section = "audio";
+	static const char * const k_pch_audio_OnPlaybackDevice_String = "onPlaybackDevice";
+	static const char * const k_pch_audio_OnRecordDevice_String = "onRecordDevice";
+	static const char * const k_pch_audio_OffPlaybackDevice_String = "offPlaybackDevice";
+	static const char * const k_pch_audio_OffRecordDevice_String = "offRecordDevice";
+	static const char * const k_pch_audio_VIVEHDMIGain = "viveHDMIGain";
 } // namespace vr
 
 // iservertrackeddevicedriver.h
 namespace vr
 {
-
-/** describes the high level state of the tracked object */
-struct TrackedDeviceDriverInfo_t
-{
-	char rchTrackingSystemId[ k_unTrackingStringSize ];	// Name of the underlying tracking system
-	char rchSerialNumber[ k_unTrackingStringSize ];		// Serial number of the tracked object
-	char rchModelNumber[ k_unTrackingStringSize ];		// Model number of the tracked object
-	char rchRenderModelName[ k_unTrackingStringSize ];	// Pass this to GetRenderModel to get the mesh and texture to render this device
-
-	ETrackedDeviceClass eClass;	
-
-	// This indicates that there is a device connected for this spot in the info array.
-	// It could go from true to false if the user unplugs the device.
-	bool bDeviceIsConnected;
-
-	// This will be true for gyro-only tracking systems
-	// with no ground truth.
-	bool bWillDriftInYaw;
-
-	// ---- HMD capabilities ----
-
-	// This is true if the device (or SteamVR's software layer) supports reporting precise 
-	// times for vsync
-	bool bReportsTimeSinceVSync;
-
-	// The number of seconds that pass between when the video card sends vsync
-	// and when photons hit the wearer's eyes. Use this with GetSecondsSinceLastVsync()
-	// to figure out what to pass to GetTrackerFromDevicePose()
-	float fSecondsFromVsyncToPhotons;
-
-	// The number of frames per second on the display itself. Applications should
-	// target this frame rate to keep up with the display
-	float fDisplayFrequency;
-
-	bool m_bHasCamera;
-};
-
 
 
 struct DriverPoseQuaternion_t
@@ -1169,6 +1175,7 @@ struct DriverPose_t
 	bool poseIsValid;
 	bool willDriftInYaw;
 	bool shouldApplyHeadModel;
+	bool deviceIsConnected;
 };
 
 
@@ -1194,81 +1201,17 @@ public:
 	* and thread use it can when it is deactivated */
 	virtual void Deactivate() = 0;
 
-	/** returns the ID of this particular HMD. This value is opaque to the VR system itself,
-	* but should be unique within the driver because it will be passed back in via FindHmd */
-	virtual const char *GetId() = 0;
-
 	/** Handles a request from the system to power off this device */
-	virtual void PowerOff() {}
+	virtual void PowerOff() = 0;
+
+	/** Requests a component interface of the driver for device-specific functionality. The driver should return NULL
+	* if the requested interface or version is not supported. */
+	virtual void *GetComponent( const char *pchComponentNameAndVersion ) = 0;
 
 	/** A VR Client has made this debug request of the driver. The set of valid requests is entirely
 	* up to the driver and the client to figure out, as is the format of the response. Responses that
 	* exceed the length of the supplied buffer should be truncated and null terminated */
 	virtual void DebugRequest( const char *pchRequest, char *pchResponseBuffer, uint32_t unResponseBufferSize ) = 0;
-
-	// ------------------------------------
-	// Display Methods
-	// ------------------------------------
-
-	/** Size and position that the window needs to be on the VR display. */
-	virtual void GetWindowBounds( int32_t *pnX, int32_t *pnY, uint32_t *pnWidth, uint32_t *pnHeight ) = 0;
-
-	/** Returns true if the display is extending the desktop. */
-	virtual bool IsDisplayOnDesktop() = 0;
-
-	/** Returns true if the display is real and not a fictional display. */
-	virtual bool IsDisplayRealDisplay() = 0;
-
-	/** Suggested size for the intermediate render target that the distortion pulls from. */
-	virtual void GetRecommendedRenderTargetSize( uint32_t *pnWidth, uint32_t *pnHeight ) = 0;
-
-	/** Gets the viewport in the frame buffer to draw the output of the distortion into */
-	virtual void GetEyeOutputViewport( EVREye eEye, uint32_t *pnX, uint32_t *pnY, uint32_t *pnWidth, uint32_t *pnHeight ) = 0;
-
-	/** The components necessary to build your own projection matrix in case your
-	* application is doing something fancy like infinite Z */
-	virtual void GetProjectionRaw( EVREye eEye, float *pfLeft, float *pfRight, float *pfTop, float *pfBottom ) = 0;
-
-	/** Returns the result of the distortion function for the specified eye and input UVs. UVs go from 0,0 in 
-	* the upper left of that eye's viewport and 1,1 in the lower right of that eye's viewport. */
-	virtual DistortionCoordinates_t ComputeDistortion( EVREye eEye, float fU, float fV ) = 0;
-
-	// -----------------------------------
-	// Direct mode methods
-	// -----------------------------------
-
-	/** Specific to Oculus compositor support, textures supplied must be created using this method. */
-	virtual void CreateSwapTextureSet( uint32_t unPid, uint32_t unFormat, uint32_t unWidth, uint32_t unHeight, void *( *pSharedTextureHandles )[2] ) {}
-
-	/** Used to textures created using CreateSwapTextureSet.  Only one of the set's handles needs to be used to destroy the entire set. */
-	virtual void DestroySwapTextureSet( void *pSharedTextureHandle ) {}
-
-	/** Used to purge all texture sets for a given process. */
-	virtual void DestroyAllSwapTextureSets( uint32_t unPid ) {}
-
-	/** Call once per layer to draw for this frame.  One shared texture handle per eye.  Textures must be created
-	* using CreateSwapTextureSet and should be alternated per frame.  Call Present once all layers have been submitted. */
-	virtual void SubmitLayer( void *pSharedTextureHandles[2], const vr::VRTextureBounds_t * pBounds, const vr::HmdMatrix34_t * pPose ) {}
-
-	/** Submits queued layers for display. */
-	virtual void Present() {}
-
-	// -----------------------------------
-	// Assorted capability methods
-	// -----------------------------------
-
-	/** Returns all the static information that will be reported to the clients */
-	virtual TrackedDeviceDriverInfo_t GetTrackedDeviceDriverInfo() = 0;
-	
-	// -----------------------------------
-	// Administrative Methods
-	// -----------------------------------
-
-	/** Returns the model number of this HMD */
-	virtual const char *GetModelNumber() = 0;
-
-	/** Returns the serial number of this HMD */
-	virtual const char *GetSerialNumber() = 0;
 
 	// ------------------------------------
 	// Tracking Methods
@@ -1301,47 +1244,149 @@ public:
 	* k_unMaxPropertyStringSize. */
 	virtual uint32_t GetStringTrackedDeviceProperty( ETrackedDeviceProperty prop, char *pchValue, uint32_t unBufferSize, ETrackedPropertyError *pError ) = 0;
 
-	// ------------------------------------
-	// Controller Methods
-	// ------------------------------------
-
-	/** Gets the current state of a controller. */
-	virtual VRControllerState_t GetControllerState() = 0;
-
-	/** Returns a uint64 property. If the property is not available this function will return 0. */
-	virtual bool TriggerHapticPulse( uint32_t unAxisId, uint16_t usPulseDurationMicroseconds ) = 0;
-	
-	// ------------------------------------
-	// Camera Methods
-	// ------------------------------------
-	virtual bool HasCamera() = 0;
-	virtual bool GetCameraFirmwareDescription( char *pBuffer, uint32_t nBufferLen ) = 0;
-	virtual bool GetCameraFrameDimensions( vr::ECameraVideoStreamFormat nVideoStreamFormat, uint32_t *pWidth, uint32_t *pHeight ) = 0;
-	virtual bool GetCameraFrameBufferingRequirements( int *pDefaultFrameQueueSize, uint32_t *pFrameBufferDataSize ) = 0;
-	virtual bool SetCameraFrameBuffering( int nFrameBufferCount, void **ppFrameBuffers, uint32_t nFrameBufferDataSize ) = 0;
-	virtual bool SetCameraVideoStreamFormat( vr::ECameraVideoStreamFormat nVideoStreamFormat ) = 0;
-	virtual vr::ECameraVideoStreamFormat GetCameraVideoStreamFormat() = 0;
-	virtual bool StartVideoStream() = 0;
-	virtual void StopVideoStream() = 0;
-	virtual bool IsVideoStreamActive() = 0;
-	virtual float GetVideoStreamElapsedTime() = 0;
-	virtual const vr::CameraVideoStreamFrame_t *GetVideoStreamFrame() = 0;
-	virtual void ReleaseVideoStreamFrame( const vr::CameraVideoStreamFrame_t *pFrameImage ) = 0;
-	virtual bool SetAutoExposure( bool bEnable ) = 0;
-	virtual bool PauseVideoStream() = 0;
-	virtual bool ResumeVideoStream() = 0;
-	virtual bool IsVideoStreamPaused() = 0;
-	virtual bool GetCameraDistortion( float flInputU, float flInputV, float *pflOutputU, float *pflOutputV ) = 0;
-	virtual bool GetCameraProjection( float flWidthPixels, float flHeightPixels, float flZNear, float flZFar, vr::HmdMatrix44_t *pProjection ) = 0;
-	virtual bool GetRecommendedCameraUndistortion( uint32_t *pUndistortionWidthPixels, uint32_t *pUndistortionHeightPixels ) = 0;
-	virtual bool SetCameraUndistortion( uint32_t nUndistortionWidthPixels, uint32_t nUndistortionHeightPixels ) = 0;
-	virtual bool GetCameraFirmwareVersion( uint64_t *pFirmwareVersion ) = 0;
-	virtual bool SetFrameRate( int nISPFrameRate, int nSensorFrameRate ) = 0;
 };
 
 
 
-static const char *ITrackedDeviceServerDriver_Version = "ITrackedDeviceServerDriver_003";
+static const char *ITrackedDeviceServerDriver_Version = "ITrackedDeviceServerDriver_004";
+
+}
+// ivrdisplaycomponent.h
+namespace vr
+{
+
+
+	// ----------------------------------------------------------------------------------------------
+	// Purpose: The display component on a single tracked device
+	// ----------------------------------------------------------------------------------------------
+	class IVRDisplayComponent
+	{
+	public:
+
+		// ------------------------------------
+		// Display Methods
+		// ------------------------------------
+
+		/** Size and position that the window needs to be on the VR display. */
+		virtual void GetWindowBounds( int32_t *pnX, int32_t *pnY, uint32_t *pnWidth, uint32_t *pnHeight ) = 0;
+
+		/** Returns true if the display is extending the desktop. */
+		virtual bool IsDisplayOnDesktop( ) = 0;
+
+		/** Returns true if the display is real and not a fictional display. */
+		virtual bool IsDisplayRealDisplay( ) = 0;
+
+		/** Suggested size for the intermediate render target that the distortion pulls from. */
+		virtual void GetRecommendedRenderTargetSize( uint32_t *pnWidth, uint32_t *pnHeight ) = 0;
+
+		/** Gets the viewport in the frame buffer to draw the output of the distortion into */
+		virtual void GetEyeOutputViewport( EVREye eEye, uint32_t *pnX, uint32_t *pnY, uint32_t *pnWidth, uint32_t *pnHeight ) = 0;
+
+		/** The components necessary to build your own projection matrix in case your
+		* application is doing something fancy like infinite Z */
+		virtual void GetProjectionRaw( EVREye eEye, float *pfLeft, float *pfRight, float *pfTop, float *pfBottom ) = 0;
+
+		/** Returns the result of the distortion function for the specified eye and input UVs. UVs go from 0,0 in
+		* the upper left of that eye's viewport and 1,1 in the lower right of that eye's viewport. */
+		virtual DistortionCoordinates_t ComputeDistortion( EVREye eEye, float fU, float fV ) = 0;
+
+		// -----------------------------------
+		// Direct mode methods
+		// -----------------------------------
+
+		/** Specific to Oculus compositor support, textures supplied must be created using this method. */
+		virtual void CreateSwapTextureSet( uint32_t unPid, uint32_t unFormat, uint32_t unWidth, uint32_t unHeight, void *(*pSharedTextureHandles)[2] ) {}
+
+		/** Used to textures created using CreateSwapTextureSet.  Only one of the set's handles needs to be used to destroy the entire set. */
+		virtual void DestroySwapTextureSet( void *pSharedTextureHandle ) {}
+
+		/** Used to purge all texture sets for a given process. */
+		virtual void DestroyAllSwapTextureSets( uint32_t unPid ) {}
+
+		/** Call once per layer to draw for this frame.  One shared texture handle per eye.  Textures must be created
+		* using CreateSwapTextureSet and should be alternated per frame.  Call Present once all layers have been submitted. */
+		virtual void SubmitLayer( void *pSharedTextureHandles[ 2 ], const vr::VRTextureBounds_t( &bounds )[ 2 ], const vr::HmdMatrix34_t *pPose ) {}
+
+		/** Submits queued layers for display. */
+		virtual void Present( void *hSyncTexture ) {}
+
+	};
+
+	static const char *IVRDisplayComponent_Version = "IVRDisplayComponent_001";
+
+}
+
+// ivrcontrollercomponent.h
+namespace vr
+{
+
+
+	// ----------------------------------------------------------------------------------------------
+	// Purpose: Controller access on a single tracked device.
+	// ----------------------------------------------------------------------------------------------
+	class IVRControllerComponent
+	{
+	public:
+
+		// ------------------------------------
+		// Controller Methods
+		// ------------------------------------
+
+		/** Gets the current state of a controller. */
+		virtual VRControllerState_t GetControllerState( ) = 0;
+
+		/** Returns a uint64 property. If the property is not available this function will return 0. */
+		virtual bool TriggerHapticPulse( uint32_t unAxisId, uint16_t usPulseDurationMicroseconds ) = 0;
+
+	};
+
+
+
+	static const char *IVRControllerComponent_Version = "IVRControllerComponent_001";
+
+}
+// ivrcameracomponent.h
+namespace vr
+{
+	// ----------------------------------------------------------------------------------------------
+	// Purpose: The camera on a single tracked device
+	// ----------------------------------------------------------------------------------------------
+	class IVRCameraComponent
+	{
+	public:
+		// ------------------------------------
+		// Camera Methods
+		// ------------------------------------
+		virtual bool HasCamera() = 0;
+		virtual bool GetCameraFirmwareDescription( char *pBuffer, uint32_t nBufferLen ) = 0;
+		virtual bool GetCameraFrameDimensions( vr::ECameraVideoStreamFormat nVideoStreamFormat, uint32_t *pWidth, uint32_t *pHeight ) = 0;
+		virtual bool GetCameraFrameBufferingRequirements( int *pDefaultFrameQueueSize, uint32_t *pFrameBufferDataSize ) = 0;
+		virtual bool SetCameraFrameBuffering( int nFrameBufferCount, void **ppFrameBuffers, uint32_t nFrameBufferDataSize ) = 0;
+		virtual bool SetCameraVideoStreamFormat( vr::ECameraVideoStreamFormat nVideoStreamFormat ) = 0;
+		virtual vr::ECameraVideoStreamFormat GetCameraVideoStreamFormat() = 0;
+		virtual bool StartVideoStream() = 0;
+		virtual void StopVideoStream() = 0;
+		virtual bool IsVideoStreamActive() = 0;
+		virtual float GetVideoStreamElapsedTime() = 0;
+		virtual const vr::CameraVideoStreamFrame_t *GetVideoStreamFrame() = 0;
+		virtual void ReleaseVideoStreamFrame( const vr::CameraVideoStreamFrame_t *pFrameImage ) = 0;
+		virtual bool SetAutoExposure( bool bEnable ) = 0;
+		virtual bool PauseVideoStream() = 0;
+		virtual bool ResumeVideoStream() = 0;
+		virtual bool IsVideoStreamPaused() = 0;
+		virtual bool GetCameraDistortion( float flInputU, float flInputV, float *pflOutputU, float *pflOutputV ) = 0;
+		virtual bool GetCameraProjection( float flWidthPixels, float flHeightPixels, float flZNear, float flZFar, vr::HmdMatrix44_t *pProjection ) = 0;
+		virtual bool GetRecommendedCameraUndistortion( uint32_t *pUndistortionWidthPixels, uint32_t *pUndistortionHeightPixels ) = 0;
+		virtual bool SetCameraUndistortion( uint32_t nUndistortionWidthPixels, uint32_t nUndistortionHeightPixels ) = 0;
+		virtual bool GetCameraFirmwareVersion( uint64_t *pFirmwareVersion ) = 0;
+		virtual bool SetFrameRate( int nISPFrameRate, int nSensorFrameRate ) = 0;
+
+
+	};
+
+
+
+	static const char *IVRCameraComponent_Version = "IVRCameraComponent_001";
 
 }
 // itrackeddevicedriverprovider.h
@@ -1369,12 +1414,7 @@ public:
 	/** Notifies the server that a tracked device has been added. If this function returns true
 	* the server will call Activate on the device. If it returns false some kind of error
 	* has occurred and the device will not be activated. */
-	virtual bool TrackedDeviceAdded( const TrackedDeviceDriverInfo_t & info ) = 0;
-
-	/** Notifies the server that a tracked device info has changed. These changes must not
-	* change the serial number or class of the device because those values are permanently associated with the device's 
-	* index. */
-	virtual void TrackedDeviceInfoUpdated( uint32_t unWhichDevice, const TrackedDeviceDriverInfo_t & info ) = 0;
+	virtual bool TrackedDeviceAdded( const char *pchDeviceSerialNumber ) = 0;
 
 	/** Notifies the server that a tracked device's pose has been updated */
 	virtual void TrackedDevicePoseUpdated( uint32_t unWhichDevice, const DriverPose_t & newPose ) = 0;
@@ -1406,7 +1446,7 @@ public:
 	virtual void MCImageUpdated() = 0;
 	
 	/** always returns a pointer to a valid interface pointer of IVRSettings */
-	virtual IVRSettings *GetSettings() = 0; 
+	virtual IVRSettings *GetSettings( const char *pchInterfaceVersion ) = 0;
 
 	/** Notifies the server that the physical IPD adjustment has been moved on the HMD */
 	virtual void PhysicalIpdSet( uint32_t unWhichDevice, float fPhysicalIpdMeters ) = 0;
@@ -1416,6 +1456,9 @@ public:
 
 	/** Sends a vendor specific event (VREvent_VendorSpecific_Reserved_Start..VREvent_VendorSpecific_Reserved_End */
 	virtual void VendorSpecificEvent( uint32_t unWhichDevice, vr::EVREventType eventType, const VREvent_Data_t & eventData, double eventTimeOffset ) = 0;
+
+	/** Returns true if SteamVR is exiting */
+	virtual bool IsExiting() = 0;
 };
 
 
@@ -1441,10 +1484,10 @@ public:
 	virtual uint32_t GetTrackedDeviceCount() = 0;
 
 	/** returns a single HMD */
-	virtual ITrackedDeviceServerDriver *GetTrackedDeviceDriver( uint32_t unWhich ) = 0;
+	virtual ITrackedDeviceServerDriver *GetTrackedDeviceDriver( uint32_t unWhich, const char *pchInterfaceVersion ) = 0;
 
 	/** returns a single HMD by ID */
-	virtual ITrackedDeviceServerDriver* FindTrackedDeviceDriver( const char *pchId ) = 0;
+	virtual ITrackedDeviceServerDriver* FindTrackedDeviceDriver( const char *pchId, const char *pchInterfaceVersion ) = 0;
 
 	/** Allows the driver do to some work in the main loop of the server. */
 	virtual void RunFrame() = 0;
@@ -1466,7 +1509,7 @@ public:
 };
 
 
-static const char *IServerTrackedDeviceProvider_Version = "IServerTrackedDeviceProvider_001";
+static const char *IServerTrackedDeviceProvider_Version = "IServerTrackedDeviceProvider_002";
 
 
 /** This interface is provided by vrclient to allow the driver call back and query various information */
@@ -1503,7 +1546,7 @@ public:
 	virtual uint32_t GetStringTrackedDeviceProperty( vr::TrackedDeviceIndex_t unDeviceIndex, ETrackedDeviceProperty prop, char *pchValue, uint32_t unBufferSize, ETrackedPropertyError *pError = 0L ) = 0;
 
 	/** always returns a pointer to a valid interface pointer of IVRSettings */
-	virtual IVRSettings *GetSettings() = 0; 
+	virtual IVRSettings *GetSettings( const char *pchInterfaceVersion ) = 0; 
 };
 
 
@@ -1550,7 +1593,7 @@ public:
 	virtual uint32_t GetMCImage( uint32_t *pImgWidth, uint32_t *pImgHeight, uint32_t *pChannels, void *pDataBuffer, uint32_t unBufferLen ) = 0;
 };
 
-static const char *IClientTrackedDeviceProvider_Version = "IClientTrackedDeviceProvider_002";
+static const char *IClientTrackedDeviceProvider_Version = "IClientTrackedDeviceProvider_003";
 
 }// End
 
