@@ -712,6 +712,10 @@ public:
         void serialize(BinaryOutput& b) const;
     };
 
+    G3D_DECLARE_ENUM_CLASS(TexelType, FLOAT, INTEGER, UNSIGNED_INTEGER);
+
+    TexelType texelType() const;
+
 private:
     
     /** Used for the Texture browser.  NULL elements are flushed during reloadAll() */
