@@ -872,13 +872,14 @@ void loadBMP(const std::string& filename, int& width, int& height, int& channels
 
     // Flip the y axis
     std::vector<std::uint8_t> tmp;
-    tmp.resize(width * channels);
-    for (int i = height / 2; i >= 0; --i) {
+    const size_t rowBytes = width * channels;
+    tmp.resize(rowBytes);
+    for (int i = height / 2 - 1; i >= 0; --i) {
         const int j = height - 1 - i;
         // Swap the rows
-        memcpy(tmp.data(), &data[i * width * channels], width * channels);
-        memcpy(&data[i * width * channels], &data[j * width * channels], width * channels);
-        memcpy(&data[j * width * channels], tmp.data(), width * channels);
+        memcpy(tmp.data(), &data[i * rowBytes], rowBytes);
+        memcpy(&data[i * rowBytes], &data[j * rowBytes], rowBytes);
+        memcpy(&data[j * rowBytes], tmp.data(), rowBytes);
     }
 
     // Convert BGR[A] format to RGB[A] format
