@@ -574,33 +574,17 @@ void UniformTable::setUniform(const String& name, uint64 val, bool optional) {
     arg.value[0] = val;
 }
 
-
-enum TexelType {
-    FLOAT,
-    INTEGER,
-    UNSIGNED_INTEGER
-};
  
 static GLenum toImageType(const shared_ptr<Texture> t) {
-    const ImageFormat* format = t->format();
-    TexelType tType = FLOAT;
-    if (format->numberFormat == ImageFormat::INTEGER_FORMAT) {
-        if (format->openGLDataFormat == GL_UNSIGNED_BYTE ||
-            format->openGLDataFormat == GL_UNSIGNED_SHORT ||
-            format->openGLDataFormat == GL_UNSIGNED_INT) {
-            tType = UNSIGNED_INTEGER;
-        } else {
-            tType = INTEGER;
-        }
-    }
+    Texture::TexelType tType = t->texelType();
 
     #define RETURN_TYPE(texelType, baseType) { \
         switch(texelType) {\
-        case FLOAT: \
+        case Texture::TexelType::FLOAT: \
             return GL_##baseType; \
-        case INTEGER: \
+        case Texture::TexelType::INTEGER: \
             return GL_INT_##baseType; \
-        case UNSIGNED_INTEGER: \
+        case Texture::TexelType::UNSIGNED_INTEGER: \
             return GL_UNSIGNED_INT_##baseType; \
         } \
     }

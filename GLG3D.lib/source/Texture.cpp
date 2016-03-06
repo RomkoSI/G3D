@@ -702,6 +702,20 @@ shared_ptr<Texture> Texture::loadTextureFromSpec(const Texture::Specification& s
     return t;
 }
 
+Texture::TexelType Texture::texelType() const {
+    const ImageFormat* f = format();
+    if (f->numberFormat == ImageFormat::INTEGER_FORMAT) {
+        if (f->openGLDataFormat == GL_UNSIGNED_BYTE ||
+            f->openGLDataFormat == GL_UNSIGNED_SHORT ||
+            f->openGLDataFormat == GL_UNSIGNED_INT) {
+            return TexelType::UNSIGNED_INTEGER;
+        } else {
+            return TexelType::INTEGER;
+        }
+    }
+    return TexelType::FLOAT;
+}
+
 shared_ptr<Texture> Texture::create(const Specification& s) {
     if (s.cachable) {
         if ((s.filename == "<white>") && s.alphaFilename.empty() && (s.dimension == DIM_2D) && s.encoding.readMultiplyFirst.isOne() && s.encoding.readAddSecond.isZero()) {
