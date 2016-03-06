@@ -173,7 +173,7 @@ public:
     void toggleDrawer();
 
     /* Bind arguments to the specified shader */
-    void setShaderArgs(UniformTable& args, bool isCubemap);
+    void setShaderArgs(UniformTable& args);
 
     virtual void setCaption(const GuiText& text) override;
 };
