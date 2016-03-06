@@ -37,9 +37,7 @@
 
      https://gist.github.com/manpat/112f3f31c983ccddf044
 
-  TODO:
-   - flip BMP vertical axis and BGR -> RGB
-*/
+     */
 
 #include "minimalOpenGL.h"
 
@@ -97,6 +95,7 @@ int main(const int argc, const char* argv[]) {
     const GLint modelViewProjectionMatrixUniform = glGetUniformLocation(shader, "modelViewProjectionMatrix");
     const GLint objectToWorldNormalMatrixUniform = glGetUniformLocation(shader, "objectToWorldNormalMatrix");
     const GLint colorTextureUniform              = glGetUniformLocation(shader, "colorTexture");    
+    const GLint lightUniform                     = glGetUniformLocation(shader, "light");
 
     // Load a texture map
     GLuint colorTexture = GL_NONE;
@@ -115,7 +114,7 @@ int main(const int argc, const char* argv[]) {
     {
         glGenSamplers(1, &trilinearSampler);
         glSamplerParameteri(trilinearSampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glSamplerParameteri(trilinearSampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glSamplerParameteri(trilinearSampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glSamplerParameteri(trilinearSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glSamplerParameteri(trilinearSampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
@@ -142,8 +141,10 @@ int main(const int argc, const char* argv[]) {
 
         const Matrix4x4& projectionMatrix = Matrix4x4::perspective(float(windowWidth), float(windowHeight), nearPlaneZ, farPlaneZ, verticalFieldOfView);
 
+        const Vector3& light = Vector3(1.0f, 0.5f, 0.2f).normalize();
+
         // Draw the background
-        drawSky(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView, cameraToWorldMatrix);
+        drawSky(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView, cameraToWorldMatrix, light);
 
         ////////////////////////////////////////////////////////////////////////
         // Draw a mesh
@@ -165,9 +166,12 @@ int main(const int argc, const char* argv[]) {
         glEnableVertexAttribArray(normalAttribute);
 
         // in tangent
-        glBindBuffer(GL_ARRAY_BUFFER, tangentBuffer);
-        glVertexAttribPointer(tangentAttribute, 4, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(tangentAttribute);
+        if (tangentAttribute != -1) {
+            // Only bind if used
+            glBindBuffer(GL_ARRAY_BUFFER, tangentBuffer);
+            glVertexAttribPointer(tangentAttribute, 4, GL_FLOAT, GL_FALSE, 0, 0);
+            glEnableVertexAttribArray(tangentAttribute);
+        }
 
         // in texCoord 
         glBindBuffer(GL_ARRAY_BUFFER, texCoordBuffer);
@@ -176,6 +180,9 @@ int main(const int argc, const char* argv[]) {
 
         // indexBuffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+        // uniform light
+        glUniform3fv(lightUniform, 1, &light.x);
 
         // uniform modelViewProjectionMatrix
         const Matrix4x4& modelViewProjectionMatrix = projectionMatrix * cameraToWorldMatrix.inverse() * objectToWorldMatrix;

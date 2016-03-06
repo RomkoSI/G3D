@@ -4,6 +4,7 @@ in vec3 _color;
 in vec3 _normal;
 in vec2 _texCoord;
 
+uniform vec3 light;
 uniform sampler2D colorTexture;
 
 out vec4 pixelColor;
@@ -13,7 +14,7 @@ void main () {
     vec3 material = texture(colorTexture, _texCoord).rgb;
 
     // Approximately gamma correct
-    pixelColor.rgb = sqrt(material);
+    pixelColor.rgb = sqrt(material * (max(0.0, dot(normal, light)) * 0.7 + 0.3));
     pixelColor.a = 1.0;
 }
 
