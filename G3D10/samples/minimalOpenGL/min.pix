@@ -1,6 +1,7 @@
 #version 410 // -*- c++ -*-
 
 in vec3 _color;
+in vec3 _normal;
 in vec2 _texCoord;
 
 uniform sampler2D colorTexture;
@@ -8,6 +9,7 @@ uniform sampler2D colorTexture;
 out vec4 pixelColor;
 
 void main () {
+    vec3 normal = normalize(_normal);
     vec3 material = texture(colorTexture, _texCoord).rgb;
 
     // Approximately gamma correct
