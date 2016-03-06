@@ -94,8 +94,10 @@ int main(const int argc, const char* argv[]) {
     const GLint tangentAttribute                 = glGetAttribLocation(shader,  "tangent");
     const GLint modelViewProjectionMatrixUniform = glGetUniformLocation(shader, "modelViewProjectionMatrix");
     const GLint objectToWorldNormalMatrixUniform = glGetUniformLocation(shader, "objectToWorldNormalMatrix");
+    const GLint objectToWorldMatrixUniform       = glGetUniformLocation(shader, "objectToWorldMatrix");
     const GLint colorTextureUniform              = glGetUniformLocation(shader, "colorTexture");    
     const GLint lightUniform                     = glGetUniformLocation(shader, "light");
+    const GLint cameraPositionUniform            = glGetUniformLocation(shader, "cameraPosition");
 
     // Load a texture map
     GLuint colorTexture = GL_NONE;
@@ -187,6 +189,12 @@ int main(const int argc, const char* argv[]) {
         // uniform modelViewProjectionMatrix
         const Matrix4x4& modelViewProjectionMatrix = projectionMatrix * cameraToWorldMatrix.inverse() * objectToWorldMatrix;
         glUniformMatrix4fv(modelViewProjectionMatrixUniform, 1, GL_TRUE, modelViewProjectionMatrix.data);
+
+        // uniform objectToWorldMatrix
+        glUniformMatrix4fv(objectToWorldMatrixUniform, 1, GL_TRUE, objectToWorldMatrix.data);
+
+        // uniform cameraPosition
+        glUniform3fv(cameraPositionUniform, 1, &cameraTranslation.x);
 
         // uniform objectToWorldNormalMatrix
         glUniformMatrix3fv(objectToWorldNormalMatrixUniform, 1, GL_TRUE, objectToWorldNormalMatrix.data);

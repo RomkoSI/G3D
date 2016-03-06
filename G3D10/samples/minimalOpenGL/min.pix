@@ -1,20 +1,37 @@
 #version 410 // -*- c++ -*-
 
-in vec3 _color;
-in vec3 _normal;
-in vec2 _texCoord;
+const float PI = 3.1415927;
 
-uniform vec3 light;
-uniform sampler2D colorTexture;
+in vec3             _color;
+in vec3             _normal;
+in vec2             _texCoord;
+in vec3             _position;
 
-out vec4 pixelColor;
+uniform vec3        light;
+uniform sampler2D   colorTexture;
+uniform vec3        cameraPosition;
+
+out vec4            pixelColor;
 
 void main () {
-    vec3 normal = normalize(_normal);
-    vec3 material = texture(colorTexture, _texCoord).rgb;
+    vec3 normal          = normalize(_normal);
+
+    // Simple normalized Blinn-Phong BRDF
+    vec3 lambertianReflectance = texture(colorTexture, _texCoord).rgb * 0.8;
+
+    float glossyExponent = 100.0;
+    vec3 glossyReflectance = vec3(0.2 * (glossyExponent + 8.0) / 8.0);
+
+    vec3 view            = normalize(cameraPosition - _position);
+    vec3 halfVector      = normalize(light + view);
+
+    vec3 lightRadiance   = vec3(0.8, 0.75, 0.7) * 4.0;
+    vec3 ambientRadiance = vec3(0.2, 0.25, 0.35) * 3.0;
+    float cosTheta = max(0.0, dot(normal, light));
 
     // Approximately gamma correct
-    pixelColor.rgb = sqrt(material * (max(0.0, dot(normal, light)) * 0.7 + 0.3));
+    pixelColor.rgb = sqrt(((lambertianReflectance + glossyReflectance * pow(max(0.0, dot(normal, halfVector)), glossyExponent)) * cosTheta * lightRadiance + 
+                           lambertianReflectance * ambientRadiance) / PI);
     pixelColor.a = 1.0;
 }
 
