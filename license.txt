@@ -1,5 +1,5 @@
 The G3D Innovation Engine Core Components (G3D.lib, GLG3D.lib, and data-files/shader) 
-are open source under the OSI-approved "Modified BSDF" license. It is distributed 
+are open source under the OSI-approved "Modified BSD" license. It is distributed 
 alongside several other libraries and data files that each have their own licenses.
 The contents of each subdirectory tree in the G3D Innovation Engine source tree 
 and distribution are governed by the "license.txt" or "license" file at the root of
