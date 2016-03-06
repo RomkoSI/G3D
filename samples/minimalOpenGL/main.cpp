@@ -38,7 +38,7 @@
      https://gist.github.com/manpat/112f3f31c983ccddf044
 
   TODO:
-   - Show how to load a texture map
+   - flip BMP vertical axis and BGR -> RGB
 */
 
 #include "minimalOpenGL.h"
@@ -94,6 +94,8 @@ int main(const int argc, const char* argv[]) {
     const GLint texCoordAttribute                = glGetAttribLocation(shader,  "texCoord");
     const GLint tangentAttribute                 = glGetAttribLocation(shader,  "tangent");
     const GLint modelViewProjectionMatrixUniform = glGetUniformLocation(shader, "modelViewProjectionMatrix");
+    const GLint objectToWorldNormalMatrixUniform = glGetUniformLocation(shader, "objectToWorldNormalMatrix");
+    const GLint colorTextureUniform              = glGetUniformLocation(shader, "colorTexture");    
 
     // Load a texture map
     GLuint colorTexture = GL_NONE;
@@ -113,8 +115,8 @@ int main(const int argc, const char* argv[]) {
         glGenSamplers(1, &trilinearSampler);
         glSamplerParameteri(trilinearSampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glSamplerParameteri(trilinearSampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glSamplerParameter(trilinearSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glSamplerParameter(trilinearSampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glSamplerParameteri(trilinearSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glSamplerParameteri(trilinearSampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
     // Main loop:
@@ -135,6 +137,8 @@ int main(const int argc, const char* argv[]) {
             Matrix4x4::yaw(cameraRotation.y) *
             Matrix4x4::pitch(cameraRotation.x);
         
+        const Matrix3x3& objectToWorldNormalMatrix = Matrix3x3(objectToWorldMatrix).transpose().inverse();
+
         const Matrix4x4& projectionMatrix = Matrix4x4::perspective(float(windowWidth), float(windowHeight), nearPlaneZ, farPlaneZ, verticalFieldOfView);
 
         // Draw the background
@@ -149,26 +153,42 @@ int main(const int argc, const char* argv[]) {
         
         glUseProgram(shader);
 
-        const Matrix4x4& modelViewProjectionMatrix = projectionMatrix * cameraToWorldMatrix.inverse() * objectToWorldMatrix;
-        glUniformMatrix4fv(modelViewProjectionMatrixUniform, 1, GL_TRUE, modelViewProjectionMatrix.data);
-
+        // in position
         glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
         glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(positionAttribute);
 
+        // in normal
         glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
         glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(normalAttribute);
 
+        // in tangent
         glBindBuffer(GL_ARRAY_BUFFER, tangentBuffer);
         glVertexAttribPointer(tangentAttribute, 4, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(tangentAttribute);
 
+        // in texCoord 
         glBindBuffer(GL_ARRAY_BUFFER, texCoordBuffer);
         glVertexAttribPointer(texCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(texCoordAttribute);
 
+        // indexBuffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+        // uniform modelViewProjectionMatrix
+        const Matrix4x4& modelViewProjectionMatrix = projectionMatrix * cameraToWorldMatrix.inverse() * objectToWorldMatrix;
+        glUniformMatrix4fv(modelViewProjectionMatrixUniform, 1, GL_TRUE, modelViewProjectionMatrix.data);
+
+        // uniform objectToWorldNormalMatrix
+        glUniformMatrix3fv(objectToWorldNormalMatrixUniform, 1, GL_TRUE, objectToWorldNormalMatrix.data);
+
+        // uniform colorTexture
+        glUniform1i(colorTextureUniform, 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, colorTexture);
+        glBindSampler(0, trilinearSampler);
+
 
         glDrawElements(GL_TRIANGLES, sizeof(Cube::index) / sizeof(Cube::index[0]), GL_UNSIGNED_INT, 0);
 
