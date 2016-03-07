@@ -146,7 +146,7 @@ int main(const int argc, const char* argv[]) {
         const Vector3& light = Vector3(1.0f, 0.5f, 0.2f).normalize();
 
         // Draw the background
-        drawSky(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, verticalFieldOfView, cameraToWorldMatrix, light);
+        drawSky(windowWidth, windowHeight, nearPlaneZ, farPlaneZ, cameraToWorldMatrix, projectionMatrix, light);
 
         ////////////////////////////////////////////////////////////////////////
         // Draw a mesh
