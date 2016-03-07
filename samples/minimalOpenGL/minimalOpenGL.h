@@ -740,7 +740,7 @@ GLuint createShaderProgram(const std::string& vertexShaderSource, const std::str
 
 /** Submits a full-screen quad at the far plane and runs a procedural sky shader on it.
     \param light Light vector, must be normalized */
-void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlaneZ, float verticalFieldOfView, const Matrix4x4& cameraToWorldMatrix, const Vector3& light) {
+void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlaneZ, const Matrix4x4& cameraToWorldMatrix, const Matrix4x4& projectionMatrix, const Vector3& light) {
 #   define VERTEX_SHADER(s) "#version 410\n" #s
 #   define PIXEL_SHADER(s) VERTEX_SHADER(s)
 
@@ -754,8 +754,8 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
 
     uniform vec3  light;
     uniform vec2  resolution;
-    uniform float tanHalfVerticalFieldOfView;
     uniform mat4  cameraToWorldMatrix;
+    uniform mat4  invProjectionMatrix;
 
     float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
 
@@ -805,18 +805,14 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
     }
 
     void main() {
-        vec3 rd = normalize(mat3(cameraToWorldMatrix) *
-            vec3(gl_FragCoord.xy - resolution.xy / 2.0,
-                 resolution.y * 0.5 / -tanHalfVerticalFieldOfView));
-
+        vec3 rd = normalize(mat3(cameraToWorldMatrix) * vec3((invProjectionMatrix * vec4(gl_FragCoord.xy / resolution.xy * 2.0 - 1.0, -1.0, 1.0)).xy, -1.0));
         pixelColor = render(light, cameraToWorldMatrix[3].xyz, rd, resolution.x);
-            //vec3(gl_FragCoord.xy / 1000.0, 1.0);
     }));
 
     static const GLint lightUniform                      = glGetUniformLocation(skyShader, "light");
     static const GLint resolutionUniform                 = glGetUniformLocation(skyShader, "resolution");
-    static const GLint tanHalfVerticalFieldOfViewUniform = glGetUniformLocation(skyShader, "tanHalfVerticalFieldOfView");
     static const GLint cameraToWorldMatrixUniform        = glGetUniformLocation(skyShader, "cameraToWorldMatrix");
+    static const GLint invProjectionMatrixUniform        = glGetUniformLocation(skyShader, "invProjectionMatrix");
 
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
@@ -825,8 +821,8 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
     glUseProgram(skyShader);
     glUniform3fv(lightUniform, 1, &light.x);
     glUniform2f(resolutionUniform, float(windowWidth), float(windowHeight));
-    glUniform1f(tanHalfVerticalFieldOfViewUniform, tan(verticalFieldOfView * 0.5f));
     glUniformMatrix4fv(cameraToWorldMatrixUniform, 1, GL_TRUE, cameraToWorldMatrix.data);
+    glUniformMatrix4fv(invProjectionMatrixUniform, 1, GL_TRUE, projectionMatrix.inverse().data);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
 #   undef PIXEL_SHADER
