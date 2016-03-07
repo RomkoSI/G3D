@@ -150,7 +150,9 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="matrix.h" />
     <ClInclude Include="minimalOpenGL.h" />
+    <ClInclude Include="minimalOpenVR.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="min.pix" />
