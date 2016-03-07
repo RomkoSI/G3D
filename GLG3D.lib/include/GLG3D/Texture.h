@@ -654,6 +654,9 @@ public:
         String                      filename;
         String                      alphaFilename;
 
+        /** If non-empty, overwrites the filename as the Texture::name */
+        String                      name;
+
         /** Defaults to ImageFormat::AUTO() */
         Encoding                    encoding;
 
