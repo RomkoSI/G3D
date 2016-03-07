@@ -688,6 +688,9 @@ static void transform(shared_ptr<Image>& image, const CubeMapConvention::CubeMap
 
 shared_ptr<Texture> Texture::loadTextureFromSpec(const Texture::Specification& s) {
     shared_ptr<Texture> t;
+
+    
+
     if (s.alphaFilename.empty()) {
         t = Texture::fromFile(s.filename, s.encoding, s.dimension, s.generateMipMaps, s.preprocess, s.assumeSRGBSpaceForAuto);
     } else {
@@ -697,6 +700,10 @@ shared_ptr<Texture> Texture::loadTextureFromSpec(const Texture::Specification& s
     if (s.filename == "<white>" && (! s.encoding.readMultiplyFirst.isOne() || ! s.encoding.readAddSecond.isZero())) {
         t->m_name = String("Color4") + (s.encoding.readMultiplyFirst + s.encoding.readAddSecond).toString();
         t->m_appearsInTextureBrowserWindow = false;
+    }
+
+    if (s.name != "") {
+        t->m_name = s.name;
     }
 
     return t;
