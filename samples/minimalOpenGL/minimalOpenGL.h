@@ -634,6 +634,7 @@ std::ostream& operator<<(std::ostream& os, const Matrix3x3& M) {
     return os << ")\n";
 }
 
+
 GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
     if (! glfwInit()) {
         fprintf(stderr, "ERROR: could not start GLFW\n");
@@ -645,14 +646,13 @@ GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 #   ifdef _DEBUG
        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #   endif
 
-    GLFWwindow* window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
     if (! window) {
         fprintf(stderr, "ERROR: could not open window with GLFW\n");
         glfwTerminate();
@@ -664,6 +664,9 @@ GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
     glewExperimental = GL_TRUE;
     glewInit();
 
+    // Clear startup errors
+    while (glGetError() != GL_NONE) {}
+
 #   ifdef _DEBUG
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glEnable(GL_DEBUG_OUTPUT);
@@ -673,15 +676,17 @@ GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
 #       endif
 #   endif
 
-    printf("Renderer:       %s\n", glGetString(GL_RENDERER));
-    printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+#   ifdef _WINDOWS
+        wglSwapIntervalEXT(0);
+#   endif
+
+    fprintf(stderr, "GPU: %s (OpenGL version %s)\n", glGetString(GL_RENDERER), glGetString(GL_VERSION));
 
     // Bind a single global vertex array (done this way since OpenGL 3)
-    {
-        GLuint vao;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-    }
+    { GLuint vao; glGenVertexArrays(1, &vao); glBindVertexArray(vao); }
+
+    // Check for errors
+    { const GLenum error = glGetError(); assert(error == GL_NONE); }
 
     return window;
 }
@@ -741,7 +746,7 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
 
     static const GLuint skyShader = createShaderProgram(VERTEX_SHADER
     (void main() {
-        gl_Position = vec4(gl_VertexID >> 1, gl_VertexID & 1, 0.0, 0.5) * 4.0 - 1.0;
+        gl_Position = vec4(gl_VertexID & 1, gl_VertexID >> 1, 0.0, 0.5) * 4.0 - 1.0;
     }),
 
     PIXEL_SHADER
@@ -815,6 +820,7 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
 
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
+    glDisable(GL_CULL_FACE);
 
     glUseProgram(skyShader);
     glUniform3fv(lightUniform, 1, &light.x);
