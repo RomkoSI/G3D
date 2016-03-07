@@ -152,7 +152,7 @@ int main(const int argc, const char* argv[]) {
         // Draw a mesh
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
-        glDisable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
         glDepthMask(GL_TRUE);
         
         glUseProgram(shader);
