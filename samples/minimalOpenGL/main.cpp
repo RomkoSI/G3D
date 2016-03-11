@@ -49,7 +49,7 @@
  */
 
 // Uncomment to add VR support
-// #define _VR
+#define _VR
 
 #include "matrix.h"
 #include "minimalOpenGL.h"
