@@ -109,9 +109,9 @@ GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
 #       endif
 #   endif
 
-#   ifdef _WINDOWS
-        wglSwapIntervalEXT(0);
-#   endif
+    // Negative numbers allow buffer swaps even if they are after the vertical retrace,
+    // but that causes stuttering in VR mode
+    glfwSwapInterval(0);
 
     fprintf(stderr, "GPU: %s (OpenGL version %s)\n", glGetString(GL_RENDERER), glGetString(GL_VERSION));
 
