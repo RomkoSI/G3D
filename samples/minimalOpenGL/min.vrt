@@ -24,7 +24,7 @@ layout(shared, row_major) uniform Uniform {
 
 void main () {
     vertexOutput.texCoord   = texCoord;
-    vertexOutput.normal     = normalize(object.objectToWorldNormalMatrix * normal);
+    vertexOutput.normal     = normalize(object.objectToWorldNormalMatrix * object.normal);
     vertexOutput.position   = (object.objectToWorldMatrix * vec4(position, 1.0)).xyz;
 
     gl_Position = object.modelViewProjectionMatrix * vec4(position, 1.0);
