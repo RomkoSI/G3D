@@ -6,27 +6,29 @@ in Varying {
     vec3            normal;
     vec2            texCoord;
     vec3            position;
+    vec3            tangent;
 } interpolated;
 
-
 layout(shared, row_major) uniform Uniform {
-    mat3x3      objectToWorldNormalMatrix;
-    mat4x4      objectToWorldMatrix;
-    mat4x4      modelViewProjectionMatrix;
-    vec3        light;
-    vec3        cameraPosition;
+    mat3x3          objectToWorldNormalMatrix;
+    mat4x4          objectToWorldMatrix;
+    mat4x4          modelViewProjectionMatrix;
+    vec3            light;
+    vec3            cameraPosition;
 } object;
 
 uniform sampler2D   colorTexture;
 
 out vec4            pixelColor;
 
-//////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // The following BRDF is based on https://github.com/wdas/brdf/blob/master/src/brdfs/disney.brdf
-// It is overkill for this demo, but shows something of what a modern shader looks like.
+// It is overkill for this demo and isn't optimized for real-time rendering, but shows something
+// of what modern shading code looks like.
 
-#if 0
 float square(float x) { return x * x; }
+#if 0
 
 float SchlickFresnel(float u) {
     // pow(m,5)
@@ -141,31 +143,51 @@ vec3 evaluateDisneyBRDF
 }
 #endif
 
-//////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void main () {
-    vec3 normal          = normalize(interpolated.normal);
+    // The normal is also the z-axis of tangent space
+    vec3 normal   = normalize(interpolated.normal);
+    vec3 tangentX = normalize(interpolated.tangent);
+    vec3 tangentY = normalize(cross(interpolated.normal, interpolated.tangent));
+
+    vec3 baseColor = texture(colorTexture, interpolated.texCoord).rgb;
+
+    // Disney BRDF parameters
+    const float metallic       = 0.0;
+    const float subsurface     = 0.2;
+    const float specular       = 0.5;
+    const float smoothness     = 0.3;
+    float       roughness      = square(1.0 - smoothness);
+    const float specularTint   = 0.0;
+    const float anisotropic    = 0.0;
+    const float sheen          = 0.2;
+    const float sheenTint      = 0.0;
+    const float clearcoat      = 0.0;
+    const float clearcoatGloss = 0.0;
+
 
     // Simple normalized Blinn-Phong BRDF
-    vec3 baseColor = texture(colorTexture, interpolated.texCoord).rgb;
     vec3 lambertianReflectance = baseColor * 0.8;
-
-    const float smoothness = 0.3;
-    float roughness = square(1.0 - smoothness);
-
     const float glossyExponent = 100.0;
     vec3 glossyReflectance = vec3(0.2 * (glossyExponent + 8.0) / 8.0);
 
     vec3 view            = normalize(object.cameraPosition - interpolated.position);
     vec3 halfVector      = normalize(object.light + view);
 
-    vec3 lightRadiance   = vec3(0.8, 0.75, 0.7) * 4.0;
+    vec3 lightRadiance   = vec3(0.8, 0.75, 0.70) * 4.0;
     vec3 ambientRadiance = vec3(0.2, 0.25, 0.35) * 3.0;
     float cosTheta = max(0.0, dot(normal, object.light));
 
-    // Approximately gamma correct
-    pixelColor.rgb = sqrt(((lambertianReflectance + glossyReflectance * pow(max(0.0, dot(normal, halfVector)), glossyExponent)) * cosTheta * lightRadiance + 
-                           lambertianReflectance * ambientRadiance) / PI);
+    pixelColor.rgb = 
+        pow(((lambertianReflectance + glossyReflectance * pow(max(0.0, dot(normal, halfVector)), glossyExponent)) * cosTheta * lightRadiance + 
+                           lambertianReflectance * ambientRadiance) / PI,
+            vec3(1.0 / 2.2));
+
+    // Debugging code:
+    // pixelColor.rgb = interpolated.normal * 0.5 + 0.5 + tangentX * 0.0001 + baseColor.x * 0.0001;
+    // pixelColor.rgb = object.objectToWorldNormalMatrix[2] * 0.5 + 0.5 + 0.0001 * pixelColor.rgb;
+
     pixelColor.a = 1.0;
 }
 
