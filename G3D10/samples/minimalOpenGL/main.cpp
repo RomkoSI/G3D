@@ -83,7 +83,7 @@ int main(const int argc, const char* argv[]) {
 
     window = initOpenGL(windowWidth, windowHeight, "minimalOpenGL");
         
-    Vector3 bodyTranslation(0.0f, 1.5f, 5.0f);
+    Vector3 bodyTranslation(0.0f, 1.6f, 5.0f);
     Vector3 bodyRotation;
 
     //////////////////////////////////////////////////////////////////////

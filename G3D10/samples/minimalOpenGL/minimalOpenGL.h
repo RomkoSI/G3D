@@ -217,9 +217,11 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
     vec3 render(in vec3 sun, in vec3 ro, in vec3 rd, in float resolution) {
         vec3 col;
         if (rd.y < 0.0) {
+            // Ground
             float t = -ro.y / rd.y;
             vec2 P = ro.xz + t * rd.xz;
             vec2 Q = floor(P);
+            // 1m^2 grid
             P = mod(P, 1.0);
 
             const float gridLineWidth = 0.1;
@@ -229,6 +231,7 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
             float shade = mix(hash(100.0 + Q * 0.1) * 0.4, 0.3, min(t * t * 0.00001 / max(-rd.y, 0.001), 1.0)) + 0.6;
             col = vec3(pow(d, clamp(150.0 / (pow(max(t - 2.0, 0.1), res) + 1.0), 0.1, 15.0))) * shade + 0.1;
         } else {
+            // Sky
             col = vec3(0.3, 0.55, 0.8) * (1.0 - 0.8 * rd.y) * 0.9;
             float sundot = clamp(dot(rd, sun), 0.0, 1.0);
             col += 0.25 * vec3(1.0, 0.7, 0.4) * pow(sundot, 8.0);
