@@ -8,6 +8,7 @@
    * Triangle mesh rendering (GL Vertex Array Buffer)
    * Texture map loading (GL Texture Object)
    * Shader loading (GL Program and Shader Objects)
+   * Fast shader argument binding (GL Uniform Buffer Objects)
    * Offscreen rendering / render-to-texture (GL Framebuffer Object)
    * Ray tracing
    * Procedural texture
