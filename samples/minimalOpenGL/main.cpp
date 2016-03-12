@@ -153,11 +153,10 @@ int main(const int argc, const char* argv[]) {
     const GLuint shader = createShaderProgram(loadTextFile("min.vrt"), loadTextFile("min.pix"));
 
     // Binding points for attributes and uniforms discovered from the shader
-    const GLint positionAttribute                = glGetAttribLocation(shader,  "position");
-    const GLint normalAttribute                  = glGetAttribLocation(shader,  "normal");
-    const GLint texCoordAttribute                = glGetAttribLocation(shader,  "texCoord");
-    const GLint tangentAttribute                 = glGetAttribLocation(shader,  "tangent");
-    
+    const GLint positionAttribute   = glGetAttribLocation(shader,  "position");
+    const GLint normalAttribute     = glGetAttribLocation(shader,  "normal");
+    const GLint texCoordAttribute   = glGetAttribLocation(shader,  "texCoord");
+    const GLint tangentAttribute    = glGetAttribLocation(shader,  "tangent");    
     const GLint colorTextureUniform = glGetUniformLocation(shader, "colorTexture");
 
     const GLuint uniformBlockIndex = glGetUniformBlockIndex(shader, "Uniform");
@@ -237,6 +236,8 @@ int main(const int argc, const char* argv[]) {
     // Main loop:
     int timer = 0;
     while (! glfwWindowShouldClose(window)) {
+        assert(glGetError() == GL_NONE);
+
         const float nearPlaneZ = -0.1f;
         const float farPlaneZ = -100.0f;
         const float verticalFieldOfView = 45.0f * PI / 180.0f;
@@ -263,10 +264,10 @@ int main(const int argc, const char* argv[]) {
             glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            const Matrix4x4& objectToWorldMatrix = Matrix4x4::translate(0.0f, 0.5f, 0.0f) * Matrix4x4::yaw(PI / 3.0f);
-            const Matrix4x4& cameraToWorldMatrix = headToWorldMatrix * eyeToHead[eye];
+            const Matrix4x4& objectToWorldMatrix       = Matrix4x4::translate(0.0f, 0.5f, 0.0f) * Matrix4x4::yaw(PI / 3.0f);
             const Matrix3x3& objectToWorldNormalMatrix = Matrix3x3(objectToWorldMatrix).transpose().inverse();
-            
+            const Matrix4x4& cameraToWorldMatrix       = headToWorldMatrix * eyeToHead[eye];
+
             const Vector3& light = Vector3(1.0f, 0.5f, 0.2f).normalize();
 
             // Draw the background
@@ -317,8 +318,13 @@ int main(const int argc, const char* argv[]) {
             // Other uniforms in the interface block
             {
                 glBindBufferBase(GL_UNIFORM_BUFFER, uniformBindingPoint, uniformBlock);
+
                 GLubyte* ptr = (GLubyte*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-                memcpy(ptr + uniformOffset[0], objectToWorldNormalMatrix.data, sizeof(objectToWorldNormalMatrix));
+                // mat3 is passed to openGL as if it was mat4 due to padding rules.
+                for (int row = 0; row < 3; ++row) {
+                    memcpy(ptr + uniformOffset[0] + sizeof(float) * 4 * row, objectToWorldNormalMatrix.data + row * 3, sizeof(float) * 3);
+                }
+
                 memcpy(ptr + uniformOffset[1], objectToWorldMatrix.data, sizeof(objectToWorldMatrix));
 
                 const Matrix4x4& modelViewProjectionMatrix = projectionMatrix[eye] * cameraToWorldMatrix.inverse() * objectToWorldMatrix;
