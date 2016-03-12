@@ -55,6 +55,36 @@ void App::onInit() {
     GApp::onInit();
     setFrameDuration(1.0f / 120.0f);
 
+    shared_ptr<ArticulatedModel> model = ArticulatedModel::fromFile(System::findDataFile("teapot/teapot.obj"));
+    const Array<int>& indexArray = model->meshArray()[0]->cpuIndexArray;
+    const Array<CPUVertexArray::Vertex>& vertexArray = model->meshArray()[0]->geometry->cpuVertexArray.vertex;
+    debugPrintf("position({");
+    for (int i = 0; i < vertexArray.size(); ++i) {
+        debugPrintf("%gf, %gf, %gf, ", vertexArray[i].position.x, vertexArray[i].position.y, vertexArray[i].position.z);
+    }
+    debugPrintf("     }),");
+    debugPrintf("normal({");
+    for (int i = 0; i < vertexArray.size(); ++i) {
+        debugPrintf("%g.f, %g.f, %g.f, ", vertexArray[i].normal.x, vertexArray[i].normal.y, vertexArray[i].normal.z);
+    }
+    debugPrintf(")},\n\n");
+    debugPrintf("tangent({");
+    for (int i = 0; i < vertexArray.size(); ++i) {
+        debugPrintf("%g.f, %g.f, %g.f, %g.f, ", vertexArray[i].tangent.x, vertexArray[i].tangent.y, vertexArray[i].tangent.z, vertexArray[i].tangent.w);
+    }
+    debugPrintf("     })\n\n");
+    debugPrintf("texCoord({");
+    for (int i = 0; i < vertexArray.size(); ++i) {
+        debugPrintf("%g.f, %g.f, ", vertexArray[i].texCoord0.x, vertexArray[i].texCoord0.y);
+    }
+    debugPrintf("     }),\n\n");
+
+    debugPrintf("index({");
+    for (int i = 0; i < indexArray.size(); ++i) {
+        debugPrintf("%d, ", indexArray[i]);
+    }
+    debugPrintf("}) {};\n\n");
+
     // Call setScene(shared_ptr<Scene>()) or setScene(MyScene::create()) to replace
     // the default scene here.
     
