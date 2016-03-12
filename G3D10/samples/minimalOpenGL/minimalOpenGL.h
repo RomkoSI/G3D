@@ -66,8 +66,6 @@ void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severi
 }
 
 
-
-
 GLFWwindow* initOpenGL(int width, int height, const std::string& title) {
     if (! glfwInit()) {
         fprintf(stderr, "ERROR: could not start GLFW\n");

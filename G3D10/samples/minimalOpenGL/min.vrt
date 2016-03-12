@@ -5,20 +5,27 @@ in vec3 normal;
 in vec2 texCoord;
 in vec4 tangent;
 
+
 out Varying {
     vec3 normal;
     vec2 texCoord;
     vec3 position;
 } vertexOutput;
 
-uniform mat3x3 objectToWorldNormalMatrix;
-uniform mat4x4 objectToWorldMatrix;
-uniform mat4x4 modelViewProjectionMatrix;
+
+layout(shared, row_major) uniform Uniform {
+    mat3x3      objectToWorldNormalMatrix;
+    mat4x4      objectToWorldMatrix;
+    mat4x4      modelViewProjectionMatrix;
+    vec3        light;
+    vec3        cameraPosition;
+} object;
+
 
 void main () {
     vertexOutput.texCoord   = texCoord;
-    vertexOutput.normal     = normalize(objectToWorldNormalMatrix * normal);
-    vertexOutput.position   = (objectToWorldMatrix * vec4(position, 1.0)).xyz;
+    vertexOutput.normal     = normalize(object.objectToWorldNormalMatrix * normal);
+    vertexOutput.position   = (object.objectToWorldMatrix * vec4(position, 1.0)).xyz;
 
-    gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);
+    gl_Position = object.modelViewProjectionMatrix * vec4(position, 1.0);
 }

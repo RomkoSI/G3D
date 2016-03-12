@@ -156,12 +156,56 @@ int main(const int argc, const char* argv[]) {
     const GLint normalAttribute                  = glGetAttribLocation(shader,  "normal");
     const GLint texCoordAttribute                = glGetAttribLocation(shader,  "texCoord");
     const GLint tangentAttribute                 = glGetAttribLocation(shader,  "tangent");
-    const GLint modelViewProjectionMatrixUniform = glGetUniformLocation(shader, "modelViewProjectionMatrix");
-    const GLint objectToWorldNormalMatrixUniform = glGetUniformLocation(shader, "objectToWorldNormalMatrix");
-    const GLint objectToWorldMatrixUniform       = glGetUniformLocation(shader, "objectToWorldMatrix");
-    const GLint colorTextureUniform              = glGetUniformLocation(shader, "colorTexture");    
-    const GLint lightUniform                     = glGetUniformLocation(shader, "light");
-    const GLint cameraPositionUniform            = glGetUniformLocation(shader, "cameraPosition");
+    
+    const GLint colorTextureUniform = glGetUniformLocation(shader, "colorTexture");
+
+    const GLuint uniformBlockIndex = glGetUniformBlockIndex(shader, "Uniform");
+    const GLuint uniformBindingPoint = 1;
+    glUniformBlockBinding(shader, uniformBlockIndex, uniformBindingPoint);
+
+    GLuint uniformBlock;
+    glGenBuffers(1, &uniformBlock);
+
+    {
+        // Allocate space for the uniform block buffer
+        GLint uniformBlockSize;
+        glGetActiveUniformBlockiv(shader, uniformBlockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &uniformBlockSize);
+        glBindBuffer(GL_UNIFORM_BUFFER, uniformBlock);
+        glBufferData(GL_UNIFORM_BUFFER, uniformBlockSize, nullptr, GL_DYNAMIC_DRAW);
+    }
+
+    const GLchar* uniformName[] = {
+        "Uniform.objectToWorldNormalMatrix",
+        "Uniform.objectToWorldMatrix",
+        "Uniform.modelViewProjectionMatrix",
+        "Uniform.light",
+        "Uniform.cameraPosition"};
+
+    const int numBlockUniforms = sizeof(uniformName) / sizeof(uniformName[0]);
+#   ifdef _DEBUG
+    {
+        GLint debugNumUniforms = 0;
+        glGetProgramiv(shader, GL_ACTIVE_UNIFORMS, &debugNumUniforms);
+        for (GLint i = 0; i < debugNumUniforms; ++i) {
+            GLchar name[1024];
+            GLsizei size = 0;
+            GLenum type = GL_NONE;
+            glGetActiveUniform(shader, i, sizeof(name), nullptr, &size, &type, name);
+            std::cout << "Uniform #" << i << ": " << name << "\n";
+        }
+        assert(debugNumUniforms >= numBlockUniforms);
+    }
+#   endif
+
+    // Map uniform names to indices within the block
+    GLuint uniformIndex[numBlockUniforms];
+    glGetUniformIndices(shader, numBlockUniforms, uniformName, uniformIndex);
+    assert(uniformIndex[0] < 10000);
+
+    // Map indices to byte offsets
+    GLint  uniformOffset[numBlockUniforms];
+    glGetActiveUniformsiv(shader, numBlockUniforms, uniformIndex, GL_UNIFORM_OFFSET, uniformOffset);
+    assert(uniformOffset[0] >= 0);
 
     // Load a texture map
     GLuint colorTexture = GL_NONE;
@@ -262,28 +306,27 @@ int main(const int argc, const char* argv[]) {
             // indexBuffer
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 
-            // uniform light
-            glUniform3fv(lightUniform, 1, &light.x);
-
-            // uniform modelViewProjectionMatrix
-            const Matrix4x4& modelViewProjectionMatrix = projectionMatrix[eye] * cameraToWorldMatrix.inverse() * objectToWorldMatrix;
-            glUniformMatrix4fv(modelViewProjectionMatrixUniform, 1, GL_TRUE, modelViewProjectionMatrix.data);
-
-            // uniform objectToWorldMatrix
-            glUniformMatrix4fv(objectToWorldMatrixUniform, 1, GL_TRUE, objectToWorldMatrix.data);
-
-            // uniform cameraPosition
-            const Vector4& cameraPosition = cameraToWorldMatrix.col(3);
-            glUniform3fv(cameraPositionUniform, 1, &cameraPosition.x);
-
-            // uniform objectToWorldNormalMatrix
-            glUniformMatrix3fv(objectToWorldNormalMatrixUniform, 1, GL_TRUE, objectToWorldNormalMatrix.data);
-
-            // uniform colorTexture
-            glUniform1i(colorTextureUniform, 0);
-            glActiveTexture(GL_TEXTURE0);
+            // uniform colorTexture (samplers cannot be placed in blocks)
+            const GLint colorTextureUnit = 0;
+            glActiveTexture(GL_TEXTURE0 + colorTextureUnit);
             glBindTexture(GL_TEXTURE_2D, colorTexture);
-            glBindSampler(0, trilinearSampler);
+            glBindSampler(colorTextureUnit, trilinearSampler);
+            glUniform1i(colorTextureUniform, colorTextureUnit);
+
+            // Other uniforms in the interface block
+            {
+                glBindBufferBase(GL_UNIFORM_BUFFER, uniformBindingPoint, uniformBlock);
+                GLubyte* ptr = (GLubyte*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+                memcpy(ptr + uniformOffset[0], objectToWorldNormalMatrix.data, sizeof(objectToWorldNormalMatrix));
+                memcpy(ptr + uniformOffset[1], objectToWorldMatrix.data, sizeof(objectToWorldMatrix));
+
+                const Matrix4x4& modelViewProjectionMatrix = projectionMatrix[eye] * cameraToWorldMatrix.inverse() * objectToWorldMatrix;
+                memcpy(ptr + uniformOffset[2], modelViewProjectionMatrix.data, sizeof(modelViewProjectionMatrix));
+                memcpy(ptr + uniformOffset[3], &light.x, sizeof(light));
+                const Vector4& cameraPosition = cameraToWorldMatrix.col(3);
+                memcpy(ptr + uniformOffset[4], &cameraPosition.x, sizeof(Vector3));
+                glUnmapBuffer(GL_UNIFORM_BUFFER);
+            }
 
             glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
 #           ifdef _VR
