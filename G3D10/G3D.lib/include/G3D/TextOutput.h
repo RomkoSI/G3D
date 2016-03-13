@@ -183,6 +183,10 @@ public:
         return m_currentLine;
     }
 
+    int column() const {
+        return currentColumn;
+    }
+
     /** Commit to the filename specified on the constructor. 
          <B>Not</B> called from the destructor; you must call
      it yourself.
@@ -212,13 +216,13 @@ public:
     void writeNumber(int n);
 
     /** Guaranteed to parse as a C syntax double */
-    void writeCNumber(double n, bool trailingSpace = true);
+    void writeCNumber(double n, bool trailingSpace = true, bool minimal = false);
 
     /** Guaranteed to parse as a C syntax float */
-    void writeCNumber(float n, bool trailingSpace = true);
+    void writeCNumber(float n, bool trailingSpace = true, bool minimal = false);
 
     /** Guaranteed to parse as a C syntax int */
-    void writeCNumber(int n, bool trailingSpace = true);
+    void writeCNumber(int n, bool trailingSpace = true, bool minimal = false);
 
     void writeNewline();
 

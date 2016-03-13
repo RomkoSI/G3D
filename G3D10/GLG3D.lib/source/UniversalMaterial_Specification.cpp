@@ -28,6 +28,13 @@ UniversalMaterial::Specification::Specification() :
 }
 
 
+
+UniversalMaterial::Specification::Specification(const Color4& color) {
+    *this = Specification();
+    m_lambertian = Texture::Specification(color);
+}
+
+
 void UniversalMaterial::Specification::setLightMaps(const shared_ptr<Texture>& lightMap) {
     for (int i = 0; i < 3; ++i) {
         m_lightMap[i].reset();

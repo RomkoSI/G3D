@@ -136,7 +136,7 @@ void TextOutput::writeNumber(int n) {
 }
 
 
-void TextOutput::writeCNumber(double n, bool space) {
+void TextOutput::writeCNumber(double n, bool space, bool minimal) {
     if (space) {
         writeNumber(n);
     } else {
@@ -145,17 +145,30 @@ void TextOutput::writeCNumber(double n, bool space) {
 }
 
 
-void TextOutput::writeCNumber(float n, bool space) {
-    if (abs(n - floor(n)) < 0.000001f) {
-        this->printf("%g.f%s", floor(n), space ? " " : "");
+void TextOutput::writeCNumber(float n, bool space, bool minimal) {
+    const String& s = format("%g", n);
+    if (s.find_first_of(".e") == String::npos) {
+        if (minimal) {
+            this->printf("%s%s", s.c_str(), space ? " " : "");
+        } else {
+            this->printf("%s.f%s", s.c_str(), space ? " " : "");
+        }
     } else {
-        this->printf("%gf%s", n, space ? " " : "");
+        this->printf("%sf%s", s.c_str(), space ? " " : "");
     }
 }
 
 
-void TextOutput::writeCNumber(int n, bool space) {
-    if (space) {
+void TextOutput::writeCNumber(int n, bool space, bool minimal) {
+    if (minimal) {
+        const String& a = format("0x%x", n);
+        const String& b = format("%d", n);
+        if (a.length() < b.length()) {
+            this->printf("%s%s", a.c_str(), space ? " " : "");
+        } else {
+            this->printf("%s%s", a.c_str(), space ? " " : "");
+        }
+    } else if (space) {
         writeNumber(n);
     } else {
         this->printf("%d", n);
@@ -292,7 +305,7 @@ void TextOutput::wordWrapIndentAppend(const String& str) {
             debugAssertM(str[i] != '\n' && str[i] != '\r',
                 "Should never enter word-wrapping on a newline character");            
 
-            // True when we're allowed to treat a space as a space.
+            // True when we're allowed to treat a space as a break.
             bool unquotedSpace = option.allowWordWrapInsideDoubleQuotes || ! inDQuote;
 
             // Cases:
