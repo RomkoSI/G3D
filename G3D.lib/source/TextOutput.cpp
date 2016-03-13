@@ -166,7 +166,7 @@ void TextOutput::writeCNumber(int n, bool space, bool minimal) {
         if (a.length() < b.length()) {
             this->printf("%s%s", a.c_str(), space ? " " : "");
         } else {
-            this->printf("%s%s", a.c_str(), space ? " " : "");
+            this->printf("%s%s", b.c_str(), space ? " " : "");
         }
     } else if (space) {
         writeNumber(n);
