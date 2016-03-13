@@ -32,6 +32,9 @@
     <ClInclude Include="minimalOpenVR.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="teapot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="min.vrt">

@@ -153,6 +153,7 @@
     <ClInclude Include="matrix.h" />
     <ClInclude Include="minimalOpenGL.h" />
     <ClInclude Include="minimalOpenVR.h" />
+    <ClInclude Include="teapot.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="min.pix" />
