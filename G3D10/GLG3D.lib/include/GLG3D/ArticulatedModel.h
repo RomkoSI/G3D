@@ -3,7 +3,7 @@
 
  \author Morgan McGuire, http://graphics.cs.williams.edu, Michael Mara, http://illuminationcodified.com
  \created 2011-07-19
- \edited  2016-02-10
+ \edited  2016-03-12
 
   G3D Library http://g3d.cs.williams.edu
   Copyright 2000-2016, Morgan McGuire morgan@cs.williams.edu
@@ -1436,6 +1436,9 @@ public:
     void getBoundingBox(AABox& box);
 
     virtual const String& className() const override;
+
+    /** Saves C++ code for generating the geometry of mesh[0] */
+    void saveGeometryAsCode(const String& filename, bool compress = false);
 
 };
 

@@ -136,6 +136,34 @@ void TextOutput::writeNumber(int n) {
 }
 
 
+void TextOutput::writeCNumber(double n, bool space) {
+    if (space) {
+        writeNumber(n);
+    } else {
+        this->printf("%g", n);
+    }
+}
+
+
+void TextOutput::writeCNumber(float n, bool space) {
+    if (abs(n - floor(n)) < 0.000001f) {
+        this->printf("%g.f%s", floor(n), space ? " " : "");
+    } else {
+        this->printf("%gf%s", n, space ? " " : "");
+    }
+}
+
+
+void TextOutput::writeCNumber(int n, bool space) {
+    if (space) {
+        writeNumber(n);
+    } else {
+        this->printf("%d", n);
+    }
+
+}
+
+
 void TextOutput::writeSymbol(const String& string) {
     if (string.size() > 0) {
         this->printf("%s ", string.c_str());
