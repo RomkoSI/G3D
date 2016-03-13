@@ -3,8 +3,8 @@
 
  \author Morgan McGuire, http://graphics.cs.williams.edu
  \created 2011-07-18
- \edited  2015-09-07
- 
+ \edited  2016-03-16
+
  Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
 */
@@ -460,6 +460,101 @@ ArticulatedModel::Pose::Pose(const Any& any) : numInstances(1) {
 
     reader.getIfPresent("frameTable", frameTable);
     reader.verifyDone();
+}
+
+
+void ArticulatedModel::saveGeometryAsCode(const String& filename, bool compress) {
+    TextOutput::Settings settings;
+    settings.numColumns = 256;
+    TextOutput file(filename, settings);
+
+    const Array<int>& indexArray = meshArray()[0]->cpuIndexArray;
+    const Array<CPUVertexArray::Vertex>& vertexArray = meshArray()[0]->geometry->cpuVertexArray.vertex;
+
+    file.writeSymbol("{");
+    file.writeNewline();
+    file.pushIndent();
+
+    file.printf("const int numVertices = %d;\n", vertexArray.size());
+    file.printf("const float* position[] = {");
+    file.pushIndent();
+    for (int i = 0; i < vertexArray.size(); ++i) {
+        const Point3& v = vertexArray[i].position;
+        file.writeCNumber(v.x, false);
+        file.writeSymbol(",");
+        file.writeCNumber(v.y, false);
+        file.writeSymbol(",");
+        file.writeCNumber(v.z, false);
+        if (i < vertexArray.size() - 1) {
+            file.writeSymbol(",");
+        }
+    }
+    file.popIndent();
+    file.writeNewline();
+
+    file.printf("const float* normal[] = {");
+    file.pushIndent();
+    file.printf("const float* normal[] = {");
+    for (int i = 0; i < vertexArray.size(); ++i) {
+        const Vector3& n = vertexArray[i].normal;
+        file.writeCNumber(n.x, false);
+        file.writeSymbol(",");
+        file.writeCNumber(n.y, false);
+        file.writeSymbol(",");
+        file.writeCNumber(n.z, false);
+        if (i < vertexArray.size() - 1) {
+            file.writeSymbol(",");
+        }
+    }
+    file.popIndent();
+    file.writeNewline();
+    file.printf("const float* tangent[] = {");
+    file.pushIndent();
+    for (int i = 0; i < vertexArray.size(); ++i) {
+        const Vector4& t = vertexArray[i].tangent;
+        file.writeCNumber(t.x, false);
+        file.writeSymbol(",");
+        file.writeCNumber(t.y, false);
+        file.writeSymbol(",");
+        file.writeCNumber(t.z, false);
+        file.writeSymbol(",");
+        file.writeCNumber(t.w, false);
+        if (i < vertexArray.size() - 1) {
+            file.writeSymbol(",");
+        }
+    }
+    file.popIndent();
+    file.writeNewline();
+    file.printf("const float* texCoord[] = {");
+    file.pushIndent();
+    for (int i = 0; i < vertexArray.size(); ++i) {
+        const Point2& t = vertexArray[i].texCoord0;
+        file.writeCNumber(t.x, false);
+        file.writeSymbol(",");
+        file.writeCNumber(t.y, false);
+        if (i < vertexArray.size() - 1) {
+            file.writeSymbol(",");
+        }
+    }
+    file.popIndent();
+    file.writeNewline();
+    file.printf("const int* index[] = {");
+    file.pushIndent();
+    for (int i = 0; i < indexArray.size(); ++i) {
+        file.printf("%d%s", indexArray[i], (i < indexArray.size() - 1) ? ", " : "");
+    }
+    file.printf("};");
+    file.popIndent();
+    file.writeNewline();
+    file.printf("const int numIndices = %d;\n", indexArray.size());
+    file.popIndent();
+    file.writeNewline();
+
+    file.writeSymbol("}");
+    file.writeNewline();
+    file.pushIndent();
+
+    file.commit();
 }
 
 } // namespace G3D

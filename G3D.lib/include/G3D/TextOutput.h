@@ -3,9 +3,9 @@
 
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
   \created 2004-06-21
-  \edited  2011-05-24
+  \edited  2016-03-12
 
-  Copyright 2000-2015, Morgan McGuire.
+  Copyright 2000-2016, Morgan McGuire.
   All rights reserved.
  */
 
@@ -211,7 +211,17 @@ public:
 
     void writeNumber(int n);
 
+    /** Guaranteed to parse as a C syntax double */
+    void writeCNumber(double n, bool trailingSpace = true);
+
+    /** Guaranteed to parse as a C syntax float */
+    void writeCNumber(float n, bool trailingSpace = true);
+
+    /** Guaranteed to parse as a C syntax int */
+    void writeCNumber(int n, bool trailingSpace = true);
+
     void writeNewline();
+
     void writeNewlines(int numLines);
 
     /** If the most recently written character was a space, remove it and return true. Can be called repeatedly to back up over multiple spaces. */
