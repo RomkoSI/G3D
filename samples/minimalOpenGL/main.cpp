@@ -42,7 +42,7 @@
      https://gist.github.com/manpat/112f3f31c983ccddf044
   
   Reference Frames:
-      Object: The object being rendered (the cube in this example) relative to its own origin
+      Object: The object being rendered (the Shape in this example) relative to its own origin
       World:  Global reference frame
       Body:   Controlled by keyboard and mouse
       Head:   Controlled by tracking (or fixed relative to the body for non-VR)
@@ -51,6 +51,12 @@
 
 // Uncomment to add VR support
 //#define _VR
+
+// To switch the box to a teapot, uncomment the following two lines
+// #include "teapot.h"
+// #define Shape Teapot
+
+////////////////////////////////////////////////////////////////////////////////
 
 #include "matrix.h"
 #include "minimalOpenGL.h"
@@ -64,6 +70,11 @@ GLFWwindow* window = nullptr;
 #ifdef _VR
     vr::IVRSystem* hmd = nullptr;
 #endif
+
+#ifndef Shape
+#   define Shape Cube
+#endif
+
 
 int main(const int argc, const char* argv[]) {
     std::cout << "Minimal OpenGL 4.1 Example by Morgan McGuire\n\nW, A, S, D, C, Z keys to translate\nMouse click and drag to rotate\nESC to quit\n\n";
@@ -120,33 +131,34 @@ int main(const int argc, const char* argv[]) {
 
     /////////////////////////////////////////////////////////////////
     // Load vertex array buffers
+
     GLuint positionBuffer = GL_NONE;
     glGenBuffers(1, &positionBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::position), Cube::position, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Shape::position), Shape::position, GL_STATIC_DRAW);
 
     GLuint texCoordBuffer = GL_NONE;
     glGenBuffers(1, &texCoordBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, texCoordBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::texCoord), Cube::texCoord, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Shape::texCoord), Shape::texCoord, GL_STATIC_DRAW);
 
     GLuint normalBuffer = GL_NONE;
     glGenBuffers(1, &normalBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::normal), Cube::normal, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Shape::normal), Shape::normal, GL_STATIC_DRAW);
 
     GLuint tangentBuffer = GL_NONE;
     glGenBuffers(1, &tangentBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, tangentBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::tangent), Cube::tangent, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Shape::tangent), Shape::tangent, GL_STATIC_DRAW);
 
-    const int numVertices = sizeof(Cube::position) / sizeof(Cube::position[0]);
+    const int numVertices = sizeof(Shape::position) / sizeof(Shape::position[0]);
 
     GLuint indexBuffer = GL_NONE;
     glGenBuffers(1, &indexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Cube::index), Cube::index, GL_STATIC_DRAW);
-    const int numIndices = sizeof(Cube::index) / sizeof(Cube::index[0]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Shape::index), Shape::index, GL_STATIC_DRAW);
+    const int numIndices = sizeof(Shape::index) / sizeof(Shape::index[0]);
 
     /////////////////////////////////////////////////////////////////////
     // Create the main shader
