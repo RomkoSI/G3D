@@ -102,12 +102,10 @@ public:
         m_desiredPitchVelocity  = p;
     }
 
-    
-
     /** Converts the current VisibleEntity to an Any.  Subclasses should
-        modify at least the name of the Table returned by the base class, which will be "Entity"
+        modify at least the name of the Table returned by the base class, which will be "PlayerEntity"
         if not changed. */
-    virtual Any toAny() const override;
+    virtual Any toAny(const bool forceAll = false) const override;
     
     virtual void onPose(Array<shared_ptr<Surface> >& surfaceArray) override;
 
