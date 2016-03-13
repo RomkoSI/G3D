@@ -149,10 +149,18 @@ void TextOutput::writeCNumber(float n, bool space, bool minimal) {
     const String& s = format("%g", n);
     if (s.find_first_of(".e") == String::npos) {
         if (minimal) {
-            this->printf("%s%s", s.c_str(), space ? " " : "");
+            if (s == "-0") {
+                this->printf("0%s", space ? " " : "");
+            } else {
+                this->printf("%s%s", s.c_str(), space ? " " : "");
+            }
         } else {
             this->printf("%s.f%s", s.c_str(), space ? " " : "");
         }
+    } else if (minimal && (s.length() > 2) && (s[0] == '0') && (s[1] == '.')) {
+        this->printf("%sf%s", s.c_str() + 1, space ? " " : "");
+    } else if (minimal && (s.length() > 3) && (s[0] == '-') && (s[1] == '0') && (s[2] == '.')) {
+        this->printf("-%sf%s", s.c_str() + 2, space ? " " : "");
     } else {
         this->printf("%sf%s", s.c_str(), space ? " " : "");
     }
