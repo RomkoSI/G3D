@@ -225,7 +225,7 @@ Any component can be a Texture::Specification, Color3/Color4, or table of <code>
 \beta */
         Specification(const Any& any);
 
-        Specification(const Color3& lambertian);
+        Specification(const Color4& lambertian);
 
         bool operator==(const Specification& s) const;
 

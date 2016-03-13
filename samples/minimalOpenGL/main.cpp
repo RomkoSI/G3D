@@ -120,6 +120,7 @@ int main(const int argc, const char* argv[]) {
 
     /////////////////////////////////////////////////////////////////
     // Load vertex array buffers
+#define Cube Teapot
     GLuint positionBuffer = GL_NONE;
     glGenBuffers(1, &positionBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);

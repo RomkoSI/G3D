@@ -475,84 +475,104 @@ void ArticulatedModel::saveGeometryAsCode(const String& filename, bool compress)
     file.writeNewline();
     file.pushIndent();
 
+    const String& separator = compress ? "," : ", ";
+
     file.printf("const int numVertices = %d;\n", vertexArray.size());
-    file.printf("const float* position[] = {");
+    file.printf("const float position[][3] = {");
     file.pushIndent();
     for (int i = 0; i < vertexArray.size(); ++i) {
         const Point3& v = vertexArray[i].position;
-        file.writeCNumber(v.x, false);
-        file.writeSymbol(",");
-        file.writeCNumber(v.y, false);
-        file.writeSymbol(",");
-        file.writeCNumber(v.z, false);
+        file.writeCNumber(v.x, false, compress);
+        file.printf(separator);
+        file.writeCNumber(v.y, false, compress);
+        file.printf(separator);
+        file.writeCNumber(v.z, false, compress);
         if (i < vertexArray.size() - 1) {
-            file.writeSymbol(",");
+            file.printf(separator);
+            if (compress && (file.column() > 200)) {
+                file.writeNewline();
+            }
         }
     }
+    file.printf("};");
     file.popIndent();
     file.writeNewline();
 
-    file.printf("const float* normal[] = {");
+    file.printf("const float normal[][3] = {");
     file.pushIndent();
-    file.printf("const float* normal[] = {");
     for (int i = 0; i < vertexArray.size(); ++i) {
         const Vector3& n = vertexArray[i].normal;
-        file.writeCNumber(n.x, false);
-        file.writeSymbol(",");
-        file.writeCNumber(n.y, false);
-        file.writeSymbol(",");
-        file.writeCNumber(n.z, false);
+        file.writeCNumber(n.x, false, compress);
+        file.printf(separator);
+        file.writeCNumber(n.y, false, compress);
+        file.printf(separator);
+        file.writeCNumber(n.z, false, compress);
         if (i < vertexArray.size() - 1) {
-            file.writeSymbol(",");
+            file.printf(separator);
+            if (compress && (file.column() > 200)) {
+                file.writeNewline();
+            }
         }
     }
+    file.printf("};");
     file.popIndent();
     file.writeNewline();
-    file.printf("const float* tangent[] = {");
+    file.printf("const float tangent[][4] = {");
     file.pushIndent();
     for (int i = 0; i < vertexArray.size(); ++i) {
         const Vector4& t = vertexArray[i].tangent;
-        file.writeCNumber(t.x, false);
-        file.writeSymbol(",");
-        file.writeCNumber(t.y, false);
-        file.writeSymbol(",");
-        file.writeCNumber(t.z, false);
-        file.writeSymbol(",");
-        file.writeCNumber(t.w, false);
+        file.writeCNumber(t.x, false, compress);
+        file.printf(separator);
+        file.writeCNumber(t.y, false, compress);
+        file.printf(separator);
+        file.writeCNumber(t.z, false, compress);
+        file.printf(separator);
+        file.writeCNumber(t.w, false, compress);
         if (i < vertexArray.size() - 1) {
-            file.writeSymbol(",");
+            file.printf(separator);
+            if (compress && (file.column() > 200)) {
+                file.writeNewline();
+            }
         }
     }
+    file.printf("};");
     file.popIndent();
     file.writeNewline();
-    file.printf("const float* texCoord[] = {");
+    file.printf("const float texCoord[][2] = {");
     file.pushIndent();
     for (int i = 0; i < vertexArray.size(); ++i) {
         const Point2& t = vertexArray[i].texCoord0;
-        file.writeCNumber(t.x, false);
-        file.writeSymbol(",");
-        file.writeCNumber(t.y, false);
+        file.writeCNumber(t.x, false, compress);
+        file.printf(separator);
+        file.writeCNumber(t.y, false, compress);
         if (i < vertexArray.size() - 1) {
-            file.writeSymbol(",");
+            file.printf(separator);
+            if (compress && (file.column() > 200)) {
+                file.writeNewline();
+            }
         }
     }
+    file.printf("};");
     file.popIndent();
     file.writeNewline();
-    file.printf("const int* index[] = {");
+    file.printf("const int index[] = {");
     file.pushIndent();
     for (int i = 0; i < indexArray.size(); ++i) {
-        file.printf("%d%s", indexArray[i], (i < indexArray.size() - 1) ? ", " : "");
+        file.writeCNumber(indexArray[i], false, compress);
+        if (i < indexArray.size() - 1) {
+            file.printf(separator);
+            if (compress && (file.column() > 200)) {
+                file.writeNewline();
+            }
+        }
     }
     file.printf("};");
     file.popIndent();
     file.writeNewline();
     file.printf("const int numIndices = %d;\n", indexArray.size());
     file.popIndent();
-    file.writeNewline();
-
     file.writeSymbol("}");
     file.writeNewline();
-    file.pushIndent();
 
     file.commit();
 }
