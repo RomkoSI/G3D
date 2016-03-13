@@ -55,12 +55,6 @@ void App::onInit() {
     GApp::onInit();
     setFrameDuration(1.0f / 120.0f);
 
-    ArticulatedModel::Specification spec;
-    spec.filename = System::findDataFile("teapot/teapot.obj");
-    spec.scale = 1.0 / 700.0f;
-    shared_ptr<ArticulatedModel> model = ArticulatedModel::create(spec);
-    model->saveGeometryAsCode("teapot.cpp", true);
-
     // Call setScene(shared_ptr<Scene>()) or setScene(MyScene::create()) to replace
     // the default scene here.
     
