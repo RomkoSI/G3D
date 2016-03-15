@@ -156,6 +156,14 @@ $(gentype) pow64($(gentype) v) {
     }
 #endforeach
 
+
+
+#foreach (vectype, gentype) in (vec2, float), (vec3, float), (vec4, float)
+$(gentype) lengthSquared($(vectype) v) {
+    return dot(v, v);
+}
+#endforeach
+
 /** Computes x<sup>5</sup> */
 float pow5(in float x) {
     float x2 = x * x;
