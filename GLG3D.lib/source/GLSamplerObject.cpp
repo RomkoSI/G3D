@@ -4,7 +4,7 @@
  \maintainer Michael Mara, http://www.illuminationcodified.com
 
   \created 2013-10-03
-  \edited  2014-03-26
+  \edited  2016-03-15
  */
 
 #include "GLG3D/GLSamplerObject.h"
@@ -66,19 +66,14 @@ static GLenum toGLenum(WrapMode m) {
 void GLSamplerObject::setParameters(const Sampler& settings) {
     debugAssertM( GLCaps::supports("GL_ARB_sampler_objects"), "OpenGL Sampler Objects not supported on this device");
 
-    
-
     // Set the wrap and interpolate state
     GLenum sMode = toGLenum(settings.xWrapMode);
     GLenum tMode = toGLenum(settings.yWrapMode);
     
-
     glSamplerParameteri(m_glSamplerID, GL_TEXTURE_WRAP_S, sMode);
     glSamplerParameteri(m_glSamplerID, GL_TEXTURE_WRAP_T, tMode);
-    glSamplerParameteri(m_glSamplerID, GL_TEXTURE_WRAP_R, tMode);
-    
-    
-	
+    glSamplerParameteri(m_glSamplerID, GL_TEXTURE_WRAP_R, tMode);    
+    	
     if (settings.interpolateMode.requiresMipMaps() &&
         (GLCaps::supports("GL_EXT_texture_lod") || 
          GLCaps::supports("GL_SGIS_texture_lod"))) {
@@ -123,6 +118,11 @@ void GLSamplerObject::setParameters(const Sampler& settings) {
 	case InterpolateMode::LINEAR_MIPMAP_NEAREST:
 		glSamplerParameteri(m_glSamplerID, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
 		glSamplerParameteri(m_glSamplerID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+		break;
+
+    case InterpolateMode::NEAREST_MAGNIFICATION_TRILINEAR_MIPMAP_MINIFICATION:
+		glSamplerParameteri(m_glSamplerID, GL_TEXTURE_MAG_FILTER, GL_NEAREST); 
+		glSamplerParameteri(m_glSamplerID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		break;
 
 	default:
