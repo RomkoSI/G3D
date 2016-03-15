@@ -4,9 +4,9 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2011-07-19
- \edited  2013-11-22
+ \edited  2016-03-15
 
- Copyright 2002-2013, Morgan McGuire.
+ Copyright 2002-2016, Morgan McGuire.
  All rights reserved.
 */
 #ifndef G3D_ParseMTL_h
@@ -27,6 +27,12 @@ class TextInput;
 
     Parsing creates references to texture files on disk, but does not actually
     load those textures.
+
+    Supports the extension of interpolation modes for texture maps.
+    "interpolateMode <mode>" sets the mode, which applies to all maps until changed.
+    The default is TRILINEAR_MIPMAP. The other options are G3D::InterpolateMode values.
+
+    Supports "lightMap" field extension.
 
     \sa G3D::ParseOBJ, G3D::ArticulatedModel
 */
@@ -52,7 +58,7 @@ public:
         };
 
         String          name;
-
+            
         /** Path relative to which filenames should be resolved */
         String          basePath;
 
@@ -115,6 +121,7 @@ public:
         /** (non-standard extension), for lightMaps */
         String          lightMap;
 
+        String          interpolateMode;
 
     private:
 
@@ -122,7 +129,7 @@ public:
         // is a map_Ks and 0.75f otherwise (which then gets raised to the ninth power by G3D)
         // We thus have to check and properly set the default whenever we finish parsing a material or
         // assign map_Ks
-        Material() : Ka(1.0f), Kd(1.0f), Ks(-1.0f), Ke(0.0f), bump(0.0f), Ns(10.0f), d(1.0f), Tr(0.0f), Tf(1.0f), illum(2), Ni(1.0f) {}
+        Material() : Ka(1.0f), Kd(1.0f), Ks(-1.0f), Ke(0.0f), bump(0.0f), Ns(10.0f), d(1.0f), Tr(0.0f), Tf(1.0f), illum(2), Ni(1.0f), interpolateMode("TRILINEAR_MIPMAP") {}
 
     public:
         /** We default Ks to 0.8f if there is no map_Ks. 

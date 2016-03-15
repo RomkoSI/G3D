@@ -3,9 +3,9 @@
 
  \author Morgan McGuire, http://graphics.cs.williams.edu
  \created 2011-07-16
- \edited  2013-11-18
+ \edited  2016-03-15
  
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 #include "G3D/ParseMTL.h"
@@ -37,6 +37,7 @@ void ParseMTL::parse(TextInput& ti, const String& basePath) {
     set.generateNewlineTokens = true;
     set.msvcFloatSpecials = false;
     set.sourceFileName = ti.filename();
+
     ti.pushSettings(set);
 
     // Always provide a default material
@@ -177,6 +178,12 @@ void ParseMTL::processCommand(TextInput& ti, const String& cmd) {
         }
     } else if ((cmd == "map_bump") || (cmd == "bump") || (cmd == "map_Bump")) {
         readMap(ti, m_currentMaterial->bump);
+    } else if (cmd == "interpolateMode") {
+        m_currentMaterial->interpolateMode = ti.readSymbol();
+        ti.readUntilNewlineAsString();
+    } else {
+        ti.readUntilNewlineAsString();
+        debugPrintf("Ignoring unrecognized command in MTL file %s at line %d: '%s'\n", ti.filename().c_str(), ti.peekLineNumber(), cmd.c_str());
     }
 }
 

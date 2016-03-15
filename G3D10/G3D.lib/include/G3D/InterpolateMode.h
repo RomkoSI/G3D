@@ -4,10 +4,10 @@
   \maintainer Michael Mara, http://www.illuminationcodified.com
  
   \created 2013-10-10
-  \edited  2014-03-26
+  \edited  2016-03-15
 
   G3D Innovation Engine
-  Copyright 2000-2015, Morgan McGuire.
+  Copyright 2000-2016, Morgan McGuire.
   All rights reserved.
  */
 
@@ -19,16 +19,7 @@
 
 namespace G3D {
 
-/** 
-    Trilinear mipmap is the best quality (and frequently fastest)
-    mode.  The no-mipmap modes conserve memory.  Non-interpolating
-    ("Nearest") modes are generally useful only when packing lookup
-    tables into textures for shaders.
- */ 
-class InterpolateMode {
-public:
-    /** Don't use this enum; use InterpolateMode instances instead. */
-    enum Value {
+G3D_BEGIN_ENUM_CLASS_DECLARATION(InterpolateMode,
         /** GL_LINEAR_MIPMAP_LINEAR */
         TRILINEAR_MIPMAP, 
 
@@ -49,29 +40,21 @@ public:
 
         /** Linearly blend between nearest pixels in the two closest MIP levels.*/
         NEAREST_MIPMAP_LINEAR,
-    } value;
-    
-    static const char* toString(int i, Value& v) {
-        static const char* str[] = {"TRILINEAR_MIPMAP", "BILINEAR_MIPMAP", "NEAREST_MIPMAP", "BILINEAR_NO_MIPMAP", "NEAREST_NO_MIPMAP", "LINEAR_MIPMAP_NEAREST", "NEAREST_MIPMAP_LINEAR", NULL}; 
-        static const Value val[] = {TRILINEAR_MIPMAP, BILINEAR_MIPMAP, NEAREST_MIPMAP, BILINEAR_NO_MIPMAP, NEAREST_NO_MIPMAP, LINEAR_MIPMAP_NEAREST, NEAREST_MIPMAP_LINEAR};
-        const char* s = str[i];
-        if (s) {
-            v = val[i];
-        }
-        return s;
-    }
+
+        /** GL_LINEAR_MIPMAP_LINEAR for the minification filter, GL_NEAREST for the magnification filter. 
+            Good for pixel art and Minecraft textures. */
+        NEAREST_MAGNIFICATION_TRILINEAR_MIPMAP_MINIFICATION);
 
     bool requiresMipMaps() const {
         return (value == TRILINEAR_MIPMAP) || 
             (value == BILINEAR_MIPMAP) || 
             (value == NEAREST_MIPMAP) ||
             (value == LINEAR_MIPMAP_NEAREST) ||
-            (value == NEAREST_MIPMAP_LINEAR);
+            (value == NEAREST_MIPMAP_LINEAR) || 
+            (value == NEAREST_MAGNIFICATION_TRILINEAR_MIPMAP_MINIFICATION);
     }
 
-    G3D_DECLARE_ENUM_CLASS_METHODS(InterpolateMode);
-};
-
+G3D_END_ENUM_CLASS_DECLARATION();
 
 } // namespace G3D
 
