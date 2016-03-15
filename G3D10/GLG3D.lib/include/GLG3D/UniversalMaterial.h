@@ -2,7 +2,7 @@
  \file   GLG3D/UniversalMaterial.h
  \author Morgan McGuire, http://graphics.cs.williams.edu
  \date   2008-08-10
- \edited 2016-02-06
+ \edited 2016-03-15
  
  G3D Innovation Engine
  Copyright 2000-2016, Morgan McGuire.
