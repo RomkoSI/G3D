@@ -4,7 +4,7 @@
  \maintainer Michael Mara, http://www.illuminationcodified.com
 
   \created 2013-10-03
-  \edited  2013-10-03
+  \edited  2016-03-15
  */
 
 #include "GLG3D/Sampler.h"
