@@ -231,20 +231,29 @@ static UniversalMaterial::Specification toMaterialSpecification
         s.setEmissive(textureSpec);
     }
 
+
+    if (! m->interpolateMode.empty()) {
+        Sampler sampler;
+        sampler.interpolateMode = InterpolateMode(m->interpolateMode);
+        s.setSampler(sampler);
+    }
+
     // s.setSampler(modelSpec.objOptions.sampler);
 
     return s;
 }
 
 
-/** Flip texture coordiantes from the OBJ to the G3D convention */
+/** Flip texture coordinates from the OBJ to the G3D convention */
 inline static Point2 OBJToG3DTex(const Vector2& t) {
     return Vector2(t.x, 1.0f - t.y);
 }
 
+
 inline static Point2 G3DToOBJTex(const Vector2& t) {
     return Vector2(t.x, (-1.0f * t.y) + 1.0f);
 }
+
 
 void ArticulatedModel::loadOBJ(const Specification& specification) {
     // During loading, we make no attempt to optimize the mesh's topology.  We leave that until the
