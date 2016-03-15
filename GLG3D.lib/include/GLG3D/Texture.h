@@ -663,7 +663,7 @@ public:
         /** Defaults to Texture::DIM_2D */
         Dimension                   dimension;
 
-        /** Defaults to true */
+        /** Defaults to true. */
         bool                        generateMipMaps;
 
         Preprocess                  preprocess;
@@ -675,7 +675,7 @@ public:
 
         /** If false, this texture may not be loaded from or stored in the global texture cache. */
         bool                        cachable;
-
+        
         Specification() : 
             dimension(DIM_2D),
             generateMipMaps(true),
@@ -829,7 +829,7 @@ public:
 	void resize(int w, int h, int d);
 
     /**
-     Wrap and interpolate will override the existing parameters on the
+     Wrap will override the existing parameters on the
      GL texture.
 
      \param name Arbitrary name for this texture to identify it
