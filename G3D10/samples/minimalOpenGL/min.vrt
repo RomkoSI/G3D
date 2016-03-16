@@ -12,6 +12,7 @@ out Varying {
     vec2        texCoord;
     vec3        position;
     vec3        tangent;
+    flat float  tangentYSign;
 } vertexOutput;
 
 // Uniforms
@@ -27,7 +28,8 @@ void main () {
     vertexOutput.texCoord   = texCoord;
     // TODO objectToWorldNormalMatrix is not being passed correctly
     vertexOutput.normal     = normalize(object.objectToWorldNormalMatrix * normal);
-    vertexOutput.tangent    = normalize(mat3x3(object.objectToWorldMatrix) * tangent.xyz) * tangent.w;
+    vertexOutput.tangent    = normalize(mat3x3(object.objectToWorldMatrix) * tangent.xyz);
+    vertexOutput.tangentYSign = tangent.w;
     vertexOutput.position   = (object.objectToWorldMatrix * vec4(position, 1.0)).xyz;
 
     gl_Position = object.modelViewProjectionMatrix * vec4(position, 1.0);
