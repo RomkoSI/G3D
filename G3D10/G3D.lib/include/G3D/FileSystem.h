@@ -566,6 +566,9 @@ public:
         potentially dangerous characters to have in a filename */
     static String mangle(const String& filename);
 
+    /** unmangles filenames */
+    static String unMangle(const String& mangledFilename);
+
     /** Appends file onto dirname, ensuring a / if needed. */
     static String concat(const String& a, const String& b);
 
