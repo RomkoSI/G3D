@@ -1059,6 +1059,65 @@ String FilePath::mangle(const String& filename) {
     return outputFilename;
 }
 
+String FilePath::unMangle(const String& mangledFilename) {
+    String outputFilename;
+    for (size_t i = 0; i < mangledFilename.size() - 1; ++i) {
+        char current = mangledFilename[i];
+        if (mangledFilename[i] == '_' && (i < mangledFilename.size() - 1)) {
+            switch (mangledFilename[i + 1]) {
+            case 'c':
+                current = ':';
+                ++i;
+                break;
+            case 'l':
+                current = ';';
+                ++i;
+                break;
+            case '_':
+                current = ' ';
+                ++i;
+                break;
+            case 'y':
+                current = '"';
+                ++i;
+                break;
+            case 'z':
+                current = '\'';
+                ++i;
+                break;
+            case 's':
+                current = '/';
+                ++i;
+                break;
+            case 'b':
+                current = '\\';
+                ++i;
+                break;
+            case 'p':
+                current = '.';
+                ++i;
+                break;
+            case 'a':
+                current = '*';
+                ++i;
+                break;
+            case 'q':
+                current = '?';
+                ++i;
+                break;
+            case 'u':
+                current = '_';
+                ++i;
+                break;
+            default:
+                break;
+            }
+        }
+        outputFilename += current;
+    }
+    return outputFilename;
+}
+
 
 String FilePath::expandEnvironmentVariables(const String& path) {
     // Search for pattern
