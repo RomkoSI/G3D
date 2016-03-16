@@ -53,8 +53,8 @@
 //#define _VR
 
 // To switch the box to a teapot, uncomment the following two lines
-// #include "teapot.h"
-// #define Shape Teapot
+//#include "teapot.h"
+//#define Shape Teapot
 
 ////////////////////////////////////////////////////////////////////////////////
 
