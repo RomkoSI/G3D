@@ -260,81 +260,24 @@ static void writeLicense() {
 }
 
 
-GApp::GApp(const Settings& settings, OSWindow* window, RenderDevice* rd) :
-    m_lastDebugID(0),
-    m_activeVideoRecordDialog(NULL),
-    m_submitToDisplayMode(SubmitToDisplayMode::MAXIMIZE_THROUGHPUT),
-    m_settings(settings),
-    m_renderPeriod(1),
-    m_endProgram(false),
-    m_exitCode(0),
-    m_debugTextColor(Color3::black()),
-    m_debugTextOutlineColor(Color3(0.7f)),
-    m_lastFrameOverWait(0),
-    debugPane(NULL),
-    renderDevice(NULL),
-    userInput(NULL),
-    m_lastWaitTime(System::time()),
-    m_wallClockTargetDuration(1.0f / 60.0f),
-    m_lowerFrameRateInBackground(true),
-    m_simTimeStep(MATCH_REAL_TIME_TARGET),
-    m_simTimeScale(1.0f),
-    m_previousSimTimeStep(1.0f / 60.0f),
-    m_previousRealTimeStep(1.0f / 60.0f),
-    m_realTime(0),
-    m_simTime(0) {
-
-    setCurrent(this);
-
-#   ifdef G3D_DEBUG
-        // Let the debugger catch them
-        catchCommonExceptions = false;
-#   else
-        catchCommonExceptions = true;
-#   endif
-
-    logLazyPrintf("\nEntering GApp::GApp()\n");
-    char b[2048];
-    (void)getcwd(b, 2048);
-    logLazyPrintf("cwd = %s\n", b);
-
-    if (settings.dataDir == "<AUTO>") {
-        dataDir = FilePath::parent(System::currentProgramFilename());
-    } else {
-        dataDir = settings.dataDir;
-    }
-    logPrintf("System::setAppDataDir(\"%s\")\n", dataDir.c_str());
-    System::setAppDataDir(dataDir);
-
-    if (settings.writeLicenseFile && ! FileSystem::exists("g3d-license.txt")) {
-        writeLicense();
-    }
-
-    if (m_settings.screenshotDirectory != "") {
-        if (! isSlash(m_settings.screenshotDirectory[m_settings.screenshotDirectory.length() - 1])) {
-            m_settings.screenshotDirectory += "/";
-        }
-        debugAssertM(FileSystem::exists(m_settings.screenshotDirectory),
-            "GApp::Settings.screenshotDirectory set to non-existent directory " + m_settings.screenshotDirectory);
-    }
-
-	if (rd != NULL) {
-		debugAssertM(window != NULL, "If you pass in your own RenderDevice, then you must also pass in your own OSWindow when creating a GApp.");
+void GApp::initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindowIfNull, const Settings& settings) {
+	if (notNull(rd)) {
+		debugAssertM(notNull(window), "If you pass in your own RenderDevice, then you must also pass in your own OSWindow when creating a GApp.");
 
 		m_hasUserCreatedRenderDevice = true;
 		m_hasUserCreatedWindow = true;
 		renderDevice = rd;
-	} else {
-		m_hasUserCreatedRenderDevice = false;
-		renderDevice = new RenderDevice();
+	} else if (createWindowIfNull) {
+	    m_hasUserCreatedRenderDevice = false;
+	    renderDevice = new RenderDevice();
         if (window != NULL) {
 	        m_hasUserCreatedWindow = true;
-			renderDevice->init(window);
+		    renderDevice->init(window);
 	    } else {
 	        m_hasUserCreatedWindow = false;
 		    renderDevice->init(settings.window);
-		}
-	}
+	    }
+    }
 
     m_window = renderDevice->window();
     m_window->makeCurrent();
@@ -381,10 +324,6 @@ GApp::GApp(const Settings& settings, OSWindow* window, RenderDevice* rd) :
     setCameraManipulator(manip);
     m_debugController = manip;
 
-    showDebugText               = true;
-    escapeKeyAction             = ACTION_QUIT;
-    showRenderingStats          = true;
-    manageUserInput             = true;
 
     {
         GConsole::Settings settings;
@@ -471,6 +410,74 @@ GApp::GApp(const Settings& settings, OSWindow* window, RenderDevice* rd) :
 
     m_debugTextWidget = DebugTextWidget::create(this);
     addWidget(m_debugTextWidget, false);
+}
+
+
+GApp::GApp(const Settings& settings, OSWindow* window, RenderDevice* rd, bool createWindowIfNull) :
+    m_lastDebugID(0),
+    m_activeVideoRecordDialog(NULL),
+    m_submitToDisplayMode(SubmitToDisplayMode::MAXIMIZE_THROUGHPUT),
+    m_settings(settings),
+    m_renderPeriod(1),
+    m_endProgram(false),
+    m_exitCode(0),
+    m_debugTextColor(Color3::black()),
+    m_debugTextOutlineColor(Color3(0.7f)),
+    m_lastFrameOverWait(0),
+    debugPane(NULL),
+    renderDevice(NULL),
+    userInput(NULL),
+    m_lastWaitTime(System::time()),
+    m_wallClockTargetDuration(1.0f / 60.0f),
+    m_lowerFrameRateInBackground(true),
+    m_simTimeStep(MATCH_REAL_TIME_TARGET),
+    m_simTimeScale(1.0f),
+    m_previousSimTimeStep(1.0f / 60.0f),
+    m_previousRealTimeStep(1.0f / 60.0f),
+    m_realTime(0),
+    m_simTime(0) {
+
+    setCurrent(this);
+
+#   ifdef G3D_DEBUG
+        // Let the debugger catch them
+        catchCommonExceptions = false;
+#   else
+        catchCommonExceptions = true;
+#   endif
+
+    logLazyPrintf("\nEntering GApp::GApp()\n");
+    char b[2048];
+    (void)getcwd(b, 2048);
+    logLazyPrintf("cwd = %s\n", b);
+
+    if (settings.dataDir == "<AUTO>") {
+        dataDir = FilePath::parent(System::currentProgramFilename());
+    } else {
+        dataDir = settings.dataDir;
+    }
+    logPrintf("System::setAppDataDir(\"%s\")\n", dataDir.c_str());
+    System::setAppDataDir(dataDir);
+
+    if (settings.writeLicenseFile && ! FileSystem::exists("g3d-license.txt")) {
+        writeLicense();
+    }
+
+    if (m_settings.screenshotDirectory != "") {
+        if (! isSlash(m_settings.screenshotDirectory[m_settings.screenshotDirectory.length() - 1])) {
+            m_settings.screenshotDirectory += "/";
+        }
+        debugAssertM(FileSystem::exists(m_settings.screenshotDirectory),
+            "GApp::Settings.screenshotDirectory set to non-existent directory " + m_settings.screenshotDirectory);
+    }
+
+    
+    showDebugText               = true;
+    escapeKeyAction             = ACTION_QUIT;
+    showRenderingStats          = true;
+    manageUserInput             = true;
+
+    initializeOpenGL(renderDevice, window, createWindowIfNull, settings);
 
     logPrintf("Done GApp::GApp()\n\n");
 }

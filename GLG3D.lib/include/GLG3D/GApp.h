@@ -4,7 +4,7 @@
    \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
    \created 2003-11-03
-   \edited  2016-02-10
+   \edited  2016-03-17
 
    Copyright 2000-2016, Morgan McGuire.
    All rights reserved.
@@ -581,7 +581,6 @@ public:
 	/** Sets the current GApp; the current GApp is used for debug drawing */
 	static void setCurrent(GApp* gApp);
 
-
     virtual void swapBuffers();
 
     /** Invoked by loadScene() after the scene has been loaded. This allows
@@ -669,7 +668,7 @@ public:
         Your data directory must contain the default debugging font,
         "console-small.fnt", unless you change it.
     */
-    String                     dataDir;
+    String                          dataDir;
 
     RenderDevice*                   renderDevice;
 
@@ -774,11 +773,19 @@ public:
     bool                    catchCommonExceptions;
 
     /**
-       @param window If null, a SDLWindow will be created for you. This
+       @param window If null, an OSWindow will be created for you. This
        argument is useful for substituting a different window
-       system (e.g. GlutWindow)
+       system (e.g., GlutWindow)
+
+       \param createWindowOnNull Create the window or renderDevice if they are nullptr.
+       Setting createWindowOnNull = false allows a subclass to explicitly decide when to invoke
+       those calls.
     */
-    GApp(const Settings& options = Settings(), OSWindow* window = NULL, RenderDevice* rd = NULL);
+    GApp(const Settings& options = Settings(), OSWindow* window = nullptr, RenderDevice* rd = nullptr, bool createWindowOnNull = true);
+
+    /** Called from GApp constructor to initialize OpenGL and openGL-dependent state. Can't be virtual because it is invoked from
+        a constructor, but allows subclasses to perform their own pre-OpenGL steps. */
+    void initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindowIfNull, const Settings& settings);
 
     virtual ~GApp();
 
