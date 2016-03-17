@@ -56,12 +56,14 @@ vr::IVRSystem* initOpenVR(uint32_t& hmdWidth, uint32_t& hmdHeight) {
 	}
     
 	const std::string& driver = getHMDString(hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_TrackingSystemName_String);
+	const std::string& model  = getHMDString(hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_ModelNumber_String);
 	const std::string& serial = getHMDString(hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
+    const float freq = hmd->GetFloatTrackedDeviceProperty(vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_DisplayFrequency_Float);
 
     //get the proper resolution of the hmd
     hmd->GetRecommendedRenderTargetSize(&hmdWidth, &hmdHeight);
 
-    fprintf(stderr, "HMD: %s #%s (%d x %d)\n", driver.c_str(), serial.c_str(), hmdWidth, hmdHeight);
+    fprintf(stderr, "HMD: %s '%s' #%s (%d x %d @ %g Hz)\n", driver.c_str(), model.c_str(), serial.c_str(), hmdWidth, hmdHeight, freq);
 
     // Initialize the compositor
     vr::IVRCompositor* compositor = vr::VRCompositor();
@@ -82,9 +84,9 @@ void getEyeTransformations
     vr::TrackedDevicePose_t* trackedDevicePose,
     float           nearPlaneZ,
     float           farPlaneZ,
-    float*          headToWorldRowMajor4x3,
-    float*          ltEyeToHeadRowMajor4x3, 
-    float*          rtEyeToHeadRowMajor4x3,
+    float*          headToWorldRowMajor3x4,
+    float*          ltEyeToHeadRowMajor3x4, 
+    float*          rtEyeToHeadRowMajor3x4,
     float*          ltProjectionMatrixRowMajor4x4, 
     float*          rtProjectionMatrixRowMajor4x4) {
 
@@ -125,9 +127,9 @@ void getEyeTransformations
 
     for (int r = 0; r < 3; ++r) {
         for (int c = 0; c < 4; ++c) {
-            ltEyeToHeadRowMajor4x3[r * 4 + c] = ltMatrix.m[r][c];
-            rtEyeToHeadRowMajor4x3[r * 4 + c] = rtMatrix.m[r][c];
-            headToWorldRowMajor4x3[r * 4 + c] = head.m[r][c];
+            ltEyeToHeadRowMajor3x4[r * 4 + c] = ltMatrix.m[r][c];
+            rtEyeToHeadRowMajor3x4[r * 4 + c] = rtMatrix.m[r][c];
+            headToWorldRowMajor3x4[r * 4 + c] = head.m[r][c];
         }
     }
 
