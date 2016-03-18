@@ -15,9 +15,11 @@
 #include <time.h>
 
 #ifdef G3D_WINDOWS
-    #include <imagehlp.h>
+#   pragma warning(disable : 4091)
+#   include <imagehlp.h>
+#   pragma warning(default : 4091)
 #else
-    #include <stdarg.h>
+#   include <stdarg.h>
 #endif
 
 namespace G3D {
