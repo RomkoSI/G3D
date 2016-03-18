@@ -279,6 +279,11 @@ void GApp::initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindo
 	    }
     }
 
+
+    if (isNull(renderDevice)) {
+        return;
+    }
+
     m_window = renderDevice->window();
     m_window->makeCurrent();
 
