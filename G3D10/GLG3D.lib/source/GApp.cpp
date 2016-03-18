@@ -1108,12 +1108,11 @@ void GApp::resize(int w, int h) {
     w += m_settings.depthGuardBandThickness.x * 2;
     h += m_settings.depthGuardBandThickness.y * 2;
 
-    // Does the film need to be reallocated?  Do this even if we
-    // aren't using it at the moment, but not if we are minimized
-
+    // Does the m_framebuffer need to be reallocated?  Do this even if we
+    // aren't using it at the moment, but not if we are minimized.
     shared_ptr<Texture> color0(m_framebuffer->texture(0));
 
-    if (m_film && !window()->isIconified() &&
+    if (notNull(m_film) && ! window()->isIconified() &&
         (isNull(color0) ||
         (m_framebuffer->width() != w) ||
         (m_framebuffer->height() != h))) {
