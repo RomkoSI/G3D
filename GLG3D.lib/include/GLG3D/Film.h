@@ -5,7 +5,7 @@
  \edited  2015-03-30
 
  G3D Library http://g3d.cs.williams.edu
- Copyright 2000-2015, Morgan McGuire morgan@cs.williams.edu
+ Copyright 2000-2016, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
  Use permitted under the BSD license
 

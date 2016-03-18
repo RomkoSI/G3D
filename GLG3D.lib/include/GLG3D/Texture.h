@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2001-02-28
-  \edited  2015-01-08
+  \edited  2016-03-18
 */
 
 #ifndef GLG3D_Texture_h
@@ -1161,7 +1161,7 @@ public:
     shared_ptr< Map2D<float> > toDepthMap() const;
     
     /** Extracts the data as ImageFormat::DEPTH32F and converts to 8-bit. Note that you may want to call 
-        Image1unorm8::flipVertical if Texture::invertY is true.*/
+        Image1unorm8::flipVertical afterward.*/
     shared_ptr<Image1unorm8> toDepthImage1unorm8() const;
     
     inline unsigned int openGLID() const {
