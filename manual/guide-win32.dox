@@ -134,7 +134,7 @@ for different versions of Windows, see:
 </ol>
 
 See the <a href="guidenewwin32.html">instructions for creating a new project</a> on Windows for information about how to write your first G3D program,
-or explore the provided <a href="guidedemos.html">sample programs</a>.
+or explore the provided <a href="samples.html">sample programs</a>.
 \endhtmlonly
 
 */

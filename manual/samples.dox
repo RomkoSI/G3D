@@ -1,5 +1,5 @@
 /** 
-\page guidedemos Tools and Sample Programs
+\page samples Tools and Sample Programs
 
 <table width=100% border=0 cellpadding=2 cellspacing=2>
 
@@ -9,7 +9,7 @@
 \htmlonly<IMG SRC="tool-viewer.png" width=250 >\endhtmlonly
 </td>
 <td>
-Loads most data files supported by G3D, e.g., 3DS, OBJ, IFS, GTM, MP4, PNG, JPG, FNT, etc.
+Loads most data files supported by G3D, e.g., OBJ, FBX, 3DS, IFS, GTM, MP4, PNG, JPG, FNT, etc.
 and displays them in an appropriate manner.  Use this for previewing objects, discovering
 font characters, and debugging data files.
 </td>
@@ -40,7 +40,7 @@ A good starting point for building your own G3D programs. (This is the program t
 
 <tr><td colspan=2 height=10> </td></tr>
 
-<tr><td colspan=2>Real Time Ray Trace (<a href="../samples/realTimeRayTrace">samples/realTimeRayTrace</a>)</td></tr>
+<tr><td colspan=2>CPU Real Time Ray Trace (<a href="../samples/cpuRealTimeRayTrace">samples/cpuRealTimeRayTrace</a>)</td></tr>
 <tr valign=top>
 <td>
 \htmlonly<IMG SRC="demo-rayTrace.png" width=250 >\endhtmlonly
