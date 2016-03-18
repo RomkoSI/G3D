@@ -143,7 +143,6 @@
     <None Include="..\GLG3DVR.lib\readme.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\GLG3DVR.lib\include\GLG3DVR\g3doculus.h" />
     <ClInclude Include="..\GLG3DVR.lib\include\GLG3DVR\VRApp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
