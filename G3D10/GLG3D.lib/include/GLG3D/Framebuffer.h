@@ -293,6 +293,8 @@ protected:
 	/** This a a special framebuffer with no attachment */
 	bool							m_noAttachment;
 
+    bool                            m_invertY;
+
     /** Adds \a a to m_desired. */
     void set(const shared_ptr<Attachment>& a);
 
@@ -500,12 +502,24 @@ public:
         If invertY is true, flip the image vertically while blitting, useful for blitting to the back buffer. */
     void blitTo
         (RenderDevice* rd,
-        const shared_ptr<Framebuffer>& dst = shared_ptr<Framebuffer>(),
+        const shared_ptr<Framebuffer>& dst = nullptr,
         bool invertY = false,
         bool linearInterpolation = false,
         bool blitDepth = true,
         bool blitStencil = true,
         bool blitColor = true) const;
+
+    /** If true, Film (and other resolve calls) should invert the Y axis when resolving *to* this Framebuffer, as if it was a hardware framebuffer
+        with (0, 0) in the lower-left instead of G3D's default of upper-left.
+
+        Defaults to false */
+    bool invertY() const {
+        return m_invertY;
+    }
+
+    void setInvertY(bool i) {
+        m_invertY = i;
+    }
 
 }; // class Framebuffer 
 

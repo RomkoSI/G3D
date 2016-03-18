@@ -23,7 +23,8 @@ Framebuffer::Framebuffer(
     GLuint              framebufferID) : 
     m_name(name),
     m_framebufferID(framebufferID),
-    m_noAttachment(false) {
+    m_noAttachment(false),
+    m_invertY(false) {
 
 }
 

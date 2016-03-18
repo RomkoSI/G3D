@@ -132,6 +132,7 @@ void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const
     }
 
     const shared_ptr<Framebuffer>& targetFramebuffer = rd->drawFramebuffer();
+    const bool invertY = isNull(rd->drawFramebuffer()) || rd->drawFramebuffer()->invertY();
 
     maybeUpdateToneCurve(settings);
 
@@ -187,6 +188,8 @@ void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const
             rd->clear();
             Args args;
             input->setShaderArgs(args, "sourceTexture_", Sampler::video());
+            args.setUniform("ySign",          invertY ? -1 : 1);
+            args.setUniform("yOffset",        invertY ? input->height() : 0);
             args.setUniform("guardBandSize",  guardBandSize);
             args.setUniform("sensitivity",    settings.sensitivity());
             args.setUniform("toneCurve",      m_toneCurve->texture(0), Sampler::video() );
@@ -215,6 +218,8 @@ void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const
             args.setMacro("BLOOM", (bloomStrength > 0) ? 1 : 0);
             // Combine, fix saturation, gamma correct and draw
             input->setShaderArgs(args, "sourceTexture_", Sampler::video());
+            args.setUniform("ySign",          invertY ? -1 : 1);
+            args.setUniform("yOffset",        invertY ? input->height() : 0);
             args.setUniform("guardBandSize",         guardBandSize);
 
             args.setUniform("toneCurve",             m_toneCurve->texture(0), Sampler::video() );
@@ -281,11 +286,10 @@ void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const
     if (settings.debugZoom() > 1) {
         rd->push2D(); {
             Args args;
-            const bool invert = isNull(rd->drawFramebuffer());
             args.setUniform("source",  m_zoomFramebuffer->texture(0), Sampler::video());
 
-            args.setUniform("yOffset", invert ? rd->height() : 0);
-            args.setUniform("ySign",   invert ? -1 : 1);
+            args.setUniform("yOffset", invertY ? rd->height() : 0);
+            args.setUniform("ySign",   invertY ? -1 : 1);
 
             args.setUniform("dstOffset", Point2(offset));
             args.setUniform("offset",  Vector2int32((m_zoomFramebuffer->vector2Bounds() - 
