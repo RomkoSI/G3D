@@ -205,6 +205,9 @@ void SkyboxSurface::renderIntoGBufferHomogeneous
         const Rect2D& colorRect = gbuffer->colorRect();
         rd->setClip2D(colorRect);
 
+        args.setUniform("lowerCoord", colorRect.x0y0());
+        args.setUniform("upperCoord", colorRect.x1y1());
+
         const Vector4 projInfo
             (float(-2.0 / (rd->width() * P[0][0])), 
              float(-2.0 / (rd->height() * P[1][1])),
@@ -232,6 +235,8 @@ void SkyboxSurface::renderIntoGBufferHomogeneous
                         0.0f,               0.0f,                0.0f, 1.0f);
             args.setUniform("ProjectToScreenMatrix", screenSize * rd->invertYMatrix() * rd->projectionMatrix());
         }
+
+
 
         if (gbuffer->specification().encoding[GBuffer::Field::EMISSIVE].format != NULL) {
             setTextureArgs(args);

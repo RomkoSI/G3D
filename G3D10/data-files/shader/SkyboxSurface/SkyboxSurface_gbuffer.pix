@@ -1,6 +1,9 @@
 #version 330 // -*- c++ -*-
 #include <reconstructFromDepth.glsl>
 
+
+uniform vec2            lowerCoord, upperCoord;
+
 #ifdef EMISSIVE
     uniform float alpha;
     in vec3  direction;
@@ -43,10 +46,39 @@
 #if defined(SS_POSITION_CHANGE) || defined(SS_EXPRESSIVE_MOTION) || defined(CS_NORMAL) || defined(WS_NORMAL) || defined(CS_FACE_NORMAL) || defined(WS_FACE_NORMAL) || defined(CS_POSITION) || defined(WS_POSITION)
     uniform vec4        projInfo;
 #endif
+    
+    
 
 void main() {
     // When forced to provide a distance to the skybox, return this z value.
     const float FAR = -100000.0;
+
+    
+    
+    // Check the color rect bounds
+    if ((gl_FragCoord.x < lowerCoord.x) ||
+        (gl_FragCoord.y < lowerCoord.y) ||
+        (gl_FragCoord.x > upperCoord.x) ||
+        (gl_FragCoord.y > upperCoord.y)) {
+        // Outside of bounds, in the guard band. Perform a fast, non-parallax alpha test if required.
+
+#           if HAS_ALPHA
+        // Don't bother with parallax--we're in a guard band
+        float alpha = texture(material.lambertian.sampler, texCoord).a * material.lambertian.readMultiplyFirst.a + material.lambertian.readAddSecond.a;
+#               if HAS_VERTEX_COLOR
+        alpha *= vertexColor.a;
+#               endif
+
+
+        // Issue0001: Add support for MSAA here
+        if (alpha < 1.0) {
+            discard;
+        }
+#           endif
+
+        // Don't bother looking up attributes, just let the depth write straight through 
+        return;
+    }
 
 #   ifdef EMISSIVE
     {
