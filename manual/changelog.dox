@@ -103,6 +103,7 @@
 	   <li> G3D::FilePath::mangle </li>
 	   <li> Threadsafed EXR image loading </li>
 	   <li> Added support for loading 1-bit PNG </li>
+	   <li> G3D::Framebuffer::invertY </li>
       </ul>
     </p>
 

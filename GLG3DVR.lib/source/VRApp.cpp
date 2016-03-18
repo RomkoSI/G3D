@@ -1,24 +1,43 @@
-/** \file VRApp.cpp.h
+/** \file VRApp.cpp
 
-This is packaged as a header file so that it will not be compiled 
-by the default G3D build. That is necessary because VRApp depends
-on the Oculus SDK, which is not distributed with G3D.
-
-G3D Innovation Engine
-Copyright 2000-2015, Morgan McGuire.
-All rights reserved.
+    G3D Innovation Engine
+    Copyright 2000-2016, Morgan McGuire.
+    All rights reserved.
 */
+#include "G3D/Log.h"
 #include "GLG3D/glheaders.h"
 #include "GLG3D/Draw.h"
+#include "GLG3D/RenderDevice.h"
 #include "GLG3D/UserInput.h"
+#include "GLG3D/GLCaps.h"
 #include "GLG3D/MarkerEntity.h"
-#include "GLG3DVR/g3doculus.h"
 #include "GLG3DVR/VRApp.h"
 
 namespace G3D {
 
+/** Called by initOpenVR */
+static String getHMDString(vr::IVRSystem* pHmd, vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop, vr::TrackedPropertyError* peError = nullptr) {
+	uint32_t unRequiredBufferLen = pHmd->GetStringTrackedDeviceProperty(unDevice, prop, nullptr, 0, peError);
+	if (unRequiredBufferLen == 0) {
+	    return "";
+    }
+
+	char* pchBuffer = new char[unRequiredBufferLen];
+	unRequiredBufferLen = pHmd->GetStringTrackedDeviceProperty(unDevice, prop, pchBuffer, unRequiredBufferLen, peError);
+	String sResult = pchBuffer;
+	delete[] pchBuffer;
+
+	return sResult;
+}
+
+
+static float getHMDFloat(vr::IVRSystem* pHmd, vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop, vr::TrackedPropertyError* peError = nullptr) {
+	return pHmd->GetFloatTrackedDeviceProperty(unDevice, prop, peError);
+}
+
+
 VRApp::VRApp(const GApp::Settings& settings) :
-    super(makeFixedSize(settings)),
+    super(makeFixedSize(settings), nullptr, nullptr, false),
     m_vrSubmitToDisplayMode(SubmitToDisplayMode::BALANCE),
     m_highQualityWarping(true),
     m_numSlowFrames(0),
@@ -32,37 +51,78 @@ VRApp::VRApp(const GApp::Settings& settings) :
     if (notNull(vrSettings)) {
         m_vrSettings = vrSettings->vr;
     }
+    
+    uint32_t hmdWidth = settings.window.width, hmdHeight = settings.window.height;
 
-    m_hmd = new ovrState(m_vrSettings.debugMirrorMode == DebugMirrorMode::POST_DISTORTION);
+    ////////////////////////////////////////////////////////////
+    // Initialize OpenVR
+
     try {
-        m_hmd->init();
-    } catch (const char* error) {
-        // Most probable cause of failure: the Oculus Runtime is not installed!
-        alwaysAssertM(false, error);
-        exit(-1);
+	    vr::EVRInitError eError = vr::VRInitError_None;
+	    m_hmd = vr::VR_Init(&eError, vr::VRApplication_Scene);
+
+	    if (eError != vr::VRInitError_None) {
+            throw vr::VR_GetVRInitErrorAsEnglishDescription(eError);
+	    }
+    
+        //get the proper resolution of the hmd
+        m_hmd->GetRecommendedRenderTargetSize(&hmdWidth, &hmdHeight);
+
+	    const String& driver = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_TrackingSystemName_String);
+	    const String& model  = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_ModelNumber_String);        
+	    const String& serial = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
+        const float   freq   = getHMDFloat(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_DisplayFrequency_Float);
+        logLazyPrintf("VRApp::m_hmd: %s '%s' #%s (%d x %d @ freq)\n", driver.c_str(), model.c_str(), serial.c_str(), hmdWidth, hmdHeight, freq);
+
+        // Initialize the compositor
+        vr::IVRCompositor* compositor = vr::VRCompositor();
+	    if (! compositor) {
+            vr::VR_Shutdown();
+            m_hmd = nullptr;
+            throw "OpenVR Compositor initialization failed. See log file for details\n";
+	    }
+    } catch (const String& error) {
+        logLazyPrintf("OpenVR Initialization Error: %s\n", error.c_str());
     }
+    /////////////////////////////////////////////////////////////
+
+    // Now initialize OpenGL and RenderDevice
+    initializeOpenGL(nullptr, nullptr, true, makeFixedSize(settings));
 
     // Mark as invalid
     m_previousEyeFrame[0].translation = Vector3::nan();
     m_eyeFrame[0].translation = Vector3::nan();
 
-    // This will happen to recreate the m_gbuffer, but that is the only way to change its name
-    // and affect the underlying textures
-    for (int i = 0; i < 2; ++i) {
-        m_gbufferArray[i] = GBuffer::create(m_gbufferSpecification, format("m_gbufferArray[%d]", i));
-        m_gbufferArray[i]->resize(m_gbuffer->width(), m_gbuffer->height());
-    }
-    m_gbuffer = m_gbufferArray[0];
-
-    setSubmitToDisplayMode(SubmitToDisplayMode::MAXIMIZE_THROUGHPUT);
-
-    // Construct the eye cameras and head entity
-    for (int eye = 0; eye < 2; ++eye) {
-        static const String NAME[2] = {"VRApp::m_vrEyeCamera[0]", "VRApp::m_vrEyeCamera[1]"};
-        if (isNull(m_vrEyeCamera[eye])) {
-            m_vrEyeCamera[eye] = Camera::create(NAME[eye]);
-            m_vrEyeCamera[eye]->setShouldBeSaved(false);
+    if (notNull(m_hmd)) {
+        // This will happen to recreate the m_gbuffer, but that is the only way to change its name
+        // and affect the underlying textures
+        for (int i = 0; i < 2; ++i) {
+            m_gbufferArray[i] = GBuffer::create(m_gbufferSpecification, format("m_gbufferArray[%d]", i));
+            m_gbufferArray[i]->resize(m_gbuffer->width(), m_gbuffer->height());
         }
+        m_gbuffer = m_gbufferArray[0];
+
+        if (notNull(m_hmd)) {
+            setSubmitToDisplayMode(SubmitToDisplayMode::MAXIMIZE_THROUGHPUT);
+        }
+    } else {
+        m_gbufferArray[0] = m_gbuffer;
+        m_gbufferArray[1] = nullptr;
+        m_vrEyeCamera[1]  = nullptr;
+        m_eyeFramebuffer[1] = nullptr;
+    }
+
+    // Construct the eye cameras, framebuffers, and head entity
+    const ImageFormat* colorFormat = ImageFormat::RGBA8();
+    const ImageFormat* depthFormat = GLCaps::firstSupportedTexture(settings.film.preferredDepthFormats);
+    for (int eye = 0; eye < numEyes(); ++eye) {
+        static const String NAME[2] = {"VRApp::m_vrEyeCamera[0]", "VRApp::m_vrEyeCamera[1]"};
+        m_vrEyeCamera[eye] = Camera::create(NAME[eye]);
+        m_vrEyeCamera[eye]->setShouldBeSaved(false);
+        m_eyeFramebuffer[eye] = Framebuffer::create
+           (Texture::createEmpty(format("VRApp::m_eyeFramebuffer[%d]/color", eye), hmdWidth, hmdHeight, colorFormat),
+            Texture::createEmpty(format("VRApp::m_eyeFramebuffer[%d]/depth", eye), hmdWidth, hmdHeight, depthFormat));
+        m_eyeFramebuffer[eye]->setInvertY(true);
     }
 
     // Introduce the head entity
@@ -82,14 +142,13 @@ const GApp::Settings& VRApp::makeFixedSize(const GApp::Settings& s) {
 void VRApp::onInit() {
     super::onInit();
     m_currentEyeIndex = 0;
-    m_hmd->initRenderBuffers(window()->width(), window()->height());
 
-    // Ask the Oculus SDK to let us submit work ahead of the framerate
-    // to keep ovrHmd_SubmitFrame from blocking.
-    ovr_SetBool(m_hmd->m_hmd, "QueueAheadEnabled", true);
+    if (notNull(m_hmd)) {
+        setSubmitToDisplayMode(SubmitToDisplayMode::MAXIMIZE_THROUGHPUT);
+    }
 
-    setSubmitToDisplayMode(SubmitToDisplayMode::MAXIMIZE_THROUGHPUT);
-    setFrameDuration(1.0f / 75.0f);
+    const float freq = isNull(m_hmd) ? 60.0f : getHMDFloat(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_DisplayFrequency_Float);
+    setFrameDuration(1.0f / freq);
 
     // Force the m_film to match the m_hmd's resolution instead of the OSWindow's
     resize(0, 0);
@@ -99,64 +158,110 @@ void VRApp::onInit() {
 }
 
 
-void VRApp::sampleTrackingData() {
-    BEGIN_PROFILER_EVENT("VRApp::sampleTrackingData");
-    // Read data from OCulus
-    m_viewOffset[0] = m_hmd->eyeRenderDesc[0].HmdToEyeViewOffset;
-    m_viewOffset[1] = m_hmd->eyeRenderDesc[1].HmdToEyeViewOffset;
-    m_hmdTrackingState = ovr_GetTrackingState(m_hmd->m_hmd, ovr_GetPredictedDisplayTime(m_hmd->m_hmd, 0), ovrTrue);
+/**
+ Copied from G3D's minimalOpenVR.h
+ */
+static void getEyeTransformations
+   (vr::IVRSystem*  hmd,
+    vr::TrackedDevicePose_t* trackedDevicePose,
+    float           nearPlaneZ,
+    float           farPlaneZ,
+    float*          headToWorldRowMajor4x3,
+    float*          ltEyeToHeadRowMajor4x3, 
+    float*          rtEyeToHeadRowMajor4x3,
+    float*          ltProjectionMatrixRowMajor4x4, 
+    float*          rtProjectionMatrixRowMajor4x4) {
 
-    ovr_CalcEyePoses(m_hmdTrackingState.HeadPose.ThePose, m_viewOffset, m_eyeRenderPose);
+    assert(nearPlaneZ < 0.0f && farPlaneZ < nearPlaneZ);
 
-    // Position of the tracker relative to the body. Oculus has the camera looking along +Z, so we have to rotate 180 yaw in place
-    const CFrame& bodySpaceTracker = toG3D(m_hmdTrackingState.CameraPose) * CFrame::fromXYZYPRDegrees(0, 0, 0, 180);
+    vr::VRCompositor()->WaitGetPoses(trackedDevicePose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
 
-    // Player's head relative to the body (rest position in the real world)
-    const CFrame& bodySpaceHead = toG3D(m_hmdTrackingState.HeadPose.ThePose);
+#   if defined(_DEBUG) && 0
+        fprintf(stderr, "Devices tracked this frame: \n");
+        int poseCount = 0;
+	    for (int d = 0; d < vr::k_unMaxTrackedDeviceCount; ++d)	{
+		    if (trackedDevicePose[d].bPoseIsValid) {
+			    ++poseCount;
+			    switch (hmd->GetTrackedDeviceClass(d)) {
+                case vr::TrackedDeviceClass_Controller:        fprintf(stderr, "   Controller: ["); break;
+                case vr::TrackedDeviceClass_HMD:               fprintf(stderr, "   HMD: ["); break;
+                case vr::TrackedDeviceClass_Invalid:           fprintf(stderr, "   <invalid>: ["); break;
+                case vr::TrackedDeviceClass_Other:             fprintf(stderr, "   Other: ["); break;
+                case vr::TrackedDeviceClass_TrackingReference: fprintf(stderr, "   Reference: ["); break;
+                default:                                       fprintf(stderr, "   ???: ["); break;
+			    }
+                for (int r = 0; r < 3; ++r) { 
+                    for (int c = 0; c < 4; ++c) {
+                        fprintf(stderr, "%g, ", trackedDevicePose[d].mDeviceToAbsoluteTracking.m[r][c]);
+                    }
+                }
+                fprintf(stderr, "]\n");
+		    }
+	    }
+        fprintf(stderr, "\n");
+#   endif
 
-    // Update the G3D VR eye cameras. This is not a pointer in case activeCamera() changes.
-    const shared_ptr<Camera> bodyCamera = activeCamera();
-    for (int eye = 0; eye < 2; ++eye) {
-        ovrSizei hmdTextureResolution;
-        hmdTextureResolution.w = m_hmd->eyeFramebufferQueue[eye]->width();
-        hmdTextureResolution.h = m_hmd->eyeFramebufferQueue[eye]->height();
+    assert(trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid);
+    const vr::HmdMatrix34_t head = trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking;
 
-        const Vector2int16 framebufferResolution(m_framebuffer->vector2Bounds());
-        debugAssert((framebufferResolution.x == hmdTextureResolution.w) && (framebufferResolution.y == hmdTextureResolution.h));
+    const vr::HmdMatrix34_t& ltMatrix = hmd->GetEyeToHeadTransform(vr::Eye_Left);
+    const vr::HmdMatrix34_t& rtMatrix = hmd->GetEyeToHeadTransform(vr::Eye_Right);
 
-        // Construct a virtual eye camera and attach it to the G3D body camera using the tracking data
-        // Load the Oculus-computed projection matrix for the eye
-        const shared_ptr<Camera>& bodyCamera = activeCamera();
-
-        const unsigned int projectionFlags = ovrProjection_RightHanded |ovrProjection_ClipRangeOpenGL;
-        const ovrMatrix4f proj = ovrMatrix4f_Projection(m_hmd->hmdDesc.DefaultEyeFov[eye], -bodyCamera->nearPlaneZ(), -bodyCamera->farPlaneZ(), projectionFlags);
-
-        if (eye == 0) {
-            // Used for depth timewarp
-            m_posTimewarpProjectionDesc = ovrTimewarpProjectionDesc_FromProjection(proj, projectionFlags);
+    for (int r = 0; r < 3; ++r) {
+        for (int c = 0; c < 4; ++c) {
+            ltEyeToHeadRowMajor4x3[r * 4 + c] = ltMatrix.m[r][c];
+            rtEyeToHeadRowMajor4x3[r * 4 + c] = rtMatrix.m[r][c];
+            headToWorldRowMajor4x3[r * 4 + c] = head.m[r][c];
         }
+    }
 
-        Matrix4 projectionMatrix(proj.M[0]);
-        const Projection projection(projectionMatrix);
+    const vr::HmdMatrix44_t& ltProj = hmd->GetProjectionMatrix(vr::Eye_Left,  -nearPlaneZ, -farPlaneZ, vr::API_OpenGL);
+    const vr::HmdMatrix44_t& rtProj = hmd->GetProjectionMatrix(vr::Eye_Right, -nearPlaneZ, -farPlaneZ, vr::API_OpenGL);
 
-        Matrix4 eyeMatrix;
-        m_hmd->getEyeMatrix(m_eyeRenderPose[eye], eye, reinterpret_cast<float*>(&eyeMatrix));
+    for (int r = 0; r < 4; ++r) {
+        for (int c = 0; c < 4; ++c) {
+            ltProjectionMatrixRowMajor4x4[r * 4 + c] = ltProj.m[r][c];
+            rtProjectionMatrixRowMajor4x4[r * 4 + c] = rtProj.m[r][c];
+        }
+    }
+}
 
-        // The matrix we get back is the transpose of our Matrix4s
-        eyeMatrix = eyeMatrix.transpose();
 
-        // The eye matrix is the world-to-camera and we need camera-to-world
+void VRApp::sampleTrackingData() {
+    // TODO: handle the no-HMD case by gluing a single eye to the camera
+    debugAssert(notNull(m_hmd));
+
+    BEGIN_PROFILER_EVENT("VRApp::sampleTrackingData");
+
+    // Update the G3D VR eye cameras. This is not a reference in case activeCamera() changes.
+    const shared_ptr<Camera> bodyCamera = activeCamera();
+
+    // Read the tracking state
+    Matrix4 headToBodyRowMajor4x3;
+    Matrix4 eyeToHeadRowMajor4x3[2];
+    Matrix4 projectionMatrixRowMajor4x4[2];
+
+    getEyeTransformations
+       (m_hmd,
+        m_trackedDevicePose,
+        bodyCamera->nearPlaneZ(),
+        bodyCamera->farPlaneZ(),
+        headToBodyRowMajor4x3,
+        eyeToHeadRowMajor4x3[0], 
+        eyeToHeadRowMajor4x3[1],
+        projectionMatrixRowMajor4x4[0], 
+        projectionMatrixRowMajor4x4[1]);
+
+    const CFrame& headToBody = headToBodyRowMajor4x3.approxCoordinateFrame();
+
+    for (int eye = 0; eye < numEyes(); ++eye) {
         m_previousEyeFrame[eye] = m_eyeFrame[eye];
-        m_eyeFrame[eye] = CFrame(eyeMatrix.upper3x3(), eyeMatrix.column(3).xyz()).inverse();
+        m_eyeFrame[eye] = headToBody * eyeToHeadRowMajor4x3[eye].approxCoordinateFrame();
 
         if (m_previousEyeFrame[eye].translation.isNaN()) {
             // First frame of animation--override with no transform
             m_previousEyeFrame[eye] = m_eyeFrame[eye];
         }
-
-        // The camera is relative to the bodyCamera, which is probably in the center of the avatar's chest. 
-        // If you wish to know the player's eye height when standing, look at:
-        const float playerEyeHeight = -ovr_GetFloat(m_hmd->m_hmd, OVR_KEY_EYE_HEIGHT, OVR_DEFAULT_EYE_HEIGHT);
 
         m_vrEyeCamera[eye]->copyParametersFrom(bodyCamera);
         if (m_vrSettings.overrideMotionBlur) {
@@ -165,6 +270,8 @@ void VRApp::sampleTrackingData() {
         if (m_vrSettings.overrideDepthOfField) {
             m_vrEyeCamera[eye]->depthOfFieldSettings() = m_vrSettings.depthOfFieldSettings;
         }
+
+        const Projection& projection = projectionMatrixRowMajor4x4[eye];
         m_vrEyeCamera[eye]->setProjection(projection);
 
         const CFrame previousWorldFrame(maybeRemovePitchAndRoll(bodyCamera->previousFrame()) * m_previousEyeFrame[eye]);
@@ -188,7 +295,7 @@ void VRApp::sampleTrackingData() {
     frame.translation = (frame.translation + m_vrEyeCamera[1]->previousFrame().translation) / 2.0f;
     m_vrHead->setPreviousFrame(frame);
 
-    m_externalCameraFrame = m_vrHead->frame() * bodySpaceHead.inverse() * bodySpaceTracker;
+    //    m_externalCameraFrame = m_vrHead->frame() * bodySpaceHead.inverse() * bodySpaceTracker;
 
     END_PROFILER_EVENT();
 }
@@ -197,7 +304,9 @@ void VRApp::sampleTrackingData() {
 void VRApp::resize(int w, int h) {
     // Size the framebuffer to the m_hmd texture resolution
     // Ignore the resolution of the physical window.
-    super::resize(m_hmd->eyeFramebufferQueue[0]->width(), m_hmd->eyeFramebufferQueue[0]->height());
+    uint32_t hmdWidth, hmdHeight;
+    m_hmd->GetRecommendedRenderTargetSize(&hmdWidth, &hmdHeight);
+    super::resize(hmdWidth, hmdHeight);
 }
 
 
@@ -253,7 +362,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
             } rd->pop2D();
         }
 
-        if ((submitToDisplayMode() == SubmitToDisplayMode::MAXIMIZE_THROUGHPUT) && (!renderDevice->swapBuffersAutomatically())) {
+        if ((submitToDisplayMode() == SubmitToDisplayMode::MAXIMIZE_THROUGHPUT) && (! rd->swapBuffersAutomatically())) {
             super::swapBuffers();
         }
         rd->clear();
@@ -273,11 +382,10 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
         for (m_currentEyeIndex = 0; m_currentEyeIndex < 2; ++m_currentEyeIndex) {
             const int eye = m_currentEyeIndex;
 
-            // Increment to use next texture, just before writing
-            m_hmd->eyeFramebufferQueue[eye]->advance();
+            // Switch to eye render target for the display itself (we assume that onGraphics3D will probably
+            // bind its own HDR buffer and then resolve to this one.)
+            const shared_ptr<Framebuffer>& vrFB = m_eyeFramebuffer[eye];
 
-            // Switch to eye render target
-            const shared_ptr<Framebuffer>& vrFB = m_hmd->eyeFramebufferQueue[eye]->currentFramebuffer();
             rd->pushState(vrFB); {
                 // Make a G3D wrapper for the raw OpenGL eye texture so that we can pass it to G3D routines
                 m_currentEyeTexture = vrFB->texture(0);
@@ -293,6 +401,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
 
         END_PROFILER_EVENT();
 
+# if 0 // TODO: HUD
         // Increment to use next texture, just before writing
         if (m_hudEnabled) {
             m_hmd->hudFramebufferQueue->advance();
@@ -314,7 +423,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
 
         if (m_vrSettings.debugMirrorMode == DebugMirrorMode::PRE_DISTORTION) {
             // Access the hardware frame buffer
-            rd->push2D(shared_ptr<Framebuffer>()); {
+            rd->push2D(nullptr); {
                 rd->setColorClearValue(Color3::black());
                 rd->clear();
                 for (int eye = 0; eye < 2; ++eye) {
@@ -332,6 +441,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
                 }
             } rd->pop2D();
         }
+#endif
 
         if (m_vrSubmitToDisplayMode == SubmitToDisplayMode::MINIMIZE_LATENCY) {
             // Submit the CURRENT frame
@@ -341,7 +451,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
         glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 
         // Tell G3D that we unmapped the framebuffer
-        rd->setFramebuffer(shared_ptr<Framebuffer>());
+        rd->setFramebuffer(nullptr);
 
     } rd->popState();
 
@@ -386,12 +496,6 @@ void VRApp::decreaseEffects() {
         activeCamera()->filmSettings().setAntialiasingHighQuality(false);
         debugPrintf("VRApp::decreaseEffects() Disabled high-quality antialiasing to increase performance.\n");
 
-#   if 0 // Disabled because this appears to sometimes flip the vertical axis
-    } else if (m_highQualityWarping) {
-        m_highQualityWarping = false;
-        debugPrintf("VRApp::decreaseEffects() Disabled high-quality HMD warping to increase performance.\n");
-#   endif
-
     } else if (activeCamera()->filmSettings().antialiasingEnabled()) {
         // Disable FXAA
         activeCamera()->filmSettings().setAntialiasingEnabled(false);
@@ -401,10 +505,25 @@ void VRApp::decreaseEffects() {
 
 
 void VRApp::submitHMDFrame(RenderDevice* rd) {
+    // G3D::Film already converted to linear
+    const vr::EColorSpace colorSpace = vr::ColorSpace_Linear;
+
+    for (int eye = 0; eye < 2; ++eye) {
+        const vr::Texture_t tex = { reinterpret_cast<void*>(intptr_t(m_eyeFramebuffer[eye]->texture(0)->openGLID())), vr::API_OpenGL, colorSpace };
+        vr::VRCompositor()->Submit(vr::EVREye(eye), &tex);
+    }
+
+    // TODO: HUD overlay
+
+    // Tell the compositor to begin work immediately instead of waiting for 
+    // the next WaitGetPoses() call
+    vr::VRCompositor()->PostPresentHandoff();
+
+#if 0
     // Do distortion rendering, Present and flush/sync
     glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
     // Tell G3D that we disabled the framebuffer
-    rd->setFramebuffer(shared_ptr<Framebuffer>());
+    rd->setFramebuffer(nullptr);
 
     ovrViewScaleDesc viewScaleDesc;
     ovrLayer_Union   eyeLayer;
@@ -491,17 +610,21 @@ void VRApp::submitHMDFrame(RenderDevice* rd) {
     if (m_hmd->debugMirrorHMDToScreen) {
         alwaysAssertM(m_vrSettings.debugMirrorMode == DebugMirrorMode::POST_DISTORTION,
             "Cannot change debugMirrorMode after initialization.");
-        m_hmd->debugMirrorFramebuffer->blitTo(rd, shared_ptr<Framebuffer>(), true);
+        m_hmd->debugMirrorFramebuffer->blitTo(rd, nullptr, true);
     }
+#endif
 }
 
 
 void VRApp::onCleanup() {
     // Called after the application loop ends.  Place a majority of cleanup code
     // here instead of in the constructor so that exceptions can be caught.
-    m_hmd->cleanup();
-    delete m_hmd;
-    m_hmd = NULL;
+    if (notNull(m_hmd)) {
+        vr::VR_Shutdown();
+        m_hmd = nullptr;
+    }
+
+    GApp::onCleanup();
 }
 
 
@@ -538,7 +661,7 @@ bool VRApp::onEvent(const GEvent& event) {
     } else if ((event.type == GEventType::MOUSE_MOTION) && m_hudEnabled) {
         // If the mouse moved outside of the allowed bounds, move it back
         const Point2& p = event.mousePosition();
-        const Point2& size = m_hmd->hudFramebufferQueue->currentFramebuffer()->vector2Bounds() - Vector2::one(); 
+        const Point2& size = m_eyeFramebuffer[0]->vector2Bounds() - Vector2::one(); 
         if ((p.x < 0) || (p.y < 0) || (p.x > size.x) || (p.y > size.y)) {
             window()->setRelativeMousePosition(p.clamp(Vector2::zero(), size));
         }

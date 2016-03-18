@@ -2,7 +2,7 @@
 \file VRApp.h
 
     G3D Innovation Engine
-    Copyright 2000-2015, Morgan McGuire.
+    Copyright 2000-2016, Morgan McGuire.
     All rights reserved.
 
 */
@@ -11,16 +11,13 @@
 
 #include "GLG3D/GApp.h"
 #include "GLG3D/Texture.h"
-#include "OVR/OVR_CAPI_GL.h"
+#include <openvr/openvr.h>
 
 #ifdef _MSC_VER
-#   ifdef _DEBUG
-#       pragma comment(lib, "LibOVR_x64d.lib")
-#       pragma comment(lib, "LibOVRKernel_x64d.lib")
+#   pragma comment(lib, "openvr_api")
+#   ifdef G3D_DEBUG
 #       pragma comment(lib, "GLG3DVR_x64d.lib")
 #   else
-#       pragma comment(lib, "LibOVR_x64.lib")
-#       pragma comment(lib, "LibOVRKernel_x64.lib")
 #       pragma comment(lib, "GLG3DVR_x64.lib")
 #   endif
 #endif
@@ -38,10 +35,11 @@ class MarkerEntity;
     As that happens, many of the member variables will be abstracted over the APIs for those devices.
 
     For many programs, simply changing from inheriting your App from GApp to VRApp will immediately
-    add HMD support. You must have the Oculus Runtime installed to use VRApp. You do not need 
-    to install the Oculus SDK.
-
-    The Oculus SDK currently requires NVIDIA driver version 350.12, NOT the latest version.
+    add HMD support. You must have the OpenVR Runtime (AKA SteamVR) installed to use VRApp. OpenVR is 
+    a free download as part of (Steam)[https://steamcdn-a.akamaihd.net/client/installer/SteamSetup.exe], which
+    is also free download for multiple platforms.
+    
+    You do *not* need to install the Oculus, SteamVR, or OpenVR SDKs--G3D includes the files that you need.
 */
 class VRApp : public GApp {
 public:
@@ -138,21 +136,26 @@ protected:
         all methods. */
     typedef GApp super;
 
-    struct ovrState*        m_hmd;
+    /** If nullptr, then VR initialization failed */
+    vr::IVRSystem*          m_hmd;
+    vr::TrackedDevicePose_t m_trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 
     /** G3D wrapper for the currently-bound eye texture. This is created during App::onGraphics and then passed to Film::exposeAndRender by App::onGraphics3D.
     It would be cleaner to simply create G3D::Framebuffer objects and G3D::Textures during initialization. For the moment we're instead doing this to
     get the system up and running with minimal changes over the williamsoculus.h SDK wrapper layer, which doesn't know about G3D. */
     shared_ptr<Texture>     m_currentEyeTexture;
 
-    /** Eye-to-body transform */
+    /** One of these is bound to the RenderDevice during 
+        onGraphics. It is the equivalent to the LDR hardware framebuffer for VR rendering.
+        
+        The m_framebuffer is still bound during the default onGraphics3D and then
+        resolved by Film to the m_eyeFramebuffer.
+        */
+    shared_ptr<Framebuffer> m_eyeFramebuffer[2];
+
+    /** Net eye-to-body transform */
     CFrame                  m_previousEyeFrame[2];
     CFrame                  m_eyeFrame[2];
-
-    ovrTimewarpProjectionDesc m_posTimewarpProjectionDesc;
-    ovrPosef                m_eyeRenderPose[2];
-    ovrVector3f             m_viewOffset[2];
-    ovrTrackingState        m_hmdTrackingState;
 
     SubmitToDisplayMode     m_vrSubmitToDisplayMode;
 
@@ -194,7 +197,10 @@ protected:
         to attach other objects relative to the head. */
     shared_ptr<MarkerEntity> m_vrHead;
 
-    /** The world space coordinate frame of the external tracking camera for the HMD */
+    /** The world space coordinate frame of the external tracking camera for the HMD 
+    
+        \deprecated
+    */
     CFrame                  m_externalCameraFrame;
 
     /** Updated every frame */
@@ -216,6 +222,10 @@ protected:
 
 public:
     
+    int numEyes() const {
+        return isNull(m_hmd) ? 1 : 2;
+    }
+
     /** The window will be forced to non-resizable */
     VRApp(const GApp::Settings& settings = VRApp::Settings());
 
@@ -231,7 +241,15 @@ public:
 
     virtual void resize(int w, int h) override;
 
-    /** Latch tracking data */
+    /** Latch tracking data:
+
+        m_trackedDevicePose
+        m_previousEyeFrame
+        m_eyeFrame
+        m_vrHead
+        m_vrEyeCamera
+        m_externalCameraFrame (deprecated)
+    */
     virtual void sampleTrackingData();
 
     /** Like swapBuffers for the m_hmd */
