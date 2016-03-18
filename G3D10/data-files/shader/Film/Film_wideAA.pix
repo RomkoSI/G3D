@@ -4,6 +4,7 @@
 
 uniform float     radius;
 uniform_Texture(sampler2D, sourceTexture_);
+uniform int       ySign, yOffset;
 
 in vec2 g3d_TexCoord;
 out vec4 result;
@@ -13,7 +14,7 @@ void main() {
 
     // This explicit correction to half-pixel positions is needed when rendering to the hardware frame buffer
     // but not when rendering to a texture.
-    coord = (floor(coord * sourceTexture_size.xy) + float2(0.5, 0.5)) * sourceTexture_invSize.xy;
+    coord = (floor(coord * sourceTexture_size.xy) * vec2(1, ySign) + float2(0.5, 0.5 + float(yOffset))) * sourceTexture_invSize.xy;
 
     // Store the negatives in zw
     float4 offset = float4(radius * sourceTexture_invSize.xy, 0, 0);

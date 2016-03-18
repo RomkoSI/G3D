@@ -7,6 +7,7 @@
 #include "Film_toneMap.glsl"
 
 uniform_Texture(sampler2D, sourceTexture_);
+uniform int        ySign, yOffset;
 uniform float      sensitivity;
 uniform int2       guardBandSize;
 
@@ -17,7 +18,9 @@ in vec2 g3d_TexCoord;
 out vec3 result;
 
 void main(void) {
-    float3 radiance = texelFetch(sourceTexture_buffer, int2(g3d_TexCoord.st * g3d_FragCoordExtent) + guardBandSize, 0).rgb;
+    int2 coord = int2(g3d_TexCoord.st * g3d_FragCoordExtent) + guardBandSize;
+    coord.y = coord.y * ySign + yOffset;
+    float3 radiance = texelFetch(sourceTexture_buffer, coord, 0).rgb;
     radiance = toneMap(radiance, sensitivity, toneCurve) * 2.0;
     radiance *= smoothstep(1.5, 4.0, maxComponent(radiance));
     result = radiance;
