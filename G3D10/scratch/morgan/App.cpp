@@ -2,6 +2,15 @@
 #include "App.h"
 #include <functional>
 
+/*
+
+Matrix4 viveProjection(0.757763, 0.000000, -0.054856,  0.000000,
+                       0.000000, 0.682035, -0.000707,  0.000000,
+                       0.000000, 0.000000, -1.001001, -0.100100,
+                       0.000000, 0.000000, -1.000000,  0.000000);
+float nearPlaneZ = -0.100000, farPlaneZ = -100.000000; int width = 1512, height = 1680;
+*/
+
 using std::function;
 
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
