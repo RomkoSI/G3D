@@ -50,7 +50,7 @@
  */
 
 // Uncomment to add VR support
-//#define _VR
+#define _VR
 
 // To switch the box to a teapot, uncomment the following two lines
 //#include "teapot.h"
@@ -260,6 +260,8 @@ int main(const int argc, const char* argv[]) {
 #       else
             projectionMatrix[0] = Matrix4x4::perspective(float(framebufferWidth), float(framebufferHeight), nearPlaneZ, farPlaneZ, verticalFieldOfView);
 #       endif
+
+        printf("float nearPlaneZ = %f, farPlaneZ = %f; int width = %d, height = %d;\n", nearPlaneZ, farPlaneZ, framebufferWidth, framebufferHeight);
 
         const Matrix4x4& bodyToWorldMatrix = 
             Matrix4x4::translate(bodyTranslation) *
