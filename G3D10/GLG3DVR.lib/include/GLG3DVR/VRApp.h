@@ -48,8 +48,6 @@ public:
     // Note that this is also used for the VR API
     G3D_DECLARE_ENUM_CLASS(DebugMirrorMode,
         NONE,
-        /** Typical Oculus HMD visualization */
-        POST_DISTORTION,
         
         /** Both eyes without HMD distortion to correct for chromatic abberation. This is the output of onGraphics3D */
         PRE_DISTORTION);
