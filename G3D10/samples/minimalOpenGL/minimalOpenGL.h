@@ -219,7 +219,7 @@ void drawSky(int windowWidth, int windowHeight, float nearPlaneZ, float farPlane
         if (rd.y < 0.0) {
             // Ground
             float t = -ro.y / rd.y;
-            vec2 P = ro.xz + t * rd.xz;
+            vec2 P = ro.xz + t * rd.xz + vec2(0.5);
             vec2 Q = floor(P);
             // 1m^2 grid
             P = mod(P, 1.0);
