@@ -354,7 +354,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
         }
 
         // Render the main display's GUI
-        if (! m_hudEnabled || (m_vrSettings.debugMirrorMode != DebugMirrorMode::POST_DISTORTION)) {
+        if (! m_hudEnabled) {
             rd->push2D(); {
                 onGraphics2D(rd, posed2D);
             } rd->pop2D();
@@ -417,13 +417,20 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
             } rd->pop2D();
         }
 
+#endif
+        
+        if (m_vrSubmitToDisplayMode == SubmitToDisplayMode::MINIMIZE_LATENCY) {
+            // Submit the CURRENT frame
+            submitHMDFrame(rd);
+        }
+
         if (m_vrSettings.debugMirrorMode == DebugMirrorMode::PRE_DISTORTION) {
             // Access the hardware frame buffer
-            rd->push2D(nullptr); {
+            rd->push2D(shared_ptr<Framebuffer>()); {
                 rd->setColorClearValue(Color3::black());
                 rd->clear();
                 for (int eye = 0; eye < 2; ++eye) {
-                    const shared_ptr<Texture>& finalImage = m_hmd->eyeFramebufferQueue[eye]->currentColorTexture();
+                    const shared_ptr<Texture>& finalImage = m_eyeFramebuffer[eye]->texture(0);
 
                     // Find the scale needed to fit both images on screen
                     const float scale = min(float(rd->width()) * 0.5f / float(finalImage->width()), float(rd->height()) / float(finalImage->height()));
@@ -437,12 +444,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
                 }
             } rd->pop2D();
         }
-#endif
 
-        if (m_vrSubmitToDisplayMode == SubmitToDisplayMode::MINIMIZE_LATENCY) {
-            // Submit the CURRENT frame
-            submitHMDFrame(rd);
-        }
 
         glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 
