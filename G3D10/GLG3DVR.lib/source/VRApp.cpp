@@ -38,7 +38,7 @@ static float getHMDFloat(vr::IVRSystem* pHmd, vr::TrackedDeviceIndex_t unDevice,
 
 VRApp::VRApp(const GApp::Settings& settings) :
     super(makeFixedSize(settings), nullptr, nullptr, false),
-    m_vrSubmitToDisplayMode(SubmitToDisplayMode::BALANCE),
+    m_vrSubmitToDisplayMode(SubmitToDisplayMode::MINIMIZE_LATENCY),
     m_highQualityWarping(true),
     m_numSlowFrames(0),
     m_hudEnabled(false),
@@ -143,9 +143,7 @@ void VRApp::onInit() {
     super::onInit();
     m_currentEyeIndex = 0;
 
-    if (notNull(m_hmd)) {
-        setSubmitToDisplayMode(SubmitToDisplayMode::MAXIMIZE_THROUGHPUT);
-    }
+    setSubmitToDisplayMode(SubmitToDisplayMode::MAXIMIZE_THROUGHPUT);
 
     const float freq = isNull(m_hmd) ? 60.0f : getHMDFloat(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_DisplayFrequency_Float);
     setFrameDuration(1.0f / freq);
@@ -387,8 +385,6 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
             const shared_ptr<Framebuffer>& vrFB = m_eyeFramebuffer[eye];
 
             rd->pushState(vrFB); {
-                // Make a G3D wrapper for the raw OpenGL eye texture so that we can pass it to G3D routines
-                m_currentEyeTexture = vrFB->texture(0);
 
                 setActiveCamera(m_vrEyeCamera[eye]);
 
