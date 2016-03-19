@@ -13,7 +13,8 @@ int main(int argc, const char* argv[]) {
 
     VRApp::Settings settings(argc, argv);
     settings.vr.debugMirrorMode = //VRApp::DebugMirrorMode::NONE;//
-    VRApp::DebugMirrorMode::POST_DISTORTION;
+        VRApp::DebugMirrorMode::PRE_DISTORTION;
+
     settings.vr.disablePostEffectsIfTooSlow = false;
 
     settings.window.caption             = argv[0];
