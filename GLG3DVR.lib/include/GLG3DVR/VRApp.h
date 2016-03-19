@@ -140,11 +140,6 @@ protected:
     vr::IVRSystem*          m_hmd;
     vr::TrackedDevicePose_t m_trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 
-    /** G3D wrapper for the currently-bound eye texture. This is created during App::onGraphics and then passed to Film::exposeAndRender by App::onGraphics3D.
-    It would be cleaner to simply create G3D::Framebuffer objects and G3D::Textures during initialization. For the moment we're instead doing this to
-    get the system up and running with minimal changes over the williamsoculus.h SDK wrapper layer, which doesn't know about G3D. */
-    shared_ptr<Texture>     m_currentEyeTexture;
-
     /** One of these is bound to the RenderDevice during 
         onGraphics. It is the equivalent to the LDR hardware framebuffer for VR rendering.
         
