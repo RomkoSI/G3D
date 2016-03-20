@@ -65,6 +65,10 @@ VRApp::VRApp(const GApp::Settings& settings) :
             throw vr::VR_GetVRInitErrorAsEnglishDescription(eError);
 	    }
     
+        if (isNull(m_hmd)) {
+            throw "No HMD";
+        }
+
         //get the proper resolution of the hmd
         m_hmd->GetRecommendedRenderTargetSize(&hmdWidth, &hmdHeight);
 
