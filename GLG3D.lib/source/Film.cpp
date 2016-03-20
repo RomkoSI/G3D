@@ -132,7 +132,8 @@ void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const
     }
 
     const shared_ptr<Framebuffer>& targetFramebuffer = rd->drawFramebuffer();
-    const bool invertY = isNull(rd->drawFramebuffer()) || rd->drawFramebuffer()->invertY();
+    const bool invertY = notNull(rd->drawFramebuffer()) && rd->drawFramebuffer()->invertY();
+    // false;// isNull(rd->drawFramebuffer()) ||
 
     maybeUpdateToneCurve(settings);
 
