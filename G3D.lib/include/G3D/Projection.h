@@ -4,9 +4,9 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2005-07-20
-  \edited  2012-07-23
+  \edited  2016-03-23
 
-  Copyright 2005-2012 Morgan McGuire
+  Copyright 2005-2016 Morgan McGuire
 */
 
 #ifndef G3D_Projection_h
@@ -99,7 +99,8 @@ public:
 
     Projection();
 
-    Projection(const Matrix4& proj);
+    /** \param viewportExtent Required if there is a pixel offset in \a proj (i.e., it has asymmetric clip planes) */
+    Projection(const Matrix4& proj, const Vector2& viewportExtent = Vector2::nan());
 
     virtual ~Projection();
     
