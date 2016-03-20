@@ -1,45 +1,31 @@
 /** \file App.cpp */
 #include "App.h"
-#include <functional>
-
-/*
-
-Matrix4 viveProjection(0.757763, 0.000000, -0.054856,  0.000000,
-                       0.000000, 0.682035, -0.000707,  0.000000,
-                       0.000000, 0.000000, -1.001001, -0.100100,
-                       0.000000, 0.000000, -1.000000,  0.000000);
-float nearPlaneZ = -0.100000, farPlaneZ = -100.000000; int width = 1512, height = 1680;
-*/
-
-using std::function;
 
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
 G3D_START_AT_MAIN();
 
 int main(int argc, const char* argv[]) {
+    
+    const Matrix4 source(0.757763f, 0.000000f, -0.054856f,  0.000000f,
+                         0.000000f, 0.682035f, -0.000707f,  0.000000f,
+                         0.000000f, 0.000000f, -1.001001f, -0.100100f,
+                         0.000000f, 0.000000f, -1.000000f,  0.000000f);
+    const float nearPlaneZ = -0.100000f, farPlaneZ = -100.000000f; int width = 1512, height = 1680;
 
-    class Functor {
-    public:
-        Functor() {
-            debugPrintf("Functor()\n");
+    Projection P(source, Vector2(width, height));
+
+    Matrix4 dest;
+    P.getProjectUnitMatrix(Rect2D::xywh(0, 0, float(width), float(height)), dest);
+
+    debugPrintf("%s\n%s\n", source.toString().c_str(), dest.toString().c_str());
+
+    for (int r = 0; r < 4; ++r) {
+        for (int c = 0; c < 4; ++c) {
+            debugAssert(fuzzyEq(source[r][c], dest[r][c]));
         }
-
-        Functor(const Functor& f) {
-            debugPrintf("Functor(const Functor&)\n");
-        }
-
-        ~Functor() {
-            debugPrintf("~Functor()\n");
-        }
-
-        int operator()(bool b) const {
-            return 3;
-        }
-    };
-
-    function<int(bool)> f(Functor());
-
-    f(true);
+    }
+    debugAssert(fuzzyEq(P.nearPlaneZ(), nearPlaneZ));
+    debugAssert(fuzzyEq(P.farPlaneZ(), farPlaneZ));
 
     return 0;
 
