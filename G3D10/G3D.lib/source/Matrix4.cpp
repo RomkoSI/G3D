@@ -219,8 +219,8 @@ Matrix4 Matrix4::perspectiveProjection(
        c = -1.0;
        d = -2.0 * nearval;
     } else {
-       c = -(farval+nearval) / (farval-nearval);
-       d = -(2.0*farval*nearval) / (farval-nearval);
+       c = -(farval + nearval) / (farval - nearval);
+       d = -(2.0 * farval * nearval) / (farval - nearval);
     }
 
     debugAssertM(abs(upDirection) == 1.0, "upDirection must be -1 or +1");
@@ -265,14 +265,13 @@ void Matrix4::getPerspectiveProjectionParameters(
     debugAssertM(elt[3][0] == 0, "Not a projection matrix");
     debugAssertM(elt[3][1] == 0, "Not a projection matrix");
 
-    if (c == -1) {
+    if (c == -1.0) {
         farval = finf();
         nearval = -d / 2.0;
     } else {
-        nearval = d * ((c - 1.0) / (c + 1.0) - 1.0) / (-2.0 * (c - 1.0) / (c + 1.0));
-        farval = nearval * ((c - 1.0) / (c + 1.0));
+        nearval = d / (c - 1.0);
+        farval = d * nearval / (d + 2.0 * nearval);
     }
-
 
     left = (a - 1.0) * nearval / x;
     right = 2.0 * nearval / x + left;

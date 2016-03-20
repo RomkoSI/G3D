@@ -72,15 +72,22 @@ Projection::Projection() {
 }
 
 
-Projection::Projection(const Matrix4& proj) {
+Projection::Projection(const Matrix4& proj, const Vector2& viewportExtent) {
     double left, right, bottom, top, nearval, farval;
     proj.getPerspectiveProjectionParameters(left, right, bottom, top, nearval, farval);
     setNearPlaneZ(-(float)nearval);
     setFarPlaneZ(-(float)farval);
-    float x = (float)right;
+    
+    const double halfX = (right - left) / 2.0;
+    const double halfY = (bottom - top) / 2.0;
 
-    // Assume horizontal field of view
-    setFieldOfView(atan2(x, -m_nearPlaneZ) * 2.0f, FOVDirection::HORIZONTAL);
+    if (! fuzzyEq(left, -right) || ! fuzzyEq(bottom, -top)) {
+        alwaysAssertM(viewportExtent.isFinite(), "Must specify the viewportExtent when constructing a Projection from a Matrix4 with pixelOffsets");
+        setPixelOffset(-Vector2(right + left, bottom + top) * viewportExtent / 2.0f);
+    }
+
+    // Assume vertical field of view
+    setFieldOfView(float(atan2(abs(halfY), -m_nearPlaneZ) * 2.0), FOVDirection::VERTICAL);
 }
 
 
