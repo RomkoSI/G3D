@@ -254,7 +254,7 @@ void SkyboxSurface::setShaderGeometryArgs(RenderDevice* rd, Args& args) {
     rd->setObjectToWorldMatrix(CFrame());
     // Make a camera with an infinite view frustum to avoid clipping
     Matrix4 P = rd->projectionMatrix();
-    Projection projection(P);
+    Projection projection(P, rd->viewport().wh());
     projection.setFarPlaneZ(-finf());
     projection.getProjectUnitMatrix(rd->viewport(), P);
     rd->setProjectionMatrix(P);
