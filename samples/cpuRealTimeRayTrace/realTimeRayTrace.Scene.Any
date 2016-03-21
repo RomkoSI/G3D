@@ -140,7 +140,7 @@
             numSamples = 11; 
             radius = 1; 
             temporalFilterSettings = TemporalFilter::Settings { 
-                alpha = 0; 
+                hysteresis = 0; 
                 falloffEndDistance = 0.07; 
                 falloffStartDistance = 0.05; 
             }; 
