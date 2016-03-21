@@ -186,8 +186,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
         // Call to make the App show the output of debugDraw(...)
         drawDebugShapes();
         const shared_ptr<Entity>& selectedEntity = (notNull(developerWindow) && notNull(developerWindow->sceneEditorWindow)) ? developerWindow->sceneEditorWindow->selectedEntity() : shared_ptr<Entity>();
-        scene()->visualize(rd, selectedEntity, allSurfaces, sceneVisualizationSettings());
-
+        scene()->visualize(rd, selectedEntity, allSurfaces, sceneVisualizationSettings(), activeCamera());
 
         if (m_showPhotons) {
             rd->setPointSize(4);
