@@ -989,7 +989,7 @@ void Shader::bindG3DArgs(const shared_ptr<ShaderProgram>& p, RenderDevice* rende
     Matrix4 projectionPixelMatrix;
     if (P[3][2] != 0.0f) {
         // Perspective projection
-        Projection projection(P);
+        Projection projection(P, renderDevice->viewport().wh());
         projection.getProjectPixelMatrix(renderDevice->viewport(), projectionPixelMatrix);
         projectionPixelMatrix = projectionPixelMatrix * Matrix4::scale(1, -1 * renderDevice->invertYMatrix()[1][1], 1);
     } else {

@@ -83,7 +83,7 @@ Projection::Projection(const Matrix4& proj, const Vector2& viewportExtent) {
 
     if (! fuzzyEq(left, -right) || ! fuzzyEq(bottom, -top)) {
         alwaysAssertM(viewportExtent.isFinite(), "Must specify the viewportExtent when constructing a Projection from a Matrix4 with pixelOffsets");
-        setPixelOffset(-Vector2(right + left, bottom + top) * viewportExtent / 2.0f);
+        setPixelOffset(-Vector2(float(right + left), float(bottom + top)) * viewportExtent / 2.0f);
     }
 
     // Assume vertical field of view

@@ -273,7 +273,7 @@ void VRApp::sampleTrackingData() {
             m_vrEyeCamera[eye]->depthOfFieldSettings() = m_vrSettings.depthOfFieldSettings;
         }
 
-        const Projection& projection = projectionMatrixRowMajor4x4[eye];
+        const Projection& projection = Projection(projectionMatrixRowMajor4x4[eye], m_eyeFramebuffer[eye]->vector2Bounds());
         m_vrEyeCamera[eye]->setProjection(projection);
 
         const CFrame previousWorldFrame(maybeRemovePitchAndRoll(bodyCamera->previousFrame()) * m_previousEyeFrame[eye]);
