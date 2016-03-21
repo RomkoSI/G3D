@@ -349,6 +349,12 @@ public:
      */
 	static shared_ptr<Framebuffer> createWithoutAttachments(const String& _name, Vector2 res, int numLayers, int numSamples=1, bool fixedSamplesLocation=true);
 
+    /** Creates a Framebuffer object modeling the OpenGL "Hardware framebuffer", which is not an OpenGL object. 
+        This framebuffer has a size and format (determined by querying OpenGL on construction) but cannot 
+        have attachments.
+    */
+    static shared_ptr<Framebuffer> createHardwareFramebuffer();
+
     /** Bind this framebuffer and force all of its attachments to
         actually be attached at the OpenGL level.  The latter step is
         needed because set() is lazy.
