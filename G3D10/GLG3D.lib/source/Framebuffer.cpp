@@ -8,7 +8,7 @@
    http://www.opengl.org/registry/specs/ARB/framebuffer_object.txt
       
    \created 2006-01-07
-   \edited  2015-09-07
+   \edited  2016-03-21
 */
 
 #include "GLG3D/Framebuffer.h"
@@ -108,6 +108,7 @@ shared_ptr<Framebuffer> Framebuffer::createWithoutAttachments(const String& _nam
     return f;
 }
 
+
 shared_ptr<Framebuffer> Framebuffer::create(const String& _name) {
     GLuint _framebufferID;
     
@@ -115,6 +116,11 @@ shared_ptr<Framebuffer> Framebuffer::create(const String& _name) {
     glGenFramebuffers(1, &_framebufferID);
 
     return shared_ptr<Framebuffer>(new Framebuffer(_name, _framebufferID));
+}
+
+
+shared_ptr<Framebuffer> Framebuffer::createHardwareFramebuffer() {
+    return shared_ptr<Framebuffer>(new Framebuffer("OpenGL Hardware Framebuffer", GL_ZERO));
 }
 
 
