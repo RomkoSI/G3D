@@ -203,8 +203,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
 		rd->setProjectionAndCameraMatrix(activeCamera()->projection(), activeCamera()->frame());
 		drawDebugShapes();
 		const shared_ptr<Entity>& selectedEntity = (notNull(developerWindow) && notNull(developerWindow->sceneEditorWindow)) ? developerWindow->sceneEditorWindow->selectedEntity() : shared_ptr<Entity>();
-		scene()->visualize(rd, selectedEntity, allSurfaces, sceneVisualizationSettings());
-		
+        scene()->visualize(rd, selectedEntity, allSurfaces, sceneVisualizationSettings(), activeCamera());		
 
 		rd->setPolygonOffset(-0.2f);
 		if (m_debugSVONodes) {
