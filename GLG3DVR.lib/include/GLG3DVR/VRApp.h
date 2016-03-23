@@ -26,14 +26,10 @@ namespace G3D {
 
 class MarkerEntity;
 
-/** \brief Application framework for HMD Virtual Reality programs.
+/** \brief Application framework for HMD Virtual Reality programs on HTC Vive, Oculus Rift, and Oculus DK2.
 
     Use the tab key to toggle seeing the GUI in the HMD.
-
-    This is currently implemented only for the Oculus DK2 (because that's the only sub-$1000
-    HMD available today), but we intend to add support for more devices as they come to market.
-    As that happens, many of the member variables will be abstracted over the APIs for those devices.
-
+    
     For many programs, simply changing from inheriting your App from GApp to VRApp will immediately
     add HMD support. You must have the OpenVR Runtime (AKA SteamVR) installed to use VRApp. OpenVR is 
     a free download as part of (Steam)[https://steamcdn-a.akamaihd.net/client/installer/SteamSetup.exe], which

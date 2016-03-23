@@ -1004,7 +1004,7 @@ void RenderDevice::setDrawBuffer(DrawBuffer b) {
     if (b != m_state.drawBuffer) {
         minGLStateChange();
         m_state.drawBuffer = b;
-        if (isNull(m_state.drawFramebuffer)) {
+        if (isNull(m_state.drawFramebuffer) || m_state.drawFramebuffer->isHardwareFramebuffer()) {
             // Only update the GL state if there is no framebuffer bound.
             glDrawBuffer(GLenum(m_state.drawBuffer));
         }
@@ -1022,7 +1022,7 @@ void RenderDevice::setReadBuffer(ReadBuffer b) {
     if (b != m_state.readBuffer) {
         minGLStateChange();
         m_state.readBuffer = b;
-        if (m_state.readFramebuffer) {
+        if (notNull(m_state.readFramebuffer) && ! m_state.readFramebuffer->isHardwareFramebuffer()) {
             glReadBuffer(toFBOReadBuffer(m_state.readBuffer, m_state.readFramebuffer));
         } else {
             glReadBuffer(GLenum(m_state.readBuffer));
@@ -1441,7 +1441,7 @@ void RenderDevice::setReadFramebuffer(const shared_ptr<Framebuffer>& fbo) {
         majGLStateChange();
 
         // Set Framebuffer
-        if (isNull(fbo)) {
+        if (isNull(fbo) || fbo->isHardwareFramebuffer()) {
             m_state.readFramebuffer.reset();
             Framebuffer::bindWindowBuffer(Framebuffer::MODE_READ);
 
@@ -1462,7 +1462,7 @@ void RenderDevice::setDrawFramebuffer(const shared_ptr<Framebuffer>& fbo) {
         majGLStateChange();
 
         // Set Framebuffer
-        if (isNull(fbo)) {
+        if (isNull(fbo) || fbo->isHardwareFramebuffer()) {
             m_state.drawFramebuffer.reset();
             Framebuffer::bindWindowBuffer(Framebuffer::MODE_DRAW);
 
@@ -1497,9 +1497,7 @@ void RenderDevice::setDrawFramebuffer(const shared_ptr<Framebuffer>& fbo) {
 }
 
 
-void RenderDevice::setDepthTest(DepthTest test) {
-    
-
+void RenderDevice::setDepthTest(DepthTest test) {  
     minStateChange();
 
     // On ALWAYS_PASS we must force a change because under OpenGL
