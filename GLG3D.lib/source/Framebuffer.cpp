@@ -8,7 +8,7 @@
    http://www.opengl.org/registry/specs/ARB/framebuffer_object.txt
       
    \created 2006-01-07
-   \edited  2016-03-21
+   \edited  2016-03-23
 */
 
 #include "GLG3D/Framebuffer.h"
@@ -19,18 +19,19 @@
 namespace G3D {
 
 Framebuffer::Framebuffer(
-    const String&  name, 
-    GLuint              framebufferID) : 
+    const String&   name, 
+    GLuint          framebufferID) : 
     m_name(name),
     m_framebufferID(framebufferID),
     m_noAttachment(false),
-    m_invertY(false) {
+    m_invertY(false),
+    m_window(nullptr) {
 
 }
 
 
 Framebuffer::~Framebuffer () {
-    if (m_framebufferID != 0) {
+    if (m_framebufferID != GL_ZERO) {
         glDeleteFramebuffers(1, &m_framebufferID);
         m_framebufferID = 0;
     }
@@ -38,9 +39,14 @@ Framebuffer::~Framebuffer () {
 
 
 int Framebuffer::stencilBits() const {
-    shared_ptr<Attachment> d  = get(Framebuffer::DEPTH);
-    shared_ptr<Attachment> s  = get(Framebuffer::STENCIL);
-    shared_ptr<Attachment> ds = get(Framebuffer::DEPTH_AND_STENCIL);
+    if (m_framebufferID == GL_ZERO) {
+        // TODO: hardware framebuffer, query window
+        return 0;
+    }
+
+    const shared_ptr<Attachment>& d  = get(Framebuffer::DEPTH);
+    const shared_ptr<Attachment>& s  = get(Framebuffer::STENCIL);
+    const shared_ptr<Attachment>& ds = get(Framebuffer::DEPTH_AND_STENCIL);
 
     int stencilBits = 0;
     if (d) {
@@ -119,12 +125,11 @@ shared_ptr<Framebuffer> Framebuffer::create(const String& _name) {
 }
 
 
-shared_ptr<Framebuffer> Framebuffer::createHardwareFramebuffer() {
-    return shared_ptr<Framebuffer>(new Framebuffer("OpenGL Hardware Framebuffer", GL_ZERO));
-}
-
-
 bool Framebuffer::has(AttachmentPoint ap) const {
+    if (m_framebufferID == GL_ZERO) {
+        return false;
+    }
+
     bool found = false;
     find(ap, found);
     return found;
@@ -132,6 +137,10 @@ bool Framebuffer::has(AttachmentPoint ap) const {
 
 
 int Framebuffer::find(AttachmentPoint ap, bool& found) const {
+    if (m_framebufferID == GL_ZERO) {
+        return -1;
+    }
+
     for (int i = 0; i < m_desired.size(); ++i) {
         if (m_desired[i]->m_point >= ap) {
             found = (m_desired[i]->m_point == ap);
@@ -145,6 +154,10 @@ int Framebuffer::find(AttachmentPoint ap, bool& found) const {
 
 
 int Framebuffer::findCurrent(AttachmentPoint ap) const {
+    if (m_framebufferID == GL_ZERO) {
+        return -1;
+    }
+
     for (int i = 0; i < m_current.size(); ++i) {
         if (m_current[i]->m_point >= ap) {
             return i;
@@ -156,6 +169,8 @@ int Framebuffer::findCurrent(AttachmentPoint ap) const {
 
 
 void Framebuffer::set(AttachmentPoint ap, const void* n) {
+    alwaysAssertM(m_framebufferID != GL_ZERO, "Cannot bind attachments to a hardware framebuffer");
+
     (void)n;
     debugAssert(n == NULL);
 
@@ -169,7 +184,8 @@ void Framebuffer::set(AttachmentPoint ap, const void* n) {
 
 
 void Framebuffer::set(AttachmentPoint ap, const shared_ptr<Attachment>& attachment) {
-	alwaysAssertM(m_noAttachment==false, "Can't set attachment to a Frambuffer in no-attachment mode");
+    alwaysAssertM(m_framebufferID != GL_ZERO, "Cannot bind attachments to a hardware framebuffer");
+	alwaysAssertM(m_noAttachment == false, "Can't set attachment to a Frambuffer in no-attachment mode");
 
     shared_ptr<Attachment> dst(new Attachment(*attachment));
     dst->m_point = ap;
@@ -178,6 +194,7 @@ void Framebuffer::set(AttachmentPoint ap, const shared_ptr<Attachment>& attachme
 
 
 void Framebuffer::set(AttachmentPoint ap, const shared_ptr<Texture>& texture) {
+    alwaysAssertM(m_framebufferID != GL_ZERO, "Cannot bind attachments to a hardware framebuffer");
 	alwaysAssertM(m_noAttachment==false, "Can't set attachment to a Frambuffer in no-attachment mode");
 
     set(ap, texture, CubeFace::NEG_X, 0);
@@ -185,6 +202,7 @@ void Framebuffer::set(AttachmentPoint ap, const shared_ptr<Texture>& texture) {
 
    
 void Framebuffer::set(AttachmentPoint ap, const shared_ptr<Texture>& texture, CubeFace face, int mipLevel, int layer) {
+    alwaysAssertM(m_framebufferID != GL_ZERO, "Cannot bind attachments to a hardware framebuffer");
 	alwaysAssertM(m_noAttachment==false, "Can't set attachment to a Frambuffer in no-attachment mode");
 
     if (isNull(texture)) {
@@ -200,7 +218,9 @@ void Framebuffer::set(AttachmentPoint ap, const shared_ptr<Texture>& texture, Cu
     }
 }
 
+
 void Framebuffer::set(const shared_ptr<Attachment>& a) {
+    alwaysAssertM(m_framebufferID != GL_ZERO, "Cannot bind attachments to a hardware framebuffer");
 	alwaysAssertM(m_noAttachment==false, "Can't set attachment to a Frambuffer in no-attachment mode");
 
     bool found = false;
@@ -215,6 +235,8 @@ void Framebuffer::set(const shared_ptr<Attachment>& a) {
 
 
 shared_ptr<Framebuffer::Attachment> Framebuffer::get(AttachmentPoint ap) const {
+    alwaysAssertM(m_framebufferID != GL_ZERO, "Cannot get attachments from a hardware framebuffer");
+
     bool found = false;
     int i = find(ap, found);
     if (! found) {
@@ -245,12 +267,15 @@ void Framebuffer::bindWindowBuffer(Mode m) {
 
 
 void Framebuffer::clear() {
+    alwaysAssertM(m_framebufferID != GL_ZERO, "Cannot clear attachments from a hardware framebuffer");
     m_desired.clear();
     m_currentOutOfSync = true;
 }
 
 
 void Framebuffer::sync() {
+    if (m_framebufferID == GL_ZERO) { return; }
+
     debugAssert(m_currentOutOfSync);
     int d = 0;
     int c = 0;
@@ -309,6 +334,8 @@ void Framebuffer::sync() {
 
 
 void Framebuffer::attach(const shared_ptr<Attachment>& a) {
+    alwaysAssertM(m_framebufferID != GL_ZERO, "Cannot attach to a hardware framebuffer");
+
     const int cIndex = findCurrent(a->point());
     if ((a->point() >= COLOR0) && (a->point() <= COLOR15)) {
         const GLenum e(a->point());
@@ -331,6 +358,7 @@ void Framebuffer::attach(const shared_ptr<Attachment>& a) {
 
 
 void Framebuffer::detach(shared_ptr<Attachment> a) {
+    alwaysAssertM(m_framebufferID != GL_ZERO, "Cannot detach from a hardware framebuffer");
     const GLenum e(a->point());
     const int cIndex = findCurrent(a->point());
 
@@ -359,7 +387,9 @@ void Framebuffer::detach(shared_ptr<Attachment> a) {
 
 
 int Framebuffer::width() const {
-    if (m_desired.size() > 0) {
+    if (m_framebufferID == GL_ZERO) {
+        return m_window->width();
+    } else if (m_desired.size() > 0) {
         return m_desired[0]->width();
     } else { 
         return 0;
@@ -368,7 +398,9 @@ int Framebuffer::width() const {
  
 
 int Framebuffer::height() const {
-    if (m_desired.size() > 0) {
+    if (m_framebufferID == GL_ZERO) {
+        return m_window->height();
+    } else if (m_desired.size() > 0) {
         return m_desired[0]->height();
     } else { 
         return 0;
@@ -377,7 +409,9 @@ int Framebuffer::height() const {
 
     
 Rect2D Framebuffer::rect2DBounds() const {
-    if (m_desired.size() > 0) {
+    if (m_framebufferID == GL_ZERO) {
+        return Rect2D::xywh(0, 0, float(width()), float(height()));
+    } else if (m_desired.size() > 0) {
         return Rect2D::xywh(Vector2::zero(), m_desired[0]->vector2Bounds());
     } else {
         return Rect2D::xywh(0,0,0,0);
@@ -386,7 +420,9 @@ Rect2D Framebuffer::rect2DBounds() const {
 
     
 Vector2 Framebuffer::vector2Bounds() const {
-    if (m_desired.size() > 0) {
+    if (m_framebufferID == GL_ZERO) {
+        return Vector2(float(width()), float(height()));
+    } else if (m_desired.size() > 0) {
         return m_desired[0]->vector2Bounds();
     } else {
         return Vector2::zero();
@@ -395,6 +431,7 @@ Vector2 Framebuffer::vector2Bounds() const {
 
 
 void Framebuffer::resize(Framebuffer::AttachmentPoint ap, int w, int h){
+    alwaysAssertM(m_framebufferID != GL_ZERO, "Cannot resize a hardware framebuffer");
 	get(ap)->resize(w, h);
 
 	if (ap == NO_ATTACHMENT) {
@@ -404,7 +441,8 @@ void Framebuffer::resize(Framebuffer::AttachmentPoint ap, int w, int h){
 }
 
 
-void Framebuffer::resize(int w, int h){
+void Framebuffer::resize(int w, int h) {
+    alwaysAssertM(m_framebufferID != GL_ZERO, "Cannot resize a hardware framebuffer");
     for (int i = 0; i < m_desired.size(); ++i) {
         resize(m_desired[i]->m_point, w, h);
     }
@@ -497,6 +535,7 @@ Framebuffer::Attachment::Attachment(AttachmentPoint ap, const shared_ptr<Texture
                     "Cannot attach a texture without any depth bits to DEPTH or DEPTH_AND_STENCIL");
 
 }
+
 
 Framebuffer::Attachment::Attachment(AttachmentPoint ap, int width, int height, int numLayers, int numSamples, bool fixedSamplesLocation) : 
     m_type(DUMMY),

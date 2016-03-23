@@ -3,7 +3,7 @@
 
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
   \created 2005-02-10
-  \edited  2014-11-06
+  \edited  2016-03-23
 */
 
 #ifndef G3D_OSWindow_h
@@ -19,6 +19,7 @@ namespace G3D {
 
 class Rect2D;
 class RenderDevice;
+class Framebuffer;
 
 
 /**
@@ -258,6 +259,8 @@ protected:
 
     Queue<GEvent>               m_eventQueue;
 
+    mutable shared_ptr<Framebuffer> m_framebuffer;
+
     OSWindow() : m_renderDevice(NULL), m_inputCaptureCount(0), m_mouseHideCount(0) {}
 
     /** Override this with the glMakeCurrent call appropriate for your window.*/
@@ -284,6 +287,12 @@ protected:
     virtual void setMouseVisible(bool b) = 0;
 
 public:
+
+    /** Returns the Framebuffer object for this window modeling the OpenGL "Hardware framebuffer", which is not an OpenGL object. 
+        This framebuffer has a size and format (determined by querying OpenGL on construction) but cannot 
+        have attachments.
+    */
+    const shared_ptr<Framebuffer>& framebuffer() const;
 
     /** Dimensions in pixels of the primary display.  The OSWindow implementation calls the appropriate 
         subclass override for the current operating system. */
