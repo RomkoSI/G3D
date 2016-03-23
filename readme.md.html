@@ -45,8 +45,8 @@ that you need into `%g3d%\data10\`.
 2. SVN check out `http://g3d.cs.williams.edu/g3d/G3D10` to `%g3d%\G3D10`
 3. Set the **user** environment variable `G3D10DATA=%g3d%\G3D10\build\data;%g3d%\data10\common;%g3d%\data10\game;%g3d%\data10\research`
 4. Set the system-wide VC Directories in `Microsoft.Cpp.Win64.user.props` explicitly, or through the Visual Studio IDE (View ==> Other Windows ==> Property Manager, G3D ==> starter ==> Release|x64->Microsoft.Cpp.x64.user ==> properties ==> VC++ Directories):
-   - Include: `%g3d%\G3D10\build\include`
-   - Library: `%g3d%\G3D10\build\lib`
+   - Include: `$(g3d)\G3D10\build\include`
+   - Library: `$(g3d)\G3D10\build\lib`
 5. Add `%g3d%\G3D10\build\bin` to your `PATH` environment variable (so that Windows can find DLLs when launching your own programs)
 6. At a command prompt in the `%g3d%\G3D10` directory, run `buildg3d lib data`
 
@@ -73,11 +73,11 @@ from the source tree. We're continuously changing these and want to
 ensure that we're stepping into and modifying the latest version. If
 you wish to do this as well, then make the following changes.
 
-Remove `%g3d%\build\include` from your VC include
+Remove `$(g3d)\build\include` from your VC include
 directory. In its place, add:
 
 ~~~~~
-%g3d%\G3D10\assimp.lib\include;%g3d%\G3D10\civetweb.lib\include;%g3d%\G3D10\enet.lib\include;%g3d%\G3D10\freeimage.lib\include;%g3d%\G3D10\glew.lib\include;%g3d%\G3D10\glfw.lib\include;%g3d%\G3D10\nfd.lib\include;%g3d%\G3D10\qrencode.lib\include;%g3d%\G3D10\zip.lib\include;%g3d%\G3D10\zlib.lib\include;%g3d%\G3D10\openvr.lib\include;%g3d%\G3D10\G3D.lib\include;%g3d%\G3D10\GLG3D.lib\include;%g3d%\G3D10\GLG3DVR.lib\include;%g3d%\G3D10\LibOVR.lib\include;%g3d%\G3D10\LibOVRKernel.lib\include
+$(g3d)\G3D10\assimp.lib\include;$(g3d)\G3D10\civetweb.lib\include;$(g3d)\G3D10\enet.lib\include;$(g3d)\G3D10\freeimage.lib\include;$(g3d)\G3D10\glew.lib\include;$(g3d)\G3D10\glfw.lib\include;$(g3d)\G3D10\nfd.lib\include;$(g3d)\G3D10\qrencode.lib\include;$(g3d)\G3D10\zip.lib\include;$(g3d)\G3D10\zlib.lib\include;$(g3d)\G3D10\openvr.lib\include;$(g3d)\G3D10\G3D.lib\include;$(g3d)\G3D10\GLG3D.lib\include;$(g3d)\G3D10\GLG3DVR.lib\include;$(g3d)\G3D10\LibOVR.lib\include;$(g3d)\G3D10\LibOVRKernel.lib\include
 ~~~~~
 
 Set your `G3D10DATA` environment variable to include a
