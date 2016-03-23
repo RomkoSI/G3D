@@ -72,11 +72,13 @@
     <OutDir>$(ProjectDir)\..\build\lib\</OutDir>
     <IntDir>$(ProjectDir)\..\temp\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
     <TargetName>GLG3DVR_x64d</TargetName>
+    <IncludePath>$(ProjectDir)..\jpeg.lib\include;$(ProjectDir)..\png.lib\include;$(ProjectDir)..\zip.lib\include;$(ProjectDir)..\zlib.lib\include;$(ProjectDir)..\freeimage.lib\include;$(ProjectDir)..\G3D.lib\include;$(ProjectDir)..\GLG3D.lib\include;$(ProjectDir)..\glew.lib\include;$(ProjectDir)..\ffmpeg\windows\include;$(ProjectDir)..\openvr.lib\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)\..\build\lib\</OutDir>
     <IntDir>$(ProjectDir)\..\temp\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
     <TargetName>GLG3DVR_x64</TargetName>
+    <IncludePath>$(ProjectDir)..\jpeg.lib\include;$(ProjectDir)..\png.lib\include;$(ProjectDir)..\zip.lib\include;$(ProjectDir)..\zlib.lib\include;$(ProjectDir)..\freeimage.lib\include;$(ProjectDir)..\G3D.lib\include;$(ProjectDir)..\GLG3D.lib\include;$(ProjectDir)..\glew.lib\include;$(ProjectDir)..\ffmpeg\windows\include;$(ProjectDir)..\openvr.lib\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
