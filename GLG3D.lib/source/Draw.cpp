@@ -1459,29 +1459,57 @@ void Draw::sphere(
 }
 
 
-
-
-
-G3D_DECLARE_SYMBOL(textureMap);
-G3D_DECLARE_SYMBOL(color);
-
 void Draw::rect2D
 (const Rect2D&       rect,
  RenderDevice*       rd,
  const Color4&       color,
  const shared_ptr<Texture>& textureMap,
- const Sampler& sampler) {
-    String hint = "";
+ const Sampler&      sampler,
+ bool                invertY) {
+    String hint;
     Args args;
     if (notNull(textureMap)) {
         args.setMacro("HAS_TEXTURE", 1);
-        args.setUniform(SYMBOL_textureMap, textureMap, sampler);
+        args.setUniform("textureMap", textureMap, sampler);
         hint = textureMap->name();
     } else {
         args.setMacro("HAS_TEXTURE", 0);
     }
-    args.setUniform(SYMBOL_color,   color);
-    args.setRect(rect, 0);
+    args.setUniform("color", color);
+
+    if (invertY) {
+        const size_t padding = 1000;
+        const shared_ptr<VertexBuffer>& dataArea = VertexBuffer::create((sizeof(Vector2) + sizeof(Vector2)) * 4 + padding, VertexBuffer::WRITE_EVERY_FRAME);
+
+        AttributeArray vertexArray(sizeof(Point2) * 4, dataArea);
+        AttributeArray texCoordArray(sizeof(Point2) * 4, dataArea);
+
+        {
+            Point2* vertex = (Point2*)vertexArray.mapBuffer(GL_WRITE_ONLY);
+            vertex[0] = rect.x0y0();
+            vertex[1] = rect.x0y1();
+            vertex[2] = rect.x1y1();
+            vertex[3] = rect.x1y0();
+            vertexArray.unmapBuffer();
+        }
+
+        {
+            Point2* texCoord = (Point2*)texCoordArray.mapBuffer(GL_WRITE_ONLY);
+            texCoord[0] = Point2(0, 0);
+            texCoord[1] = Point2(0, 1);
+            texCoord[2] = Point2(1, 1);
+            texCoord[3] = Point2(1, 0);
+            texCoordArray.unmapBuffer();
+        }
+
+        args.setAttributeArray("g3d_Vertex", vertexArray);
+        args.setAttributeArray("g3d_TexCoord0", texCoordArray);
+        args.setPrimitiveType(PrimitiveType::TRIANGLE_STRIP);
+        args.setNumIndices(4);
+        debugAssertGLOk();
+    } else {
+        args.setRect(rect, 0);
+    }
     LAUNCH_SHADER_WITH_HINT("unlit.*", args, hint);
 }
 
@@ -1631,7 +1659,7 @@ void Draw::histogram(
     const float heightScale = (area.height() - bottomHeight) / (logScale ? logMaxFreq : maxFreq);
     for(int i = 0; i < freqData.size(); ++i) {
         float freq = logScale ? freqDataLog[i] : float(freqData[i]);
-        Draw::rect2D( Rect2D::xywh(area.x0() + i*binWidth, (area.y1() - bottomHeight) - (freq * heightScale), max(1.0f, binWidth - 2.0f), freq * heightScale), rd, boxColor);
+        Draw::rect2D(Rect2D::xywh(area.x0() + i*binWidth, (area.y1() - bottomHeight) - (freq * heightScale), max(1.0f, binWidth - 2.0f), freq * heightScale), rd, boxColor);
     }
     
     font->draw2D(rd, format("%f", minVal + (binSize / 2)), Point2(area.x0(), area.y1() - bottomHeight), fontSize, labelColor);

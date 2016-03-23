@@ -27,8 +27,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\scratch\morgan\normal2bump.cpp">
+    <ClCompile Include="..\scratch\morgan2\App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\scratch\morgan2\App.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
