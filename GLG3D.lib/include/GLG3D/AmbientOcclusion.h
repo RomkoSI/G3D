@@ -124,6 +124,7 @@ protected:
             const AmbientOcclusionSettings& settings,
             const shared_ptr<Texture>& depthBuffer,
             const Vector3& clipInfo,
+	    const float farPlaneZ,
             const shared_ptr<Texture>& normalBuffer);
 
     void computeCSZ
@@ -142,6 +143,7 @@ protected:
         const Vector3&                      clipConstant,
         const Vector4&                      projConstant,
         float                               projScale,
+	const float                         farPlaneZ,
         const shared_ptr<Texture>&          csZBuffer,
         const shared_ptr<Texture>&          peeledCSZBuffer = shared_ptr<Texture>(),
         const shared_ptr<Texture>&          normalBuffer = shared_ptr<Texture>());
@@ -152,6 +154,7 @@ protected:
         (RenderDevice*                      rd, 
         const AmbientOcclusionSettings&     settings, 
         const shared_ptr<Texture>&          depthBuffer,
+	const float                         farPlaneZ,
         const Vector4&                      projConstant = Vector4::zero(),
         const shared_ptr<Texture>&          normalBuffer = shared_ptr<Texture>());
 
@@ -161,7 +164,8 @@ protected:
        (RenderDevice*                       rd, 
         const AmbientOcclusionSettings&     settings, 
         const shared_ptr<Texture>&          depthBuffer,
-        const Vector4&                      projConstant = Vector4::zero(),
+	const float                         farPlaneZ,
+	const Vector4&                      projConstant = Vector4::zero(),
         const shared_ptr<Texture>&          normalBuffer = shared_ptr<Texture>());
 
     /** Shared code for the vertical and horizontal blur passes */
@@ -169,6 +173,7 @@ protected:
        (RenderDevice*                       rd,
         const AmbientOcclusionSettings&     settings,
         const shared_ptr<Texture>&          depthBuffer,
+	const float                         farPlaneZ,
         const Vector4&                      projConstant,
         const shared_ptr<Texture>&          normalBuffer,
         const Vector2int16&                 axis,
@@ -230,6 +235,7 @@ protected:
         const Vector3&                  clipConstant,
         const Vector4&                  projConstant,
         float                           projScale,
+	const float                     farPlaneZ,
         const CoordinateFrame&          currentCameraFrame,
         const CoordinateFrame&          prevCameraFrame,
         const shared_ptr<Texture>&      peeledDepthBuffer = shared_ptr<Texture>(),

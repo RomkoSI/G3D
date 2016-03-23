@@ -46,6 +46,8 @@
 //#define R                   (4)
 
 
+#expect FAR_PLANE_Z "(negative) z-coordinate of the far plane"
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Type of data to read from source.  This macro allows

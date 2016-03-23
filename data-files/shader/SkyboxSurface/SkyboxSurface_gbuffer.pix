@@ -4,6 +4,9 @@
 
 uniform vec2            lowerCoord, upperCoord;
 
+
+#expect HAS_ALPHA "0 or 1"
+
 #ifdef EMISSIVE
     uniform float alpha;
     in vec3  direction;

@@ -244,6 +244,7 @@ void SkyboxSurface::renderIntoGBufferHomogeneous
 
         // We could just run a 2D full-screen pass here, but we want to take advantage of the depth buffer
         setShaderGeometryArgs(rd, args);
+	args.setMacro("HAS_ALPHA", 0);
         LAUNCH_SHADER_WITH_HINT("SkyboxSurface_gbuffer.*", args, name());
     
     } rd->popState();
