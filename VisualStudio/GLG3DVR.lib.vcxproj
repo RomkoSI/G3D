@@ -77,6 +77,7 @@
     <OutDir>$(ProjectDir)\..\build\lib\</OutDir>
     <IntDir>$(ProjectDir)\..\temp\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
     <TargetName>GLG3DVR_x64</TargetName>
+    <IncludePath>$(ProjectDir)..\openvr.lib\include;$(ProjectDir)..\GLG3D.lib\include;$(ProjectDir)..\G3D.lib\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
