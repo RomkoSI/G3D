@@ -641,7 +641,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& all) {
 
 void App::onGraphics2D(RenderDevice* rd, Array< shared_ptr< Surface2D > >& surface2D) {
 	if (m_demoSettings.demoMode == DemoSettings::DemoMode::AO) {
-		rd->setFramebuffer(shared_ptr<Framebuffer>());
+		rd->setFramebuffer(m_monitorDeviceFramebuffer);
 		const Point2 inColumnOffset(-10.0f, m_framebuffer->height() - float(settings().depthGuardBandThickness.y)*2.0f);
 		float columnWidth = ((float)m_framebuffer->width() - 2.0f * settings().depthGuardBandThickness.x) / 2.0f;
 		Point2 position = inColumnOffset;
@@ -649,20 +649,18 @@ void App::onGraphics2D(RenderDevice* rd, Array< shared_ptr< Surface2D > >& surfa
 		position.x += columnWidth;
 		m_captionFont->draw2D(rd, String("Raw ") + (m_demoSettings.twoLayerAO ? "2-Layer Deep G-Buffer" : "1-Layer") + String(" Ambient Occlusion"), 
 					position, 30, Color3::white(), Color3::black(), GFont::XALIGN_RIGHT, GFont::YALIGN_BOTTOM);
-	} else {
-		if (m_demoSettings.globalIlluminationMode == DemoSettings::GlobalIlluminationMode::SPLIT_SCREEN) {
-			const Point2 inColumnOffset(-10.0f, m_framebuffer->height() - float(settings().depthGuardBandThickness.y) * 2.0f);
-			float columnWidth = ((float)m_framebuffer->width() - 2.0f * settings().depthGuardBandThickness.x) / 2.0f;
+	} else if (m_demoSettings.globalIlluminationMode == DemoSettings::GlobalIlluminationMode::SPLIT_SCREEN) {
+		const Point2 inColumnOffset(-10.0f, m_framebuffer->height() - float(settings().depthGuardBandThickness.y) * 2.0f);
+		float columnWidth = ((float)m_framebuffer->width() - 2.0f * settings().depthGuardBandThickness.x) / 2.0f;
 
-			Point2 position = inColumnOffset;
-			position.x += columnWidth;
-			m_captionFont->draw2D(rd, "Prerendered Light Probe", 
-						position, 30, Color3::white(), Color3::black(), GFont::XALIGN_RIGHT, GFont::YALIGN_BOTTOM);
+		Point2 position = inColumnOffset;
+		position.x += columnWidth;
+		m_captionFont->draw2D(rd, "Prerendered Light Probe", 
+					position, 30, Color3::white(), Color3::black(), GFont::XALIGN_RIGHT, GFont::YALIGN_BOTTOM);
 
-			position.x += columnWidth;
-			m_captionFont->draw2D(rd, "Deep G-Buffer Radiosity", 
-						position, 30, Color3::white(), Color3::black(), GFont::XALIGN_RIGHT, GFont::YALIGN_BOTTOM);
-		}
+		position.x += columnWidth;
+		m_captionFont->draw2D(rd, "Deep G-Buffer Radiosity", 
+					position, 30, Color3::white(), Color3::black(), GFont::XALIGN_RIGHT, GFont::YALIGN_BOTTOM);
 	}
 
     GApp::onGraphics2D(rd, surface2D);

@@ -199,7 +199,7 @@ void ShadowMap::updateDepth
 
     if ((lastBaseShadowCasterChangeTime > m_baseLayer.lastUpdateTime) ||
         (baseShadowCasterEntityHash != m_baseLayer.entityHash)) {
-        m_baseLayer.updateDepth(renderDevice, this, baseArray, cullFace, shared_ptr<Framebuffer>(), m_stochastic, transmissionWeight);
+        m_baseLayer.updateDepth(renderDevice, this, baseArray, cullFace, nullptr, m_stochastic, transmissionWeight);
     }
 
     // Render the dynamic layer if the dynamic layer OR the base layer changed
@@ -210,7 +210,7 @@ void ShadowMap::updateDepth
 
         m_dynamicLayer.updateDepth(renderDevice, this, dynamicArray, cullFace, 
             // Only pass the base layer if it is not empty
-            baseShadowCasterEntityHash == 0 ? shared_ptr<Framebuffer>() : m_baseLayer.framebuffer,
+            (baseShadowCasterEntityHash == 0) ? nullptr : m_baseLayer.framebuffer,
             m_stochastic, transmissionWeight);
 
         if (m_vsmSettings.enabled) {

@@ -5,14 +5,39 @@
 G3D_START_AT_MAIN();
 
 int main(int argc, const char* argv[]) {
-    
+#if 1
+    {
+        const double 
+            sleft = -0.069638041824473751, 
+            sright = 0.062395225117240799,
+            sbottom = 0.073294763927117534, 
+            stop = -0.07,//-0.073294763927117534, 
+            snearval = -0.1f, 
+            sfarval = -100.0f;      
+        const Matrix4 M = Matrix4::perspectiveProjection(sleft, sright, sbottom, stop, snearval, sfarval);
+
+        double dleft, dright, dbottom, dtop, dnearval, dfarval;
+        M.getPerspectiveProjectionParameters(dleft, dright, dbottom, dtop, dnearval, dfarval);
+
+        debugAssert(fuzzyEq(sleft, dleft));
+        debugAssert(fuzzyEq(sright   , dright));
+        debugAssert(fuzzyEq(stop     , dtop));
+        debugAssert(fuzzyEq(sbottom  , dbottom));
+        debugAssert(fuzzyEq(snearval , dnearval));
+        debugAssert(fabs(sfarval - dfarval) < 0.0001f);
+    }
+#endif
+
+#if 1
     const Matrix4 source(0.757763f, 0.000000f, -0.054856f,  0.000000f,
                          0.000000f, 0.682035f, -0.000707f,  0.000000f,
                          0.000000f, 0.000000f, -1.001001f, -0.100100f,
                          0.000000f, 0.000000f, -1.000000f,  0.000000f);
     const float nearPlaneZ = -0.100000f, farPlaneZ = -100.000000f; int width = 1512, height = 1680;
 
-    Projection P(source, Vector2(width, height));
+    // Element [2][2] should be -1.002002002! I think OpenVR uses the DirectX convention
+
+    Projection P(source, Vector2(float(width), float(height)));
 
     Matrix4 dest;
     P.getProjectUnitMatrix(Rect2D::xywh(0, 0, float(width), float(height)), dest);
@@ -26,6 +51,7 @@ int main(int argc, const char* argv[]) {
     }
     debugAssert(fuzzyEq(P.nearPlaneZ(), nearPlaneZ));
     debugAssert(fuzzyEq(P.farPlaneZ(), farPlaneZ));
+#endif
 
     return 0;
 
