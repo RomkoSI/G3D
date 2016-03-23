@@ -87,7 +87,7 @@ void DefaultRenderer::render
         rd->setProjectionAndCameraMatrix(camera->projection(), camera->frame());
         
         const bool needDepthPeel = lightingEnvironment.ambientOcclusionSettings.useDepthPeelBuffer && lightingEnvironment.ambientOcclusionSettings.enabled;
-        computeGBuffer(rd, sortedVisibleSurfaces, gbuffer, needDepthPeel ? depthPeelFramebuffer : shared_ptr<Framebuffer>(), lightingEnvironment.ambientOcclusionSettings.depthPeelSeparationHint);
+        computeGBuffer(rd, sortedVisibleSurfaces, gbuffer, needDepthPeel ? depthPeelFramebuffer : nullptr, lightingEnvironment.ambientOcclusionSettings.depthPeelSeparationHint);
 
         // Shadowing + AO
         computeShadowing(rd, allSurfaces, gbuffer, depthPeelFramebuffer, lightingEnvironment);

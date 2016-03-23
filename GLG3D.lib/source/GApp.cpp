@@ -286,6 +286,7 @@ void GApp::initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindo
 
     m_window = renderDevice->window();
     m_window->makeCurrent();
+    m_monitorDeviceFramebuffer = m_window->framebuffer();
 
     m_widgetManager = WidgetManager::create(m_window);
     userInput = new UserInput(m_window);
@@ -1032,7 +1033,7 @@ void GApp::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfac
     m_gbuffer->resize(m_framebuffer->width(), m_framebuffer->height());
     m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.depthGuardBandThickness, m_settings.colorGuardBandThickness);
 
-    m_renderer->render(rd, m_framebuffer, scene()->lightingEnvironment().ambientOcclusionSettings.enabled ? m_depthPeelFramebuffer : shared_ptr<Framebuffer>(), 
+    m_renderer->render(rd, m_framebuffer, scene()->lightingEnvironment().ambientOcclusionSettings.enabled ? m_depthPeelFramebuffer : nullptr, 
         scene()->lightingEnvironment(), m_gbuffer, allSurfaces);
 
     // Debug visualizations and post-process effects
@@ -1040,7 +1041,7 @@ void GApp::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfac
         // Call to make the App show the output of debugDraw(...)
         rd->setProjectionAndCameraMatrix(activeCamera()->projection(), activeCamera()->frame());
         drawDebugShapes();
-        const shared_ptr<Entity>& selectedEntity = (notNull(developerWindow) && notNull(developerWindow->sceneEditorWindow)) ? developerWindow->sceneEditorWindow->selectedEntity() : shared_ptr<Entity>();
+        const shared_ptr<Entity>& selectedEntity = (notNull(developerWindow) && notNull(developerWindow->sceneEditorWindow)) ? developerWindow->sceneEditorWindow->selectedEntity() : nullptr;
         scene()->visualize(rd, selectedEntity, allSurfaces, sceneVisualizationSettings(), activeCamera());
 
         // Post-process special effects

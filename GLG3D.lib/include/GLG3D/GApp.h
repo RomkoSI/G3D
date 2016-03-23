@@ -576,6 +576,8 @@ protected:
 public:
 
     /** The (probably low dynamic range, one sample per pixel) OpenGL hardware framebuffer for the window(). 
+        Initialized in initializeOpenGL().
+
         \sa VRApp::m_hmdDeviceFramebuffer[] 
       */
     shared_ptr<Framebuffer> m_monitorDeviceFramebuffer;
