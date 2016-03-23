@@ -641,7 +641,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& all) {
 
 void App::onGraphics2D(RenderDevice* rd, Array< shared_ptr< Surface2D > >& surface2D) {
 	if (m_demoSettings.demoMode == DemoSettings::DemoMode::AO) {
-		rd->setFramebuffer(m_monitorDeviceFramebuffer);
+		rd->setFramebuffer(m_osWindowDeviceFramebuffer);
 		const Point2 inColumnOffset(-10.0f, m_framebuffer->height() - float(settings().depthGuardBandThickness.y)*2.0f);
 		float columnWidth = ((float)m_framebuffer->width() - 2.0f * settings().depthGuardBandThickness.x) / 2.0f;
 		Point2 position = inColumnOffset;

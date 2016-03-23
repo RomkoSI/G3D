@@ -485,7 +485,17 @@ protected:
 
     shared_ptr<MotionBlur>          m_motionBlur;
 
-    /** Framebuffer used for rendering the 3D portion of the scene. */
+    /** Framebuffer used for rendering the 3D portion of the scene. Includes 
+        a guard band. This is then resolved to m_osWindowDeviceFramebuffer. */
+    shared_ptr<Framebuffer>         m_osWindowHDRFramebuffer;
+
+    /** The (probably low dynamic range, one sample per pixel) OpenGL hardware framebuffer for the window(). 
+        Initialized in initializeOpenGL().
+
+        \sa VRApp::m_hmdDeviceFramebuffer[] 
+      */
+    shared_ptr<Framebuffer>         m_osWindowDeviceFramebuffer;
+
     shared_ptr<Framebuffer>         m_framebuffer;
 
     shared_ptr<Framebuffer>         m_depthPeelFramebuffer;
@@ -574,14 +584,7 @@ protected:
 	static GApp* s_currentGApp;
 
 public:
-
-    /** The (probably low dynamic range, one sample per pixel) OpenGL hardware framebuffer for the window(). 
-        Initialized in initializeOpenGL().
-
-        \sa VRApp::m_hmdDeviceFramebuffer[] 
-      */
-    shared_ptr<Framebuffer> m_monitorDeviceFramebuffer;
-
+    
 	/** Returns a pointer to the current GApp. GApp sets itself as current upon construction */
 	static GApp* current();
 

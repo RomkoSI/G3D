@@ -131,8 +131,8 @@ VRApp::VRApp(const GApp::Settings& settings) :
         m_hmdDeviceFramebuffer[eye]->setInvertY(true);
 
         // Share the depth buffer with the LDR device target
-        m_hmdFramebuffer[eye] = Framebuffer::create
-           (Texture::createEmpty(format("VRApp::m_hmdFramebuffer[%d]/color", eye), hmdWidth, hmdHeight, hdrColorFormat),
+        m_hmdHDRFramebuffer[eye] = Framebuffer::create
+           (Texture::createEmpty(format("VRApp::m_hmdHDRFramebuffer[%d]/color", eye), hmdWidth, hmdHeight, hdrColorFormat),
             m_hmdDeviceFramebuffer[eye]->texture(Framebuffer::DEPTH));
     }
 
@@ -389,7 +389,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
             const shared_ptr<Framebuffer>& vrFB = m_hmdDeviceFramebuffer[eye];
 
             // Swap out the underlying framebuffer that is "current" on the GApp
-            m_framebuffer = m_hmdFramebuffer[eye];
+            m_framebuffer = m_hmdHDRFramebuffer[eye];
             rd->pushState(vrFB); {
 
                 setActiveCamera(m_vrEyeCamera[eye]);
@@ -434,7 +434,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
 
         if (m_vrSettings.debugMirrorMode == DebugMirrorMode::PRE_DISTORTION) {
             // Mirror to the screen
-            rd->push2D(m_monitorDeviceFramebuffer); {
+            rd->push2D(m_osWindowDeviceFramebuffer); {
                 rd->setColorClearValue(Color3::black());
                 rd->clear();
                 for (int eye = 0; eye < 2; ++eye) {
