@@ -106,6 +106,7 @@
 	   <li> G3D::Framebuffer::invertY </li>
 	   <li> G3D::Framebuffer::isHardwareFramebuffer </li>
 	   <li> Allowed G3D::Framebuffer to model the hardware framebuffer </li>
+	   <li> Added optional invertY parameter to G3D::Draw::rect2D </li>
       </ul>
     </p>
 

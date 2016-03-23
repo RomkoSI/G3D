@@ -253,13 +253,16 @@ public:
 
     /** Draws a rectangle with dimensions specified by the input 
         rect that contains either the passed in texture or if the 
-        textureMap is null then the color specified is drawn */
+        textureMap is null then the color specified is drawn
+        
+        \param invertY If true, flip the Y axis of the texture (but not the rectangle coordinates) */
     static void rect2D
     (const class Rect2D& rect,
      RenderDevice* rd,
      const Color4& color = Color3::white(),
-     const shared_ptr<Texture>& textureMap = shared_ptr<Texture>(),
-     const Sampler& sampler = Sampler::video());
+     const shared_ptr<Texture>& textureMap = nullptr,
+     const Sampler& sampler = Sampler::video(),
+     bool  invertY = false);
 
     /** Draws a border about the rectangle
         using polygons (since PrimitiveType::LINE_STRIP doesn't 

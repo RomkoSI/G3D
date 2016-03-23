@@ -1,7 +1,7 @@
 /**
   \file App.h
 
-  The G3D 9.00 default starter app is configured for OpenGL 3.0 and
+  The G3D 10.00 default starter app is configured for OpenGL 3.3 and
   relatively recent GPUs.
  */
 #ifndef App_h
@@ -11,10 +11,10 @@
 /** Application framework. */
 class App : public GApp {
 protected:
-    bool                    m_showWireframe;
-    RealTime                m_lastLightingChangeTime;
+
     /** Called from onInit */
     void makeGUI();
+    shared_ptr<Texture> m_texture;
 
 public:
     

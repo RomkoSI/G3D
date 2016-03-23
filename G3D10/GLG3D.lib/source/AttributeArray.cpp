@@ -295,6 +295,7 @@ void AttributeArray::vertexAttribPointer(uint32 attribNum) const {
                                m_underlyingRepresentation, (GLsizei)m_stride, m_pointer);
     } else {
         // Float or normalized fixed point 
+        debugAssertM(sizeOfGLFormat(m_underlyingRepresentation) != 0, "Illegal underlying data representation");
         glVertexAttribPointer(attribNum, GLint(m_elementSize / sizeOfGLFormat(m_underlyingRepresentation)),
                               m_underlyingRepresentation, m_normalizedFixedPoint, (GLsizei)m_stride, m_pointer);
     }

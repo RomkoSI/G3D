@@ -2597,26 +2597,25 @@ void RenderDevice::modifyArgsForRectModeApply(Args& args) {
 
     bool useGiantTriangle = m_state.useClip2D && r.contains(m_state.clip2D);
     
-    // Allocate the vertex buffers if there is 
-    if ((!m_rect2DAttributeArrays.singleTriangleIndexArray.valid()) &&
-        (!m_rect2DAttributeArrays.quadIndexArray.valid())) {
-        // TODO: why do we add 1000 here?
-        shared_ptr<VertexBuffer> dataArea = VertexBuffer::create((sizeof(Vector3) + sizeof(Vector2)) * 4 + 1000, VertexBuffer::WRITE_EVERY_FRAME);
+    // Allocate the vertex buffers
+    if ((! m_rect2DAttributeArrays.singleTriangleIndexArray.valid()) &&
+        (! m_rect2DAttributeArrays.quadIndexArray.valid())) {
+        // The +1000 here works around a problem with update() at the bottom of this function
+        const shared_ptr<VertexBuffer>& dataArea = VertexBuffer::create((sizeof(Vector3) + sizeof(Vector2)) * 4 + 1000, VertexBuffer::WRITE_EVERY_FRAME);
         AttributeArray all((sizeof(Vector3) + sizeof(Vector2)) * 4 + 1000, dataArea);
-        m_rect2DAttributeArrays.vertexArray = AttributeArray(Vector3(), 4, all, 0, (int)sizeof(Vector3));
+        m_rect2DAttributeArrays.vertexArray   = AttributeArray(Vector3(), 4, all, 0, (int)sizeof(Vector3));
         m_rect2DAttributeArrays.texCoordArray = AttributeArray(Vector2(), 4, all, sizeof(Vector3) * 4, (int)sizeof(Vector2));
     }
 
     if (useGiantTriangle) {
-        if (!m_rect2DAttributeArrays.singleTriangleIndexArray.valid()) {
+        if (! m_rect2DAttributeArrays.singleTriangleIndexArray.valid()) {
             // (This code only runs once)
             shared_ptr<VertexBuffer> indexArea = VertexBuffer::create(sizeof(int) * 3, VertexBuffer::WRITE_ONCE);
             Array<int> indexArray(0, 1, 2);
             m_rect2DAttributeArrays.singleTriangleIndexArray = IndexStream(indexArray, indexArea);
         }
-    }
-    else {
-        if (!m_rect2DAttributeArrays.quadIndexArray.valid()) {
+    } else {
+        if (! m_rect2DAttributeArrays.quadIndexArray.valid()) {
             // (This code only runs once)
             shared_ptr<VertexBuffer> indexArea = VertexBuffer::create(sizeof(int) * 6, VertexBuffer::WRITE_ONCE);
             Array<int> indexArray(0, 3, 1, 2, 1, 3);
@@ -2624,9 +2623,7 @@ void RenderDevice::modifyArgsForRectModeApply(Args& args) {
         }
     }
 
-
     debugAssertGLOk();
-
 
     const RectShaderArgs rectShaderArgs(zCoord, r, tcRect, useGiantTriangle);
     if (rectShaderArgs != m_previousRectShaderArgs) {
@@ -2708,7 +2705,6 @@ void RenderDevice::apply(const shared_ptr<Shader>& s, Args& args) {
     case Shader::MULTIDRAW_NONINDEXED_RENDERING_MODE:
     case Shader::INDIRECT_RENDERING_MODE:
     case Shader::RECT_MODE:
-         debugAssertGLOk();
          beginIndexedPrimitives(); {
                    
              s->bindStreamArgs(program, args, this);
@@ -2736,63 +2732,48 @@ void RenderDevice::apply(const shared_ptr<Shader>& s, Args& args) {
              }
              #endif
 
-             debugAssertGLOk();           
              if ((domainType == Shader::STANDARD_INDEXED_RENDERING_MODE) || (domainType == Shader::RECT_MODE)) {
                  
                  sendIndicesInstanced(args.getPrimitiveType(), args.getIndexStream(), args.numInstances());
-                 debugAssertGLOk();
     
              } else if (domainType == Shader::STANDARD_NONINDEXED_RENDERING_MODE) {
                        
                  sendSequentialIndicesInstanced(args.getPrimitiveType(), args.numIndices(), args.numInstances());
-                 debugAssertGLOk();
                  
              } else if (domainType == Shader::INDIRECT_RENDERING_MODE) {
                  
                  glBindBuffer(GL_DRAW_INDIRECT_BUFFER, args.indirectBuffer()->glBufferID());
-                 debugAssertGLOk();
                  glDrawArraysIndirect(args.getPrimitiveType(), (const void*)args.indirectOffset());
-                 debugAssertGLOk();
                  glBindBuffer(GL_DRAW_INDIRECT_BUFFER, GL_NONE);
-                 debugAssertGLOk();
                  
              } else if (domainType == Shader::MULTIDRAW_NONINDEXED_RENDERING_MODE) {
                  sendMultidrawSequentialIndices(args.getPrimitiveType(), args.indexCountArray(), args.indexOffsetArray());
-                 debugAssertGLOk();
              } else {
                  debugAssert(domainType == Shader::MULTIDRAW_INDEXED_RENDERING_MODE);
                  sendMultidrawIndices(args.getPrimitiveType(), args.indexStreamArray(), args.numInstances(), args.numInstances() > 0);
-                 debugAssertGLOk();
              }
 
-             debugAssertGLOk();   
              s->unbindStreamArgs(program, args, this);
-             debugAssertGLOk();         
          } endIndexedPrimitives();
-         debugAssertGLOk();         
          break;
 
     case Shader::STANDARD_COMPUTE_MODE:
         {
             const Vector3int32& gridDim = args.computeGridDim;
             glDispatchCompute(gridDim.x, gridDim.y, gridDim.z);
-			debugAssertGLOk();
         }
         break;
 
     case Shader::INDIRECT_COMPUTE_MODE:
         glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, args.indirectBuffer()->glBufferID());
-		debugAssertGLOk();
 		glDispatchComputeIndirect(args.indirectOffset());
-		debugAssertGLOk();
         glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, GL_NONE);
-		debugAssertGLOk();
         break;
 
     default:
         alwaysAssertM(false, "Invalid Shader + Args configuration. Common causes are forgetting to call setRect() or setAttributeArray() and invoking a compute shader with a graphics shader domain (or vice versa).");
     }
-    debugAssertGLOk();
+
     glUseProgram(GL_NONE); 
     if (domainType == Shader::RECT_MODE) { 
         // Put the args back how we found them

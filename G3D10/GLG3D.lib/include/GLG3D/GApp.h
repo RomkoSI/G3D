@@ -575,6 +575,11 @@ protected:
 
 public:
 
+    /** The (probably low dynamic range, one sample per pixel) OpenGL hardware framebuffer for the window(). 
+        \sa VRApp::m_hmdDisplayFramebuffer[] 
+      */
+    shared_ptr<Framebuffer> m_monitorDisplayFramebuffer;
+
 	/** Returns a pointer to the current GApp. GApp sets itself as current upon construction */
 	static GApp* current();
 

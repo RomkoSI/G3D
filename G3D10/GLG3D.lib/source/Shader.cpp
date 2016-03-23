@@ -756,9 +756,7 @@ static bool isG3DAttribute(const String& name) {
 }
 
 
-// TODO: Note, we only use program for the attribute table. Can we abstract this to make it unneccessary to pass a program?
 void Shader::bindStreamArgs(const shared_ptr<ShaderProgram>& program, const Args& args, RenderDevice* rd) {
-    debugAssertGLOk();
     // Iterate through the formal parameter list
     const Args::GPUAttributeTable& t   = args.gpuAttributeTable();
     const ShaderProgram::AttributeDeclarationTable& attributeInformationTable = program->attributeDeclarationTable;
@@ -777,7 +775,6 @@ void Shader::bindStreamArgs(const shared_ptr<ShaderProgram>& program, const Args
                     debugAssertM(decl.name == name, format("%s != %s\n", decl.name.c_str(), name.c_str()));
                     if (decl.location >= 0) {
                         rd->setVertexAttribArray(decl.location, v.attributeArray);
-                        debugAssertGLOk();
                         glVertexAttribDivisor(decl.location, v.divisor);
                     }
                 }
@@ -810,6 +807,7 @@ void Shader::bindStreamArgs(const shared_ptr<ShaderProgram>& program, const Args
         glPatchParameteri(GL_PATCH_VERTICES, args.patchVertices);
     }
 }
+
 
 void Shader::unbindStreamArgs(const shared_ptr<ShaderProgram>& program, const Args& args, RenderDevice* rd) {
     // Iterate through the formal parameter list

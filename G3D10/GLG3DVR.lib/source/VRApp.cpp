@@ -444,7 +444,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
                     const float height = finalImage->height() * scale;
 
                     const Rect2D& rect = Rect2D::xywh((rd->width() + width * float(xShiftDirection - 1)) * 0.5f, 0.0f, width, height);
-                    Draw::rect2D(rect, rd, Color3::white(), finalImage);
+                    Draw::rect2D(rect, rd, Color3::white(), finalImage, Sampler::video(), true);
                 }
             } rd->pop2D();
         }

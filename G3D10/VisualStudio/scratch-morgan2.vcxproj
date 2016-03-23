@@ -160,7 +160,10 @@
     <None Include="..\scratch\morgan2\test2.pix" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\scratch\morgan\normal2bump.cpp" />
+    <ClCompile Include="..\scratch\morgan2\App.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\scratch\morgan2\App.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
