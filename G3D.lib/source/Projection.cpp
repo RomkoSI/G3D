@@ -81,12 +81,23 @@ Projection::Projection(const Matrix4& proj, const Vector2& viewportExtent) {
     const double halfX = (right - left) / 2.0;
     const double halfY = (bottom - top) / 2.0;
 
+    // From Graphics Codex: [P] Perspective Projection Matrix
+    //
+    // proj[0][2] = u * proj[1][1] / (nearval * viewportExtent.x)
+    // proj[1][2] = v * proj[1][1] / (nearval * viewportExtent.y)
+    //
+    // u = proj[0][2] * (nearval * viewportExtent.x) / proj[1][1]
+    // v = proj[1][2] * (nearval * viewportExtent.y) / proj[1][1]
+    // 
+    // (u, v) = proj.column(2).xy() *  viewportExtent * (nearval / proj[1][1])
+
     if (! fuzzyEq(left, -right) || ! fuzzyEq(bottom, -top)) {
         alwaysAssertM(viewportExtent.isFinite(), "Must specify the viewportExtent when constructing a Projection from a Matrix4 with pixelOffsets");
-        setPixelOffset(-Vector2(float(right + left), float(bottom + top)) * viewportExtent / 2.0f);
+        setPixelOffset(proj.column(2).xy() * viewportExtent * Vector2(-0.5f, 0.5f));
     }
 
-    // Assume vertical field of view
+    // Assume vertical field of view, and if the Y-axis scale is positive, restore it to a G3D convention of
+    // negating the Y axis
     setFieldOfView(float(atan2(abs(halfY), -m_nearPlaneZ) * 2.0), FOVDirection::VERTICAL);
 }
 
