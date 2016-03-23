@@ -138,9 +138,9 @@ protected:
       The HDR framebuffer used by G3D::Film for the HMD. 
       Comparable to GApp::monitorFramebuffer.
      */
-    shared_ptr<Framebuffer> m_hmdFramebuffer[2];
+    shared_ptr<Framebuffer> m_hmdHDRFramebuffer[2];
 
-    /** LDR faux-"hardware framebuffer" for the HMD, comparable to GApp::m_monitorDeviceFramebuffer.
+    /** LDR faux-"hardware framebuffer" for the HMD, comparable to GApp::m_osWindowDeviceFramebuffer.
         This is the buffer that 
 
         The m_framebuffer is still bound during the default onGraphics3D and then

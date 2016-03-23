@@ -4,7 +4,7 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2003-11-03
- \edited  2015-09-06
+ \edited  2016-03-23
  */
 
 #include "G3D/platform.h"
@@ -286,7 +286,7 @@ void GApp::initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindo
 
     m_window = renderDevice->window();
     m_window->makeCurrent();
-    m_monitorDeviceFramebuffer = m_window->framebuffer();
+    m_osWindowDeviceFramebuffer = m_window->framebuffer();
 
     m_widgetManager = WidgetManager::create(m_window);
     userInput = new UserInput(m_window);
@@ -347,7 +347,9 @@ void GApp::initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindo
             logPrintf("Warning: Disabled GApp::Settings::film.enabled because none of the provided color formats could be supported on this GPU.");
         } else {
             m_film = Film::create(colorFormat);
-            m_framebuffer = Framebuffer::create("GApp::m_framebuffer");
+
+            m_osWindowHDRFramebuffer = Framebuffer::create("GApp::m_osWindowHDRFramebuffer");
+            m_framebuffer = m_osWindowHDRFramebuffer;
 
             // The actual buffer allocation code:
             resize(renderDevice->width(), renderDevice->height());
@@ -402,7 +404,7 @@ void GApp::initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindo
     m_gbuffer->resize(renderDevice->width() + m_settings.depthGuardBandThickness.x * 2, renderDevice->height() + m_settings.depthGuardBandThickness.y * 2);
 
     // Share the depth buffer with the forward-rendering pipeline
-    m_framebuffer->set(Framebuffer::DEPTH, m_gbuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL));
+    m_osWindowHDRFramebuffer->set(Framebuffer::DEPTH, m_gbuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL));
 
     m_gbuffer->resize(renderDevice->width(), renderDevice->height());
 
@@ -706,6 +708,7 @@ GApp::~GApp() {
     m_posed3D.clear();
     m_posed2D.clear();
     m_framebuffer.reset();
+    m_osWindowHDRFramebuffer.reset();
     m_widgetManager.reset();
     developerWindow.reset();
     debugShapeArray.clear();
@@ -1114,30 +1117,30 @@ void GApp::resize(int w, int h) {
     w += m_settings.depthGuardBandThickness.x * 2;
     h += m_settings.depthGuardBandThickness.y * 2;
 
-    // Does the m_framebuffer need to be reallocated?  Do this even if we
+    // Does the m_osWindowHDRFramebuffer need to be reallocated?  Do this even if we
     // aren't using it at the moment, but not if we are minimized.
-    shared_ptr<Texture> color0(m_framebuffer->texture(0));
+    shared_ptr<Texture> color0(m_osWindowHDRFramebuffer->texture(0));
 
     if (notNull(m_film) && ! window()->isIconified() &&
         (isNull(color0) ||
-        (m_framebuffer->width() != w) ||
-        (m_framebuffer->height() != h))) {
+        (m_osWindowHDRFramebuffer->width() != w) ||
+        (m_osWindowHDRFramebuffer->height() != h))) {
 
-        m_framebuffer->clear();
+        m_osWindowHDRFramebuffer->clear();
 
         const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(m_settings.film.preferredColorFormats);
         const ImageFormat* depthFormat = GLCaps::firstSupportedTexture(m_settings.film.preferredDepthFormats);
         const bool generateMipMaps = false;
-        m_framebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("G3D::GApp::Framebuffer::texture(0)", w, h, colorFormat, Texture::DIM_2D, generateMipMaps, 1));
+        m_osWindowHDRFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("G3D::GApp::m_osWindowHDRFramebuffer/color", w, h, colorFormat, Texture::DIM_2D, generateMipMaps, 1));
 
         if (notNull(depthFormat)) {
             // Prefer creating a texture if we can
 
             const Framebuffer::AttachmentPoint p = (depthFormat->stencilBits > 0) ? Framebuffer::DEPTH_AND_STENCIL : Framebuffer::DEPTH;
             alwaysAssertM(GLCaps::supportsTexture(depthFormat), "");
-            m_framebuffer->set(p, Texture::createEmpty("G3D::GApp::m_depthBuffer", w, h, depthFormat, Texture::DIM_2D, generateMipMaps, 1));
+            m_osWindowHDRFramebuffer->set(p, Texture::createEmpty("G3D::GApp::m_osWindowHDRFramebuffer/depth", w, h, depthFormat, Texture::DIM_2D, generateMipMaps, 1));
 
-            m_depthPeelFramebuffer  = Framebuffer::create(Texture::createEmpty("G3D::GApp::m_depthPeelFramebuffer/DEPTH", m_framebuffer->width(), m_framebuffer->height(),
+            m_depthPeelFramebuffer  = Framebuffer::create(Texture::createEmpty("G3D::GApp::m_depthPeelFramebuffer", m_osWindowHDRFramebuffer->width(), m_osWindowHDRFramebuffer->height(),
                                          depthFormat, Texture::DIM_2D));
         }
     }
@@ -1569,8 +1572,8 @@ void GApp::renderCubeMap(RenderDevice* rd, Array<shared_ptr<Texture> >& output, 
         Array<shared_ptr<Surface2D> > ignore;
         onPose(surface, ignore);
     }
-    const int oldFramebufferWidth       = m_framebuffer->width();
-    const int oldFramebufferHeight      = m_framebuffer->height();
+    const int oldFramebufferWidth       = m_osWindowHDRFramebuffer->width();
+    const int oldFramebufferHeight      = m_osWindowHDRFramebuffer->height();
     const Vector2int16  oldColorGuard   = m_settings.colorGuardBandThickness;
     const Vector2int16  oldDepthGuard   = m_settings.depthGuardBandThickness;
     const shared_ptr<Camera>& oldCamera = activeCamera();
@@ -1578,7 +1581,7 @@ void GApp::renderCubeMap(RenderDevice* rd, Array<shared_ptr<Texture> >& output, 
     m_settings.colorGuardBandThickness = Vector2int16(128, 128);
     m_settings.depthGuardBandThickness = Vector2int16(256, 256);
     const int fullWidth = resolution + (2 * m_settings.depthGuardBandThickness.x);
-    m_framebuffer->resize(fullWidth, fullWidth);
+    m_osWindowHDRFramebuffer->resize(fullWidth, fullWidth);
 
     shared_ptr<Camera> newCamera = Camera::create("Cubemap Camera");
     newCamera->copyParametersFrom(camera);
@@ -1608,10 +1611,10 @@ void GApp::renderCubeMap(RenderDevice* rd, Array<shared_ptr<Texture> >& output, 
         // render every face twice to let the screen space reflection/refraction texture to stabilize
         onGraphics3D(rd, surface);
 
-        m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0), output[face]);
+        m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_osWindowHDRFramebuffer->texture(0), output[face]);
     }
     setActiveCamera(oldCamera);
-    m_framebuffer->resize(oldFramebufferWidth, oldFramebufferHeight);
+    m_osWindowHDRFramebuffer->resize(oldFramebufferWidth, oldFramebufferHeight);
     m_settings.colorGuardBandThickness = oldColorGuard;
     m_settings.depthGuardBandThickness = oldDepthGuard;
 }
