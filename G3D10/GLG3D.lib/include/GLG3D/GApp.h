@@ -496,6 +496,9 @@ protected:
       */
     shared_ptr<Framebuffer>         m_osWindowDeviceFramebuffer;
 
+    /** The framebuffer that will be used by the default onGraphics3D.  GApp binds this to m_osWindowHDRFramebuffer by default.
+        VRApp binds it to VRApp::m_hmdHDRFramebuffer[VRApp::m_currentEye]. 
+      */
     shared_ptr<Framebuffer>         m_framebuffer;
 
     shared_ptr<Framebuffer>         m_depthPeelFramebuffer;
