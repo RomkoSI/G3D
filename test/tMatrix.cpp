@@ -59,6 +59,7 @@ void testPseudoInverse() {
         testAssertM((H1-H2).norm() < normThreshold, format("4x%d case failed, error=%f",n,(H1-H2).norm()));
     }
 }
+
 void testMatrix() {
     printf("Matrix ");
     // Zeros
@@ -266,5 +267,56 @@ void testMatrix() {
     */
 
 
+    printf("passed\n");
+}
+
+
+void testMatrix4() {
+    printf("Matrix4 ");
+    {
+        const double 
+            sleft = -0.069638041824473751, 
+            sright = 0.062395225117240799,
+            sbottom = 0.073294763927117534, 
+            stop = -0.07,//-0.073294763927117534, 
+            snearval = -0.1f, 
+            sfarval = -100.0f;      
+        const Matrix4 M = Matrix4::perspectiveProjection(sleft, sright, sbottom, stop, snearval, sfarval);
+
+        double dleft, dright, dbottom, dtop, dnearval, dfarval;
+        M.getPerspectiveProjectionParameters(dleft, dright, dbottom, dtop, dnearval, dfarval);
+
+        testAssert(fuzzyEq(sleft, dleft));
+        testAssert(fuzzyEq(sright   , dright));
+        testAssert(fuzzyEq(stop     , dtop));
+        testAssert(fuzzyEq(sbottom  , dbottom));
+        testAssert(fuzzyEq(snearval , dnearval));
+        testAssert(fabs(sfarval - dfarval) < 0.0001f);
+    }
+
+    {
+        const double L = -1.0f;
+        const double R =  4.0f;
+        const double B = -2.0f;
+        const double T =  3.0f;
+        const double N =  1.5f;
+        const double F = 100.2f;
+        const Matrix4 P = Matrix4::perspectiveProjection(L, R, B, T, N, F);
+
+        double L2 = 0.0;
+        double R2 = 0.0;
+        double B2 = 0.0;
+        double T2 = 0.0;
+        double N2 = 0.0;
+        double F2 = 0.0;
+        P.getPerspectiveProjectionParameters(L2, R2, B2, T2, N2, F2);
+    
+        testAssert(fuzzyEq(L, L2));
+        testAssert(fuzzyEq(R, R2));
+        testAssert(fuzzyEq(B, B2));
+        testAssert(fuzzyEq(T, T2));
+        testAssert(fuzzyEq(N, N2));
+        testAssert(fuzzyEq(F, F2));
+    }
     printf("passed\n");
 }
