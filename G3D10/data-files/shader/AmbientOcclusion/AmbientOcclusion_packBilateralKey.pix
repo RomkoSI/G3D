@@ -5,6 +5,8 @@
 uniform_Texture(sampler2D, normal_);
 uniform_Texture(sampler2D, csZ_);
 
+#expect FAR_PLANE_Z "(negative) z-coordinate of the far plane"
+
 //uniform float nearZ;
 //uniform float farZ;
 

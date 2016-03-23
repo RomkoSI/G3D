@@ -198,11 +198,12 @@ void AmbientOcclusion::packBlurKeys
         const AmbientOcclusionSettings& settings, 
         const shared_ptr<Texture>& cszBuffer, 
         const Vector3& clipInfo,
+	const float farPlaneZ,
         const shared_ptr<Texture>& normalBuffer) {
     rd->push2D(m_packedKeyBuffer); {
         Args args;
-        
-        // TODO: compute far plane as distance where AO radius drops to < pixel
+        args.setMacro("FAR_PLANE_Z", farPlaneZ);
+
         cszBuffer->setShaderArgs(args, "csZ_", Sampler::buffer());
         normalBuffer->setShaderArgs(args, "normal_", Sampler::buffer());
         args.setRect(rd->viewport());
@@ -219,6 +220,7 @@ void AmbientOcclusion::compute
     const Vector3&                  clipConstant,
     const Vector4&                  projConstant,
     float                           projScale,
+    const float                     farPlaneZ,
     const CFrame&                   currentCameraFrame,
     const CFrame&                   prevCameraFrame,
     const shared_ptr<Texture>&      peeledDepthBuffer,
@@ -255,7 +257,7 @@ void AmbientOcclusion::compute
        shared_ptr<Texture> depthPeelCSZ = notNull(peeledDepthBuffer) ? m_perViewBuffers[1]->cszBuffer : shared_ptr<Texture>();
 #   endif
 
-    computeRawAO(rd, settings, depthBuffer, clipConstant, projConstant, projScale, m_perViewBuffers[0]->cszBuffer, depthPeelCSZ, normalBuffer);
+       computeRawAO(rd, settings, depthBuffer, clipConstant, projConstant, projScale, farPlaneZ, m_perViewBuffers[0]->cszBuffer, depthPeelCSZ, normalBuffer);
     if (notNull(ssVelocityBuffer) && (settings.temporalFilterSettings.hysteresis > 0.0f)) {
         m_temporallyFilteredBuffer = m_temporalFilter.apply(rd, clipConstant, projConstant, currentCameraFrame, prevCameraFrame, m_rawAOBuffer, 
         depthBuffer, ssVelocityBuffer, Vector2(float(m_guardBandSize), float(m_guardBandSize)), 1, settings.temporalFilterSettings);
@@ -266,14 +268,14 @@ void AmbientOcclusion::compute
 
     if (settings.blurRadius != 0) {
         if (settings.packBlurKeys) {
-            packBlurKeys(rd, settings, m_perViewBuffers[0]->cszBuffer, clipConstant, normalBuffer);
+	  packBlurKeys(rd, settings, m_perViewBuffers[0]->cszBuffer, clipConstant, farPlaneZ, normalBuffer);
         }
 
         BEGIN_PROFILER_EVENT("Blur");
         alwaysAssertM(settings.blurRadius >= 0 && settings.blurRadius <= 6, "The AO blur radius must be a nonnegative number, 6 or less");
         alwaysAssertM(settings.blurStepSize > 0, "Must use a positive blur step size");
-        blurHorizontal(rd, settings, depthBuffer, projConstant, normalBuffer);
-        blurVertical(rd, settings, depthBuffer, projConstant, normalBuffer);
+        blurHorizontal(rd, settings, depthBuffer, farPlaneZ, projConstant, normalBuffer);
+        blurVertical(rd, settings, depthBuffer, farPlaneZ, projConstant, normalBuffer);
         END_PROFILER_EVENT();
     } // else the result is still in the m_temporallyFilteredBuffer 
 
@@ -409,6 +411,7 @@ void AmbientOcclusion::computeRawAO
     const Vector3&                  clipConstant,
     const Vector4&                  projConstant,
     const float                     projScale,
+    const float                     farPlaneZ,
     const shared_ptr<Texture>&      csZBuffer,
     const shared_ptr<Texture>&      peeledCSZBuffer,
     const shared_ptr<Texture>&      normalBuffer) {
@@ -438,7 +441,8 @@ void AmbientOcclusion::computeRawAO
         args.setUniform(SYMBOL_radius2, square(settings.radius));
         args.setUniform(SYMBOL_invRadius2, 1.0f / square(settings.radius));
         args.setMacro("TEMPORALLY_VARY_SAMPLES", settings.temporallyVarySamples);
-        
+	args.setMacro("FAR_PLANE_Z", farPlaneZ);
+	
         const bool useDepthPeel = settings.useDepthPeelBuffer;
         args.setMacro(SYMBOL_USE_DEPTH_PEEL, useDepthPeel ? 1 : 0);
         if ( useDepthPeel ) {
@@ -478,6 +482,7 @@ void AmbientOcclusion::blurOneDirection
     (RenderDevice*                      rd,
     const AmbientOcclusionSettings&     settings,
     const shared_ptr<Texture>&          depthBuffer,
+    const float                         farPlaneZ,
     const Vector4&                      projConstant,
     const shared_ptr<Texture>&          normalBuffer,
     const Vector2int16&                 axis,
@@ -496,6 +501,8 @@ void AmbientOcclusion::blurOneDirection
         args.setUniform(SYMBOL_axis,            axis);
         args.setUniform("invRadius",            1.0f / settings.radius);
 
+	args.setMacro("FAR_PLANE_Z", farPlaneZ);
+	
         args.setUniform(SYMBOL_projInfo, projConstant);
         args.setMacro("HIGH_QUALITY", settings.highQualityBlur);
         args.setMacro(SYMBOL_EDGE_SHARPNESS,    settings.edgeSharpness);
@@ -526,10 +533,11 @@ void AmbientOcclusion::blurHorizontal
    (RenderDevice*                       rd,
     const AmbientOcclusionSettings&     settings,
     const shared_ptr<Texture>&          depthBuffer,
+    const float                         farPlaneZ,
     const Vector4&                      projConstant,
     const shared_ptr<Texture>&          normalBuffer) {
     Vector2int16 axis(1, 0);
-    blurOneDirection(rd, settings, depthBuffer, projConstant, normalBuffer, 
+    blurOneDirection(rd, settings, depthBuffer,  farPlaneZ, projConstant, normalBuffer, 
                     axis, m_hBlurredFramebuffer, m_temporallyFilteredBuffer);
 }
 
@@ -538,10 +546,11 @@ void AmbientOcclusion::blurVertical
    (RenderDevice*                       rd,
     const AmbientOcclusionSettings&     settings,
     const shared_ptr<Texture>&          depthBuffer,
+    const float                         farPlaneZ,
     const Vector4&                      projConstant,
     const shared_ptr<Texture>&          normalBuffer) {
     Vector2int16 axis(0, 1);
-    blurOneDirection(rd, settings, depthBuffer, projConstant, normalBuffer, 
+    blurOneDirection(rd, settings, depthBuffer, farPlaneZ, projConstant, normalBuffer, 
                     axis, m_resultFramebuffer, m_hBlurredBuffer);
 }
 
@@ -560,7 +569,7 @@ void AmbientOcclusion::compute
     
     const CFrame& currentCameraFrame    = camera->frame();
     const CFrame& prevCameraFrame       = camera->previousFrame();
-    compute(rd, settings, depthBuffer, clipConstant, projConstant, (float)abs(camera->imagePlanePixelsPerMeter(rd->viewport())), 
+      compute(rd, settings, depthBuffer, clipConstant, projConstant, (float)abs(camera->imagePlanePixelsPerMeter(rd->viewport())), camera->farPlaneZ(),
             currentCameraFrame, prevCameraFrame, peeledDepthBuffer, normalBuffer, ssVelocityBuffer);
 }
 

@@ -10,8 +10,4 @@
 // This must be less than or equal to the MAX_MIP_LEVEL defined in SAmbientOcclusion.cpp
 #define MAX_MIP_LEVEL (5)
 
-/** Used for preventing AO computation on the sky (at infinite depth) and defining the CS Z to bilateral depth key scaling. 
-    This need not match the real far plane but should not be much more than it.*/
-const float FAR_PLANE_Z = -1000.0;
-
 #endif
