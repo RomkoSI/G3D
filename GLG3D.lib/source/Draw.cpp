@@ -1480,23 +1480,22 @@ void Draw::rect2D
     if (invertY) {
         const size_t padding = 1000;
         const shared_ptr<VertexBuffer>& dataArea = VertexBuffer::create((sizeof(Vector2) + sizeof(Vector2)) * 4 + padding, VertexBuffer::WRITE_EVERY_FRAME);
-
-        AttributeArray vertexArray(sizeof(Point2) * 4, dataArea);
-        AttributeArray texCoordArray(sizeof(Point2) * 4, dataArea);
+        AttributeArray vertexArray(Point2(), 4, dataArea);
+        AttributeArray texCoordArray(Point2(), 4, dataArea);
 
         {
             Point2* vertex = (Point2*)vertexArray.mapBuffer(GL_WRITE_ONLY);
             vertex[0] = rect.x0y0();
             vertex[1] = rect.x0y1();
-            vertex[2] = rect.x1y1();
-            vertex[3] = rect.x1y0();
+            vertex[2] = rect.x1y0();
+            vertex[3] = rect.x1y1();
             vertexArray.unmapBuffer();
         }
 
         {
             Point2* texCoord = (Point2*)texCoordArray.mapBuffer(GL_WRITE_ONLY);
-            texCoord[0] = Point2(0, 0);
-            texCoord[1] = Point2(0, 1);
+            texCoord[0] = Point2(0, 1);
+            texCoord[1] = Point2(0, 0);
             texCoord[2] = Point2(1, 1);
             texCoord[3] = Point2(1, 0);
             texCoordArray.unmapBuffer();
@@ -1506,7 +1505,6 @@ void Draw::rect2D
         args.setAttributeArray("g3d_TexCoord0", texCoordArray);
         args.setPrimitiveType(PrimitiveType::TRIANGLE_STRIP);
         args.setNumIndices(4);
-        debugAssertGLOk();
     } else {
         args.setRect(rect, 0);
     }
