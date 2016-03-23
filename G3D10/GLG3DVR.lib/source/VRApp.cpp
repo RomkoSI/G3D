@@ -453,12 +453,6 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
             } rd->pop2D();
         }
 
-        // TODO: is this needed?
-        glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
-
-        // Tell G3D that we unmapped the framebuffer
-        rd->setFramebuffer(nullptr);
-
     } rd->popState();
 
     maybeAdjustEffects();
