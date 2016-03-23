@@ -103,7 +103,7 @@ void UniversalSurface::bindDepthPeelArgs
     const bool useDepthPeel = notNull(depthPeelTexture);
     args.setMacro("USE_DEPTH_PEEL", useDepthPeel ? 1 : 0);
     if (useDepthPeel) {
-        const Vector3& clipInfo = Projection(rd->projectionMatrix()).reconstructFromDepthClipInfo();
+        const Vector3& clipInfo = Projection(rd->projectionMatrix(), rd->viewport().wh()).reconstructFromDepthClipInfo();
         args.setUniform("previousDepthBuffer", depthPeelTexture, Sampler::buffer());
         args.setUniform("minZSeparation",  minZSeparation);
         args.setUniform("currentToPreviousScale", Vector2(depthPeelTexture->width()  / rd->viewport().width(),
