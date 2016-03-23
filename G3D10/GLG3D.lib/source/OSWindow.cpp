@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2004-11-16
- @edited  2014-10-02
+ @edited  2016-03-23
  */
 
 #include "GLG3D/OSWindow.h"
@@ -12,6 +12,7 @@
 #include "GLG3D/GLCaps.h"
 #include "GLG3D/RenderDevice.h"
 #include "G3D/ImageFormat.h"
+#include "GLG3D/Framebuffer.h"
 
 
 #ifdef G3D_WINDOWS
@@ -70,6 +71,15 @@ OSWindow::Settings::Settings() :
 #   else
         defaultIconFilename = System::findDataFile("G3D-64.png", false);
 #   endif
+}
+
+const shared_ptr<Framebuffer>& OSWindow::framebuffer() const {
+    if (isNull(m_framebuffer)) {
+        m_framebuffer = shared_ptr<Framebuffer>(new Framebuffer("OpenGL Hardware Framebuffer", GL_ZERO));
+        m_framebuffer->m_window = const_cast<OSWindow*>(this);
+    }
+
+    return m_framebuffer;
 }
 
 

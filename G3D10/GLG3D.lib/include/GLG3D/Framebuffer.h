@@ -121,6 +121,8 @@ namespace G3D {
 */
 class Framebuffer : public ReferenceCountedObject {
 public:
+    friend class OSWindow;
+
     /**
        Specifies which channels of the framebuffer the texture will 
        define. These mirror
@@ -295,6 +297,9 @@ protected:
 
     bool                            m_invertY;
 
+    /** If this is the hardware framebuffer for a window */
+    OSWindow*                       m_window;
+
     /** Adds \a a to m_desired. */
     void set(const shared_ptr<Attachment>& a);
 
@@ -333,8 +338,12 @@ public:
     /** Returns the number of stencil bits for currently attached STENCIL and DEPTH_AND_STENCIL attachments.*/
     int stencilBits() const;
 
+    bool isHardwareFramebuffer() const {
+        return m_framebufferID == GL_NONE;
+    }
+
     /** Creates a Framebuffer object.
-       
+      
        \param name Name of framebuffer, for debugging purposes. */
     static shared_ptr<Framebuffer> create(const String& name);
 
@@ -348,13 +357,7 @@ public:
 		Requires ARB_framebuffer_no_attachments.
      */
 	static shared_ptr<Framebuffer> createWithoutAttachments(const String& _name, Vector2 res, int numLayers, int numSamples=1, bool fixedSamplesLocation=true);
-
-    /** Creates a Framebuffer object modeling the OpenGL "Hardware framebuffer", which is not an OpenGL object. 
-        This framebuffer has a size and format (determined by querying OpenGL on construction) but cannot 
-        have attachments.
-    */
-    static shared_ptr<Framebuffer> createHardwareFramebuffer();
-
+    
     /** Bind this framebuffer and force all of its attachments to
         actually be attached at the OpenGL level.  The latter step is
         needed because set() is lazy.
