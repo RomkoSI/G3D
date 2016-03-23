@@ -44,39 +44,14 @@ void perfArray();
 void testArray();
 void testSmallArray();
 
-void testMatrix();
-
 void testFileSystem();
 
+void testMatrix();
+void testMatrix4();
 void testMatrix3();
 void perfMatrix3();
 
 void testSpeedLoad();
-
-void testMatrix4() {
-   double L = -1.0f;
-    double R =  4.0f;
-    double B = -2.0f;
-    double T =  3.0f;
-    double N =  1.5f;
-    double F = 100.2f;
-    Matrix4 P = Matrix4::perspectiveProjection(L, R, B, T, N, F);
-
-    double L2 = -1.0f;
-    double R2 =  4.0f;
-    double B2 = -2.0f;
-    double T2 =  3.0f;
-    double N2 =  1.5f;
-    double F2 = 100.2f;
-    P.getPerspectiveProjectionParameters(L2, R2, B2, T2, N2, F2);
-    
-    testAssert(fuzzyEq(L, L2));
-    testAssert(fuzzyEq(R, R2));
-    testAssert(fuzzyEq(B, B2));
-    testAssert(fuzzyEq(T, T2));
-    testAssert(fuzzyEq(N, N2));
-    testAssert(fuzzyEq(F, F2));
-}
 
 void testZip();
 
