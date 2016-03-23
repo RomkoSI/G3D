@@ -138,13 +138,19 @@ protected:
     vr::IVRSystem*          m_hmd;
     vr::TrackedDevicePose_t m_trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 
-    /** One of these is bound to the RenderDevice during 
-        onGraphics. It is the equivalent to the LDR hardware framebuffer for VR rendering.
-        
+    /**
+      The HDR framebuffer used by G3D::Film for the HMD. 
+      Comparable to GApp::monitorFramebuffer.
+     */
+    shared_ptr<Framebuffer> m_hmdFramebuffer[2];
+
+    /** LDR faux-"hardware framebuffer" for the HMD, comparable to GApp::m_monitorDeviceFramebuffer.
+        This is the buffer that 
+
         The m_framebuffer is still bound during the default onGraphics3D and then
-        resolved by Film to the m_eyeFramebuffer.
+        resolved by Film to the m_hmdDeviceFramebuffer.
         */
-    shared_ptr<Framebuffer> m_eyeFramebuffer[2];
+    shared_ptr<Framebuffer> m_hmdDeviceFramebuffer[2];
 
     /** Net eye-to-body transform */
     CFrame                  m_previousEyeFrame[2];
@@ -231,9 +237,7 @@ public:
     virtual void onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& surface, Array<shared_ptr<Surface2D> >& surface2D) override;
 
     virtual void onCleanup() override;
-
-    virtual void resize(int w, int h) override;
-
+    
     /** Latch tracking data:
 
         m_trackedDevicePose

@@ -113,20 +113,27 @@ VRApp::VRApp(const GApp::Settings& settings) :
         m_gbufferArray[0] = m_gbuffer;
         m_gbufferArray[1] = nullptr;
         m_vrEyeCamera[1]  = nullptr;
-        m_eyeFramebuffer[1] = nullptr;
+        m_hmdDeviceFramebuffer[1] = nullptr;
     }
 
     // Construct the eye cameras, framebuffers, and head entity
-    const ImageFormat* colorFormat = ImageFormat::RGBA8();
+    const ImageFormat* ldrColorFormat = ImageFormat::RGBA8();
+    const ImageFormat* hdrColorFormat = GLCaps::firstSupportedTexture(settings.film.preferredColorFormats);
     const ImageFormat* depthFormat = GLCaps::firstSupportedTexture(settings.film.preferredDepthFormats);
     for (int eye = 0; eye < numEyes(); ++eye) {
         static const String NAME[2] = {"VRApp::m_vrEyeCamera[0]", "VRApp::m_vrEyeCamera[1]"};
         m_vrEyeCamera[eye] = Camera::create(NAME[eye]);
         m_vrEyeCamera[eye]->setShouldBeSaved(false);
-        m_eyeFramebuffer[eye] = Framebuffer::create
-           (Texture::createEmpty(format("VRApp::m_eyeFramebuffer[%d]/color", eye), hmdWidth, hmdHeight, colorFormat),
-            Texture::createEmpty(format("VRApp::m_eyeFramebuffer[%d]/depth", eye), hmdWidth, hmdHeight, depthFormat));
-        m_eyeFramebuffer[eye]->setInvertY(true);
+
+        m_hmdDeviceFramebuffer[eye] = Framebuffer::create
+           (Texture::createEmpty(format("VRApp::m_hmdDeviceFramebuffer[%d]/color", eye), hmdWidth, hmdHeight, ldrColorFormat),
+            Texture::createEmpty(format("VRApp::m_hmdDeviceFramebuffer[%d]/depth", eye), hmdWidth, hmdHeight, depthFormat));
+        m_hmdDeviceFramebuffer[eye]->setInvertY(true);
+
+        // Share the depth buffer with the LDR device target
+        m_hmdFramebuffer[eye] = Framebuffer::create
+           (Texture::createEmpty(format("VRApp::m_hmdFramebuffer[%d]/color", eye), hmdWidth, hmdHeight, hdrColorFormat),
+            m_hmdDeviceFramebuffer[eye]->texture(Framebuffer::DEPTH));
     }
 
     // Introduce the head entity
@@ -273,7 +280,7 @@ void VRApp::sampleTrackingData() {
             m_vrEyeCamera[eye]->depthOfFieldSettings() = m_vrSettings.depthOfFieldSettings;
         }
 
-        const Projection& projection = Projection(projectionMatrixRowMajor4x4[eye], m_eyeFramebuffer[eye]->vector2Bounds());
+        const Projection& projection = Projection(projectionMatrixRowMajor4x4[eye], m_hmdDeviceFramebuffer[eye]->vector2Bounds());
         m_vrEyeCamera[eye]->setProjection(projection);
 
         const CFrame previousWorldFrame(maybeRemovePitchAndRoll(bodyCamera->previousFrame()) * m_previousEyeFrame[eye]);
@@ -300,15 +307,6 @@ void VRApp::sampleTrackingData() {
     //    m_externalCameraFrame = m_vrHead->frame() * bodySpaceHead.inverse() * bodySpaceTracker;
 
     END_PROFILER_EVENT();
-}
-
-
-void VRApp::resize(int w, int h) {
-    // Size the framebuffer to the m_hmd texture resolution
-    // Ignore the resolution of the physical window.
-    uint32_t hmdWidth, hmdHeight;
-    m_hmd->GetRecommendedRenderTargetSize(&hmdWidth, &hmdHeight);
-    super::resize(hmdWidth, hmdHeight);
 }
 
 
@@ -379,6 +377,8 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
 
         BEGIN_PROFILER_EVENT("Rendering");
 
+        shared_ptr<Framebuffer> oldFB = m_framebuffer;
+
         // No reference because we're going to mutate the active camera
         const shared_ptr<Camera> bodyCamera = activeCamera();
         for (m_currentEyeIndex = 0; m_currentEyeIndex < 2; ++m_currentEyeIndex) {
@@ -386,8 +386,10 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
 
             // Switch to eye render target for the display itself (we assume that onGraphics3D will probably
             // bind its own HDR buffer and then resolve to this one.)
-            const shared_ptr<Framebuffer>& vrFB = m_eyeFramebuffer[eye];
+            const shared_ptr<Framebuffer>& vrFB = m_hmdDeviceFramebuffer[eye];
 
+            // Swap out the underlying framebuffer that is "current" on the GApp
+            m_framebuffer = m_hmdFramebuffer[eye];
             rd->pushState(vrFB); {
 
                 setActiveCamera(m_vrEyeCamera[eye]);
@@ -398,6 +400,8 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
             } rd->popState();
         }
         setActiveCamera(bodyCamera);
+
+        m_framebuffer = oldFB;
 
         END_PROFILER_EVENT();
 
@@ -429,12 +433,12 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
         }
 
         if (m_vrSettings.debugMirrorMode == DebugMirrorMode::PRE_DISTORTION) {
-            // Access the hardware frame buffer
-            rd->push2D(shared_ptr<Framebuffer>()); {
+            // Mirror to the screen
+            rd->push2D(m_monitorDeviceFramebuffer); {
                 rd->setColorClearValue(Color3::black());
                 rd->clear();
                 for (int eye = 0; eye < 2; ++eye) {
-                    const shared_ptr<Texture>& finalImage = m_eyeFramebuffer[eye]->texture(0);
+                    const shared_ptr<Texture>& finalImage = m_hmdDeviceFramebuffer[eye]->texture(0);
 
                     // Find the scale needed to fit both images on screen
                     const float scale = min(float(rd->width()) * 0.5f / float(finalImage->width()), float(rd->height()) / float(finalImage->height()));
@@ -449,7 +453,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
             } rd->pop2D();
         }
 
-
+        // TODO: is this needed?
         glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 
         // Tell G3D that we unmapped the framebuffer
@@ -511,7 +515,7 @@ void VRApp::submitHMDFrame(RenderDevice* rd) {
     const vr::EColorSpace colorSpace = vr::ColorSpace_Linear;
 
     for (int eye = 0; eye < 2; ++eye) {
-        const vr::Texture_t tex = { reinterpret_cast<void*>(intptr_t(m_eyeFramebuffer[eye]->texture(0)->openGLID())), vr::API_OpenGL, colorSpace };
+        const vr::Texture_t tex = { reinterpret_cast<void*>(intptr_t(m_hmdDeviceFramebuffer[eye]->texture(0)->openGLID())), vr::API_OpenGL, colorSpace };
         vr::VRCompositor()->Submit(vr::EVREye(eye), &tex);
     }
 
@@ -663,7 +667,7 @@ bool VRApp::onEvent(const GEvent& event) {
     } else if ((event.type == GEventType::MOUSE_MOTION) && m_hudEnabled) {
         // If the mouse moved outside of the allowed bounds, move it back
         const Point2& p = event.mousePosition();
-        const Point2& size = m_eyeFramebuffer[0]->vector2Bounds() - Vector2::one(); 
+        const Point2& size = m_hmdDeviceFramebuffer[0]->vector2Bounds() - Vector2::one(); 
         if ((p.x < 0) || (p.y < 0) || (p.x > size.x) || (p.y > size.y)) {
             window()->setRelativeMousePosition(p.clamp(Vector2::zero(), size));
         }
