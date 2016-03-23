@@ -20,11 +20,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\GLG3DVR.lib\readme.md" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\GLG3DVR.lib\include\GLG3DVR\VRApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\GLG3DVR.lib\readme.md.html" />
   </ItemGroup>
 </Project>
