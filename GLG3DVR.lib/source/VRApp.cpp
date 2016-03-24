@@ -284,10 +284,10 @@ void VRApp::sampleTrackingData() {
         }
 
         m_vrEyeCamera[eye]->copyParametersFrom(bodyCamera);
-        if (m_vrSettings.overrideMotionBlur) {
+        if (m_vrSettings.overrideMotionBlur && m_vrEyeCamera[eye]->motionBlurSettings().enabled()) {
             m_vrEyeCamera[eye]->motionBlurSettings() = m_vrSettings.motionBlurSettings;
         }
-        if (m_vrSettings.overrideDepthOfField) {
+        if (m_vrSettings.overrideDepthOfField && m_vrEyeCamera[eye]->depthOfFieldSettings().enabled()) {
             m_vrEyeCamera[eye]->depthOfFieldSettings() = m_vrSettings.depthOfFieldSettings;
         }
 
@@ -403,6 +403,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
             m_framebuffer = m_hmdHDRFramebuffer[eye];
             rd->pushState(vrFB); {
 
+                // Parameters were copied from the body camera back in sampleTrackingData
                 setActiveCamera(m_vrEyeCamera[eye]);
 
                 m_gbuffer = m_gbufferArray[m_currentEyeIndex];
