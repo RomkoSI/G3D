@@ -1138,6 +1138,8 @@ void GApp::resize(int w, int h) {
 
             const Framebuffer::AttachmentPoint p = (depthFormat->stencilBits > 0) ? Framebuffer::DEPTH_AND_STENCIL : Framebuffer::DEPTH;
             alwaysAssertM(GLCaps::supportsTexture(depthFormat), "");
+
+            // Most applications will reset this to be bound to the GBuffer's depth buffer
             m_osWindowHDRFramebuffer->set(p, Texture::createEmpty("G3D::GApp::m_osWindowHDRFramebuffer/depth", w, h, depthFormat, Texture::DIM_2D, generateMipMaps, 1));
 
             m_depthPeelFramebuffer  = Framebuffer::create(Texture::createEmpty("G3D::GApp::m_depthPeelFramebuffer", m_osWindowHDRFramebuffer->width(), m_osWindowHDRFramebuffer->height(),
