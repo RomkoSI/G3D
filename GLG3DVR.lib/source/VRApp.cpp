@@ -224,8 +224,9 @@ static void getEyeTransformations
         }
     }
 
-    const vr::HmdMatrix44_t& ltProj = hmd->GetProjectionMatrix(vr::Eye_Left,  -nearPlaneZ, -farPlaneZ, vr::API_OpenGL);
-    const vr::HmdMatrix44_t& rtProj = hmd->GetProjectionMatrix(vr::Eye_Right, -nearPlaneZ, -farPlaneZ, vr::API_OpenGL);
+    // Vive's near plane code is off by a factor of 2 according to G3D
+    const vr::HmdMatrix44_t& ltProj = hmd->GetProjectionMatrix(vr::Eye_Left,  -nearPlaneZ * 2.0f, -farPlaneZ, vr::API_OpenGL);
+    const vr::HmdMatrix44_t& rtProj = hmd->GetProjectionMatrix(vr::Eye_Right, -nearPlaneZ * 2.0f, -farPlaneZ, vr::API_OpenGL);
 
     for (int r = 0; r < 4; ++r) {
         for (int c = 0; c < 4; ++c) {
@@ -233,6 +234,16 @@ static void getEyeTransformations
             rtProjectionMatrixRowMajor4x4[r * 4 + c] = rtProj.m[r][c];
         }
     }
+
+#   ifdef G3D_DEBUG
+    {
+        double left, right, bottom, top, nearval, farval;
+        float updirection = -1.0f;
+        Matrix4(ltProjectionMatrixRowMajor4x4).getPerspectiveProjectionParameters(left, right, bottom, top, nearval, farval, updirection);
+        debugAssert(fabs(-nearval - nearPlaneZ) < 0.002f);
+    }
+#   endif // G3D_DEBUG
+
 }
 
 
