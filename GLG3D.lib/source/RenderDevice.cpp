@@ -2596,30 +2596,13 @@ void RenderDevice::modifyArgsForRectModeApply(Args& args) {
     bool useGiantTriangle = m_state.useClip2D && r.contains(m_state.clip2D);
     
     // Allocate the vertex buffers
-    if ((! m_rect2DAttributeArrays.singleTriangleIndexArray.valid()) &&
-        (! m_rect2DAttributeArrays.quadIndexArray.valid())) {
+    if ((! m_rect2DAttributeArrays.vertexArray.valid()) &&
+        (! m_rect2DAttributeArrays.texCoordArray.valid())) {
         // The +1000 here works around a problem with update() at the bottom of this function
         const shared_ptr<VertexBuffer>& dataArea = VertexBuffer::create((sizeof(Vector3) + sizeof(Vector2)) * 4 + 1000, VertexBuffer::WRITE_EVERY_FRAME);
         AttributeArray all((sizeof(Vector3) + sizeof(Vector2)) * 4 + 1000, dataArea);
         m_rect2DAttributeArrays.vertexArray   = AttributeArray(Vector3(), 4, all, 0, (int)sizeof(Vector3));
         m_rect2DAttributeArrays.texCoordArray = AttributeArray(Vector2(), 4, all, sizeof(Vector3) * 4, (int)sizeof(Vector2));
-    }
-
-    if (useGiantTriangle) {
-        if (! m_rect2DAttributeArrays.singleTriangleIndexArray.valid()) {
-            // (This code only runs once)
-            shared_ptr<VertexBuffer> indexArea = VertexBuffer::create(sizeof(int) * 3, VertexBuffer::WRITE_ONCE);
-            Array<int> indexArray(0, 1, 2);
-            m_rect2DAttributeArrays.singleTriangleIndexArray = IndexStream(indexArray, indexArea);
-        }
-    } else {
-        if (! m_rect2DAttributeArrays.quadIndexArray.valid()) {
-            // (This code only runs once)
-            // Use a triangle strip
-            shared_ptr<VertexBuffer> indexArea = VertexBuffer::create(sizeof(int) * 4, VertexBuffer::WRITE_ONCE);
-            Array<int> indexArray(0, 3, 1, 2);
-            m_rect2DAttributeArrays.quadIndexArray = IndexStream(indexArray, indexArea);
-        }
     }
 
     debugAssertGLOk();
@@ -2629,32 +2612,33 @@ void RenderDevice::modifyArgsForRectModeApply(Args& args) {
         m_previousRectShaderArgs = rectShaderArgs;
         Array<Vector3> vertexArray;
         Array<Vector2> texCoordArray;
-
-        // The inner rectangle is the rectangle we are rendering to
-        // When the scissor region is equal to it, we can send the large triangle
-        // instead. The vertices with asterisks around them are the vertices of said 
-        // larger triangle (the 0 is shared with the inner rectangle)
-
-        //  *0*---1--*2*
-        //   |  / |  /           
-        //   | /  | /            
-        //   |/   |/       
-        //   3----2
-        //   |   /
-        //   |  /
-        //   | / 
-        //   |/
-        //  *1*
-
-        // The formula for the two unique vertices of the triangle, in terms of the rectangle vertices are as follows:
-        //
-        // t_1 = r0 + 2 * (r_3 - r_0) = 2 * r_3 - r_0
-        // t_2 = r0 + 2 * (r_1 - r_0) = 2 * r_1 - r_0
-        //
-        // where t_n is the n-th vertex of the large triangle and r_m is the m-th vertex of the rectangle 
-        //
-
         if (useGiantTriangle) {
+
+            // The inner rectangle is the Rect2D we are rendering to
+            // When the scissor region is equal to it, we can send the large triangle
+            // instead. The vertices with asterisks around them are the vertices of said 
+            // larger triangle (the 0 is shared with the inner rectangle)
+
+            //  *0*---1--*2*
+            //   |    |  /           
+            //   |    | /            
+            //   |    |/       
+            //   3----2
+            //   |   /
+            //   |  /
+            //   | / 
+            //   |/
+            //  *1*
+
+            // The formula for the two unique vertices of the triangle, in terms of the rectangle vertices are as follows:
+            //
+            // t_1 = r0 + 2 * (r_3 - r_0) = 2 * r_3 - r_0
+            // t_2 = r0 + 2 * (r_1 - r_0) = 2 * r_1 - r_0
+            //
+            // where t_n is the n-th vertex of the large triangle and r_m is the m-th vertex of the rectangle 
+            //
+
+
             Vector3 t1(2 * r.corner(3) - r.corner(0), zCoord);
             Vector3 t2(2 * r.corner(1) - r.corner(0), zCoord);
 
@@ -2665,9 +2649,18 @@ void RenderDevice::modifyArgsForRectModeApply(Args& args) {
             vertexArray.append(Vector3(r.corner(0), zCoord), t1, t2);
             texCoordArray.append(tcRect.corner(0), tc1, tc2);
         } else {
+            //            Desired
+            //   Rect2D   Array
+            //   0----1   0----2
+            //   |    |   |  / |  
+            //   |    |   | /  |  
+            //   |    |   |/   |  
+            //   3----2   1----3
+
+            int remap[4] = { 0, 3, 1, 2 };
             for (int i = 0; i < 4; ++i) {
-                vertexArray.append(Vector3(r.corner(i), zCoord));
-                texCoordArray.append(tcRect.corner(i));
+                vertexArray.append(Vector3(r.corner(remap[i]), zCoord));
+                texCoordArray.append(tcRect.corner(remap[i]));
             }
         }
         m_rect2DAttributeArrays.vertexArray.update(vertexArray);
@@ -2678,7 +2671,7 @@ void RenderDevice::modifyArgsForRectModeApply(Args& args) {
     args.setUniform("g3d_ObjectToScreenMatrixTranspose", objectToScreenMatrix().transpose());
     args.setAttributeArray("g3d_Vertex", m_rect2DAttributeArrays.vertexArray);
     args.setAttributeArray("g3d_TexCoord0", m_rect2DAttributeArrays.texCoordArray);
-    args.setIndexStream(useGiantTriangle ? m_rect2DAttributeArrays.singleTriangleIndexArray : m_rect2DAttributeArrays.quadIndexArray);
+    args.setNumIndices(useGiantTriangle ? 3 : 4);
     args.setPrimitiveType(useGiantTriangle ? PrimitiveType::TRIANGLES : PrimitiveType::TRIANGLE_STRIP);
 }
 
@@ -2732,11 +2725,11 @@ void RenderDevice::apply(const shared_ptr<Shader>& s, Args& args) {
              }
              #endif
 
-             if ((domainType == Shader::STANDARD_INDEXED_RENDERING_MODE) || (domainType == Shader::RECT_MODE)) {
+             if ((domainType == Shader::STANDARD_INDEXED_RENDERING_MODE)) {
                  
                  sendIndicesInstanced(args.getPrimitiveType(), args.getIndexStream(), args.numInstances());
     
-             } else if (domainType == Shader::STANDARD_NONINDEXED_RENDERING_MODE) {
+             } else if (domainType == Shader::STANDARD_NONINDEXED_RENDERING_MODE || (domainType == Shader::RECT_MODE)) {
                        
                  sendSequentialIndicesInstanced(args.getPrimitiveType(), args.numIndices(), args.numInstances());
                  

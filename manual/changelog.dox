@@ -12,7 +12,8 @@
     <p>
     Changes in 10.01:
      <ul>
-     <li> Fixed Projection::reconstructFromDepthProjInfo for non-symmetric matrices [Mike] </li>
+       <li> Shader calls using Args::setRect now use implicit indices. [Mike] </li>
+       <li> Shader calls using Args::setRect now use a triangle strip if unable to use single large triangle. [Mike] </li>
        <li> Fixed Projection::reconstructFromDepthProjInfo for non-symmetric matrices [Mike] </li>
        <li> Added an optional Texture::Specification::name [Mike] </li>
        <li> Add collapseEmptyTags argument to XML::unparse and XML::save [Mike] </li>

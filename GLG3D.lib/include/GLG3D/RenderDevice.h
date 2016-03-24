@@ -207,12 +207,6 @@ private:
     struct Rect2DAttributeArrays {
         AttributeArray  vertexArray;
         AttributeArray  texCoordArray;
-
-        /** Never changes after initialization */
-        IndexStream  quadIndexArray;
-
-        /** Never changes after initialization */
-        IndexStream singleTriangleIndexArray;
     } m_rect2DAttributeArrays;
 
     /** 
