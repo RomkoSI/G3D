@@ -2615,8 +2615,9 @@ void RenderDevice::modifyArgsForRectModeApply(Args& args) {
     } else {
         if (! m_rect2DAttributeArrays.quadIndexArray.valid()) {
             // (This code only runs once)
-            shared_ptr<VertexBuffer> indexArea = VertexBuffer::create(sizeof(int) * 6, VertexBuffer::WRITE_ONCE);
-            Array<int> indexArray(0, 3, 1, 2, 1, 3);
+            // Use a triangle strip
+            shared_ptr<VertexBuffer> indexArea = VertexBuffer::create(sizeof(int) * 4, VertexBuffer::WRITE_ONCE);
+            Array<int> indexArray(0, 3, 1, 2);
             m_rect2DAttributeArrays.quadIndexArray = IndexStream(indexArray, indexArea);
         }
     }
@@ -2678,6 +2679,7 @@ void RenderDevice::modifyArgsForRectModeApply(Args& args) {
     args.setAttributeArray("g3d_Vertex", m_rect2DAttributeArrays.vertexArray);
     args.setAttributeArray("g3d_TexCoord0", m_rect2DAttributeArrays.texCoordArray);
     args.setIndexStream(useGiantTriangle ? m_rect2DAttributeArrays.singleTriangleIndexArray : m_rect2DAttributeArrays.quadIndexArray);
+    args.setPrimitiveType(useGiantTriangle ? PrimitiveType::TRIANGLES : PrimitiveType::TRIANGLE_STRIP);
 }
 
 void RenderDevice::apply(const shared_ptr<Shader>& s, Args& args) {
