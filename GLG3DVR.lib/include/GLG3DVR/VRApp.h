@@ -163,7 +163,7 @@ protected:
 
     /** The active m_gbuffer is switched between these per eye. That allows
         reprojection between them. */
-    shared_ptr<GBuffer>     m_gbufferArray[2];
+    shared_ptr<GBuffer>     m_hmdGBuffer[2];
 
     /** \see m_numSlowFrames */
     static const int        MAX_SLOW_FRAMES = 20;

@@ -101,17 +101,17 @@ VRApp::VRApp(const GApp::Settings& settings) :
         // This will happen to recreate the m_gbuffer, but that is the only way to change its name
         // and affect the underlying textures
         for (int i = 0; i < 2; ++i) {
-            m_gbufferArray[i] = GBuffer::create(m_gbufferSpecification, format("m_gbufferArray[%d]", i));
-            m_gbufferArray[i]->resize(m_gbuffer->width(), m_gbuffer->height());
+            m_hmdGBuffer[i] = GBuffer::create(m_gbufferSpecification, format("m_hmdGBuffer[%d]", i));
+            m_hmdGBuffer[i]->resize(m_gbuffer->width(), m_gbuffer->height());
         }
-        m_gbuffer = m_gbufferArray[0];
+        m_gbuffer = m_hmdGBuffer[0];
 
         if (notNull(m_hmd)) {
             setSubmitToDisplayMode(SubmitToDisplayMode::MAXIMIZE_THROUGHPUT);
         }
     } else {
-        m_gbufferArray[0] = m_gbuffer;
-        m_gbufferArray[1] = nullptr;
+        m_hmdGBuffer[0] = m_gbuffer;
+        m_hmdGBuffer[1] = nullptr;
         m_vrEyeCamera[1]  = nullptr;
         m_hmdDeviceFramebuffer[1] = nullptr;
     }
@@ -388,6 +388,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
 
         BEGIN_PROFILER_EVENT("Rendering");
 
+        shared_ptr<GBuffer> oldGBuffer = m_gbuffer;
         shared_ptr<Framebuffer> oldFB = m_framebuffer;
 
         // No reference because we're going to mutate the active camera
@@ -406,13 +407,14 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
                 // Parameters were copied from the body camera back in sampleTrackingData
                 setActiveCamera(m_vrEyeCamera[eye]);
 
-                m_gbuffer = m_gbufferArray[m_currentEyeIndex];
-                //rd->setProjectionAndCameraMatrix(eyeCamera->projection(), eyeCamera->frame());
+                m_gbuffer = m_hmdGBuffer[m_currentEyeIndex];
+
                 onGraphics3D(rd, posed3D);
             } rd->popState();
         }
         setActiveCamera(bodyCamera);
 
+        m_gbuffer = oldGBuffer;
         m_framebuffer = oldFB;
 
         END_PROFILER_EVENT();
