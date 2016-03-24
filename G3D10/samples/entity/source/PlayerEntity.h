@@ -28,7 +28,8 @@ public:
     (const String&                  name,
      Scene*                         scene,
      AnyTableReader&                propertyTable,
-     const ModelTable&              modelTable);
+     const ModelTable&              modelTable,
+     const Scene::LoadOptions&      loadOptions);
 
     /** For programmatic construction at runtime */
     static shared_ptr<PlayerEntity> create 
@@ -44,7 +45,7 @@ public:
     /** Converts the current VisibleEntity to an Any.  Subclasses should
         modify at least the name of the Table returned by the base class, which will be "Entity"
         if not changed. */
-    virtual Any toAny() const override;
+    virtual Any toAny(const bool forceAll = false) const override;
     
     virtual void onPose(Array<shared_ptr<Surface> >& surfaceArray) override;
 
