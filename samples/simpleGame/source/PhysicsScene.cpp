@@ -26,8 +26,8 @@ Any PhysicsScene::toAny() const {
 }
 
 
-Any PhysicsScene::load(const String& sceneName) {
-    Any resultAny = Scene::load(sceneName);
+Any PhysicsScene::load(const String& sceneName, const LoadOptions& loadOptions) {
+    Any resultAny = Scene::load(sceneName, loadOptions);
     
     m_gravity = Vector3(0, -5 * units::meters() / square(units::seconds()), 0);
 
@@ -36,8 +36,7 @@ Any PhysicsScene::load(const String& sceneName) {
         AnyTableReader physicsTable(physics);
         physicsTable.getIfPresent("gravity", m_gravity);
     }
-
-
+    
     // Set the initial positions
     Array<shared_ptr<Surface> > collisionSurfaces;
     for (int e = 0; e < m_entityArray.size(); ++e) {

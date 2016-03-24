@@ -27,7 +27,7 @@ public:
     }
 
     /** Extend to read in physics properties */
-    virtual Any load(const String& sceneName) override;
+    virtual Any load(const String& sceneName, const LoadOptions& loadOptions = LoadOptions()) override;
 
     /** Gets all static triangles within this world-space sphere. */
     void staticIntersectSphere(const Sphere& sphere, Array<Tri>& triArray) const;
