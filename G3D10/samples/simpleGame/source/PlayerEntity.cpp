@@ -10,10 +10,11 @@
 
 
 shared_ptr<Entity> PlayerEntity::create 
-    (const String& name,
-     Scene*             scene,
-     AnyTableReader&    propertyTable,
-     const ModelTable&  modelTable) {
+    (const String&                  name,
+     Scene*                         scene,
+     AnyTableReader&                propertyTable,
+     const ModelTable&              modelTable,
+     const Scene::LoadOptions&      loadOptions) {
 
     // Don't initialize in the constructor, where it is unsafe to throw Any parse exceptions
     shared_ptr<PlayerEntity> playerEntity(new PlayerEntity());
@@ -69,8 +70,8 @@ void PlayerEntity::init(const Vector3& velocity, const Sphere& collisionProxy) {
 }
 
 
-Any PlayerEntity::toAny() const {
-    Any a = VisibleEntity::toAny();
+Any PlayerEntity::toAny(const bool forceAll) const {
+    Any a = VisibleEntity::toAny(forceAll);
     a.setName("PlayerEntity");
 
     a["velocity"] = m_velocity;

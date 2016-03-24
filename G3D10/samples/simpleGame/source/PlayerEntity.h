@@ -80,7 +80,8 @@ public:
     (const String&                           name,
      Scene*                                  scene,
      AnyTableReader&                         propertyTable,
-     const ModelTable&                       modelTable);
+     const ModelTable&                       modelTable,
+     const Scene::LoadOptions&               loadOptions);
 
     /** For programmatic construction at runtime */
     static shared_ptr<Entity> create 
