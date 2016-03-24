@@ -400,7 +400,7 @@ void GApp::initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindo
         defaultRenderer->setOrderIndependentTransparency(settings.renderer.orderIndependentTransparency);
     }
 
-    m_gbuffer = GBuffer::create(m_gbufferSpecification);
+    m_gbuffer = m_osWindowGBuffer = GBuffer::create(m_gbufferSpecification);
     m_gbuffer->resize(renderDevice->width() + m_settings.depthGuardBandThickness.x * 2, renderDevice->height() + m_settings.depthGuardBandThickness.y * 2);
 
     // Share the depth buffer with the forward-rendering pipeline
