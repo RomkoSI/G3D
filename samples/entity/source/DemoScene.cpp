@@ -23,9 +23,12 @@ void DemoScene::spawnAsteroids() {
             }
         }
 
-        const shared_ptr<VisibleEntity>& v = VisibleEntity::create(format("asteroid%02d", i), this, m_modelTable[modelName],
-            CFrame::fromXYZYPRDegrees(pos.x, pos.y, pos.z,
-            r.uniform(0, 360), r.uniform(0, 360), r.uniform(0, 360)));
+        const shared_ptr<VisibleEntity>& v = 
+            VisibleEntity::create
+            (format("asteroid%02d", i), 
+             this,
+             m_modelTable[modelName].resolve(),
+             CFrame::fromXYZYPRDegrees(pos.x, pos.y, pos.z, r.uniform(0, 360), r.uniform(0, 360), r.uniform(0, 360)));
 
         // Don't serialize generated objects
         v->setShouldBeSaved(false);
