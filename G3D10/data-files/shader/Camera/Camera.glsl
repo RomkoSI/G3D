@@ -30,7 +30,8 @@
     uniform mat4x3 name##previousFrame;\
     uniform mat4x4 name##projectToPixelMatrix;\
     uniform float3 name##clipInfo;\
-    uniform float4 name##projInfo
+    uniform float4 name##projInfo;\
+    uniform float2 name##pixelOffset
 
 /**  
   Important properties of a G3D::Camera
@@ -45,6 +46,7 @@ struct Camera {
     mat4x4 projectToPixelMatrix;
     float3 clipInfo;
     float4 projInfo;
+    float2 pixelOffset;
 };
     
 #endif

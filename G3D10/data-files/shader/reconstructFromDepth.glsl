@@ -43,13 +43,15 @@ float reconstructCSZ(float d, vec3 clipInfo) {
 
     Costs 3 MADD.  Error is on the order of 10^3 at the far plane, partly due to z precision.
 
- projInfo = vec4(-2.0f / (width*P[0][0]), 
+    projInfo = vec4(-2.0f / (width*P[0][0]), 
           -2.0f / (height*P[1][1]),
           ( 1.0f - P[0][2]) / P[0][0], 
           ( 1.0f + P[1][2]) / P[1][1])
     
     where P is the projection matrix that maps camera space points 
     to [-1, 1] x [-1, 1].  That is, Camera::getProjectUnit().
+
+    If the camera's pixelOffset is non-zero, be sure to subtract it from \a S before calling this function.
 
     \sa G3D::Projection::reconstructFromDepthProjInfo
 */
@@ -60,6 +62,8 @@ vec3 reconstructCSPosition(vec2 S, float z, vec4 projInfo) {
 /** Helper for reconstructing camera-space P.xyz from screen-space S = (x, y) in
     pixels and hyperbolic depth. 
     
+    If the camera's pixelOffset is non-zero, be sure to subtract it from \a S before calling this function.
+
     \sa G3D::Projection::reconstructFromDepthClipInfo
     \sa G3D::Projection::reconstructFromDepthProjInfo
 */
