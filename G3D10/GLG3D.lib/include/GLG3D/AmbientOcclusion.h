@@ -235,7 +235,7 @@ protected:
         const Vector3&                  clipConstant,
         const Vector4&                  projConstant,
         float                           projScale,
-	const float                     farPlaneZ,
+	    const float                     farPlaneZ,
         const CoordinateFrame&          currentCameraFrame,
         const CoordinateFrame&          prevCameraFrame,
         const shared_ptr<Texture>&      peeledDepthBuffer = shared_ptr<Texture>(),

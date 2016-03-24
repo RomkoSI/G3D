@@ -198,7 +198,7 @@ void AmbientOcclusion::packBlurKeys
         const AmbientOcclusionSettings& settings, 
         const shared_ptr<Texture>& cszBuffer, 
         const Vector3& clipInfo,
-	const float farPlaneZ,
+	    const float farPlaneZ,
         const shared_ptr<Texture>& normalBuffer) {
     rd->push2D(m_packedKeyBuffer); {
         Args args;
@@ -268,7 +268,7 @@ void AmbientOcclusion::compute
 
     if (settings.blurRadius != 0) {
         if (settings.packBlurKeys) {
-	  packBlurKeys(rd, settings, m_perViewBuffers[0]->cszBuffer, clipConstant, farPlaneZ, normalBuffer);
+	        packBlurKeys(rd, settings, m_perViewBuffers[0]->cszBuffer, clipConstant, farPlaneZ, normalBuffer);
         }
 
         BEGIN_PROFILER_EVENT("Blur");
@@ -441,7 +441,7 @@ void AmbientOcclusion::computeRawAO
         args.setUniform(SYMBOL_radius2, square(settings.radius));
         args.setUniform(SYMBOL_invRadius2, 1.0f / square(settings.radius));
         args.setMacro("TEMPORALLY_VARY_SAMPLES", settings.temporallyVarySamples);
-	args.setMacro("FAR_PLANE_Z", farPlaneZ);
+	    args.setMacro("FAR_PLANE_Z", farPlaneZ);
 	
         const bool useDepthPeel = settings.useDepthPeelBuffer;
         args.setMacro(SYMBOL_USE_DEPTH_PEEL, useDepthPeel ? 1 : 0);
@@ -501,7 +501,7 @@ void AmbientOcclusion::blurOneDirection
         args.setUniform(SYMBOL_axis,            axis);
         args.setUniform("invRadius",            1.0f / settings.radius);
 
-	args.setMacro("FAR_PLANE_Z", farPlaneZ);
+	    args.setMacro("FAR_PLANE_Z", farPlaneZ);
 	
         args.setUniform(SYMBOL_projInfo, projConstant);
         args.setMacro("HIGH_QUALITY", settings.highQualityBlur);
@@ -569,8 +569,15 @@ void AmbientOcclusion::compute
     
     const CFrame& currentCameraFrame    = camera->frame();
     const CFrame& prevCameraFrame       = camera->previousFrame();
-      compute(rd, settings, depthBuffer, clipConstant, projConstant, (float)abs(camera->imagePlanePixelsPerMeter(rd->viewport())), camera->farPlaneZ(),
-            currentCameraFrame, prevCameraFrame, peeledDepthBuffer, normalBuffer, ssVelocityBuffer);
+
+    float projScale = (float)abs(camera->imagePlanePixelsPerMeter(rd->viewport()));
+    const float MIN_AO_SS_RADIUS = 1.0f;
+    // Second parameter of max is just solving for Z coordinate at which we hit MIN_AO_SS_RADIUS
+    float farZ = max(camera->farPlaneZ(), -projScale*settings.radius / MIN_AO_SS_RADIUS);
+    // Hack because setting farZ lower results in banding artefacts on some scenes, should tune later.
+    farZ = min(farZ, -1000.0f);
+    compute(rd, settings, depthBuffer, clipConstant, projConstant, projScale, farZ,
+        currentCameraFrame, prevCameraFrame, peeledDepthBuffer, normalBuffer, ssVelocityBuffer);
 }
 
 

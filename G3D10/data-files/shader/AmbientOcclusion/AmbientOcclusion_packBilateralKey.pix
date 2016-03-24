@@ -7,8 +7,6 @@ uniform_Texture(sampler2D, csZ_);
 
 #expect FAR_PLANE_Z "(negative) z-coordinate of the far plane"
 
-//uniform float nearZ;
-//uniform float farZ;
 
 out vec4 result;
 #include <AmbientOcclusion/AmbientOcclusion_constants.glsl>
@@ -19,5 +17,4 @@ void main() {
     float csZ   = texelFetch(csZ_buffer, ssC, 0).r;
     vec3 normal = texelFetch(normal_buffer, ssC, 0).xyz * normal_readMultiplyFirst.xyz + normal_readAddSecond.xyz;
     result      = packBilateralKey(csZ, normal, 0.0, FAR_PLANE_Z);
-    //result = vec2(1.0, 1.0);
 }
