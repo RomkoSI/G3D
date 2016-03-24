@@ -1,5 +1,15 @@
+/**
+ \file GLG3D/GLPixelTransferBuffer.cpp
+  
+ \maintainer Morgan McGuire, Michael Mara http://graphics.cs.williams.edu
+ 
+ \created 2014-06-13
+ \edited  2016-03-23
+
+ */
 #include "GLG3D/GLPixelTransferBuffer.h"
 #include "GLG3D/Milestone.h"
+#include "GLG3D/GLCaps.h"
 #include "GLG3D/glcalls.h"
 
 namespace G3D {
@@ -163,10 +173,11 @@ void GLPixelTransferBuffer::copy
 
 uint64 GLPixelTransferBuffer::getGPUAddress(GLenum access) const{
 
-	//TODO: Check extensions GL_NV_shader_buffer_load + GL_NV_shader_buffer_store are supported
+    debugAssertM(GLCaps::supports("GL_NV_shader_buffer_load") && GLCaps::supports("GL_NV_shader_buffer_store"), "GLPixelTransferBuffer::getGPUAddress requires a GPU with NVIDIA buffer extensions");
 
-	if (!glIsNamedBufferResidentNV(glBufferID()))
+	if (!glIsNamedBufferResidentNV(glBufferID())) {
 		glMakeNamedBufferResidentNV(glBufferID(), access);
+    }
 
 	uint64 gpuAddress = 0;
 	glGetNamedBufferParameterui64vNV(glBufferID(), GL_BUFFER_GPU_ADDRESS_NV, &gpuAddress);
