@@ -478,12 +478,16 @@ protected:
 
     GBuffer::Specification          m_gbufferSpecification;
 
-    /** \sa m_gbufferSpecification */
+    /** Bound to the current GBuffer, which is m_osWindowGBuffer by default.
+       \sa m_gbufferSpecification */
     shared_ptr<GBuffer>             m_gbuffer;
 
     shared_ptr<DepthOfField>        m_depthOfField;
 
     shared_ptr<MotionBlur>          m_motionBlur;
+
+    /** GBuffer used for the OSWindow. VRApp adds per-eye HMD GBuffers */ 
+    shared_ptr<GBuffer>             m_osWindowGBuffer;
 
     /** Framebuffer used for rendering the 3D portion of the scene. Includes 
         a guard band. This is then resolved to m_osWindowDeviceFramebuffer. */
