@@ -495,6 +495,6 @@ Vector4 Projection::reconstructFromDepthProjInfo(int width, int height) const {
         (float(-2.0 / (width * P[0][0])), 
          float(-2.0 / (height * P[1][1])),
          float((1.0 - (double)P[0][2]) / P[0][0]), 
-         float((1.0 + (double)P[1][2]) / P[1][1]));
+         float((1.0 - (double)P[1][2]) / P[1][1]));
 }
 } // namespace
