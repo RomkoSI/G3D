@@ -979,20 +979,23 @@ void Shader::bindG3DArgs(const shared_ptr<ShaderProgram>& p, RenderDevice* rende
     ARG("g3d_ProjectionMatrix", renderDevice->projectionMatrix());
     ARG("g3d_CameraToWorldMatrix", c2w);
 
-    // The whole section below should just be replaced with something that
-    // takes the projection matrix and scales it by the screen resolution.
-    // However, doing so didn't work during debugging and this was the easiest
-    // patch before release.
-    const Matrix4& P = renderDevice->projectionMatrix();
-    Matrix4 projectionPixelMatrix;
-    if (P[3][2] != 0.0f) {
-        // Perspective projection
-        Projection projection(P, renderDevice->viewport().wh());
-        projection.getProjectPixelMatrix(renderDevice->viewport(), projectionPixelMatrix);
-        projectionPixelMatrix = projectionPixelMatrix * Matrix4::scale(1, -1 * renderDevice->invertYMatrix()[1][1], 1);
-    } else {
-        // Likely orthographic
-        projectionPixelMatrix = P;
+    Matrix4 projectionPixelMatrix = renderDevice->projectionMatrix();
+    {
+        const Rect2D& viewport = renderDevice->viewport();
+        const float halfWidth  = viewport.width() * 0.5f;
+        const float halfHeight = viewport.height() * 0.5f;
+        const float ySign = renderDevice->invertYMatrix()[1][1];
+        if (projectionPixelMatrix[3][2] != 0.0f) {
+            // Perspective projection
+
+            projectionPixelMatrix[0][0] *= halfWidth;
+            projectionPixelMatrix[0][2] = projectionPixelMatrix[0][2] * halfWidth + halfWidth;
+
+            projectionPixelMatrix[0][0] *= halfHeight * ySign;
+            projectionPixelMatrix[1][2] = halfHeight + projectionPixelMatrix[0][2] * halfHeight;
+        }
+
+        // This code doesn't handle orthographic matrices
     }
 
     ARG("g3d_ProjectToPixelMatrix", projectionPixelMatrix);

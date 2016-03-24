@@ -171,7 +171,7 @@ namespace G3D {
         uniform mat4x3 g3d_WorldToObjectMatrix;
         uniform mat4x3 g3d_ObjectToWorldMatrix;
         uniform mat4x4 g3d_ProjectionMatrix;
-        uniform mat4x4 g3d_ProjectToPixelMatrix;
+        uniform mat4x4 g3d_ProjectToPixelMatrix; // Undefined for non-perspective projection
         uniform mat3   g3d_WorldToObjectNormalMatrix;
         uniform mat3   g3d_ObjectToWorldNormalMatrix;
         uniform mat3   g3d_ObjectToCameraNormalMatrix;
