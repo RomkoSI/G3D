@@ -121,6 +121,7 @@ void Camera::setShaderArgs(UniformTable& args, const Vector2& screenSize, const 
 
     args.setUniform(prefix + "clipInfo", m_projection.reconstructFromDepthClipInfo());
     args.setUniform(prefix + "projInfo", m_projection.reconstructFromDepthProjInfo(int(screenSize.x), int(screenSize.y)));
+    args.setUniform(prefix + "pixelOffset", m_projection.pixelOffset());
 }
 
 
