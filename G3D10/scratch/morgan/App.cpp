@@ -63,7 +63,8 @@ void App::onInit() {
     // developerWindow->videoRecordDialog->setScreenShotFormat("PNG");
     // developerWindow->videoRecordDialog->setCaptureGui(false);
     developerWindow->cameraControlWindow->moveTo(Point2(developerWindow->cameraControlWindow->rect().x0(), 0));
-    loadScene("G3D Sponza Foggy");
+    //loadScene("G3D Sponza Foggy");
+    loadScene("Room 1");
 }
 
 
