@@ -1476,6 +1476,7 @@ void Draw::rect2D
         args.setMacro("HAS_TEXTURE", 0);
     }
     args.setUniform("color", color);
+    debugAssertGLOk();
 
     if (invertY) {
         const size_t padding = 1000;
