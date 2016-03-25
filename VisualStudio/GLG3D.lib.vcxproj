@@ -462,6 +462,7 @@
     <None Include="..\data-files\shader\Draw\Draw_sphereSection.vrt" />
     <None Include="..\data-files\shader\Film\Film_bloomExpose.pix" />
     <None Include="..\data-files\shader\Film\Film_composite.pix" />
+    <None Include="..\data-files\shader\Film\Film_effectsDisabledBlit.pix" />
     <None Include="..\data-files\shader\Film\Film_FXAA_310.pix" />
     <None Include="..\data-files\shader\Film\Film_FXAA_311.pix" />
     <None Include="..\data-files\shader\Film\Film_toneMap.glsl" />

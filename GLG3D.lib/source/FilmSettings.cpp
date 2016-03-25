@@ -15,7 +15,8 @@ FilmSettings::FilmSettings() :
     m_vignetteTopStrength(0.5f),
     m_vignetteBottomStrength(0.05f),
     m_vignetteSizeFraction(0.17f),
-    m_debugZoom(1) {
+    m_debugZoom(1),
+    m_effectsEnabled(true) {
 
     setIdentityToneCurve();
 }
@@ -59,6 +60,7 @@ FilmSettings::FilmSettings(const Any& any) {
         }
     }
     reader.getIfPresent("debugZoom", m_debugZoom);
+    reader.getIfPresent("effectsEnabled", m_effectsEnabled);
     reader.verifyDone();
 }
 
@@ -78,6 +80,7 @@ Any FilmSettings::toAny() const {
     any["vignetteSizeFraction"] = m_vignetteSizeFraction;
     any["toneCurve"] = m_toneCurve.toAny("Spline");
     any["debugZoom"] = m_debugZoom;
+    any["effectsEnabled"] = m_effectsEnabled;
 
     return any;
 }
@@ -88,6 +91,8 @@ void FilmSettings::makeGui(class GuiPane* _pane, float maxSensitivity, float sli
     GuiScrollPane* scroll = _pane->addScrollPane(true, false, GuiTheme::BORDERLESS_SCROLL_PANE_STYLE);
     scroll->setRect(Rect2D::xywh(0, 0, 300, 376));
     GuiPane* pane = scroll->viewPane();
+
+    pane->addCheckBox("Enabled", &m_effectsEnabled);
 
     GuiNumberBox<float>* n = NULL;
 

@@ -1,0 +1,20 @@
+// -*- c++ -*-
+// Simple guard-band- and invertY- aware blit
+#version 330 or 420 compatibility
+#include <compatibility.glsl>
+#include <g3dmath.glsl>
+#include <Texture/Texture.glsl>
+
+uniform_Texture(sampler2D, sourceTexture_);
+uniform int        ySign, yOffset;
+uniform int2       guardBandSize;
+
+in vec2 g3d_TexCoord;
+
+out vec3 result;
+
+void main(void) {
+    int2 coord = int2(g3d_TexCoord.st * g3d_FragCoordExtent) + guardBandSize;
+    coord.y = coord.y * ySign + yOffset;
+    result = texelFetch(sourceTexture_buffer, coord, 0).rgb;
+}

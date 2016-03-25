@@ -268,11 +268,6 @@ public:
 
         class FilmSettings {
         public:
-            /** If true, allocate GApp::m_framebuffer and use the m_film class when rendering.
-                On older GPUs the Film class may add too much memory or processing overhead.
-
-                Defaults to true.*/
-            bool                        enabled;
 
             /** Size of the film backbuffer. Set to -1, -1 to automatically size to the window.*/
             Vector2int16                dimensions;
@@ -288,7 +283,7 @@ public:
               */
             Array<const ImageFormat*>   preferredDepthFormats;
 
-            FilmSettings() : enabled(true), dimensions(-1, -1) {
+            FilmSettings() : dimensions(-1, -1) {
                 preferredColorFormats.append(ImageFormat::R11G11B10F(), ImageFormat::RGB16F(), ImageFormat::RGBA16F(), ImageFormat::RGB32F(), ImageFormat::RGBA32F(), ImageFormat::RGBA8());
                 preferredDepthFormats.append(ImageFormat::DEPTH32F(), ImageFormat::DEPTH32(), ImageFormat::DEPTH16(), ImageFormat::DEPTH24());
             }

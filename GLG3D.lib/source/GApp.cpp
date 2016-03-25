@@ -339,22 +339,20 @@ void GApp::initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindo
         addWidget(console);
     }
 
-    if (settings.film.enabled) {
-        const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(m_settings.film.preferredColorFormats);
 
-        if (colorFormat == NULL) {
-            // This GPU can't support the film class
-            logPrintf("Warning: Disabled GApp::Settings::film.enabled because none of the provided color formats could be supported on this GPU.");
-        } else {
-            m_film = Film::create(colorFormat);
-
-            m_osWindowHDRFramebuffer = Framebuffer::create("GApp::m_osWindowHDRFramebuffer");
-            m_framebuffer = m_osWindowHDRFramebuffer;
-
-            // The actual buffer allocation code:
-            resize(renderDevice->width(), renderDevice->height());
-        }
+    const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(m_settings.film.preferredColorFormats);
+    if (colorFormat == NULL) {
+        colorFormat = ImageFormat::RGBA8();
     }
+    m_film = Film::create(colorFormat);
+
+    m_osWindowHDRFramebuffer = Framebuffer::create("GApp::m_osWindowHDRFramebuffer");
+    m_framebuffer = m_osWindowHDRFramebuffer;
+
+    // The actual buffer allocation code:
+    resize(renderDevice->width(), renderDevice->height());
+    
+    
 
     const shared_ptr<GFont>&    arialFont = GFont::fromFile(System::findDataFile("icon.fnt"));
     const shared_ptr<GuiTheme>& theme     = GuiTheme::fromFile(System::findDataFile("osx-10.7.gtm"), arialFont);
