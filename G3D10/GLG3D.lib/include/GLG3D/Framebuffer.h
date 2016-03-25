@@ -287,18 +287,18 @@ protected:
     Array< shared_ptr<Attachment> > m_current;
 
     /** The GL buffer names of the m_currentAttachment.*/
-    Array<GLenum>					m_colorDrawBufferArray;
+    Array<GLenum>                   m_colorDrawBufferArray;
 
     /** OpenGL Object ID */
     GLuint                          m_framebufferID;
     
-	/** This a a special framebuffer with no attachment */
-	bool							m_noAttachment;
+    /** This a a special framebuffer with no attachment */
+    bool                            m_noAttachment;
 
     bool                            m_invertY;
 
     /** If this is the hardware framebuffer for a window */
-    OSWindow*                       m_window;
+    class OSWindow*                 m_window;
 
     /** Adds \a a to m_desired. */
     void set(const shared_ptr<Attachment>& a);

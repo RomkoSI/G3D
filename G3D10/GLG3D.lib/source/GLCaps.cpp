@@ -241,7 +241,7 @@ void GLCaps::init() {
     loadExtensions(Log::common());
 
     // Remove all pending errors
-    while (glGetError() != GL_NONE);
+    while (glGetError() != GL_NONE) {}
     debugAssertGLOk();
 
     checkAllBugs();

@@ -27,11 +27,11 @@ extern "C" void svoRenderRaycasting_kernel( G3D::SVO *svo, shared_ptr<G3D::Textu
 namespace G3D {
 SVO::SVO(const Specification& spec, const String& name, bool usebricks) :
     m_name(name),
-    m_useBricks(usebricks),
     m_initOK(false),
-    m_specification(spec),
+    m_useBricks(usebricks),
+    m_octreePoolNumNodes(0),
     m_curSvoId(-1),
-	m_octreePoolNumNodes(0){
+    m_specification(spec) {
 
     BUFFER_WIDTH = 16384;
     //BUFFER_WIDTH = 8192;
@@ -605,9 +605,6 @@ void SVO::connectToShader(Args& args, Access access, int maxTreeDepth, int level
     args.setMacro("SVO_BRICK_BORDER_OFFSET",	m_brickBorderSize/2);
     args.setMacro("SVO_BRICK_RES_WITH_BORDER",	m_brickResWithBorder.x);
 
-
-
-
     {
         int maxLevelIndex = 8;
         for(int l = 1; l < m_topMipMapMaxLevel; ++l){
@@ -619,7 +616,7 @@ void SVO::connectToShader(Args& args, Access access, int maxTreeDepth, int level
 
     connectOctreeToShader(args, access, maxTreeDepth, level);
 
-	int depth = m_gbuffer->depth();
+    // int depth = m_gbuffer->depth();
 
     args.setMacro("SVO_VOXELPOOL_RES_X", int(m_gbuffer->width()) );
     args.setMacro("SVO_VOXELPOOL_RES_Y", int(m_gbuffer->height()) );

@@ -78,7 +78,7 @@ Projection::Projection(const Matrix4& proj, const Vector2& viewportExtent) {
     setNearPlaneZ(-(float)nearval);
     setFarPlaneZ(-(float)farval);
     
-    const double halfX = (right - left) / 2.0;
+    //const double halfX = (right - left) / 2.0;
     const double halfY = (bottom - top) / 2.0;
 
     // From Graphics Codex: [P] Perspective Projection Matrix

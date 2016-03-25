@@ -962,7 +962,7 @@ Color4 Image::bicubic(float x, float y, WrapMode w) const {
 
         case WrapMode::ERROR:
             alwaysAssertM(((x < 0) || (x > float(width())) || (y < 0) || (y > float(height()))),
-                G3D::format("Index out of bounds: pos = (%d, %d), image dimensions = %d x %d",
+                G3D::format("Index out of bounds: pos = (%g, %g), image dimensions = %d x %d",
                     x, y, width(), height()));
         }
     }
