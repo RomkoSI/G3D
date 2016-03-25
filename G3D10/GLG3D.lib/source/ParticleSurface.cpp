@@ -182,7 +182,7 @@ void ParticleSurface::renderHomogeneous
         args.setMacro("HAS_EMISSIVE", 0);
         args.setMacro("ALPHA_HINT", AlphaHint::BLEND);
 
-        Projection proj(rd->projectionMatrix(), rd->viewport());
+        Projection proj(rd->projectionMatrix(), rd->viewport().wh());
         args.setUniform("nearPlaneZ", proj.nearPlaneZ());
         args.setUniform("clipInfo", proj.reconstructFromDepthClipInfo());
         ParticleMaterial::s_material->setShaderArgs(args, "material.");
