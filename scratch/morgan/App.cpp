@@ -5,60 +5,6 @@
 G3D_START_AT_MAIN();
 
 int main(int argc, const char* argv[]) {
-#if 1
-    {
-        const double 
-            sleft = -0.069638041824473751, 
-            sright = 0.062395225117240799,
-            sbottom = 0.073294763927117534, 
-            stop = -0.07,//-0.073294763927117534, 
-            snearval = -0.1f, 
-            sfarval = -100.0f;      
-        const Matrix4 M = Matrix4::perspectiveProjection(sleft, sright, sbottom, stop, snearval, sfarval);
-
-        double dleft, dright, dbottom, dtop, dnearval, dfarval;
-        M.getPerspectiveProjectionParameters(dleft, dright, dbottom, dtop, dnearval, dfarval);
-
-        debugAssert(fuzzyEq(sleft, dleft));
-        debugAssert(fuzzyEq(sright   , dright));
-        debugAssert(fuzzyEq(stop     , dtop));
-        debugAssert(fuzzyEq(sbottom  , dbottom));
-        debugAssert(fuzzyEq(snearval , dnearval));
-        debugAssert(fabs(sfarval - dfarval) < 0.0001f);
-    }
-#endif
-
-#if 1
-    const Matrix4 source(0.757763f, 0.000000f, -0.054856f,  0.000000f,
-                         0.000000f, 0.682035f, -0.000707f,  0.000000f,
-                         0.000000f, 0.000000f, -1.001001f, -0.100100f,
-                         0.000000f, 0.000000f, -1.000000f,  0.000000f);
-    const float nearPlaneZ = -0.100000f, farPlaneZ = -100.000000f; int width = 1512, height = 1680;
-
-    // Element [2][2] should be -1.002002002! I think OpenVR uses the DirectX convention
-
-    Projection P(source, Vector2(float(width), float(height)));
-
-    Matrix4 dest;
-    P.getProjectUnitMatrix(Rect2D::xywh(0, 0, float(width), float(height)), dest);
-
-    debugPrintf("%s\n%s\n", source.toString().c_str(), dest.toString().c_str());
-
-    for (int r = 0; r < 4; ++r) {
-        for (int c = 0; c < 4; ++c) {
-            debugAssert(fuzzyEq(source[r][c], dest[r][c]));
-        }
-    }
-    debugAssert(fuzzyEq(P.nearPlaneZ(), nearPlaneZ));
-    debugAssert(fuzzyEq(P.farPlaneZ(), farPlaneZ));
-#endif
-
-    return 0;
-
-}
-
-#if 0
-{
     {
         G3DSpecification g3dSpec;
         g3dSpec.audio = false;
@@ -83,7 +29,7 @@ int main(int argc, const char* argv[]) {
 
     // Set to true for a significant performance boost if your app can't render at 60fps,
     // or if you *want* to render faster than the display.
-    settings.window.asynchronous        = false;
+    settings.window.asynchronous        = true;
 
     settings.depthGuardBandThickness    = Vector2int16(64, 64);
     settings.colorGuardBandThickness    = Vector2int16(0, 0);
@@ -95,7 +41,6 @@ int main(int argc, const char* argv[]) {
 
     return App(settings).run();
 }
-#endif
 
 App::App(const GApp::Settings& settings) : GApp(settings) {
 }
@@ -118,7 +63,7 @@ void App::onInit() {
     // developerWindow->videoRecordDialog->setScreenShotFormat("PNG");
     // developerWindow->videoRecordDialog->setCaptureGui(false);
     developerWindow->cameraControlWindow->moveTo(Point2(developerWindow->cameraControlWindow->rect().x0(), 0));
-    loadScene("Test");
+    loadScene("G3D Sponza Foggy");
 }
 
 
