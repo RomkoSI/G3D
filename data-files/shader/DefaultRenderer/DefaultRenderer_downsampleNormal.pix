@@ -1,0 +1,30 @@
+#version 330 compatibility
+/**
+ \file DefaultRenderer_downsampleNormal.pix
+
+ From:
+   McGuire and Mara, A Phenomenological Scattering Model for Order-Independent Transparency, 
+   Proceedings of the ACM Symposium on Interactive 3D Graphics and Games (I3D), Feburary 28, 2016
+   http://graphics.cs.williams.edu/papers/TransparencyI3D16/
+
+  This shader is designed to be used with the G3D Innovation Engine SVN main branch from date 2016-02-28
+  available at http://g3d.cs.williams.edu.
+*/
+
+#include <compatibility.glsl>
+#include <g3dmath.glsl>
+#include <octahedral.glsl>
+#include <Texture/Texture.glsl>
+
+uniform Texture2D csHighResNormalTexture;
+uniform int       lowResDownsampleFactor;
+out Point2        csOctLowResNormal;
+
+void main() {
+    int2 lowResPixelIndex = int2(gl_FragCoord.xy);
+
+    Vector3 csHighResNormal = normalize(texelFetch(csHighResNormalTexture.sampler, lowResPixelIndex * lowResDownsampleFactor, 0).rgb * 
+        csHighResNormalTexture.readMultiplyFirst.rgb + csHighResNormalTexture.readAddSecond.rgb);
+
+    csOctLowResNormal = octEncode(csHighResNormal);
+}
