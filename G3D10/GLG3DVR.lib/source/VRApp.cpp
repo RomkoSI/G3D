@@ -247,8 +247,14 @@ static void getEyeTransformations
 }
 
 
+static CFrame toCFrame(const vr::HmdMatrix34_t& M) {
+    return CFrame(Matrix3(M.m[0][0], M.m[0][1], M.m[0][2],
+                          M.m[1][0], M.m[1][1], M.m[1][2],
+                          M.m[2][0], M.m[2][1], M.m[2][2]),
+                   Point3(M.m[0][3], M.m[1][3], M.m[2][3]));
+}
+
 void VRApp::sampleTrackingData() {
-    // TODO: handle the no-HMD case by gluing a single eye to the camera
     debugAssert(notNull(m_hmd));
 
     BEGIN_PROFILER_EVENT("VRApp::sampleTrackingData");
@@ -314,6 +320,34 @@ void VRApp::sampleTrackingData() {
     frame = m_vrEyeCamera[0]->previousFrame();
     frame.translation = (frame.translation + m_vrEyeCamera[1]->previousFrame().translation) / 2.0f;
     m_vrHead->setPreviousFrame(frame);
+
+    // Find the controllers (if any are present)
+    int c = -1;
+    for (int d = 0; d < vr::k_unMaxTrackedDeviceCount; ++d) {
+        if (m_trackedDevicePose[d].bPoseIsValid) {
+            if (m_hmd->GetTrackedDeviceClass(d) == vr::TrackedDeviceClass_Controller) {
+                ++c;
+                bool justCreated = false;
+
+                if (c >= m_vrControllerArray.size()) {
+                    const Array<Box> osBoxArray(Box(Vector3(-0.05f, -0.005f, -0.09f), Vector3(0.05f, 0.005f, -0.09f)));
+                    m_vrControllerArray.append(MarkerEntity::create(format("VR Controller %d", c), scene().get(), osBoxArray, Color3::white(), CFrame(), nullptr, true, false));
+                    justCreated = true;
+                }
+
+                const shared_ptr<MarkerEntity>& controller = m_vrControllerArray[c];
+                
+                if (! justCreated) {
+                    controller->setPreviousFrame(controller->frame());
+                }
+                // Vive's controllers are offset vertically by about 0.4m along the world-space Y axis...we don't know why.
+                controller->setFrame(toCFrame(m_trackedDevicePose[d].mDeviceToAbsoluteTracking) + Vector3(0,0.4f,0));
+                if (justCreated) {
+                    controller->setPreviousFrame(controller->frame());
+                }
+            }
+        }
+    }
 
     //    m_externalCameraFrame = m_vrHead->frame() * bodySpaceHead.inverse() * bodySpaceTracker;
 
@@ -655,6 +689,10 @@ void VRApp::onAfterLoadScene(const Any& any, const String& sceneName) {
     scene()->insert(m_vrHead);
     scene()->insert(m_vrEyeCamera[0]);
     scene()->insert(m_vrEyeCamera[1]);
+
+    for (int c = 0; c < m_vrControllerArray.size(); ++c) {
+        scene()->insert(m_vrControllerArray[c]);
+    }
 }
 
 
