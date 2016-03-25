@@ -10,7 +10,6 @@
 #include <GBuffer/GBuffer2.glsl>
 
 
-
 #expect USE_IMAGE_STORE "1 or 0"
 
 /** 
@@ -40,7 +39,6 @@
 
 uniform_UniversalMaterial(material_);
 
-
 /** Texture coordinate */
 varying layout(location=0) vec2 texCoord;
 
@@ -51,12 +49,10 @@ DECLARE_GBUFFER(gbuffer)
 //1.0f/volumeExtent
 uniform float invResolution;
 
-
 #if USE_IMAGE_STORE
 #   ifndef GL_ARB_shader_image_load_store
 #       error "Using the SVO shaders requires the GL_ARB_shader_image_load_store extension"
 #   endif
-
 
 #   if defined(GL_ARB_shader_atomic_counters) && 0
         // Image atomic backed by a PBO
@@ -67,8 +63,6 @@ uniform float invResolution;
         // but are not optimized for high numbers of collisions
         layout(r32ui) uniform  uimageBuffer     fragmentCounter_buffer;
 #   endif
-
-
 #else
     /** Do not read color attributes (except LAMBERTIAN, if an alpha test is required)
         outside of this rectangle.  Used to implement the trim band outside of which
@@ -117,16 +111,10 @@ uniform float            normalizedIndexOfRefraction;
 #ifdef SVO_POSITION
     varying layout(location=8) vec3         svoPosition;
 	flat varying layout(location=9) int		triangleAxis;
-
-
 	in layout(location=10) vec3				svoNormal;
-
 #endif
 
-	void main() {
-
-
-
+void main() {
 #   if defined(HAS_NORMAL_BUMP_MAP)
 		float rawNormalLength = 1.0;
 		vec3 wsN;
