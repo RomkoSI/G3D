@@ -210,7 +210,7 @@ static void getEyeTransformations
         fprintf(stderr, "\n");
 #   endif
 
-    assert(trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid);
+    //assert(trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid);
     const vr::HmdMatrix34_t head = trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking;
 
     const vr::HmdMatrix34_t& ltMatrix = hmd->GetEyeToHeadTransform(vr::Eye_Left);
@@ -324,27 +324,25 @@ void VRApp::sampleTrackingData() {
     // Find the controllers (if any are present)
     int c = -1;
     for (int d = 0; d < vr::k_unMaxTrackedDeviceCount; ++d) {
-        if (m_trackedDevicePose[d].bPoseIsValid) {
-            if (m_hmd->GetTrackedDeviceClass(d) == vr::TrackedDeviceClass_Controller) {
-                ++c;
-                bool justCreated = false;
+//      (m_trackedDevicePose[d].bPoseIsValid) 
+        if (m_hmd->GetTrackedDeviceClass(d) == vr::TrackedDeviceClass_Controller) {
+            ++c;
+            bool justCreated = false;
 
-                if (c >= m_vrControllerArray.size()) {
-                    const Array<Box> osBoxArray(Box(Vector3(-0.05f, -0.005f, -0.09f), Vector3(0.05f, 0.005f, -0.09f)));
-                    m_vrControllerArray.append(MarkerEntity::create(format("VR Controller %d", c), scene().get(), osBoxArray, Color3::white(), CFrame(), nullptr, true, false));
-                    justCreated = true;
-                }
+            if (c >= m_vrControllerArray.size()) {
+                const Array<Box> osBoxArray(Box(Vector3(-0.05f, -0.005f, -0.09f), Vector3(0.05f, 0.005f, -0.09f)));
+                m_vrControllerArray.append(MarkerEntity::create(format("VR Controller %d", c), scene().get(), osBoxArray, Color3::white(), CFrame(), nullptr, true, false));
+                justCreated = true;
+            }
 
-                const shared_ptr<MarkerEntity>& controller = m_vrControllerArray[c];
+            const shared_ptr<MarkerEntity>& controller = m_vrControllerArray[c];
                 
-                if (! justCreated) {
-                    controller->setPreviousFrame(controller->frame());
-                }
-                // Vive's controllers are offset vertically by about 0.4m along the world-space Y axis...we don't know why.
-                controller->setFrame(toCFrame(m_trackedDevicePose[d].mDeviceToAbsoluteTracking) + Vector3(0,0.4f,0));
-                if (justCreated) {
-                    controller->setPreviousFrame(controller->frame());
-                }
+            if (! justCreated) {
+                controller->setPreviousFrame(controller->frame());
+            }
+            controller->setFrame(toCFrame(m_trackedDevicePose[d].mDeviceToAbsoluteTracking));
+            if (justCreated) {
+                controller->setPreviousFrame(controller->frame());
             }
         }
     }
