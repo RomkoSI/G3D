@@ -3,16 +3,12 @@
  \file UniversalSurface_gbuffer.vrt
  \author Morgan McGuire
  \created 2007-10-22
- \edited  2013-06-11 
+ \edited  2016-03-23 
  */
 #include "UniversalSurface_vertex.glsl"
 
 #expect HAS_BONES
 
-attribute vec4 g3d_Vertex;
-attribute vec3 g3d_Normal;
-attribute vec2 g3d_TexCoord0;
-attribute vec4 g3d_PackedTangent;
 attribute vec4 g3d_VertexColor;
 
 #if HAS_BONES > 0
