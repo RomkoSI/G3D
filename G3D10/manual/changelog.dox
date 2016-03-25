@@ -12,6 +12,7 @@
     <p>
     Changes in 10.01:
      <ul>
+       <li> Replaced GApp::FilmSettings::enabled with FilmSettings::effectsEnabled() and FilmSettings::setEffectsEnabled() [Mike] </li>
        <li> Shader calls using Args::setRect now use implicit indices. [Mike] </li>
        <li> Shader calls using Args::setRect now use a triangle strip if unable to use single large triangle. [Mike] </li>
        <li> Fixed Projection::reconstructFromDepthProjInfo for non-symmetric matrices [Mike] </li>

@@ -46,6 +46,13 @@ private:
 
     Spline<float>           m_toneCurve;
 
+
+    /** If false, skips all processing and just blits to the output.
+
+        Defaults to true.*/
+    bool                    m_effectsEnabled;
+
+
 public:
 
     FilmSettings();
@@ -65,6 +72,7 @@ public:
          vignetteSizeFraction = <number>;
          toneCurve = IDENTITY | CONTRAST | CELLULOID | SATURATE | BURNOUT | NEGATIVE | spline;
          debugZoom = <number>;
+         effectsEnabled = <boolean>;
        }
        \endcode
      */
@@ -181,6 +189,15 @@ public:
 
     void setBloomRadiusFraction(float f) {
         m_bloomRadiusFraction = f;
+    }
+
+    /** If false, skips all processing and just blits to the output. */
+    bool effectsEnabled() const {
+        return m_effectsEnabled;
+    }
+
+    void setEffectsEnabled(bool b) {
+        m_effectsEnabled = b;
     }
 
     /** Adds controls for these settings to the specified GuiPane. */

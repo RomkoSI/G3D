@@ -46,7 +46,6 @@ int main(int argc, char** argv) {
 
     settings.writeLicenseFile = false;
     settings.window.resizable = true;
-    settings.film.enabled     = true;
 
 #   ifdef G3D_OSX
         settings.window.defaultIconFilename = System::findDataFile("G3D-128.png", false);
