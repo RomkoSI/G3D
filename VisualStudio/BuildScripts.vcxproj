@@ -23,7 +23,6 @@
     <None Include="..\bin\ice\utils.py" />
     <None Include="..\buildg3d" />
     <None Include="..\buildg3d.bat" />
-    <None Include="..\BUILD_INSTRUCTIONS.txt" />
     <None Include="..\Doxyfile" />
     <None Include="..\ImageFormat.bat" />
     <None Include="..\ImageFormat.py" />
