@@ -489,6 +489,8 @@ public:
     static void setPreferLowResolutionTransparency(bool b) {
         s_preferLowResolutionTransparency = b;
     }
+
+    /** Defaults to true, only affects OIT */
     static bool preferLowResolutionTransparency() {
         return s_preferLowResolutionTransparency;
     }

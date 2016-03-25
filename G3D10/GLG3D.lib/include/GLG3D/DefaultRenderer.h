@@ -18,6 +18,7 @@
 namespace G3D {
 
 class Camera;
+class Texture;
 
 /** \brief Supports both traditional forward shading and full-screen deferred shading.
 
@@ -51,20 +52,50 @@ protected:
     bool                        m_deferredShading;
     bool                        m_orderIndependentTransparency;
 
+    /**
+        Hi-res pixels per low-res pixel, along one dimension.
+        (1 is identical resolution, 4 would be quarter-res,
+        which is 1/16 the number of pixels).
+
+        Default is 4.
+    */
+    int                         m_oitLowResDownsampleFactor;
+
+    /** Default is 1 */
+    int                         m_oitUpsampleFilterRadius;
+
+    /** If true, all OIT buffers will be in 32-bit floating point.
+    
+        Default is false. */
+    bool                        m_oitHighPrecision;
+
     /** For the transparent surface pass of the OIT algorithm.
         Shares the depth buffer with the main framebuffer. The
         subsequent compositing pass uses the regular framebuffer in 2D mode. 
         
-        This framebuffer has several color render targets bound: 
+        This framebuffer has several color render targets bound. For details, see:
 
-        - RT0 = RGBA16F (accumulation.rgb, accumulation.a)
-        - RT1 = R8 (revealage, -, -, -)
-        - RT2 = original "background" framebuffer, modulated during rendering...or the modulation term product-accumulated against an initially white buffer
+        McGuire and Mara, A Phenomenological Scattering Model for Order-Independent Transparency, I3D'16
+        http://graphics.cs.williams.edu/papers/TransparencyI3D16/
 
         It shares the depth with the original framebuffer but does not write to it.
        */
     shared_ptr<Framebuffer>     m_oitFramebuffer;
+    
+    /** A low resolution version of m_oitFramebuffer. */
+    shared_ptr<Framebuffer>     m_oitLowResFramebuffer;
 
+    /** Used for resampling normals during computeLowResDepthAndNormals for later upsampling under OIT. Has a single
+        RG8_SNORM texture that is camera-space octahedrally encoded normals. */
+    shared_ptr<Framebuffer>     m_csOctLowResNormalFramebuffer;
+
+    /** Captured image of the background used for blurs for OIT */ 
+    shared_ptr<Framebuffer>     m_backgroundFramebuffer;
+
+    /** For OIT */
+    shared_ptr<Framebuffer>     m_blurredBackgroundFramebuffer;
+
+    /** Loaded by reloadWriteDeclaration from DefaultRenderer_oitWritePixel.glsl */
     String                      m_oitWriteDeclaration;
 
     virtual void renderDeferredShading
@@ -91,10 +122,51 @@ protected:
         const LightingEnvironment&          environment);
 
     virtual void renderOrderIndependentBlendedSamples       
-        (RenderDevice*                      rd, 
+       (RenderDevice*                       rd, 
         Array<shared_ptr<Surface> >&        surfaceArray, 
         const shared_ptr<GBuffer>&          gbuffer, 
         const LightingEnvironment&          environment);
+
+    virtual void allocateAllOITBuffers
+       (RenderDevice*                       rd, 
+        bool                                highPrecision = false);
+
+    /** Called once for the high res buffer and once for the low res one from allocateAllOITBuffers.
+        \param w Desired width of this framebuffer 
+        \param h Desired height of this framebuffer 
+     */
+    virtual void allocateOITFramebufferAttachments
+       (RenderDevice*                       rd, 
+        const shared_ptr<Framebuffer>&      oitFramebuffer, 
+        int                                 w, 
+        int                                 h, 
+        bool                                highPrecision = false);
+
+    virtual void clearAndRenderToOITFramebuffer
+       (RenderDevice*                       rd,
+        const shared_ptr<Framebuffer>&      oitFramebuffer,
+        Array <shared_ptr<Surface>>&        surfaceArray,
+        const shared_ptr<GBuffer>&          gbuffer,
+        const LightingEnvironment&          environment);
+
+    /** For OIT */
+    virtual void resizeOITBuffersIfNeeded
+       (const int                           width,
+        const int                           height, 
+        const int                           lowResWidth,
+        const int                           lowResHeight);
+
+    /**
+      For OIT
+      \param csNormalTexture May be nullptr
+    */
+    virtual void computeLowResDepthAndNormals
+       (RenderDevice*                       rd, 
+        const shared_ptr<Texture>&          csHighResNormalTexture);
+
+    /** Loads m_oitWriteDeclaration
+     */
+    virtual void reloadWriteDeclaration();
 
     DefaultRenderer();
 
