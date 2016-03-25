@@ -1356,5 +1356,14 @@
     <None Include="..\data-files\shader\UniversalSurface\UniversalSurface_depthOnly.pix">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_OIT_upsample.pix">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_OIT_writePixel.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_downsampleNormal.pix">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

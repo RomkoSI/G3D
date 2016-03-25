@@ -451,6 +451,9 @@
     <None Include="..\data-files\shader\default.vrt" />
     <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_compositeWeightedBlendedOIT.pix" />
     <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_deferredShade.pix" />
+    <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_downsampleNormal.pix" />
+    <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_OIT_upsample.pix" />
+    <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_OIT_writePixel.glsl" />
     <None Include="..\data-files\shader\DepthOfField\DepthOfField_blur.pix" />
     <None Include="..\data-files\shader\DepthOfField\DepthOfField_circleOfConfusion.pix" />
     <None Include="..\data-files\shader\DepthOfField\DepthOfField_composite.pix" />
