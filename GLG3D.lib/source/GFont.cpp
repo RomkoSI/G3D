@@ -204,6 +204,7 @@ Vector2 GFont::appendToPackedArray
 
     // Worst case number of characters to add
     const int n = int(s.length());
+    int oldVertexCount = vertexArray.size();
     int newVertexCount = vertexArray.size() + n * 4;
     int nextIndexCount = indexArray.size()   + n * 6;
     if (vertexArray.capacity() < newVertexCount) {
@@ -238,10 +239,11 @@ Vector2 GFont::appendToPackedArray
                     (v + 0, v + 1, v + 2,
                      v + 0, v + 2, v + 3);
             }
-
+            int baseV = vertexArray.size();
+            vertexArray.resize(baseV + 4, false);
             float xx = x - sx;
             {
-                CPUCharVertex& CV = vertexArray.next();
+                CPUCharVertex& CV = vertexArray[baseV+0];
                 CV.texCoord.x   = float(col * charWidth);
                 CV.texCoord.y   = float(row * charHeight + 1);
                 CV.position.x   = xx;
@@ -251,7 +253,7 @@ Vector2 GFont::appendToPackedArray
             }
 
             {
-                CPUCharVertex& CV = vertexArray.next();
+                CPUCharVertex& CV = vertexArray[baseV+1];
                 CV.texCoord.x   = float(col * charWidth);
                 CV.texCoord.y   = float((row + 1) * charHeight - 2);
                 CV.position.x   = xx;
@@ -262,7 +264,7 @@ Vector2 GFont::appendToPackedArray
             xx += w;
 
             {
-                CPUCharVertex& CV = vertexArray.next();
+                CPUCharVertex& CV = vertexArray[baseV+2];
                 CV.texCoord.x   = float((col + 1) * charWidth - 1);
                 CV.texCoord.y   = float((row + 1) * charHeight - 2);
                 CV.position.x   = xx;
@@ -272,7 +274,7 @@ Vector2 GFont::appendToPackedArray
             }
 
             {
-                CPUCharVertex& CV = vertexArray.next();
+                CPUCharVertex& CV = vertexArray[baseV+3];
                 CV.texCoord.x   = float((col + 1) * charWidth - 1);
                 CV.texCoord.y   = float(row * charHeight + 1);
                 CV.position.x   = xx;
