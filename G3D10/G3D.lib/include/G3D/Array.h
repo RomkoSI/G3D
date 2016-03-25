@@ -1500,9 +1500,11 @@ return( lhs < rhs? true : false );
     /** Ensures that future append() calls can grow up to size \a n without allocating memory.*/
     void reserve(int n) {
         debugAssert(n >= size());
-        const int oldSize = size();
-        resize(n);
-        resize(oldSize, false);
+        if (n > numAllocated) {
+            const int oldSize = size();
+            resize(n, false);
+            resize(oldSize, false);
+        }
     }
 
 	/** Number of bytes used by the array object and the memory allocated for it's data pointer. Does *not*
