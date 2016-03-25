@@ -134,6 +134,8 @@ protected:
     vr::IVRSystem*          m_hmd;
     vr::TrackedDevicePose_t m_trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 
+    Array<shared_ptr<MarkerEntity>> m_vrControllerArray;
+
     /**
       The HDR framebuffer used by G3D::Film for the HMD. 
       Comparable to GApp::monitorFramebuffer.
