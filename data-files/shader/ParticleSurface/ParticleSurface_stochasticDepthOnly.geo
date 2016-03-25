@@ -4,6 +4,13 @@
 
 // Need to remove discard statements from the following files
 #define discard
+
+// needed to make the bump map code compile on AMD GPUs,
+// which don't eliminate the dead code before compiling it for
+// this GS profile
+#define dFdx(g) ((g) * 0.0)   
+#define dFdy(g) ((g) * 0.0)  
+
 #include <UniversalMaterial/UniversalMaterial.glsl>
 #include <UniversalMaterial/UniversalMaterial_sample.glsl>
 #undef discard
