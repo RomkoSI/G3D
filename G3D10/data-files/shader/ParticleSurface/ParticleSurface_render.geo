@@ -15,6 +15,13 @@ layout(points) in;
 #define HAS_GLOSSY_TERM 1
 #include <LightingEnvironment/LightingEnvironment_uniforms.glsl>
 #include <Light/Light.glsl>
+
+// needed to make the bump map code compile on AMD GPUs,
+// which don't eliminate the dead code before compiling it for
+// this GS profile
+#define dFdx(g) ((g) * 0.0)   
+#define dFdy(g) ((g) * 0.0)   
+
 #include <UniversalMaterial/UniversalMaterial.glsl>
 uniform UniversalMaterial2DArray material;
 
