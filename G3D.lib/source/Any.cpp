@@ -1420,7 +1420,7 @@ void Any::readUntilSeparatorOrClose(TextInput& ti, Token& token) {
 
         // Update checks
         atSeparator = ! token.string().empty() && isSeparator(token.string()[0]);
-        atClose = (token.type() == Token::END) || (token.type() == Token::SYMBOL) && isClose(token.string()[0]);
+        atClose = (token.type() == Token::END) || ((token.type() == Token::SYMBOL) && isClose(token.string()[0]));
     }
 }
 

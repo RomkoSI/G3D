@@ -976,7 +976,7 @@ float lerpAngle(float a, float b, float t);
 
 namespace std {
 inline int pow(int a, int b) {
-    return (int)pow(double(a), double(b));
+    return (int)::pow(double(a), double(b));
 }
 
 }

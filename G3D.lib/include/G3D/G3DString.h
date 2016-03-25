@@ -31,7 +31,11 @@ void System_free(void*);
    - Uses the G3D block allocator when heap allocation is required
 */
 template<size_t INTERNAL_SIZE = 64>
-class __declspec(align(16)) SSESmallString {
+class 
+#ifdef G3D_WINDOWS
+__declspec(align(16)) 
+#endif
+SSESmallString {
 public:
 
     typedef char                        value_type;
@@ -47,7 +51,12 @@ public:
 
 protected:
     /** This inline storage is used when strings are small */
-    __declspec(align(16)) char m_buffer[INTERNAL_SIZE];
+#   ifdef G3D_WINDOWS
+    __declspec(align(16)) 
+#   else
+    alignas(16) 
+#   endif
+        char m_buffer[INTERNAL_SIZE];
 
     /** Includes NULL termination */
     value_type*     m_data;
@@ -827,7 +836,11 @@ public:
     bool operator<(const SSESmallString& s) const {
         return compare(s) < 0;
     }
-};
+}
+#ifdef G3D_OSX
+    __attribute__((__aligned__(16)))
+#endif
+;
 #endif
 /** \def G3D_STRING_DESTRUCTOR
  The name of the destructor for the class currently typedef'ed to String.

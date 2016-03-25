@@ -31,8 +31,8 @@ AmbientOcclusionSettings::AmbientOcclusionSettings() :
     packBlurKeys(false),
     temporalFilterSettings(TemporalFilter::Settings()),
     temporallyVarySamples(false),
-    enabled(true),
-    zStorage(ZStorage::HALF) {
+    zStorage(ZStorage::HALF),
+    enabled(true) {
 
     temporalFilterSettings.hysteresis = 0.0f;
 }
