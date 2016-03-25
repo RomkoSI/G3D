@@ -4,7 +4,6 @@
 
 layout(points) in;
 
-// Normal humans will want this off
 // If you are debugging where your actual triangles are, turn on.
 #define SHOW_CENTER_VERTEX 0
 #if SHOW_CENTER_VERTEX
