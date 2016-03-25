@@ -27,12 +27,11 @@ ParticleSystemModel::Specification::Specification(const Any& a) {
         emitterArray.append(a);
     } else { 
         a.verifyNameBeginsWith("ParticleSystemModel::Specification");
-        Any array;
-        a.get("emitterArray", array);
+        Any array = a.get("emitterArray", Any(Any::ARRAY));
         array.getArray(emitterArray);
+        hasPhysics = a.get("hasPhysics", true);
     }
 
-    hasPhysics = a.get("hasPhysics", true);    
 }
 
 
