@@ -1356,9 +1356,7 @@
     <None Include="..\data-files\shader\UniversalSurface\UniversalSurface_depthOnly.pix">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\data-files\shader\Film\Film_effectsDisabledBlit.pix">
-      <Filter>Shader Files</Filter>
-    </None><None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_OIT_upsample.pix">
+    <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_OIT_upsample.pix">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_OIT_writePixel.glsl">
@@ -1366,6 +1364,9 @@
     </None>
     <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_downsampleNormal.pix">
       <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\..\data10\research\scene\sponzaFoggy.Scene.Any">
+      <Filter>Scene Files</Filter>
     </None>
   </ItemGroup>
 </Project>
