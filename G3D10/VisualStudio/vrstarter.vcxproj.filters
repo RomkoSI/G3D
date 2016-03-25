@@ -24,4 +24,11 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Text.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\samples\vrstarter\data-files\shader\unprojectWSPosition.pix" />
+    <None Include="..\samples\vrstarter\data-files\shader\unprojectWSPositionDiff.pix" />
+  </ItemGroup>
 </Project>
