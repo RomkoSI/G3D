@@ -267,7 +267,7 @@ void ParticleMaterial::freeAllUnusedMaterials() {
 
 ParticleSystem::ParticleBuffer ParticleSystem::s_particleBuffer;
 Array<ParticleSystem::SortProxy> ParticleSystem::s_sortArray;
-bool ParticleSystem::s_preferLowResolutionTransparency = false;
+bool ParticleSystem::s_preferLowResolutionTransparency = true;
 
 ParticleSystem::ParticleSystem() : m_particlesChangedSinceBounds(true), 
     m_particlesChangedSincePose(true), 
@@ -275,6 +275,7 @@ ParticleSystem::ParticleSystem() : m_particlesChangedSinceBounds(true),
     m_particlesAreInWorldSpace(true), 
     m_initTime(0) {
 }
+
 
 void ParticleSystem::updateBounds() {   
     if (! m_particlesChangedSinceBounds) { return; }
