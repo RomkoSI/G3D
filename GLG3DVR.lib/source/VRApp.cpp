@@ -442,6 +442,7 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
                 m_gbuffer = m_hmdGBuffer[m_currentEyeIndex];
 
                 onGraphics3D(rd, posed3D);
+                debugAssertGLOk();
             } rd->popState();
         }
         setActiveCamera(bodyCamera);
@@ -475,7 +476,9 @@ void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, A
         
         if (m_vrSubmitToDisplayMode == SubmitToDisplayMode::MINIMIZE_LATENCY) {
             // Submit the CURRENT frame
+            debugAssertGLOk();
             submitHMDFrame(rd);
+            debugAssertGLOk();
         }
 
         if (m_vrSettings.debugMirrorMode == DebugMirrorMode::PRE_DISTORTION) {
