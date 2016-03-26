@@ -95,7 +95,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\glew.lib\include;$(SolutionDir)..\assimp.lib\include;$(SolutionDir)..\enet.lib\include;$(SolutionDir)..\glfw.lib\include;$(SolutionDir)..\nfd.lib\include;$(SolutionDir)..\zip.lib\include;$(SolutionDir)..\zlib.lib\include;$(SolutionDir)..\civetweb.lib\include;$(SolutionDir)..\G3D.lib\include;$(SolutionDir)..\GLG3D.lib\include;$(SolutionDir)..\LibOVR.lib\include;$(SolutionDir)..\LibOVRKernel.lib\include;$(SolutionDir)..\GLG3DVR.lib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\glew.lib\include;$(SolutionDir)..\assimp.lib\include;$(SolutionDir)..\enet.lib\include;$(SolutionDir)..\glfw.lib\include;$(SolutionDir)..\nfd.lib\include;$(SolutionDir)..\zip.lib\include;$(SolutionDir)..\zlib.lib\include;$(SolutionDir)..\civetweb.lib\include;$(SolutionDir)..\G3D.lib\include;$(SolutionDir)..\GLG3D.lib\include;$(SolutionDir)..\openvr\include;$(SolutionDir)..\GLG3DVR.lib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -126,7 +126,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\glew.lib\include;$(SolutionDir)..\assimp.lib\include;$(SolutionDir)..\enet.lib\include;$(SolutionDir)..\glfw.lib\include;$(SolutionDir)..\nfd.lib\include;$(SolutionDir)..\zip.lib\include;$(SolutionDir)..\zlib.lib\include;$(SolutionDir)..\civetweb.lib\include;$(SolutionDir)..\G3D.lib\include;$(SolutionDir)..\GLG3D.lib\include;$(SolutionDir)..\LibOVR.lib\include;$(SolutionDir)..\LibOVRKernel.lib\include;$(SolutionDir)..\GLG3DVR.lib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\glew.lib\include;$(SolutionDir)..\assimp.lib\include;$(SolutionDir)..\enet.lib\include;$(SolutionDir)..\glfw.lib\include;$(SolutionDir)..\nfd.lib\include;$(SolutionDir)..\zip.lib\include;$(SolutionDir)..\zlib.lib\include;$(SolutionDir)..\civetweb.lib\include;$(SolutionDir)..\G3D.lib\include;$(SolutionDir)..\GLG3D.lib\include;$(SolutionDir)..\openvr\include;$(SolutionDir)..\GLG3DVR.lib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
