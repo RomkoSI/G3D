@@ -814,7 +814,7 @@ void UniversalSurface::bindScreenSpaceTexture
                     
     // Find out how big the back plane is in meters
     float backPlaneZ = min(-0.5f, backZ);
-    Projection P(rd->projectionMatrix());
+    Projection P(rd->projectionMatrix(), rd->viewport().wh());
     P.setFarPlaneZ(backPlaneZ);
     Vector3 ur, ul, ll, lr;
     P.getFarViewportCorners(rd->viewport(), ur, ul, ll, lr);

@@ -233,7 +233,7 @@ static void bindDepthPeelArgs(Args& args, RenderDevice* rd, const shared_ptr<Tex
     const bool useDepthPeel = notNull(depthPeelTexture);
     args.setMacro(SYMBOL_USE_DEPTH_PEEL, useDepthPeel ? 1 : 0);
     if (useDepthPeel) {
-        const Vector3& clipInfo = Projection(rd->projectionMatrix()).reconstructFromDepthClipInfo();
+        const Vector3& clipInfo = Projection(rd->projectionMatrix(), rd->viewport().wh()).reconstructFromDepthClipInfo();
         args.setUniform(SYMBOL_previousDepthBuffer, depthPeelTexture, Sampler::buffer());
         args.setUniform(SYMBOL_minZSeparation,  minZSeparation);
         args.setUniform(SYMBOL_currentToPreviousScale, Vector2(depthPeelTexture->width()  / rd->viewport().width(),
