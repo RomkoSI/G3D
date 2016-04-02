@@ -178,57 +178,31 @@ void ScreenshotDialog::close() {
 }
 
 
-static String escapeDoxygenCaption(const String& s) {
-    String r;
-    for (size_t i = 0; i < s.length(); ++i) {
-        const char c = s[i];
-        if ((c == ',') || (c == '}') || (c == '{') || (c == '\"')) {
-            // Escape these characters
-            r += '\\';
-        }
-        r += c;
-    }
-    return r;
-}
-
 
 void ScreenshotDialog::onCommit() {
     if (m_currentTab == JOURNAL_TAB) {
         // Create a filename:
-        String path = FilePath::parent(m_filename);
-        String ext  = FilePath::ext(m_filename);
-        String s = FilePath::base(m_filename) + "__" + m_caption;
-        m_filename = FilePath::concat(path, FilePath::makeLegalFilename(s) + "." + ext);
+        const String& path = FilePath::parent(m_filename);
+        const String& ext  = FilePath::ext(m_filename);
+        const String& s    = FilePath::base(m_filename) + "__" + m_caption;
+
+        m_filename         = FilePath::concat(path, FilePath::makeLegalFilename(s) + "." + ext);
         
-        String text;
-
-        bool isVideo = endsWith(m_filename, ".mp4");
-        String macroString = isVideo ? "video" : "thumbnail";
-
-        text = "\n\\" + macroString + "{" + FilePath::baseExt(m_filename) + ", " + escapeDoxygenCaption(m_caption) + "}\n\n" + m_discussion + "\n";
+        const String& text = Journal::formatImage(m_journalFilename, m_filename, m_caption, m_discussion);
         
         if (m_location == APPEND) {
-            
             Journal::appendToFirstSection(m_journalFilename, text);
-            debugPrintf("Added image thumbnail to %s\n", m_filename.c_str());
         } else {
-            
             debugAssert(m_location == NEW);
-            time_t t1;
-            ::time(&t1);
-            tm* t = localtime(&t1);
-            const String& sectionName = format("S%4d%02d%02d", t->tm_year + 1900, t->tm_mon + 1, t->tm_mday);
-            text = "\\section " + sectionName + " " + m_newEntryName + "\n\n" + text;
-            
-            Journal::insertBeforeFirstSection(m_journalFilename, text);
-            debugPrintf("Added image thumbnail to %s\n", m_filename.c_str());
+            Journal::insertNewSection(m_journalFilename, m_newEntryName, text);
         }
+
+        debugPrintf("Added image thumbnail to %s\n", m_journalFilename.c_str());
     }
 }
 
 
 bool ScreenshotDialog::onEvent(const GEvent& e) {
-
     const bool handled = GuiWindow::onEvent(e);
 
     // Check after the (maybe key) event is processed normally
