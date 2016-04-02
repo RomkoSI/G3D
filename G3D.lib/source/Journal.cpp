@@ -18,6 +18,7 @@
 #include "G3D/fileutils.h"
 #include "G3D/TextInput.h"
 #include "G3D/enumclass.h"
+#include <regex>
 
 namespace G3D {
 
@@ -60,6 +61,13 @@ String Journal::findJournalFile(const String& hint) {
 }
 
 
+static const std::regex& headerRegex() {
+    // Find either "\n# <stuff>\n\n" or "\n<stuff>\n===...\n"
+    static const std::regex HEADER_REGEX("\n#.*\n\n|\n[^\n#].*\n={3,}\\s*?\n", std::regex::ECMAScript);
+    return HEADER_REGEX;
+}
+
+
 static int findSection(JournalSyntax syntax, const String& fileContents, size_t start = 0) {
     if (syntax == JournalSyntax::DOXYGEN) {
         // Search for the section title
@@ -74,8 +82,14 @@ static int findSection(JournalSyntax syntax, const String& fileContents, size_t 
         
         return (int)pos;
     } else {
-        alwaysAssertM(false, "TODO");
-        return 0;
+        
+        std::cmatch match;
+        if (std::regex_search(fileContents.c_str(), match, headerRegex())) {
+            // Found a match
+            return match.position() + 1;
+        } else {
+            return String::npos;
+        }
     }
 }
 
@@ -116,8 +130,13 @@ String Journal::firstSectionTitle(const String& journalFilename) {
             return "";
         }
     } else {
-        alwaysAssertM(false, "TODO");
-        return "";
+        // Find either "\n# <stuff>\n\n" or "\n<stuff>\n===...\n"
+        // The first character must be a newline. After that, determine whether it is an ATX or STL style header
+        size_t end = file.find("\n", pos);
+        if (end == String::npos) {
+            end = file.length() - 1;
+        }
+        return trimWhitespace(file.substr((file[pos] == '#') ? pos + 1 : pos, end - pos + 1));
     }
 }
 
@@ -150,10 +169,34 @@ void Journal::appendToFirstSection(const String& journalFilename, const String& 
             }
         }
 
-        combined = file.substr(0, pos) + text + "\n" + file.substr(pos);
     } else {
-        alwaysAssertM(false, "TODO");
+        // Get past the header
+        if (pos != String::npos) {
+            const bool isATX = (file[pos] == '#');
+
+            pos = file.find('\n', pos);
+            if (pos == String::npos) {
+                pos = file.length() - 1;
+            }
+
+            if (! isATX) {
+                // Jump over the === signs as well by looking for the NEXT newline
+                pos = file.find('\n', pos + 1);
+                if (pos == String::npos) {
+                    pos = file.length() - 1;
+                }
+            }
+
+            if (pos != String::npos) {
+                // If there are more newlines, skip over them
+                while ((pos < file.length() - 1) && (file[pos] == '\n')) {
+                    ++pos;
+                }
+            }
+        }
     }
+
+    combined = file.substr(0, pos) + text + "\n" + file.substr(pos);
 
     writeWholeFile(journalFilename, combined);
 }
@@ -169,8 +212,8 @@ void Journal::insertNewSection(const String& journalFilename, const String& titl
     size_t pos = findSection(syntax, file);
 
     if (pos == String::npos) {
+        // No section found: look for the beginning
         if (syntax == JournalSyntax::DOXYGEN) {
-            // No section found: look for the beginning
             pos = file.find("/*");
             if (pos == String::npos) {
                 pos = 0;
@@ -178,21 +221,33 @@ void Journal::insertNewSection(const String& journalFilename, const String& titl
                 pos += 2;
             }
         } else {
-            alwaysAssertM(false, "TODO");
+            // Skip over any opening meta tag and title
+            pos = file.find("<meta");
+            if (pos != String::npos) {
+                // Jump past it:
+                pos = file.find('>', pos) + 1;
+            } else {
+                pos = 0;
+            }
+            
+            while ((pos < file.length() - 1) && isWhiteSpace(file[pos])) {
+                ++pos;
+            }
+
+            // TODO: Jump past any indented lines as well
         }
     }
 
-    time_t t1;
-    ::time(&t1);
-    tm* t = localtime(&t1);
-
     String section;
     if (syntax == JournalSyntax::DOXYGEN) {
+        time_t t1;
+        ::time(&t1);
+        tm* t = localtime(&t1);
+
         const String& sectionName = format("S%4d%02d%02d", t->tm_year + 1900, t->tm_mon + 1, t->tm_mday);
         section = "\\section " + sectionName + " " + title + "\n\n" + text + "\n";
     } else {
-        const String& sectionName = format("%4d%02d%02d", t->tm_year + 1900, t->tm_mon + 1, t->tm_mday);
-        section = sectionName + ": " + title + "\n=============================================================\n" + text + "\n";
+        section = "\n" + trimWhitespace(title) + "\n=============================================================\n" + text + "\n";
     }
     
     const String& combined = file.substr(0, pos) + section + "\n" + file.substr(pos);
