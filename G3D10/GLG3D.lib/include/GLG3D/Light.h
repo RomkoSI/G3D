@@ -48,14 +48,16 @@ typedef Spline<Power3> Power3Spline;
     Light {
         castsShadows = bool;
         shadowMapSize = Vector2int16(w, h);
-        shadowMapBias = number;   // In meters, default is zero. Larger creates dark leaks, smaller creates light leaks
-        shadowCullFace = cullface;  // may not be CURRENT
+        shadowMapBias = float;   // In meters, default is zero. Larger creates dark leaks, smaller creates light leaks
+        shadowCullFace = CullFace;  // may not be CURRENT
+        stochasticShadows = bool;
+        varianceShadowSettings = ShadowMap::VSMSettings;
         enabled      = bool;
         spotSquare   = bool;
         attenuation  = [number number number];
         bulbPower    = Power3; (for a spot or omni light)
         bulbPowerTrack = Power3Spline { ... };
-        radiance     = Power3; (for a directional light)
+        biradiance   = Biradiance3; (for a directional light)
         type         = "DIRECTIONAL", "SPOT", "OMNI", or "AREA";
         spotHalfAngleDegrees = number;
         producesIndirectIllumination = boolean;
