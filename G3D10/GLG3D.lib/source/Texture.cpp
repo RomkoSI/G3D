@@ -2876,9 +2876,6 @@ shared_ptr<GLPixelTransferBuffer> Texture::toPixelTransferBuffer(const ImageForm
                 target = openGLTextureTarget();
             }
 
-            // This format does not read back correctly
-            alwaysAssertM(outFormat->code != ImageFormat::CODE_R11G11B10F, "Cannot create a PixelTransferBuffer for ImageFormat::R11G11B10F()");
-
             bool alignmentNeedsToChange;
             GLint oldPackAlignment;
             GLint newPackAlignment = getPackAlignment((int)buffer->stride(), oldPackAlignment, alignmentNeedsToChange);
