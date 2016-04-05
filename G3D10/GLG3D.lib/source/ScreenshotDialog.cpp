@@ -188,7 +188,7 @@ void ScreenshotDialog::onCommit() {
 
         m_filename         = FilePath::concat(path, FilePath::makeLegalFilename(s) + "." + ext);
         
-        const String& text = Journal::formatImage(m_journalFilename, m_filename, m_caption, m_discussion);
+        const String& text = Journal::formatImage(m_journalFilename, m_filename, m_caption, wordWrap(m_discussion, 80));
         
         if (m_location == APPEND) {
             Journal::appendToFirstSection(m_journalFilename, text);
