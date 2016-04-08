@@ -104,7 +104,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D)
     } rd->popState();
     
     // Perform gamma correction, bloom, and SSAA, and write to the native window frame buffer
-    m_film->exposeAndRender(rd, m_debugCamera->filmSettings(), m_framebuffer->texture(0), 1);
+    m_film->exposeAndRender(rd, m_debugCamera->filmSettings(), m_framebuffer->texture(0));
 }
 
 

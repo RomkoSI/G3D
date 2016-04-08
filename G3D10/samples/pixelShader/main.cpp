@@ -85,7 +85,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D)
 
     m_gbuffer->setSpecification(m_gbufferSpecification);
     m_gbuffer->resize(m_framebuffer->width(), m_framebuffer->height());
-    m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.depthGuardBandThickness, m_settings.colorGuardBandThickness);
+    m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.hdrFramebuffer.depthGuardBandThickness, m_settings.hdrFramebuffer.colorGuardBandThickness);
 
     m_renderer->render(rd, m_framebuffer, m_depthPeelFramebuffer, scene()->lightingEnvironment(), m_gbuffer, surface3D);
 
@@ -120,7 +120,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D)
 
     swapBuffers();
     rd->clear();
-    m_film->exposeAndRender(rd, m_debugCamera->filmSettings(), m_framebuffer->texture(0), 1);
+    m_film->exposeAndRender(rd, m_debugCamera->filmSettings(), m_framebuffer->texture(0));
 }
     
     
@@ -225,8 +225,8 @@ int main(int argc, const char* argv[]) {
 #   endif
 
     GApp::Settings settings(argc, argv);  
-    settings.colorGuardBandThickness  = Vector2int16(0, 0);
-    settings.depthGuardBandThickness  = Vector2int16(0, 0);
+    settings.hdrFramebuffer.colorGuardBandThickness  = Vector2int16(0, 0);
+    settings.hdrFramebuffer.depthGuardBandThickness  = Vector2int16(0, 0);
 
     return App(settings).run();
 }

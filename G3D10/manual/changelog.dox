@@ -111,6 +111,9 @@
 	   <li> G3D::Framebuffer::isHardwareFramebuffer </li>
 	   <li> Allowed G3D::Framebuffer to model the hardware framebuffer </li>
 	   <li> Added optional invertY parameter to G3D::Draw::rect2D </li>
+	   <li> GApp::Settings::FilmSettings -> GApp::Settings::HDRFramebufferSettings </li>
+	   <li> Moved guard band from GApp::Settings to G3D::GApp::HDRFramebufferSettings </li>
+	   <li> Removed (unused) offset and downsample arguments from Film::exposeAndRender </li>
       </ul>
     </p>
 

@@ -240,7 +240,7 @@ void ArticulatedViewer::onPose(Array<shared_ptr<Surface> >& posed3D, Array<share
 void ArticulatedViewer::onGraphics3D(RenderDevice* rd, App* app, const shared_ptr<LightingEnvironment>& lighting, Array<shared_ptr<Surface> >& allSurfaces) {
     // app->gbuffer()->setSpecification(m_gbufferSpecification);
     app->gbuffer()->resize(app->framebuffer()->width(), app->framebuffer()->height());
-    app->gbuffer()->prepare(rd, app->activeCamera(), 0, -(float)app->previousSimTimeStep(), app->settings().depthGuardBandThickness, app->settings().colorGuardBandThickness);
+    app->gbuffer()->prepare(rd, app->activeCamera(), 0, -(float)app->previousSimTimeStep(), app->settings().hdrFramebuffer.depthGuardBandThickness, app->settings().hdrFramebuffer.colorGuardBandThickness);
 
     app->renderer()->render(rd, app->framebuffer(), app->depthPeelFramebuffer(), *lighting, app->gbuffer(), allSurfaces);
 

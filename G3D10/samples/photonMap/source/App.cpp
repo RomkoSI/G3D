@@ -17,8 +17,8 @@ int main(int argc, const char* argv[]) {
     settings.window.width       = 1280; 
     settings.window.height      = 720;
     settings.window.caption     = "Ray tracer with photon mapping";
-    settings.colorGuardBandThickness  = Vector2int16(0, 0);
-    settings.depthGuardBandThickness  = Vector2int16(0, 0);
+    settings.hdrFramebuffer.colorGuardBandThickness  = Vector2int16(0, 0);
+    settings.hdrFramebuffer.depthGuardBandThickness  = Vector2int16(0, 0);
 
     return App(settings).run();
 }
@@ -177,7 +177,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
 
     m_gbuffer->setSpecification(m_gbufferSpecification);
     m_gbuffer->resize(m_framebuffer->width(), m_framebuffer->height());
-    m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.depthGuardBandThickness, m_settings.colorGuardBandThickness);
+    m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.hdrFramebuffer.depthGuardBandThickness, m_settings.hdrFramebuffer.colorGuardBandThickness);
 
     m_renderer->render(rd, m_framebuffer, m_depthPeelFramebuffer, scene()->lightingEnvironment(), m_gbuffer, allSurfaces);
 
@@ -198,11 +198,11 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
         }
 
         // Post-process special effects
-        m_depthOfField->apply(rd, m_framebuffer->texture(0), m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(), m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness);
+        m_depthOfField->apply(rd, m_framebuffer->texture(0), m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(), m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);
         
         m_motionBlur->apply(rd, m_framebuffer->texture(0), m_gbuffer->texture(GBuffer::Field::SS_EXPRESSIVE_MOTION), 
                             m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(), 
-                            m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness);
+                            m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);
     } rd->popState();
 
     // We're about to render to the actual back buffer, so swap the buffers now.

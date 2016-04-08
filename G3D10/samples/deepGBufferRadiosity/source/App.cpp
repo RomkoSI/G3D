@@ -11,8 +11,8 @@ int main(int argc, const char* argv[]) {
     settings.window.height      = 720;
     settings.window.resizable   = true;
     settings.window.caption     = "Deep G-Buffer Radiosity";
-    settings.colorGuardBandThickness = Vector2int16(128, 128);
-    settings.depthGuardBandThickness = Vector2int16(128, 128);
+    settings.hdrFramebuffer.colorGuardBandThickness = Vector2int16(128, 128);
+    settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(128, 128);
     
 #   ifdef G3D_WINDOWS
         // On Unix operating systems, icompile automatically copies data files.  
@@ -54,7 +54,7 @@ void App::initGBuffers() {
 
     // Update the actual m_gbuffer 
     m_gbuffer->setSpecification(m_gbufferSpecification);
-    m_gbuffer->resize(renderDevice->width() + m_settings.depthGuardBandThickness.x * 2, renderDevice->height() + m_settings.depthGuardBandThickness.y * 2);
+    m_gbuffer->resize(renderDevice->width() + m_settings.hdrFramebuffer.depthGuardBandThickness.x * 2, renderDevice->height() + m_settings.hdrFramebuffer.depthGuardBandThickness.y * 2);
 
     m_peeledGBufferSpecification = m_gbufferSpecification;
     // The second layer only requires normals, Lambertian, and depth
@@ -345,8 +345,8 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 void App::computeGBuffers(RenderDevice* rd, Array<shared_ptr<Surface> >& all) {
     BEGIN_PROFILER_EVENT("App::computeGBuffers");
 
-    m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.depthGuardBandThickness, m_settings.colorGuardBandThickness);
-    m_peeledGBuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.depthGuardBandThickness, m_settings.colorGuardBandThickness);
+    m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.hdrFramebuffer.depthGuardBandThickness, m_settings.hdrFramebuffer.colorGuardBandThickness);
+    m_peeledGBuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.hdrFramebuffer.depthGuardBandThickness, m_settings.hdrFramebuffer.colorGuardBandThickness);
 
     Array<shared_ptr<Surface> > sortedVisible;
     Surface::cull(activeCamera()->frame(), activeCamera()->projection(), rd->viewport(), all, sortedVisible);
@@ -364,7 +364,7 @@ void App::computeShadows(RenderDevice* rd, Array<shared_ptr<Surface> >& all, Lig
     environment = scene()->lightingEnvironment();
 
     m_ambientOcclusion->update(rd, environment.ambientOcclusionSettings, activeCamera(), m_framebuffer->texture(Framebuffer::DEPTH), m_depthPeelFramebuffer->texture(Framebuffer::DEPTH), m_gbuffer->texture(GBuffer::Field::CS_NORMAL), m_gbuffer->texture(GBuffer::Field::SS_POSITION_CHANGE),
-        m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness);
+        m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);
     environment.ambientOcclusion = m_ambientOcclusion;
 
     static RealTime lastLightingChangeTime = 0;
@@ -381,7 +381,7 @@ void App::deferredShade(RenderDevice* rd, const LightingEnvironment& environment
     BEGIN_PROFILER_EVENT("App::deferredShade");
     // Make a pass over the screen, performing shading
     rd->push2D(); {
-        rd->setGuardBandClip2D(m_settings.colorGuardBandThickness);
+        rd->setGuardBandClip2D(m_settings.hdrFramebuffer.colorGuardBandThickness);
 
         // Don't shade the skybox on this pass because it will be forward rendered
         rd->setDepthTest(RenderDevice::DEPTH_GREATER);
@@ -429,7 +429,7 @@ bool App::onEvent(const GEvent& event) {
 void App::forwardShade(RenderDevice* rd, Array<shared_ptr<Surface> >& all, const LightingEnvironment& environment) {
     static const Array<shared_ptr<Surface> > noNewShadowCasters;
     /*Surface::render(rd, activeCamera()->frame(), activeCamera()->projection(), all, 
-        noNewShadowCasters, environment, false, m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness);*/
+        noNewShadowCasters, environment, false, m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);*/
 
     drawDebugShapes();
 }
@@ -453,11 +453,11 @@ void App::renderSplitScreen(RenderDevice* rd, Array<shared_ptr<Surface> >& all, 
     m_deepGBufferRadiositySettings.enabled = false; {
         deferredShade(rd, environment); 
         forwardShade(rd, all, environment);
-        m_depthOfField->apply(rd, m_framebuffer->texture(0), m_gbuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL), activeCamera(), m_settings.depthGuardBandThickness);
+        m_depthOfField->apply(rd, m_framebuffer->texture(0), m_gbuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL), activeCamera(), m_settings.hdrFramebuffer.depthGuardBandThickness);
         
         m_motionBlur->apply(rd, m_framebuffer->texture(0), m_gbuffer->texture(GBuffer::Field::SS_EXPRESSIVE_MOTION),
                             m_gbuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL), activeCamera(), 
-                            m_settings.depthGuardBandThickness);
+                            m_settings.hdrFramebuffer.depthGuardBandThickness);
     } m_deepGBufferRadiositySettings.enabled = true;
 
     Texture::copy(m_framebuffer->texture(0), leftScreen);
@@ -465,7 +465,7 @@ void App::renderSplitScreen(RenderDevice* rd, Array<shared_ptr<Surface> >& all, 
     rd->push2D(); {
         Args args;
         args.setUniform("separatorSize", 2.0f);
-        args.setUniform("guardBandSize", settings().depthGuardBandThickness);
+        args.setUniform("guardBandSize", settings().hdrFramebuffer.depthGuardBandThickness);
         leftScreen->setShaderArgs(args, "leftScreen_", Sampler::buffer());
         rightScreen->setShaderArgs(args, "rightScreen_", Sampler::buffer());
         args.setRect(rd->viewport());
@@ -519,8 +519,8 @@ void App::convergeDeepGBufferRadiosity(RenderDevice* rd) {
             m_lambertianDirectBuffer->texture(0), 
             m_deepGBufferRadiositySettings.useDepthPeelBuffer ? m_peeledGBuffer : shared_ptr<GBuffer>(), 
             m_deepGBufferRadiositySettings.useDepthPeelBuffer ? m_peeledLambertianDirectBuffer->texture(0) : shared_ptr<Texture>(),
-            m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness, 
-            m_settings.colorGuardBandThickness,
+            m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness, 
+            m_settings.hdrFramebuffer.colorGuardBandThickness,
             scene());
 
         if (m_deepGBufferRadiositySettings.enabled && m_deepGBufferRadiositySettings.propagationDamping < 1.0f) {
@@ -591,8 +591,8 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& all) {
                 m_lambertianDirectBuffer->texture(0), 
                 m_deepGBufferRadiositySettings.useDepthPeelBuffer ? m_peeledGBuffer : shared_ptr<GBuffer>(), 
                 m_deepGBufferRadiositySettings.useDepthPeelBuffer ? m_peeledLambertianDirectBuffer->texture(0) : shared_ptr<Texture>(),
-                m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness, 
-                m_settings.colorGuardBandThickness,
+                m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness, 
+                m_settings.hdrFramebuffer.colorGuardBandThickness,
                 scene());
 
             if (m_deepGBufferRadiositySettings.enabled && m_deepGBufferRadiositySettings.propagationDamping < 1.0f) {
@@ -613,11 +613,11 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& all) {
             deferredShade(rd, environment); 
             forwardShade(rd, all, environment);
         
-            m_depthOfField->apply(rd, m_framebuffer->texture(0), m_gbuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL), activeCamera(), m_settings.depthGuardBandThickness);
+            m_depthOfField->apply(rd, m_framebuffer->texture(0), m_gbuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL), activeCamera(), m_settings.hdrFramebuffer.depthGuardBandThickness);
         
             m_motionBlur->apply(rd, m_framebuffer->texture(0), m_gbuffer->texture(GBuffer::Field::SS_EXPRESSIVE_MOTION),
                                 m_gbuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL), activeCamera(), 
-                                m_settings.depthGuardBandThickness);
+                                m_settings.hdrFramebuffer.depthGuardBandThickness);
 
             if (m_demoSettings.globalIlluminationMode == DemoSettings::GlobalIlluminationMode::SPLIT_SCREEN) {
                 renderSplitScreen(rd, all, environment);
@@ -635,23 +635,23 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& all) {
         filmSettings.setBloomStrength(0.0);
         filmSettings.setIdentityToneCurve();
     }
-    m_film->exposeAndRender(rd, filmSettings, m_framebuffer->texture(0), 1);    
+    m_film->exposeAndRender(rd, filmSettings, m_framebuffer->texture(0));    
 }
 
 
 void App::onGraphics2D(RenderDevice* rd, Array< shared_ptr< Surface2D > >& surface2D) {
 	if (m_demoSettings.demoMode == DemoSettings::DemoMode::AO) {
 		rd->setFramebuffer(m_osWindowDeviceFramebuffer);
-		const Point2 inColumnOffset(-10.0f, m_framebuffer->height() - float(settings().depthGuardBandThickness.y)*2.0f);
-		float columnWidth = ((float)m_framebuffer->width() - 2.0f * settings().depthGuardBandThickness.x) / 2.0f;
+		const Point2 inColumnOffset(-10.0f, m_framebuffer->height() - float(settings().hdrFramebuffer.depthGuardBandThickness.y)*2.0f);
+		float columnWidth = ((float)m_framebuffer->width() - 2.0f * settings().hdrFramebuffer.depthGuardBandThickness.x) / 2.0f;
 		Point2 position = inColumnOffset;
 		position.x += columnWidth;
 		position.x += columnWidth;
 		m_captionFont->draw2D(rd, String("Raw ") + (m_demoSettings.twoLayerAO ? "2-Layer Deep G-Buffer" : "1-Layer") + String(" Ambient Occlusion"), 
 					position, 30, Color3::white(), Color3::black(), GFont::XALIGN_RIGHT, GFont::YALIGN_BOTTOM);
 	} else if (m_demoSettings.globalIlluminationMode == DemoSettings::GlobalIlluminationMode::SPLIT_SCREEN) {
-		const Point2 inColumnOffset(-10.0f, m_framebuffer->height() - float(settings().depthGuardBandThickness.y) * 2.0f);
-		float columnWidth = ((float)m_framebuffer->width() - 2.0f * settings().depthGuardBandThickness.x) / 2.0f;
+		const Point2 inColumnOffset(-10.0f, m_framebuffer->height() - float(settings().hdrFramebuffer.depthGuardBandThickness.y) * 2.0f);
+		float columnWidth = ((float)m_framebuffer->width() - 2.0f * settings().hdrFramebuffer.depthGuardBandThickness.x) / 2.0f;
 
 		Point2 position = inColumnOffset;
 		position.x += columnWidth;

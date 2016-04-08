@@ -118,8 +118,8 @@ VRApp::VRApp(const GApp::Settings& settings) :
 
     // Construct the eye cameras, framebuffers, and head entity
     const ImageFormat* ldrColorFormat = ImageFormat::RGBA8();
-    const ImageFormat* hdrColorFormat = GLCaps::firstSupportedTexture(settings.film.preferredColorFormats);
-    const ImageFormat* depthFormat = GLCaps::firstSupportedTexture(settings.film.preferredDepthFormats);
+    const ImageFormat* hdrColorFormat = GLCaps::firstSupportedTexture(settings.hdrFramebuffer.preferredColorFormats);
+    const ImageFormat* depthFormat = GLCaps::firstSupportedTexture(settings.hdrFramebuffer.preferredDepthFormats);
     for (int eye = 0; eye < numEyes(); ++eye) {
         static const String NAME[2] = {"VRApp::m_vrEyeCamera[0]", "VRApp::m_vrEyeCamera[1]"};
         m_vrEyeCamera[eye] = Camera::create(NAME[eye]);

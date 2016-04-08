@@ -31,8 +31,8 @@ int main(int argc, const char* argv[]) {
     // or if you *want* to render faster than the display.
     settings.window.asynchronous        = false;
 
-    settings.depthGuardBandThickness    = Vector2int16(64, 64);
-    settings.colorGuardBandThickness    = Vector2int16(0, 0);
+    settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(64, 64);
+    settings.hdrFramebuffer.colorGuardBandThickness = Vector2int16(0, 0);
     settings.dataDir                    = FileSystem::currentDirectory();
     settings.screenshotDirectory        = "../journal/";
 
@@ -115,7 +115,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
     extendGBufferSpecification(gbufferSpec);
     m_gbuffer->setSpecification(gbufferSpec);
     m_gbuffer->resize(m_framebuffer->width(), m_framebuffer->height());
-    m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.depthGuardBandThickness, m_settings.colorGuardBandThickness);
+    m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.hdrFramebuffer.depthGuardBandThickness, m_settings.hdrFramebuffer.colorGuardBandThickness);
 
     m_renderer->render(rd, m_framebuffer, scene()->lightingEnvironment().ambientOcclusionSettings.enabled ? m_depthPeelFramebuffer : shared_ptr<Framebuffer>(),
         scene()->lightingEnvironment(), m_gbuffer, allSurfaces);
@@ -129,11 +129,11 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
         scene()->visualize(rd, selectedEntity, allSurfaces, sceneVisualizationSettings(), activeCamera());
 
         // Post-process special effects
-        m_depthOfField->apply(rd, m_framebuffer->texture(0), m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(), m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness);
+        m_depthOfField->apply(rd, m_framebuffer->texture(0), m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(), m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);
 
         m_motionBlur->apply(rd, m_framebuffer->texture(0), m_gbuffer->texture(GBuffer::Field::SS_EXPRESSIVE_MOTION),
             m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(),
-            m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness);
+            m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);
     } rd->popState();
 
     // We're about to render to the actual back buffer, so swap the buffers now.
