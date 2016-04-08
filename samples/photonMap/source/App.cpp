@@ -215,7 +215,5 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
     rd->clear();
 
     // Perform gamma correction, bloom, and SSAA, and write to the native window frame buffer
-    m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0));
-
-
+    m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0), settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x);
 }

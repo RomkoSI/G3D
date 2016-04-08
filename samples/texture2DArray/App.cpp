@@ -50,7 +50,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D)
         LAUNCH_SHADER("TextureArraySample.pix", args);
     } rd->pop2D();
     swapBuffers();
-    m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0));
+    m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0), settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x);
 }
 
 
