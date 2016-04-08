@@ -217,7 +217,7 @@ Radiance3 App::rayTrace(const Ray& ray, World* world, Random& rng, int bounce) {
         if (m_result) {
             m_result->resize(width, height);
         }
-        m_film->exposeAndRender(renderDevice, m_debugCamera->filmSettings(), src, m_result);
+        m_film->exposeAndRender(renderDevice, m_debugCamera->filmSettings(), src, m_result, settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x);
     }
 
     void App::onAfterLoadScene(const Any& any, const String& sceneName) {
