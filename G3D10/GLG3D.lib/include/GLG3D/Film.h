@@ -2,7 +2,7 @@
  \file GLG3D/Film.h
  \author Morgan McGuire, http://graphics.cs.williams.edu
  \created 2008-07-01
- \edited  2015-03-30
+ \edited  2016-04-05
 
  G3D Library http://g3d.cs.williams.edu
  Copyright 2000-2016, Morgan McGuire morgan@cs.williams.edu
@@ -68,10 +68,85 @@ namespace G3D {
    When rendering multiple viewports or off-screen images, use a separate 
    Film instance for each size of input for maximum performance.
 
-   Requires shaders.
+
+   Data flow through internal fields during exposeAndRender, when effects
+   are enabled:
+
+   <diagram>
+   ************************************************************************
+   *                                                                      *
+   *                                                                      *
+   *                                                                      *
+   *                                                                      *
+   *                                                                      *
+   *                                                                      *
+   *                     m_postGammaFramebuffer                           *
+   *                                                                      *
+   *                                                                      *
+   *                     m_fxaaFramebuffer  --->                          *
+   *                                               m_zoomFramebuffer      *
+   *                                                                      *
+   *                                                                      *
+   *                .-------------------------.                           *
+   *                |  rd->drawFramebuffer()  |                           *
+   *                '-------------------------'                           *
+   ************************************************************************
+   </diagram>
+
 */
 class Film : public ReferenceCountedObject {
 private:
+    
+    /** Filters may cache state for performance, so each Film must have its own set. */
+    class Filter : public ReferenceCountedObject {
+    public:
+
+        /** When this is not the final filter in the chain, this framebuffer is used for the output */
+        shared_ptr<Framebuffer>     intermediateResultFramebuffer;
+    
+        /** Set by Film::exposeAndRender */
+        shared_ptr<Framebuffer>     target;
+
+        /** Apply the filter to source, writing to target
+        
+            The CompositeFilter and EffectsDisabledBlitFilter expect a guard band (if there is one specified in \a settings) on the input and produce output without
+            a guard band.  All other filters assume no guard band on input or output. This works because exactly one of CompositeFilter or EffectsDisabledBlitFilter
+            is always in the filter chain and always at the front.
+            
+            If \a target is null, then all filters allocate an output that is the same size as the input (except for CompositeFilter removing the
+            guard band). If \a target is not null, then the output is stretched to the size of \a target using bilinear interpolation.
+
+            \param target If null, allocate intermediateResultFramebuffer and set this->target to it. If not null, set this->target = target
+         */
+        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const = 0;
+    };
+
+    /** Includes bloom, vignette, tone map */
+    class CompositeFilter : public Filter {
+    public:
+        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const override;
+    } m_compositeFilter;
+
+    class FXAAFilter : public Filter {
+    public:
+        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const override;
+    } m_fxaaFilter;
+
+    class WideAAFilter : public Filter {
+    public:
+        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const override;
+    } m_wideAAFilter;
+
+    class DebugZoomFilter : public Filter {
+    public:
+        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const override;
+    } m_debugZoomFilter;
+
+    class EffectsDisabledBlitFilter : public Filter {
+    public:
+        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const override;
+    } m_effectsDisabledBlitFilter;
+    
 
     /** Used for all buffers except m_postGammaFramebuffer */
     const ImageFormat*             m_intermediateFormat;
@@ -145,9 +220,7 @@ public:
     void exposeAndRender
         (RenderDevice*              rd, 
          const FilmSettings&        settings,
-         const shared_ptr<Texture>& input,
-         int                        downsample 	= 1,
-         Point2int32                offset      = Point2int32(0,0));
+         const shared_ptr<Texture>& input);
 
     /**
       Render to texture helper.  You can also render to a texture by binding \a output to a FrameBuffer, 
@@ -163,10 +236,8 @@ public:
         const FilmSettings&         settings,
         const shared_ptr<Texture>&  input,
         shared_ptr<Texture>&        output,
-        int                         downsample     = 1,
         CubeFace                    outputCubeFace = CubeFace::POS_X,
-        int                         outputMipLevel = 0,
-        Point2int32                 offset         = Point2int32(0,0));
+        int                         outputMipLevel = 0);
 };
 
 } // namespace

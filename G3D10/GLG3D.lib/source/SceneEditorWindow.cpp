@@ -148,7 +148,7 @@ public:
 		const Ray& ray = m_sceneEditor->m_scene->eyeRay(m_sceneEditor->m_app->activeCamera(), 
                 pixel + Vector2::one() * 0.5f, 
                 view, 
-                m_sceneEditor->m_app->settings().depthGuardBandThickness);
+                m_sceneEditor->m_app->settings().hdrFramebuffer.depthGuardBandThickness);
 
         m_sceneEditor->m_scene->intersect(ray, distance, m_sceneEditor->m_visualizationSettings.showMarkers);
 
@@ -171,7 +171,7 @@ public:
             const shared_ptr<Scene>& scene = m_sceneEditor->m_scene;
             const Rect2D& view = app->renderDevice->viewport();
 
-            const Ray& ray = scene->eyeRay(m_sceneEditor->m_app->activeCamera(), event.mousePosition() + Vector2(0.5f, 0.5f), view, m_sceneEditor->m_app->settings().depthGuardBandThickness);
+            const Ray& ray = scene->eyeRay(m_sceneEditor->m_app->activeCamera(), event.mousePosition() + Vector2(0.5f, 0.5f), view, m_sceneEditor->m_app->settings().hdrFramebuffer.depthGuardBandThickness);
 
             // Left click: select by casting a ray through the center of the pixel
             float distance = finf();

@@ -57,9 +57,7 @@ GApp::Settings::Settings() :
     debugFontName("console-small.fnt"),
     logFilename("log.txt"),
     useDeveloperTools(true),
-    writeLicenseFile(true),
-    colorGuardBandThickness(0, 0),
-    depthGuardBandThickness(0, 0) {
+    writeLicenseFile(true) {
     initGLG3D();
 }
 
@@ -340,7 +338,7 @@ void GApp::initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindo
     }
 
 
-    const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(m_settings.film.preferredColorFormats);
+    const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(m_settings.hdrFramebuffer.preferredColorFormats);
     if (colorFormat == NULL) {
         colorFormat = ImageFormat::RGBA8();
     }
@@ -399,7 +397,7 @@ void GApp::initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindo
     }
 
     m_gbuffer = m_osWindowGBuffer = GBuffer::create(m_gbufferSpecification);
-    m_gbuffer->resize(renderDevice->width() + m_settings.depthGuardBandThickness.x * 2, renderDevice->height() + m_settings.depthGuardBandThickness.y * 2);
+    m_gbuffer->resize(renderDevice->width() + m_settings.hdrFramebuffer.depthGuardBandThickness.x * 2, renderDevice->height() + m_settings.hdrFramebuffer.depthGuardBandThickness.y * 2);
 
     // Share the depth buffer with the forward-rendering pipeline
     m_osWindowHDRFramebuffer->set(Framebuffer::DEPTH, m_gbuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL));
@@ -921,7 +919,7 @@ bool GApp::onEvent(const GEvent& event) {
 
             // Trace a ray from the drop point
             Model::HitInfo hitInfo;
-			scene()->intersect(scene()->eyeRay(activeCamera(), Vector2(event.drop.x + 0.5f, event.drop.y + 0.5f), renderDevice->viewport(), settings().depthGuardBandThickness), ignoreFloat, false, Array<shared_ptr<Entity> >(), hitInfo);
+			scene()->intersect(scene()->eyeRay(activeCamera(), Vector2(event.drop.x + 0.5f, event.drop.y + 0.5f), renderDevice->viewport(), settings().hdrFramebuffer.depthGuardBandThickness), ignoreFloat, false, Array<shared_ptr<Entity> >(), hitInfo);
 
             if (hitInfo.point.isNaN()) {
                 // The drop wasn't on a surface, so choose a point in front of the camera at a reasonable distance
@@ -1002,7 +1000,7 @@ bool GApp::onEvent(const GEvent& event) {
         window()->getRelativeMouseState(mouse, ignore);
         const shared_ptr<Entity>& selection =
             scene()->intersect(scene()->eyeRay(activeCamera(), mouse + Vector2(0.5f, 0.5f), renderDevice->viewport(),
-                        settings().depthGuardBandThickness), ignoreFloat, sceneVisualizationSettings().showMarkers, Array<shared_ptr<Entity> >(), info);
+                        settings().hdrFramebuffer.depthGuardBandThickness), ignoreFloat, sceneVisualizationSettings().showMarkers, Array<shared_ptr<Entity> >(), info);
 
         if (notNull(selection)) {
             m_debugCamera->setFrame(CFrame(m_debugCamera->frame().rotation, info.point + (m_debugCamera->frame().rotation * Vector3(0.0f, 0.0f, 1.5f))));
@@ -1032,7 +1030,7 @@ void GApp::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfac
     m_gbuffer->setSpecification(gbufferSpec);
 
     m_gbuffer->resize(m_framebuffer->width(), m_framebuffer->height());
-    m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.depthGuardBandThickness, m_settings.colorGuardBandThickness);
+    m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.hdrFramebuffer.depthGuardBandThickness, m_settings.hdrFramebuffer.colorGuardBandThickness);
 
     m_renderer->render(rd, m_framebuffer, scene()->lightingEnvironment().ambientOcclusionSettings.enabled ? m_depthPeelFramebuffer : nullptr, 
         scene()->lightingEnvironment(), m_gbuffer, allSurfaces);
@@ -1046,11 +1044,11 @@ void GApp::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfac
         scene()->visualize(rd, selectedEntity, allSurfaces, sceneVisualizationSettings(), activeCamera());
 
         // Post-process special effects
-        m_depthOfField->apply(rd, m_framebuffer->texture(0), m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(), m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness);
+        m_depthOfField->apply(rd, m_framebuffer->texture(0), m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(), m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);
 
         m_motionBlur->apply(rd, m_framebuffer->texture(0), m_gbuffer->texture(GBuffer::Field::SS_EXPRESSIVE_MOTION),
                             m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(),
-                            m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness);
+                            m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);
     } rd->popState();
 
     // We're about to render to the actual back buffer, so swap the buffers now.
@@ -1112,8 +1110,8 @@ void GApp::resize(int w, int h) {
     }
 
     // Add the color guard band
-    w += m_settings.depthGuardBandThickness.x * 2;
-    h += m_settings.depthGuardBandThickness.y * 2;
+    w += m_settings.hdrFramebuffer.depthGuardBandThickness.x * 2;
+    h += m_settings.hdrFramebuffer.depthGuardBandThickness.y * 2;
 
     // Does the m_osWindowHDRFramebuffer need to be reallocated?  Do this even if we
     // aren't using it at the moment, but not if we are minimized.
@@ -1126,8 +1124,8 @@ void GApp::resize(int w, int h) {
 
         m_osWindowHDRFramebuffer->clear();
 
-        const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(m_settings.film.preferredColorFormats);
-        const ImageFormat* depthFormat = GLCaps::firstSupportedTexture(m_settings.film.preferredDepthFormats);
+        const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(m_settings.hdrFramebuffer.preferredColorFormats);
+        const ImageFormat* depthFormat = GLCaps::firstSupportedTexture(m_settings.hdrFramebuffer.preferredDepthFormats);
         const bool generateMipMaps = false;
         m_osWindowHDRFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("G3D::GApp::m_osWindowHDRFramebuffer/color", w, h, colorFormat, Texture::DIM_2D, generateMipMaps, 1));
 
@@ -1574,20 +1572,20 @@ void GApp::renderCubeMap(RenderDevice* rd, Array<shared_ptr<Texture> >& output, 
     }
     const int oldFramebufferWidth       = m_osWindowHDRFramebuffer->width();
     const int oldFramebufferHeight      = m_osWindowHDRFramebuffer->height();
-    const Vector2int16  oldColorGuard   = m_settings.colorGuardBandThickness;
-    const Vector2int16  oldDepthGuard   = m_settings.depthGuardBandThickness;
+    const Vector2int16  oldColorGuard   = m_settings.hdrFramebuffer.colorGuardBandThickness;
+    const Vector2int16  oldDepthGuard   = m_settings.hdrFramebuffer.depthGuardBandThickness;
     const shared_ptr<Camera>& oldCamera = activeCamera();
 
-    m_settings.colorGuardBandThickness = Vector2int16(128, 128);
-    m_settings.depthGuardBandThickness = Vector2int16(256, 256);
-    const int fullWidth = resolution + (2 * m_settings.depthGuardBandThickness.x);
+    m_settings.hdrFramebuffer.colorGuardBandThickness = Vector2int16(128, 128);
+    m_settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(256, 256);
+    const int fullWidth = resolution + (2 * m_settings.hdrFramebuffer.depthGuardBandThickness.x);
     m_osWindowHDRFramebuffer->resize(fullWidth, fullWidth);
 
     shared_ptr<Camera> newCamera = Camera::create("Cubemap Camera");
     newCamera->copyParametersFrom(camera);
     newCamera->depthOfFieldSettings().setEnabled(false);
     newCamera->motionBlurSettings().setEnabled(false);
-    newCamera->setFieldOfView(2.0f * ::atan(1.0f + 2.0f*(float(m_settings.depthGuardBandThickness.x) / float(resolution)) ), FOVDirection::HORIZONTAL);
+    newCamera->setFieldOfView(2.0f * ::atan(1.0f + 2.0f*(float(m_settings.hdrFramebuffer.depthGuardBandThickness.x) / float(resolution)) ), FOVDirection::HORIZONTAL);
 
     const ImageFormat* imageFormat = ImageFormat::RGB16F();
     if ((output.size() == 0) || isNull(output[0])) {
@@ -1615,7 +1613,7 @@ void GApp::renderCubeMap(RenderDevice* rd, Array<shared_ptr<Texture> >& output, 
     }
     setActiveCamera(oldCamera);
     m_osWindowHDRFramebuffer->resize(oldFramebufferWidth, oldFramebufferHeight);
-    m_settings.colorGuardBandThickness = oldColorGuard;
-    m_settings.depthGuardBandThickness = oldDepthGuard;
+    m_settings.hdrFramebuffer.colorGuardBandThickness = oldColorGuard;
+    m_settings.hdrFramebuffer.depthGuardBandThickness = oldDepthGuard;
 }
 }
