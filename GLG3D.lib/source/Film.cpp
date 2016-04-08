@@ -98,10 +98,8 @@ void Film::exposeAndRender
     const FilmSettings&         settings,
     const shared_ptr<Texture>&  input,
     shared_ptr<Texture>&        output,
-    int                         downsample,
     CubeFace                    outputCubeFace,
-    int                         outputMipLevel,
-    Point2int32                 offset) {
+    int                         outputMipLevel) {
     
     if (isNull(output)) {
         // Allocate new output texture
@@ -114,7 +112,7 @@ void Film::exposeAndRender
     fb->set(Framebuffer::COLOR0, output, outputCubeFace, outputMipLevel);
     rd->push2D(fb); {
         rd->clear();
-        exposeAndRender(rd, settings, input, downsample, offset);
+        exposeAndRender(rd, settings, input);
     } rd->pop2D();
 
     // Override the document gamma
@@ -123,20 +121,109 @@ void Film::exposeAndRender
 }
 
 
-void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& input, int downsample, Point2int32 offset) {
+void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const {
+    const bool invertY = target->invertY();
+/*     
+    // Compute the input guard band size
+    const int w = rd->width() - iAbs(offset.x);
+    const int h = rd->height() - iAbs(offset.y);
+
+    const Vector2int16 guardBandSize((input->width() - w) / 2, (input->height() - h) / 2);
+    */
+}
+
+
+void Film::FXAAFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const  {
+    // TODO
+}
+
+
+void Film::WideAAFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const  {
+    // TODO
+}
+
+
+void Film::DebugZoomFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const  {
+    /*
+    if (settings.debugZoom() > 1) {
+        rd->push2D(target); {
+            Args args;
+            args.setUniform("source", source), Sampler::video());
+
+            args.setUniform("yOffset", invertY ? rd->height() : 0);
+            args.setUniform("ySign", invertY ? -1 : 1);
+
+            args.setUniform("dstOffset", Point2(offset));
+            args.setUniform("offset", Vector2int32((m_zoomFramebuffer->vector2Bounds() -
+                m_zoomFramebuffer->vector2Bounds() / float(settings.debugZoom())) / 2));
+            args.setUniform("scale", settings.debugZoom());
+            if (rd->drawFramebuffer() == targetFramebuffer) {
+                args.setRect(Rect2D::xywh(Point2(offset), Vector2(float(w), float(h))));
+            } else {
+                args.setRect(rd->viewport());
+            }
+            LAUNCH_SHADER("Film_zoom.*", args);
+        } rd->pop2D();
+    }
+    */
+}
+
+
+void Film::EffectsDisabledBlitFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const  {
+    // TODO
+}
+
+
+void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& input) {
     BEGIN_PROFILER_EVENT("Film::exposeAndRender");
 
-    debugAssertM(downsample == 1, "Downsampling not implemented in this release");
-    if (isNull(m_framebuffer)) {
-        init();
+//    debugAssertM(rd->drawFramebuffer(), "In G3D 10, the drawFramebuffer should never be null");
+   
+    // Keep the size of this small array equal to the maximum number of filters that can be bound
+    typedef SmallArray<Filter*, 6> FilterChain;
+    FilterChain filterChain;
+
+    // Build the filter chain:
+    if (settings.effectsEnabled()) {
+        filterChain.push(&m_compositeFilter);
+
+        if (settings.antialiasingEnabled()) {
+            filterChain.push(&m_fxaaFilter);
+
+            if (settings.antialiasingFilterRadius() > 0) {
+                filterChain.push(&m_wideAAFilter);
+            }
+        }
+
+        if (settings.debugZoom() > 1) {
+            filterChain.push(&m_debugZoomFilter);
+        }
+    } else {
+        filterChain.push(&m_effectsDisabledBlitFilter);
     }
+
+#if 0
+    // Run the filters:    
+    for (int i = 0; i < filterChain.size(); ++i) {
+        const bool first = (i == 0);
+        const bool last  = (i == filterChain.size() - 1);
+
+        // The first filter reads from the input
+        // The others read from the previous filter's framebuffer
+        const shared_ptr<Texture>& source = first ? input : filterChain[i - 1]->target->texture(Framebuffer::COLOR0);
+
+        filterChain[i]->apply(rd, m_settings, source, last ? rd->drawFramebuffer() : nullptr);
+    }
+#endif
+
+    ///////////////////////////////////////////////////////////////////////////////
 
     const shared_ptr<Framebuffer>& targetFramebuffer = rd->drawFramebuffer();
     const bool invertY = notNull(rd->drawFramebuffer()) && rd->drawFramebuffer()->invertY();
 
     // Size based on output width, taking cropping from the offset shift into account
-    const int w = rd->width() - iAbs(offset.x);
-    const int h = rd->height() - iAbs(offset.y);
+    const int w = rd->width();
+    const int h = rd->height();
 
     const Vector2int16 guardBandSize((input->width() - w) / 2, (input->height() - h) / 2);
         
@@ -236,7 +323,7 @@ void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const
                 args.setUniform("vignetteBottomStrength", clamp(settings.vignetteBottomStrength(), 0.0f, 1.0f));
                 args.setUniform("vignetteSize", settings.vignetteSizeFraction());
                 if (rd->drawFramebuffer() == targetFramebuffer) {
-                    args.setRect(Rect2D::xywh(Point2(offset), Vector2(float(w), float(h))));
+                    args.setRect(Rect2D::xywh(Point2::zero(), Vector2(float(w), float(h))));
                 } else {
                     args.setRect(rd->viewport());
                 }
@@ -256,7 +343,7 @@ void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const
                     Args args;
                     m_postGammaFramebuffer->texture(0)->setShaderArgs(args, "sourceTexture_", Sampler::video());
                     if (rd->drawFramebuffer() == targetFramebuffer) {
-                        args.setRect(Rect2D::xywh(Point2(offset), Vector2(float(w), float(h))));
+                        args.setRect(Rect2D::xywh(Point2::zero(), Vector2(float(w), float(h))));
                     } else {
                         args.setRect(rd->viewport());
                     }
@@ -274,7 +361,7 @@ void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const
                     m_fxaaFramebuffer->texture(0)->setShaderArgs(args, "sourceTexture_", Sampler::video());
                     args.setUniform("radius", settings.antialiasingFilterRadius());
                     if (rd->drawFramebuffer() == targetFramebuffer) {
-                        args.setRect(Rect2D::xywh(Point2(offset), Vector2(float(w), float(h))));
+                        args.setRect(Rect2D::xywh(Point2::zero(), Vector2(float(w), float(h))));
                     } else {
                         args.setRect(rd->viewport());
                     }
@@ -293,12 +380,12 @@ void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const
                 args.setUniform("yOffset", invertY ? rd->height() : 0);
                 args.setUniform("ySign", invertY ? -1 : 1);
 
-                args.setUniform("dstOffset", Point2(offset));
+                args.setUniform("dstOffset", Point2::zero());
                 args.setUniform("offset", Vector2int32((m_zoomFramebuffer->vector2Bounds() -
                     m_zoomFramebuffer->vector2Bounds() / float(settings.debugZoom())) / 2));
                 args.setUniform("scale", settings.debugZoom());
                 if (rd->drawFramebuffer() == targetFramebuffer) {
-                    args.setRect(Rect2D::xywh(Point2(offset), Vector2(float(w), float(h))));
+                    args.setRect(Rect2D::xywh(Point2::zero(), Vector2(float(w), float(h))));
                 } else {
                     args.setRect(rd->viewport());
                 }

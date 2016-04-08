@@ -97,7 +97,7 @@ public:
         \param trimBandThickness Input texture coordinates are clamped to
         a region inset on all sides by this amount.  Set this to non-zero if 
         the input color buffer is larger than the desired output region but does
-        not have useful data around the border.  Typically m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness.
+        not have useful data around the border.  Typically m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness.
 
     */        
     virtual void apply

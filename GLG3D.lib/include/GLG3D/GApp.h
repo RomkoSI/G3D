@@ -230,31 +230,6 @@ public:
             directory.  That file is written from the return value of G3D::license() */
         bool                    writeLicenseFile;
 
-        /**
-            The default call to Film::exposeAndRender in the sample "starter" project crops these off, and the default
-            App::onGraphics3D in that project.
-
-            The use of a guard band allows screen-space effects to avoid boundary cases at the edge of the screen. For example,
-            G3D::AmbientOcclusion, G3D::MotionBlur, and G3D::DepthOfField.
-
-            Guard band pixels count against the field of view (this keeps rendering and culling code simpler), so the effective
-            field of view observed.
-
-            Note that a 128-pixel guard band at 1920x1080 allocates 40% more pixels than no guard band, so there may be a substantial
-            memory overhead to a guard band even though there is little per-pixel rendering cost due to using
-            RenderDevice::clip2D.
-
-            Must be non-negative. Default value is (0, 0).
-
-            \image html guardBand.png
-            */
-        Vector2int16            colorGuardBandThickness;
-
-        /**
-          Must be non-negative and at least as large as colorGuardBandThickness. Default value is (0, 0).
-         \image html guardBand.png
-        */
-        Vector2int16            depthGuardBandThickness;
 
         /** These are not necessarily followed if not using the DefaultRenderer */
         class RendererSettings {
@@ -266,7 +241,7 @@ public:
             RendererSettings();
         } renderer;
 
-        class FilmSettings {
+        class HDRFramebufferSettings {
         public:
 
             /** Size of the film backbuffer. Set to -1, -1 to automatically size to the window.*/
@@ -283,13 +258,40 @@ public:
               */
             Array<const ImageFormat*>   preferredDepthFormats;
 
-            FilmSettings() : dimensions(-1, -1) {
+            
+            /**
+                The default call to Film::exposeAndRender in the sample "starter" project crops these off, and the default
+                App::onGraphics3D in that project.
+
+                The use of a guard band allows screen-space effects to avoid boundary cases at the edge of the screen. For example,
+                G3D::AmbientOcclusion, G3D::MotionBlur, and G3D::DepthOfField.
+
+                Guard band pixels count against the field of view (this keeps rendering and culling code simpler), so the effective
+                field of view observed.
+
+                Note that a 128-pixel guard band at 1920x1080 allocates 40% more pixels than no guard band, so there may be a substantial
+                memory overhead to a guard band even though there is little per-pixel rendering cost due to using
+                RenderDevice::clip2D.
+
+                Must be non-negative. Default value is (0, 0).
+
+                \image html guardBand.png
+                */
+            Vector2int16            colorGuardBandThickness;
+
+            /**
+                Must be non-negative and at least as large as colorGuardBandThickness. Default value is (0, 0).
+                \image html guardBand.png
+            */
+            Vector2int16            depthGuardBandThickness;
+
+            HDRFramebufferSettings() : dimensions(-1, -1) {
                 preferredColorFormats.append(ImageFormat::R11G11B10F(), ImageFormat::RGB16F(), ImageFormat::RGBA16F(), ImageFormat::RGB32F(), ImageFormat::RGBA32F(), ImageFormat::RGBA8());
-                preferredDepthFormats.append(ImageFormat::DEPTH32F(), ImageFormat::DEPTH32(), ImageFormat::DEPTH16(), ImageFormat::DEPTH24());
+                preferredDepthFormats.append(ImageFormat::DEPTH32F(), ImageFormat::DEPTH32(), ImageFormat::DEPTH24());
             }
         };
 
-        FilmSettings            film;
+        HDRFramebufferSettings  hdrFramebuffer;
 
         /** Arguments to the program, from argv.  The first is the name of the program. */
         Array<String>           argArray;
@@ -309,13 +311,13 @@ public:
 
     class DebugShape {
     public:
-        shared_ptr<Shape>         shape;
-        Color4          solidColor;
-        Color4          wireColor;
-        CoordinateFrame frame;
-        DebugID         id;
+        shared_ptr<Shape>   shape;
+        Color4              solidColor;
+        Color4              wireColor;
+        CoordinateFrame     frame;
+        DebugID             id;
         /** Clear after this time (always draw before clearing) */
-        RealTime        endTime;
+        RealTime            endTime;
     };
 
     class DebugLabel {
