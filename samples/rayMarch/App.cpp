@@ -16,8 +16,8 @@ int main(int argc, const char* argv[]) {
     settings.window.resizable           = ! settings.window.fullScreen;
     settings.window.framed              = ! settings.window.fullScreen;
     settings.window.asynchronous        = true;
-    settings.depthGuardBandThickness    = Vector2int16(0, 0);
-    settings.colorGuardBandThickness    = Vector2int16(0, 0);
+    settings.hdrFramebuffer.depthGuardBandThickness    = Vector2int16(0, 0);
+    settings.hdrFramebuffer.colorGuardBandThickness    = Vector2int16(0, 0);
     settings.dataDir                    = FileSystem::currentDirectory();
 
     return App(settings).run();

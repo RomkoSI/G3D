@@ -36,8 +36,8 @@ int main(int argc, const char* argv[]) {
     // or if you *want* to render faster than the display.
     settings.window.asynchronous        = false;
 
-    settings.depthGuardBandThickness    = Vector2int16(0, 0);
-    settings.colorGuardBandThickness    = Vector2int16(0, 0);
+    settings.hdrFramebuffer.depthGuardBandThickness    = Vector2int16(0, 0);
+    settings.hdrFramebuffer.colorGuardBandThickness    = Vector2int16(0, 0);
     settings.dataDir                    = FileSystem::currentDirectory();
     settings.screenshotDirectory        = "";
 
@@ -143,7 +143,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
 	
     m_gbuffer->setSpecification(m_gbufferSpecification);
     m_gbuffer->resize(m_framebuffer->width(), m_framebuffer->height());
-    m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.depthGuardBandThickness, m_settings.colorGuardBandThickness);
+    m_gbuffer->prepare(rd, activeCamera(), 0, -(float)previousSimTimeStep(), m_settings.hdrFramebuffer.depthGuardBandThickness, m_settings.hdrFramebuffer.colorGuardBandThickness);
 
 	
 	m_renderer->render(rd, m_framebuffer, m_depthPeelFramebuffer, scene()->lightingEnvironment(), m_gbuffer, allSurfaces);
@@ -157,7 +157,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
 			//rd->setProjectionAndCameraMatrix(activeCamera()->projection(), activeCamera()->frame());
 
 			rd->push2D();
-			const Vector2int32 guardBand(m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness);
+			const Vector2int32 guardBand(m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);
 			const Vector2int32 colorRegionExtent = Vector2int32(m_framebuffer->vector2Bounds()) - guardBand * 2;
 
 			Args args;
@@ -215,11 +215,11 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
 		rd->setPolygonOffset(0.0f);
 
         // Post-process special effects
-        m_depthOfField->apply(rd, m_framebuffer->texture(0), m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(), m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness);
+        m_depthOfField->apply(rd, m_framebuffer->texture(0), m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(), m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);
         
         m_motionBlur->apply(rd, m_framebuffer->texture(0), m_gbuffer->texture(GBuffer::Field::SS_EXPRESSIVE_MOTION), 
                             m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(), 
-                            m_settings.depthGuardBandThickness - m_settings.colorGuardBandThickness);
+                            m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);
 
 
 

@@ -68,7 +68,7 @@ static const std::regex& headerRegex() {
 }
 
 
-static int findSection(JournalSyntax syntax, const String& fileContents, size_t start = 0) {
+static size_t findSection(JournalSyntax syntax, const String& fileContents, size_t start = 0) {
     if (syntax == JournalSyntax::DOXYGEN) {
         // Search for the section title
         size_t pos = fileContents.find("\\section", start);

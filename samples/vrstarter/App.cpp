@@ -30,8 +30,8 @@ int main(int argc, const char* argv[]) {
     settings.window.framed              = ! settings.window.fullScreen;
 
     // Oculus already provides a huge guard band
-    settings.depthGuardBandThickness    = Vector2int16(0, 0);
-    settings.colorGuardBandThickness    = Vector2int16(0, 0);
+    settings.hdrFramebuffer.depthGuardBandThickness    = Vector2int16(0, 0);
+    settings.hdrFramebuffer.colorGuardBandThickness    = Vector2int16(0, 0);
 
     // Async must be true for VR
     settings.window.asynchronous        = true;

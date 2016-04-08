@@ -10,14 +10,14 @@ void testFullRender(bool generateGoldStandard) {
 
     settings.window.caption			= "Test Renders";
     settings.window.width        = 1280; settings.window.height       = 720;
-    settings.film.preferredColorFormats.clear();
-    settings.film.preferredColorFormats.append(ImageFormat::RGB32F());
+    settings.hdrFramebuffer.preferredColorFormats.clear();
+    settings.hdrFramebuffer.preferredColorFormats.append(ImageFormat::RGB32F());
 
 	// Enable vsync.  Disable for a significant performance boost if your app can't render at 60fps,
 	// or if you *want* to render faster than the display.
 	settings.window.asynchronous	= false;
-    settings.depthGuardBandThickness    = Vector2int16(64, 64);
-    settings.colorGuardBandThickness    = Vector2int16(16, 16);
+    settings.hdrFramebuffer.depthGuardBandThickness    = Vector2int16(64, 64);
+    settings.hdrFramebuffer.colorGuardBandThickness    = Vector2int16(16, 16);
     settings.dataDir				= FileSystem::currentDirectory();
     if(generateGoldStandard) { // Warning! Do not change these directories without changing the App... it relies on these directories to tell what mode we are in
         settings.screenshotDirectory	= "../data-files/RenderTest/GoldStandard";

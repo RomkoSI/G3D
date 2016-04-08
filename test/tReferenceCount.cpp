@@ -118,17 +118,17 @@ public:
     const char* s;
     Reftest(const char* s) : s(s){
 #ifdef G3D_64BIT
-      debugPrintf("alloc 0x%lx (%s)\n", long((size_t*)this), s);
+      debugPrintf("alloc 0x%lx (%s)\n", long((intptr_t)this), s);
 #else
-      debugPrintf("alloc 0x%x (%s)\n", int((size_t*)this), s);
+      debugPrintf("alloc 0x%x (%s)\n", int((intptr_t)this), s);
 #endif
         sequence.append(format("%s", s));
     }
     ~Reftest() {
 #ifdef G3D_64BIT
-        debugPrintf("free 0x%lx (~%s)\n", long((size_t*)this), s);
+        debugPrintf("free 0x%lx (~%s)\n", long((intptr_t)this), s);
 #else
-        debugPrintf("free 0x%x (~%s)\n", int((size_t*)this), s);
+        debugPrintf("free 0x%x (~%s)\n", int((intptr_t)this), s);
 #endif
         sequence.append(format("~%s", s));
     }

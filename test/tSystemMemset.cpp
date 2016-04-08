@@ -63,7 +63,7 @@ void perfSystemMemset() {
         int n = (int)size[m];
         void* m1 = System::alignedMalloc(n, 16);
 
-        testAssertM((((long)m1) % 16) == 0, "Memory is not aligned correctly");
+        testAssertM((((intptr_t)m1) % 16) == 0, "Memory is not aligned correctly");
 
         // First iteration just primes the system
         ::memset(m1, 0, n);

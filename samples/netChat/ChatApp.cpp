@@ -211,7 +211,7 @@ int main(int argc, const char* argv[]) {
     settings.window.caption      = argv[0];
     settings.window.width        = 1280; 
     settings.window.height       = 720;
-    settings.colorGuardBandThickness  = Vector2int16(0, 0);
+    settings.hdrFramebuffer.colorGuardBandThickness  = Vector2int16(0, 0);
     
     return ChatApp(settings).run();
 }
