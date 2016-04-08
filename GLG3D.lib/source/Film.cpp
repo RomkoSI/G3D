@@ -123,8 +123,8 @@ void Film::exposeAndRender
 }
 
 
-void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceColorBandThickness) const {
-    debugAssert(sourceTrimBandThickness >= sourceDepthGuardBandThickness);
+void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceDepthGuardBandThickness) const {
+  //  debugAssert(sourceDepthGuardBandThickness >= sourceTrimBandThickness >= sourceDepthGuardBandThickness);
     const bool invertY = target->invertY();
 /*     
     // Compute the input guard band size
@@ -136,20 +136,20 @@ void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings
 }
 
 
-void Film::FXAAFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceDepthGuadBandThickness) const  {
-    debugAssert((sourceTrimBandThickness == 0) && (sourceDepthGuadBandThickness == 0));
+void Film::FXAAFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceDepthGuardBandThickness) const  {
+    debugAssert((sourceTrimBandThickness == 0) && (sourceDepthGuardBandThickness == 0));
     // TODO
 }
 
 
-void Film::WideAAFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceDepthGuadBandThickness) const  {
-    debugAssert((sourceTrimBandThickness == 0) && (sourceDepthGuadBandThickness == 0));
+void Film::WideAAFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceDepthGuardBandThickness) const  {
+    debugAssert((sourceTrimBandThickness == 0) && (sourceDepthGuardBandThickness == 0));
     // TODO
 }
 
 
-void Film::DebugZoomFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceDepthGuadBandThickness) const  {
-    debugAssert((sourceTrimBandThickness == 0) && (sourceDepthGuadBandThickness == 0));
+void Film::DebugZoomFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceDepthGuardBandThickness) const  {
+    debugAssert((sourceTrimBandThickness == 0) && (sourceDepthGuardBandThickness == 0));
     /*
     if (settings.debugZoom() > 1) {
         rd->push2D(target); {
@@ -176,7 +176,7 @@ void Film::DebugZoomFilter::apply(RenderDevice* rd, const FilmSettings& settings
 
 
 void Film::EffectsDisabledBlitFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceColorBandThickness) const  {
-    debugAssert(sourceTrimBandThickness >= sourceDepthGuardBandThickness);
+//    debugAssert(sourceTrimBandThickness >= sourceDepthGuardBandThickness);
     // TODO
 }
 
