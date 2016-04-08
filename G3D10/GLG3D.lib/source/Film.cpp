@@ -124,7 +124,7 @@ void Film::exposeAndRender
 
 
 void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceColorBandThickness) const {
-    debugAssert(sourceTrimBandThickness >= sourceDepthGuadBandThickness);
+    debugAssert(sourceTrimBandThickness >= sourceDepthGuardBandThickness);
     const bool invertY = target->invertY();
 /*     
     // Compute the input guard band size
@@ -176,7 +176,7 @@ void Film::DebugZoomFilter::apply(RenderDevice* rd, const FilmSettings& settings
 
 
 void Film::EffectsDisabledBlitFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceColorBandThickness) const  {
-    debugAssert(sourceTrimBandThickness >= sourceDepthGuadBandThickness);
+    debugAssert(sourceTrimBandThickness >= sourceDepthGuardBandThickness);
     // TODO
 }
 
