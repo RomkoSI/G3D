@@ -110,7 +110,7 @@ private:
         /** Apply the filter to source, writing to target
         
             The CompositeFilter and EffectsDisabledBlitFilter expect a guard band (if there is one specified in \a settings) on the input and produce output without
-            a guard band.  All other filters assume no guard band on input or output. This works because exactly one of CompositeFilter or EffectsDisabledBlitFilter
+            a guard band.  All other filters assume no guard band on input or output (and assert that). This works because exactly one of CompositeFilter or EffectsDisabledBlitFilter
             is always in the filter chain and always at the front.
             
             If \a target is null, then all filters allocate an output that is the same size as the input (except for CompositeFilter removing the
@@ -118,33 +118,33 @@ private:
 
             \param target If null, allocate intermediateResultFramebuffer and set this->target to it. If not null, set this->target = target
          */
-        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const = 0;
+        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceColorBandThickness) const = 0;
     };
 
     /** Includes bloom, vignette, tone map */
     class CompositeFilter : public Filter {
     public:
-        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const override;
+        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceColorBandThickness) const override;
     } m_compositeFilter;
 
     class FXAAFilter : public Filter {
     public:
-        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const override;
+        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceColorBandThickness) const override;
     } m_fxaaFilter;
 
     class WideAAFilter : public Filter {
     public:
-        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const override;
+        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceColorBandThickness) const override;
     } m_wideAAFilter;
 
     class DebugZoomFilter : public Filter {
     public:
-        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const override;
+        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceColorBandThickness) const override;
     } m_debugZoomFilter;
 
     class EffectsDisabledBlitFilter : public Filter {
     public:
-        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const override;
+        virtual void apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceColorBandThickness) const override;
     } m_effectsDisabledBlitFilter;
     
 
@@ -216,11 +216,15 @@ public:
 
         If rendering to a bound texture, set the Texture::Visualization::documentGamma = gamma() afterwards.
         \param offset In pixels of the final framebuffer
+
+        \image html guardBand.png
     */
     void exposeAndRender
         (RenderDevice*              rd, 
          const FilmSettings&        settings,
-         const shared_ptr<Texture>& input);
+         const shared_ptr<Texture>& input,
+         int                        sourceTrimBandThickness, 
+         int                        sourceColorBandThickness);
 
     /**
       Render to texture helper.  You can also render to a texture by binding \a output to a FrameBuffer, 
@@ -232,9 +236,11 @@ public:
      \param output If NULL, this will be allocated to be the same size and format as \a input.
      */
     void exposeAndRender
-        (RenderDevice*              rd,
+       (RenderDevice*               rd,
         const FilmSettings&         settings,
         const shared_ptr<Texture>&  input,
+        int                         sourceTrimBandThickness, 
+        int                         sourceColorBandThickness,
         shared_ptr<Texture>&        output,
         CubeFace                    outputCubeFace = CubeFace::POS_X,
         int                         outputMipLevel = 0);

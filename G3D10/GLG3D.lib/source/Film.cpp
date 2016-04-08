@@ -97,6 +97,8 @@ void Film::exposeAndRender
    (RenderDevice*               rd,
     const FilmSettings&         settings,
     const shared_ptr<Texture>&  input,
+    int                         sourceTrimBandThickness, 
+    int                         sourceColorBandThickness,
     shared_ptr<Texture>&        output,
     CubeFace                    outputCubeFace,
     int                         outputMipLevel) {
@@ -112,7 +114,7 @@ void Film::exposeAndRender
     fb->set(Framebuffer::COLOR0, output, outputCubeFace, outputMipLevel);
     rd->push2D(fb); {
         rd->clear();
-        exposeAndRender(rd, settings, input);
+        exposeAndRender(rd, settings, input, sourceTrimBandThickness, sourceColorBandThickness);
     } rd->pop2D();
 
     // Override the document gamma
@@ -121,7 +123,8 @@ void Film::exposeAndRender
 }
 
 
-void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const {
+void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceColorBandThickness) const {
+    debugAssert(sourceTrimBandThickness >= sourceDepthGuadBandThickness);
     const bool invertY = target->invertY();
 /*     
     // Compute the input guard band size
@@ -133,17 +136,20 @@ void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings
 }
 
 
-void Film::FXAAFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const  {
+void Film::FXAAFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceDepthGuadBandThickness) const  {
+    debugAssert((sourceTrimBandThickness == 0) && (sourceDepthGuadBandThickness == 0));
     // TODO
 }
 
 
-void Film::WideAAFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const  {
+void Film::WideAAFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceDepthGuadBandThickness) const  {
+    debugAssert((sourceTrimBandThickness == 0) && (sourceDepthGuadBandThickness == 0));
     // TODO
 }
 
 
-void Film::DebugZoomFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const  {
+void Film::DebugZoomFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceDepthGuadBandThickness) const  {
+    debugAssert((sourceTrimBandThickness == 0) && (sourceDepthGuadBandThickness == 0));
     /*
     if (settings.debugZoom() > 1) {
         rd->push2D(target); {
@@ -169,12 +175,13 @@ void Film::DebugZoomFilter::apply(RenderDevice* rd, const FilmSettings& settings
 }
 
 
-void Film::EffectsDisabledBlitFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target) const  {
+void Film::EffectsDisabledBlitFilter::apply(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& source, const shared_ptr<Framebuffer>& target, int sourceTrimBandThickness, int sourceColorBandThickness) const  {
+    debugAssert(sourceTrimBandThickness >= sourceDepthGuadBandThickness);
     // TODO
 }
 
 
-void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& input) {
+void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const shared_ptr<Texture>& input, int sourceTrimBandThickness, int sourceColorBandThickness) {
     BEGIN_PROFILER_EVENT("Film::exposeAndRender");
 
 //    debugAssertM(rd->drawFramebuffer(), "In G3D 10, the drawFramebuffer should never be null");
@@ -212,7 +219,7 @@ void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const
         // The others read from the previous filter's framebuffer
         const shared_ptr<Texture>& source = first ? input : filterChain[i - 1]->target->texture(Framebuffer::COLOR0);
 
-        filterChain[i]->apply(rd, m_settings, source, last ? rd->drawFramebuffer() : nullptr);
+        filterChain[i]->apply(rd, m_settings, source, last ? rd->drawFramebuffer() : nullptr, first ? trimBandThickness : 0, first ? depthGuardBandThickness : 0);
     }
 #endif
 

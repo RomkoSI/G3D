@@ -1063,7 +1063,7 @@ void GApp::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfac
     rd->clear();
 
     // Perform gamma correction, bloom, and SSAA, and write to the native window frame buffer
-    m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0));
+    m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0), settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x);
 }
 
 
@@ -1609,7 +1609,7 @@ void GApp::renderCubeMap(RenderDevice* rd, Array<shared_ptr<Texture> >& output, 
         // render every face twice to let the screen space reflection/refraction texture to stabilize
         onGraphics3D(rd, surface);
 
-        m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_osWindowHDRFramebuffer->texture(0), output[face]);
+        m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_osWindowHDRFramebuffer->texture(0), settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x, output[face]);
     }
     setActiveCamera(oldCamera);
     m_osWindowHDRFramebuffer->resize(oldFramebufferWidth, oldFramebufferHeight);
