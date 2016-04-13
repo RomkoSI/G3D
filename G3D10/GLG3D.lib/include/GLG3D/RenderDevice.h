@@ -1318,9 +1318,7 @@ private:
 public:
 
     /** Wrapper for glMemoryBarrier(), type = GL_ALL_BARRIER_BITS */
-    inline void issueMemoryBarrier(GLbitfield type = GL_ALL_BARRIER_BITS) {
-        glMemoryBarrier(type);
-    }
+    void issueMemoryBarrier(GLbitfield type);
 
     
     /**
