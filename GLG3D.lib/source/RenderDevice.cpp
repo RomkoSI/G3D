@@ -2457,6 +2457,10 @@ bool RenderDevice::checkReadFramebuffer(String& whyNot) const {
 }
 
 
+void RenderDevice::issueMemoryBarrier(GLbitfield type) {
+    glMemoryBarrier(type);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 RenderDevice::Stats::Stats() {
