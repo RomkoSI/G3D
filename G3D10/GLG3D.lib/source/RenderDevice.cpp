@@ -148,6 +148,7 @@ OSWindow* RenderDevice::window() const {
     return m_window;
 }
 
+
 void RenderDevice::setWindow(OSWindow* window) {
     debugAssert(initialized());
     debugAssert(window);
@@ -156,16 +157,13 @@ void RenderDevice::setWindow(OSWindow* window) {
     m_window = window;
 }
 
-void RenderDevice::init(OSWindow* window) {
-    
+
+void RenderDevice::init(OSWindow* window) {    
     debugAssertGLOk();
-    debugAssert(! initialized());
-    
-    debugAssert(window);
-    
+    debugAssert(! initialized());    
+    debugAssert(window);    
     debugAssertM(glGetInteger(GL_PIXEL_PACK_BUFFER_BINDING) == GL_NONE, "GL_PIXEL_PACK_BUFFER unexpectedly bound");
     
-
     m_swapBuffersAutomatically = true;
     m_swapGLBuffersPending = false;
     m_window = window;
@@ -189,14 +187,8 @@ void RenderDevice::init(OSWindow* window) {
 
     // Don't use more texture units than allowed at compile time.
     m_numTextureUnits  = iMin(GLCaps::numTextureUnits(), MAX_TRACKED_TEXTURE_UNITS);
-    
-
     m_numTextureCoords = iMin(GLCaps::numTextureCoords(), MAX_TRACKED_TEXTURE_UNITS);
-    
-
     m_numTextures      = iMin(GLCaps::numTextures(), MAX_TRACKED_TEXTURE_IMAGE_UNITS);
-
-    
 
     logPrintf("Setting video mode\n");
    
@@ -226,8 +218,7 @@ void RenderDevice::init(OSWindow* window) {
     greenBits = 8;//vidMode->greenBits;
     alphaBits = 8;
     stencilBits = 8;
-    depthBits = 24;
-    
+    depthBits = 24;    
 
     bool depthOk   = depthBits >= minimumDepthBits;
     bool stencilOk = stencilBits >= minimumStencilBits;
@@ -309,16 +300,17 @@ void RenderDevice::init(OSWindow* window) {
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     m_window->m_renderDevice = this;
-    
+
+    // Always bind one constant VAO for OpenGL 3+
     GLuint VAOID;
     glGenVertexArrays(1, &VAOID);
     glBindVertexArray(VAOID);
+
+    debugAssert(m_state.drawFramebuffer && m_state.readFramebuffer);
 }
 
 
-void RenderDevice::describeSystem
-    (String&        s) {
-    
+void RenderDevice::describeSystem(String& s) {    
     TextOutput t;
     describeSystem(t);
     t.commitString(s);
@@ -347,7 +339,6 @@ void RenderDevice::setVideoMode() {
                  "Cannot call setVideoMode between beginFrame and endFrame");
 
     // Reset all state
-
     OSWindow::Settings settings;
     m_window->getSettings(settings);
 
@@ -372,10 +363,8 @@ void RenderDevice::setVideoMode() {
     
     // glHint(GL_GENERATE_MIPMAP_HINT_EXT, GL_NICEST);
     if (GLCaps::supports("GL_ARB_multisample")) {
-        glEnable(GL_MULTISAMPLE_ARB);
-	
+        glEnable(GL_MULTISAMPLE_ARB);	
     }
-
     
     debugAssertGLOk();
     resetState();
@@ -385,21 +374,12 @@ void RenderDevice::setVideoMode() {
 
 
 int RenderDevice::width() const {
-    if (isNull(m_state.drawFramebuffer)) {
-        return m_window->width();
-    } else {
-        return m_state.drawFramebuffer->width();
-    }
+    return m_state.drawFramebuffer->width();
 }
 
 
 int RenderDevice::height() const {
-    if (isNull(m_state.drawFramebuffer)) {
-        debugAssert(notNull(m_window));
-        return m_window->height();
-    } else {
-        return m_state.drawFramebuffer->height();
-    }
+    return m_state.drawFramebuffer->height();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -571,62 +551,61 @@ RenderDevice::RenderState::RenderState(int width, int height) :
 
 
 void RenderDevice::resetState() {
-    m_state = RenderState(width(), height());
-    
-    glClearDepth(1.0);
-    
-
     logPrintf("Setting initial rendering state.\n");
     
-    {
-        // WARNING: this must be kept in sync with the 
-        // RenderState constructor
-        m_state = RenderState(width(), height());
-	
-        _glViewport(m_state.viewport.x0(), m_state.viewport.y0(), m_state.viewport.width(), m_state.viewport.height());
-	
-		glDepthMask(GL_TRUE);
-	
-		glColorMask(1,1,1,1);
+    // WARNING: this must be kept in sync with the 
+    // RenderState constructor
+    m_state = RenderState(m_window->width(), m_window->height());
 
-        glStencilMask((GLuint)~0);
+    m_state.drawFramebuffer = m_window->framebuffer();
+    m_state.readFramebuffer = m_window->framebuffer();
+	
+    _glViewport(m_state.viewport.x0(), m_state.viewport.y0(), m_state.viewport.width(), m_state.viewport.height());
+	
+	glDepthMask(GL_TRUE);
+    glClearDepth(1.0);    
+	
+	glColorMask(1,1,1,1);
+
+    glStencilMask((GLuint)~0);
 	    
-        glDisable(GL_STENCIL_TEST);
+    glDisable(GL_STENCIL_TEST);
 	    
-		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 	    
-		glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
+	glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
 		
-        debugAssertGLOk();
-        glLogicOp(GL_COPY);
-    
-        glDepthFunc(GL_LEQUAL);
-    
-        glEnable(GL_DEPTH_TEST);
-    
-        glDisable(GL_SCISSOR_TEST);
-    
-        glDisable(GL_BLEND);
-    
-        glDisable(GL_POLYGON_OFFSET_FILL);
-        debugAssertGLOk();
-        glPointSize(1);
-        debugAssertGLOk();
-        glDrawBuffer(GL_BACK);
-        debugAssertGLOk();
-        glReadBuffer(GL_BACK);
-        debugAssertGLOk();
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        debugAssertGLOk();
-        glClearStencil(0);
-        glClearDepth(1);
-        glClearColor(0,0,0,1);
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
-        glDisable(GL_FRAMEBUFFER_SRGB);
-        glDepthRange(0, 1);
-    }
     debugAssertGLOk();
+    glLogicOp(GL_COPY);
+    
+    glDepthFunc(GL_LEQUAL);
+    
+    glEnable(GL_DEPTH_TEST);
+    
+    glDisable(GL_SCISSOR_TEST);
+    
+    glDisable(GL_BLEND);
+    
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    debugAssertGLOk();
+    glPointSize(1);
+    debugAssertGLOk();
+    glDrawBuffer(GL_BACK);
+    debugAssertGLOk();
+    glReadBuffer(GL_BACK);
+    debugAssertGLOk();
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    debugAssertGLOk();
+    glClearStencil(0);
+    glClearDepth(1);
+    glClearColor(0,0,0,1);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glDisable(GL_FRAMEBUFFER_SRGB);
+    glDepthRange(0, 1);
+    
+    debugAssertGLOk();
+    debugAssert(m_state.drawFramebuffer && m_state.readFramebuffer);
 }
 
 
@@ -673,8 +652,7 @@ const Matrix4& RenderDevice::invertYMatrix() const {
 }
 
 
-void RenderDevice::setState(
-    const RenderState&          newState) {
+void RenderDevice::setState(const RenderState& newState) {
     // The state change checks inside the individual
     // methods will (for the most part) minimize
     // the state changes so we can set all of the
@@ -777,7 +755,7 @@ void RenderDevice::setState(
 
 
 void RenderDevice::syncDrawBuffer(bool alreadyBound) {
-    if (isNull(m_state.drawFramebuffer)) {
+    if (m_state.drawFramebuffer->isHardwareFramebuffer()) {
         return;
     }
 
@@ -903,7 +881,7 @@ static GLenum toFBOReadBuffer(RenderDevice::ReadBuffer b, const shared_ptr<Frame
 
 
 void RenderDevice::syncReadBuffer(bool alreadyBound) {
-    if (isNull(m_state.readFramebuffer)) {
+    if (m_state.readFramebuffer->isHardwareFramebuffer()) {
         return;
     }
 
@@ -995,7 +973,7 @@ void RenderDevice::setDrawBuffer(DrawBuffer b) {
         return;
     }
 
-    if (isNull(m_state.drawFramebuffer)) {
+    if (m_state.drawFramebuffer->isHardwareFramebuffer()) {
         alwaysAssertM
             (!( (b >= DRAW_COLOR0) && (b <= DRAW_COLOR15)), 
              "Drawing to a color buffer is only supported by application-created framebuffers!");
@@ -1004,7 +982,7 @@ void RenderDevice::setDrawBuffer(DrawBuffer b) {
     if (b != m_state.drawBuffer) {
         minGLStateChange();
         m_state.drawBuffer = b;
-        if (isNull(m_state.drawFramebuffer) || m_state.drawFramebuffer->isHardwareFramebuffer()) {
+        if (m_state.drawFramebuffer->isHardwareFramebuffer()) {
             // Only update the GL state if there is no framebuffer bound.
             glDrawBuffer(GLenum(m_state.drawBuffer));
         }
@@ -1022,7 +1000,7 @@ void RenderDevice::setReadBuffer(ReadBuffer b) {
     if (b != m_state.readBuffer) {
         minGLStateChange();
         m_state.readBuffer = b;
-        if (notNull(m_state.readFramebuffer) && ! m_state.readFramebuffer->isHardwareFramebuffer()) {
+        if (! m_state.readFramebuffer->isHardwareFramebuffer()) {
             glReadBuffer(toFBOReadBuffer(m_state.readBuffer, m_state.readFramebuffer));
         } else {
             glReadBuffer(GLenum(m_state.readBuffer));
@@ -1068,10 +1046,7 @@ void RenderDevice::setSRGBConversion(bool b) {
 
 
 void RenderDevice::pushState() {
-    
-
-    // (not supported on core)
-    //    glPushAttrib(GL_TEXTURE_BIT);
+    debugAssert(m_state.drawFramebuffer && m_state.readFramebuffer);
     m_stateStack.push(m_state);
 
     // Record that that the lights and matrices are unchanged since the previous state.
@@ -1194,6 +1169,7 @@ void RenderDevice::beginFrame() {
 
 
 void RenderDevice::swapBuffers() {
+    debugAssert(m_state.drawFramebuffer && m_state.readFramebuffer);
     double now = System::time();
     double dt = now - m_lastTime;
     if (dt <= 0) {
@@ -1245,6 +1221,7 @@ void RenderDevice::swapBuffers() {
 
     // Process the pending swap buffers call
     m_swapTimer.tick();
+
     m_window->swapGLBuffers();
     m_swapTimer.tock();
     m_swapGLBuffersPending = false;
@@ -1424,6 +1401,7 @@ const Rect2D& RenderDevice::viewport() const {
 
 
 void RenderDevice::pushState(const shared_ptr<Framebuffer>& fb) {
+    debugAssert(m_state.drawFramebuffer && m_state.readFramebuffer);
     pushState();
 
     if (fb) {
@@ -1433,24 +1411,25 @@ void RenderDevice::pushState(const shared_ptr<Framebuffer>& fb) {
         setClip2D(Rect2D::inf());
         setViewport(fb->rect2DBounds());
     }
+    debugAssert(m_state.drawFramebuffer && m_state.readFramebuffer);
 }
 
 
 void RenderDevice::setReadFramebuffer(const shared_ptr<Framebuffer>& fbo) {
+    debugAssertM(notNull(fbo), "In G3D 10, the framebuffer should never be null");
+
     if (fbo != m_state.readFramebuffer) {
         majGLStateChange();
 
         // Set Framebuffer
+            m_state.readFramebuffer = fbo;
         if (isNull(fbo) || fbo->isHardwareFramebuffer()) {
-            m_state.readFramebuffer.reset();
             Framebuffer::bindWindowBuffer(Framebuffer::MODE_READ);
 
             // Restore the buffer that was in use before the framebuffer was attached
             glReadBuffer(GLenum(m_state.readBuffer));
         } else {
-            m_state.readFramebuffer = fbo;
             syncReadBuffer(false);
-
             // The read enables for this framebuffer will be set during beforePrimitive()            
         }
     }
@@ -1458,24 +1437,24 @@ void RenderDevice::setReadFramebuffer(const shared_ptr<Framebuffer>& fbo) {
 
 
 void RenderDevice::setDrawFramebuffer(const shared_ptr<Framebuffer>& fbo) {
+    debugAssertM(notNull(fbo), "In G3D 10, the framebuffer should never be null");
     if (fbo != m_state.drawFramebuffer) {
         majGLStateChange();
 
         // Set Framebuffer
+        m_state.drawFramebuffer = fbo;
         if (isNull(fbo) || fbo->isHardwareFramebuffer()) {
-            m_state.drawFramebuffer.reset();
             Framebuffer::bindWindowBuffer(Framebuffer::MODE_DRAW);
 
             // Restore the buffer that was in use before the framebuffer was attached
             glDrawBuffer(GLenum(m_state.drawBuffer));
         } else {
-            m_state.drawFramebuffer = fbo;
             syncDrawBuffer(false);
 
             // The draw enables for this framebuffer will be set during beforePrimitive()            
         }
 
-        const bool newInvertY = isNull(m_state.drawFramebuffer);
+        const bool newInvertY = m_state.drawFramebuffer->invertY();
         const bool invertYChanged = (m_state.matrices.invertY != newInvertY);
         if (invertYChanged) {
             m_state.matrices.invertY = newInvertY;
@@ -2681,9 +2660,7 @@ void RenderDevice::modifyArgsForRectModeApply(Args& args) {
 
 void RenderDevice::apply(const shared_ptr<Shader>& s, Args& args) {
     int maxModifiedTextureUnit = -1;
-    if (notNull(m_state.drawFramebuffer)) { // TODO: Reset afterwards, make args param constant
-        args.append(m_state.drawFramebuffer->uniformTable);
-    }
+    args.append(m_state.drawFramebuffer->uniformTable);
     debugAssertGLOk();
     const shared_ptr<Shader::ShaderProgram>& program = s->compileAndBind(args, this, maxModifiedTextureUnit);
     debugAssertGLOk();

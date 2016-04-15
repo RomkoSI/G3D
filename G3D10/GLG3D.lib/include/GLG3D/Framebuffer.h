@@ -50,61 +50,13 @@ namespace G3D {
  set a render target.  The RenderDevice method setFramebuffer performs this
  action.  If a NULL argument is passed to setFramebuffer, the render target
  defaults to the window display framebuffer.
-
- The following example shows how to create a texture and bind it to Framebuffer
- for rendering.
-
- Framebuffer Example:
-
- \code
-    // Create Texture
-    static shared_ptr<Texture> tex = Texture::createEmpty(256, 256, "Rendered Texture", ImageFormat::RGB8, Texture::CLAMP, Texture::NEAREST_NO_MIPMAP, Texture::DIM_2D);
-
-    // Create a framebuffer that uses this texture as the color buffer
-    static shared_ptr<Framebuffer> fb = Framebuffer::create("Offscreen target");
-    bool init = false;
-
-    if (! init) {
-        fb->set(Framebuffer::COLOR0, tex);
-        init = true;
-    }
-
-    rd->pushState();
-        rd->setFramebuffer(fb);
-        rd->push2D(fb->rect2DBounds());
-
-            // Set framebuffer as the render target
-
-            // Draw on the texture
-            Draw::rect2D(Rect2D::xywh(0,0,128,256), rd, Color3::white());
-            Draw::rect2D(Rect2D::xywh(128,0,128,256), rd, Color3::red());
-
-            // Restore renderdevice state (old frame buffer)
-        rd->pop2D();
-    rd->popState();
-
-    app->renderDevice->setProjectionAndCameraMatrix(app->debugCamera);
-
-    // Remove the texture from the framebuffer
-    //    fb->set(Framebuffer::COLOR0, NULL);
-
-    // Can now render from the texture
-
-    
-    // Cyan background
-    app->renderDevice->setColorClearValue(Color3(.1f, .5f, 1));
-    app->renderDevice->clear();
-
-    Draw::rect2D(Rect2D::xywh(10,10,256,256), app->renderDevice, Color3::white(), tex);
- \endcode
-
+ 
  Note: Not any combination of images may be attached to a Framebuffer.
  OpenGL lays out some restrictions that must be considered:
 
  <ol>
    <li> In order to render to a Framebuffer, there must be at least
-   one image (Texture) attached to an attachment point.
-    
+   one image (Texture) attached to an attachment point.    
    
    <li> All images attached to a COLOR_ATTACHMENT[n] point must have
    the same internal format (RGBA8, RGBA16...etc)

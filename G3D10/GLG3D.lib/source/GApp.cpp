@@ -328,7 +328,6 @@ void GApp::initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindo
     setCameraManipulator(manip);
     m_debugController = manip;
 
-
     {
         GConsole::Settings settings;
         settings.backgroundColor = Color3::green() * 0.1f;
@@ -337,20 +336,13 @@ void GApp::initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindo
         addWidget(console);
     }
 
-
-    const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(m_settings.hdrFramebuffer.preferredColorFormats);
-    if (colorFormat == NULL) {
-        colorFormat = ImageFormat::RGBA8();
-    }
-    m_film = Film::create(colorFormat);
+    m_film = Film::create();
 
     m_osWindowHDRFramebuffer = Framebuffer::create("GApp::m_osWindowHDRFramebuffer");
     m_framebuffer = m_osWindowHDRFramebuffer;
 
     // The actual buffer allocation code:
-    resize(renderDevice->width(), renderDevice->height());
-    
-    
+    resize(renderDevice->width(), renderDevice->height());      
 
     const shared_ptr<GFont>&    arialFont = GFont::fromFile(System::findDataFile("icon.fnt"));
     const shared_ptr<GuiTheme>& theme     = GuiTheme::fromFile(System::findDataFile("osx-10.7.gtm"), arialFont);
@@ -840,6 +832,7 @@ void GApp::loadScene(const String& sceneName) {
     if (scene()) {
         onPose(m_posed3D, m_posed2D);
     }
+
     onGraphics(renderDevice, m_posed3D, m_posed2D);
 
     // Reset our idea of "now" so that simulation doesn't see a huge lag
@@ -1078,7 +1071,7 @@ void GApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, Ar
         rd->setProjectionAndCameraMatrix(activeCamera()->projection(), activeCamera()->frame());
         onGraphics3D(rd, posed3D);
     } rd->popState();
-
+    
     rd->push2D(); {
         onGraphics2D(rd, posed2D);
     } rd->pop2D();
@@ -1294,6 +1287,11 @@ void GApp::swapBuffers() {
     if (m_activeVideoRecordDialog) {
         m_activeVideoRecordDialog->maybeRecord(renderDevice);
     }
+
+//        renderDevice->setColorClearValue(Color3::green());  renderDevice->clear();
+//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    //glClearColor(1,0,0,1);  glClear(GL_COLOR_BUFFER_BIT);
+
 	renderDevice->swapBuffers();
 }
 

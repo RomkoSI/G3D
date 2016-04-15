@@ -485,6 +485,9 @@
     <ClCompile Include="..\GLG3D.lib\source\ParticleSystemModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\GLG3D.lib\source\Film_CompositeFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\GLG3D.lib\source\directinput8.h">
@@ -1367,6 +1370,12 @@
     </None>
     <None Include="..\..\data10\research\scene\sponzaFoggy.Scene.Any">
       <Filter>Scene Files</Filter>
+    </None>
+    <None Include="..\..\data10\research\scene\sanMiguel.Scene.Any">
+      <Filter>Scene Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\Film\Film_effectsDisabledBlit.pix">
+      <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
 </Project>

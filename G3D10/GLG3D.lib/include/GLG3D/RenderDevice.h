@@ -1344,9 +1344,10 @@ public:
     void setReadFramebuffer(const shared_ptr<Framebuffer> &fbo);
 
     /** \brief Sets both the draw and read framebuffers */
-    void setFramebuffer(const shared_ptr<Framebuffer> &fbo) {
-        setDrawFramebuffer(fbo);
-        setReadFramebuffer(fbo);
+    void setFramebuffer(const shared_ptr<Framebuffer>& fb) {
+        debugAssertM(notNull(fb), "In G3D 10, the framebuffer should never be null");
+        setDrawFramebuffer(fb);
+        setReadFramebuffer(fb);
     }
 
     /** \deprecated Use drawFramebuffer() or readFramebuffer() */
