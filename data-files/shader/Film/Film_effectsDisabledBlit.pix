@@ -6,7 +6,6 @@
 #include <Texture/Texture.glsl>
 
 uniform_Texture(sampler2D, sourceTexture_);
-uniform int        ySign, yOffset;
 uniform int2       guardBandSize;
 
 in vec2 g3d_TexCoord;
@@ -14,7 +13,8 @@ in vec2 g3d_TexCoord;
 out vec3 result;
 
 void main(void) {
+    // Because the host call used Draw::rect2D conventions, Y inversion is automatically
+    // handled and we don't need an explicit invertY
     int2 coord = int2(g3d_TexCoord.st * g3d_FragCoordExtent) + guardBandSize;
-    coord.y = coord.y * ySign + yOffset;
     result = texelFetch(sourceTexture_buffer, coord, 0).rgb;
 }
