@@ -166,6 +166,7 @@
     <ClCompile Include="..\GLG3D.lib\source\FileDialog.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\Film.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\FilmSettings.cpp" />
+    <ClCompile Include="..\GLG3D.lib\source\Film_CompositeFilter.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\FirstPersonManipulator.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\Framebuffer.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\G3DGameUnits.cpp" />
@@ -428,6 +429,7 @@
     <None Include="..\..\data10\research\scene\motion.Scene.Any" />
     <None Include="..\..\data10\research\scene\openingDoor.Scene.Any" />
     <None Include="..\..\data10\research\scene\particleTest.Scene.Any" />
+    <None Include="..\..\data10\research\scene\sanMiguel.Scene.Any" />
     <None Include="..\..\data10\research\scene\seymour.Scene.Any" />
     <None Include="..\..\data10\research\scene\sibenik.Scene.Any" />
     <None Include="..\..\data10\research\scene\sponzaFoggy.Scene.Any" />
@@ -463,6 +465,7 @@
     <None Include="..\data-files\shader\Draw\Draw_sphereSection.vrt" />
     <None Include="..\data-files\shader\Film\Film_bloomExpose.pix" />
     <None Include="..\data-files\shader\Film\Film_composite.pix" />
+    <None Include="..\data-files\shader\Film\Film_effectsDisabledBlit.pix" />
     <None Include="..\data-files\shader\Film\Film_FXAA_310.pix" />
     <None Include="..\data-files\shader\Film\Film_FXAA_311.pix" />
     <None Include="..\data-files\shader\Film\Film_toneMap.glsl" />
