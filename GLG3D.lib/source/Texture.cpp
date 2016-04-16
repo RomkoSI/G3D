@@ -1741,7 +1741,7 @@ void Texture::copy
             "Texture::copy only defined for mipLevel 0 for depth textures");
     alwaysAssertM((src->format()->depthBits == 0) == (dst->format()->depthBits == 0), "Cannot copy color texture to depth texture or vice-versa");
     alwaysAssertM( ((src->dimension() == DIM_2D) || (src->dimension() == DIM_2D_ARRAY)), "Texture::copy only defined for 2D textures or texture arrays");
-    alwaysAssertM(((dst->dimension() == DIM_2D) || (dst->dimension() == DIM_2D_ARRAY)), "Texture::copy only defined for 2D textures or texture arrays");
+    //alwaysAssertM(((dst->dimension() == DIM_2D) || (dst->dimension() == DIM_2D_ARRAY)), "Texture::copy only defined for 2D textures or texture arrays");
     alwaysAssertM((dst->dimension() == DIM_2D_ARRAY) || (dstLayer == 0), "Layer can only be 0 for non-array textures");
     alwaysAssertM((src->dimension() == DIM_2D_ARRAY) || (srcLayer == 0), "Layer can only be 0 for non-array textures");
 
@@ -1782,18 +1782,16 @@ void Texture::copy
             rd->setColorClearValue(Color4::zero());
         }
         rd->clear();
-
         
         Args args;
         args.setUniform("mipLevel", srcMipLevel);
         
-        bool layered = (src->dimension() == Texture::DIM_2D_ARRAY);
+        const bool layered = (src->dimension() == Texture::DIM_2D_ARRAY);
         args.setMacro("IS_LAYERED", layered ? 1 : 0);
         args.setUniform("layer",    srcLayer);
         args.setUniform("src", layered ? Texture::zero() : src, Sampler::video());
         args.setUniform("layeredSrc", layered ? src : Texture::zero(Texture::DIM_2D_ARRAY), Sampler::video());
-
-
+        
         args.setUniform("shift",    Vector2(shift));
         args.setUniform("scale",    scale);
         args.setMacro("DEPTH",      (src->format()->depthBits > 0) ? 1 : 0);
