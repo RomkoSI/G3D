@@ -211,7 +211,7 @@ void main() {
 #   endif
 
 #   if defined(WS_FACE_NORMAL) || defined(CS_FACE_NORMAL)
-        vec3 wsFaceNormal = normalize(cross(dFdy(wsPosition), dFdx(wsPosition)));
+        vec3 wsFaceNormal = normalize(cross(dFdx(wsPosition), dFdy(wsPosition)));
 #   endif
 
 #   ifdef CS_FACE_NORMAL
