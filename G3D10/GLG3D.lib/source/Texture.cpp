@@ -1572,7 +1572,9 @@ shared_ptr<Texture> Texture::createEmpty
     }
 
     shared_ptr<Texture> t;
-    if (dimension == DIM_CUBE_MAP) {
+
+    switch (dimension) {
+    case DIM_CUBE_MAP: {
         // Cube map requires six faces
         Array< Array<const void*> > data;
         data.resize(1);
@@ -1591,10 +1593,22 @@ shared_ptr<Texture> Texture::createEmpty
              encoding,
              dimension,
              generateMipMaps);
-    } else {
+    } break;
 
-#if 1
-		if(dimension!=DIM_3D)
+    case DIM_3D:
+    case DIM_2D_ARRAY:
+		t = fromNothing
+            (name, 
+             encoding.format, 
+             w, 
+             h, 
+             d, 
+			 numSamples,
+             encoding.format, 
+             dimension);
+        break;
+
+    default:
         t = fromMemory
             (name, 
              NULL, 
@@ -1606,17 +1620,6 @@ shared_ptr<Texture> Texture::createEmpty
              encoding, 
              dimension, 
              generateMipMaps);
-		else
-		t = fromNothing
-            (name, 
-             encoding.format, 
-             w, 
-             h, 
-             d, 
-			 numSamples,
-             encoding.format, 
-             dimension);
-#endif	
     }
 
     if (encoding.format->depthBits > 0) {
