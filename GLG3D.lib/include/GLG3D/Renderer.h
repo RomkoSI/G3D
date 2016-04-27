@@ -57,8 +57,7 @@ protected:
      because they require per-pixel blending at some locations 
     */
     virtual void cullAndSort
-       (RenderDevice*                       rd, 
-        const shared_ptr<GBuffer>&          gbuffer,
+       (const shared_ptr<GBuffer>&          gbuffer,
         const Array<shared_ptr<Surface>>&   allSurfaces, 
         Array<shared_ptr<Surface>>&         sortedVisibleSurfaces, 
         Array<shared_ptr<Surface>>&         forwardOpaqueSurfaces,
