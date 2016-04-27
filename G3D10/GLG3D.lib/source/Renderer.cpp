@@ -75,8 +75,7 @@ void Renderer::computeShadowing
 
 
 void Renderer::cullAndSort
-   (RenderDevice*                       rd,
-    const shared_ptr<GBuffer>&          gbuffer,
+   (const shared_ptr<GBuffer>&          gbuffer,
     const Array<shared_ptr<Surface>>&   allSurfaces, 
     Array<shared_ptr<Surface>>&         allVisibleSurfaces,
     Array<shared_ptr<Surface>>&         forwardOpaqueSurfaces,
@@ -84,7 +83,8 @@ void Renderer::cullAndSort
 
     BEGIN_PROFILER_EVENT("Renderer::cullAndSort");
     const shared_ptr<Camera>& camera = gbuffer->camera();
-    Surface::cull(camera->frame(), camera->projection(), rd->viewport(), allSurfaces, allVisibleSurfaces);
+    Surface::cull(camera->frame(), camera->projection(), gbuffer->rect2DBounds(), allSurfaces, allVisibleSurfaces);
+
     Surface::sortBackToFront(allVisibleSurfaces, camera->frame().lookVector());
 
     // Extract everything that uses a forward rendering pass (including the skybox, which is emissive

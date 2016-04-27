@@ -235,7 +235,7 @@ void DefaultRenderer::render
 
     // Cull and sort
     Array<shared_ptr<Surface> > sortedVisibleSurfaces, forwardOpaqueSurfaces, forwardBlendedSurfaces;
-    cullAndSort(rd, gbuffer, allSurfaces, sortedVisibleSurfaces, forwardOpaqueSurfaces, forwardBlendedSurfaces);
+    cullAndSort(gbuffer, allSurfaces, sortedVisibleSurfaces, forwardOpaqueSurfaces, forwardBlendedSurfaces);
 
     debugAssert(framebuffer);
     // Bind the main framebuffer
