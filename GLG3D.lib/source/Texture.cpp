@@ -1048,14 +1048,14 @@ shared_ptr<Texture> Texture::fromTwoFiles
 /** Create texture from nothing. */
 shared_ptr<Texture> Texture::fromNothing
    (const String&                  name,
-    const ImageFormat*                  bytesFormat,
-    int                                 width,
-    int                                 height,
-    int                                 depth,
-	int									numSamples,
-    const ImageFormat*                  desiredFormat,
-    Dimension                           dimension,
-    bool                                preferSRGBForAuto,
+    const ImageFormat*             bytesFormat,
+    int                            width,
+    int                            height,
+    int                            depth,
+	int							   numSamples,
+    const ImageFormat*             desiredFormat,
+    Dimension                      dimension,
+    bool                           preferSRGBForAuto,
 	const Texture::Encoding& encoding) {
 
     if (dimension != DIM_3D) {
