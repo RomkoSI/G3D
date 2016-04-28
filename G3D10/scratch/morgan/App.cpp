@@ -18,10 +18,10 @@ int main(int argc, const char* argv[]) {
     settings.window.caption             = argv[0];
     // settings.window.debugContext     = true;
 
-    // settings.window.width              =  854; settings.window.height       = 480;
+    // settings.window.width            =  854; settings.window.height       = 480;
     // settings.window.width            = 1024; settings.window.height       = 768;
      settings.window.width            = 1280; settings.window.height       = 720;
-//    settings.window.width               = 1920; settings.window.height       = 1080;
+    //settings.window.width               = 1920; settings.window.height       = 1080;
     // settings.window.width            = OSWindow::primaryDisplayWindowSize().x; settings.window.height = OSWindow::primaryDisplayWindowSize().y;
     settings.window.fullScreen          = false;
     settings.window.resizable           = ! settings.window.fullScreen;
@@ -29,18 +29,20 @@ int main(int argc, const char* argv[]) {
 
     // Set to true for a significant performance boost if your app can't render at 60fps,
     // or if you *want* to render faster than the display.
-    settings.window.asynchronous        = true;
+    settings.window.asynchronous        = false;
 
-    settings.depthGuardBandThickness    = Vector2int16(64, 64);
-    settings.colorGuardBandThickness    = Vector2int16(0, 0);
+    settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(64, 64);
+    settings.hdrFramebuffer.colorGuardBandThickness = Vector2int16(0, 0);
     settings.dataDir                    = FileSystem::currentDirectory();
-//    settings.screenshotDirectory        = "../journal/";
+    settings.screenshotDirectory        = ".";
 
-    settings.renderer.deferredShading = false;
-    settings.renderer.orderIndependentTransparency = true;
+    settings.renderer.deferredShading = true;
+    settings.renderer.orderIndependentTransparency = false;
+
 
     return App(settings).run();
 }
+
 
 App::App(const GApp::Settings& settings) : GApp(settings) {
 }
@@ -63,15 +65,40 @@ void App::onInit() {
     // developerWindow->videoRecordDialog->setScreenShotFormat("PNG");
     // developerWindow->videoRecordDialog->setCaptureGui(false);
     developerWindow->cameraControlWindow->moveTo(Point2(developerWindow->cameraControlWindow->rect().x0(), 0));
-    //loadScene("G3D Sponza Foggy");
-    loadScene("Room 1");
+    loadScene(
+         //"G3D Sponza"
+        "G3D Cornell Box" // Load something simple
+        //developerWindow->sceneEditorWindow->selectedSceneName()  // Load the first scene encountered 
+        );
+
+    {
+        RenderDevice* rd = renderDevice;
+        testTexture = Texture::createEmpty("Test", 256, 256, ImageFormat::RG8_SNORM());
+        testFramebuffer = Framebuffer::create(testTexture);
+
+        highPrecisionTexture = Texture::createEmpty("high precision", 256, 256, ImageFormat::RG16_SNORM());
+        highPrecisionFramebuffer = Framebuffer::create(highPrecisionTexture);
+
+        rd->push2D(testFramebuffer); {
+            Args args;
+            args.setRect(rd->viewport());
+            LAUNCH_SHADER("generateTestData.*", args);
+        } rd->pop2D();
+
+        rd->push2D(highPrecisionFramebuffer); {
+            Args args;
+//            args.setUniform("source", testTexture, Sampler::buffer());
+            args.setRect(rd->viewport());
+            LAUNCH_SHADER("generateTestData.*", args);
+        } rd->pop2D();
+    }
 }
 
 
 void App::makeGUI() {
     // Initialize the developer HUD (using the existing scene)
     createDeveloperHUD();
-    debugWindow->setVisible(false);
+    debugWindow->setVisible(true);
     developerWindow->videoRecordDialog->setEnabled(true);
 
     GuiPane* infoPane = debugPane->addPane("Info", GuiTheme::ORNATE_PANE_STYLE);
@@ -143,7 +170,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
     rd->clear();
 
     // Perform gamma correction, bloom, and SSAA, and write to the native window frame buffer
-    m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0));
+    m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0), settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x);
 }
 
 
