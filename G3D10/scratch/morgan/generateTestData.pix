@@ -1,0 +1,7 @@
+#version 420
+
+out vec2 color;
+
+void main() {
+    color = (floor(gl_FragCoord.xy) / 128.0) - vec2(1.0);
+}
