@@ -1622,6 +1622,7 @@ shared_ptr<Texture> Texture::createEmpty
              generateMipMaps);
     }
 
+    t->m_encoding = encoding;
     if (encoding.format->depthBits > 0) {
         t->visualization = Visualization::depthBuffer();
     }
