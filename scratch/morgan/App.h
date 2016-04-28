@@ -1,9 +1,9 @@
 /**
-\file App.h
+  \file App.h
 
-The G3D 10.00 default starter app is configured for OpenGL 3.3 and
-relatively recent GPUs.
-*/
+  The G3D 10.00 default starter app is configured for OpenGL 3.3 and
+  relatively recent GPUs.
+ */
 #ifndef App_h
 #define App_h
 #include <G3D/G3DAll.h>
@@ -16,6 +16,12 @@ protected:
     void makeGUI();
 
 public:
+
+    shared_ptr<Texture> testTexture;
+    shared_ptr<Framebuffer> testFramebuffer;
+
+    shared_ptr<Texture> highPrecisionTexture;
+    shared_ptr<Framebuffer> highPrecisionFramebuffer;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -34,7 +40,7 @@ public:
     virtual bool onEvent(const GEvent& e) override;
     virtual void onUserInput(UserInput* ui) override;
     virtual void onCleanup() override;
-
+    
     /** Sets m_endProgram to true. */
     virtual void endProgram();
 };
