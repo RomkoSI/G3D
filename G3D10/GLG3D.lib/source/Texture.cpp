@@ -1058,7 +1058,7 @@ shared_ptr<Texture> Texture::fromNothing
     bool                           preferSRGBForAuto,
 	const Texture::Encoding& encoding) {
 
-    if (dimension != DIM_3D) {
+    if ((dimension != DIM_3D) && (dimension != DIM_2D_ARRAY)) {
         debugAssertM(depth == 1, "Depth must be 1 for all textures that are not DIM_3D or DIM_3D");
     }
 
