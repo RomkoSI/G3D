@@ -25,6 +25,7 @@
     <ClInclude Include="..\scratch\morgan\App.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\scratch\morgan\generateTestData.pix" />
     <None Include="..\scratch\morgan\test.Scene.Any" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
