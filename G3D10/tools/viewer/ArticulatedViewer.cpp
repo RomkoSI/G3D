@@ -74,7 +74,13 @@ void ArticulatedViewer::onInit(const String& filename) {
             m_model = ArticulatedModel::create(ArticulatedModel::Specification(any));
         }
     } else {
-        m_model = ArticulatedModel::fromFile(filename);
+        Any any(Any::TABLE, "ArticulatedModel::Specification");
+        any["filename"] = filename;
+
+        // Prevent merging for material debugging
+        any["meshMergeOpaqueClusterRadius"] = 0;
+
+        m_model = ArticulatedModel::create(any);
     }
     debugPrintf("%s loaded in %f seconds\n", filename.c_str(), System::time() - start);
 
