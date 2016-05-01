@@ -111,6 +111,8 @@ public:
          9	   |Transparency: Glass on; Reflection: Ray trace off
          10	   |Casts shadows onto invisible surfaces
 
+         3-7 force mirror glossiness. 2 is probably what you want.
+
          \cite http://paulbourke.net/dataformats/mtl/
         */
         int             illum;
