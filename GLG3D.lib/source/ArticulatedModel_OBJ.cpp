@@ -191,7 +191,7 @@ static UniversalMaterial::Specification toMaterialSpecification
             // [glossy] "hilight" on
 		    // 3DS exponents are always on the low side, so make it disproportionally
 		    // larger as it grows
-            t.encoding.readMultiplyFirst.a = UniversalBSDF::packGlossyExponent(square(m->Ns));
+            t.encoding.readMultiplyFirst.a = UniversalBSDF::packGlossyExponent(pow(m->Ns, 3.0f));
             break;    
         }
         s.setGlossy(t);
