@@ -170,7 +170,7 @@ static UniversalMaterial::Specification toMaterialSpecification
         alwaysAssertM(m->Ks.constant.r >= 0, "Negative Ks persisted from ParseMTL");
         // Keep glossiness low until the specified value is really high, and then give up and allow it to be high.
         // This compensates for the fact that most MTL files were authored for LDR rendering and are too glossy to compensate.
-        t.encoding.readMultiplyFirst = Color4((m->Ks.constant.pow(5.0f)  * 0.6f + m->Ks.constant * 0.4f) * m->Ks.mm.y, 0.0f);
+        t.encoding.readMultiplyFirst = Color4((m->Ks.constant.pow(6.0f)  * 0.7f + m->Ks.constant * 0.3f) * m->Ks.mm.y, 0.0f);
 
 		if (! m->Ks.map.empty() && ! FileSystem::exists(filename)) {
 			// Make black if missing
