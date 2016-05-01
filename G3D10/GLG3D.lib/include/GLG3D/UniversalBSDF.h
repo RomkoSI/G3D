@@ -279,9 +279,7 @@ public:
                m_glossy.isBlack() &&
                m_transmissive.isBlack();
     }
-
-
-
+    
     /** The value that a mirror's glossy exponent (infinity) is packed as */
     inline static float packedSpecularMirror() {
         return 1.0f;
@@ -292,27 +290,30 @@ public:
         return 0.0f;
     }
 
-    /** The glossy exponent is packed so that 0 = no glossy, 
-        1 = mirror (infinity), and on the open interval \f$e \in (0, 1), ~ e \rightarrow 8192.0f e^2 + 1/2\f$.
-        This function abstracts the unpacking, since it may change in future versions.        
-        */
-    static inline float unpackGlossyExponent(float e) {
-        if (e >= 1.0) {
-            return finf();
-        } else {
-            return square((clamp(e, 0.0f, 1.0f) * 255.0f - 1.0f) * (1.0f / 253.0f)) * 8192.0f + 0.5f;
-        }
+    /** Maps a G3D engine smoothness value to a Blinn-Phong exponent.
+        Note that 0 = no glossy and 1 = mirror are handled specially by many shaders.
+     */
+    static inline float unpackGlossyExponent(float g3dSmoothness) {
+        // From Graphics Codex [smthnss]
+        const float academicRoughness = square(1.0f - g3dSmoothness);
+
+        // From http://simonstechblog.blogspot.com/2011/12/microfacet-brdf.html
+        const float blinnPhongExponent = 2.0f / square(academicRoughness) - 2.0f;
+        return blinnPhongExponent;
+        // return square((e * 255.0 - 1.0) * (1.0 / 253.0)) * 8192.0f + 0.5f;
     }
 
-    /** Packing is \f$\frac{ \sqrt{ \frac{x - 1/2}{8192} } * 253 + 1}{255} \f$ for \f$x < 8191 \f$, 1.0f/254.0 for
-        \f$1024 \leq x < \infty\f$, and 1.0f for \f$x = \infty \f$ */
-    static inline float packGlossyExponent(float x) {
-        if (x == 0.0f) {
-            return 0.0;
-        } else {
-            // Never let the exponent go above the max representable non-mirror value in a uint8
-            return (clamp((float)(sqrt((x - 0.5f) * (1.0f / 8192.0f))), 0.0f, 1.0f) * 253.0f + 1.0f) * (1.0f / 255.0f);
-        }
+    /** Maps a Blinn-Phong exponent to G3D engine smoothness */
+    static inline float packGlossyExponent(float blinnPhongExponent) {
+        // From http://simonstechblog.blogspot.com/2011/12/microfacet-brdf.html
+        const float academicRoughness = sqrt(2.0f / (blinnPhongExponent + 2.0f));
+
+        // From Graphics Codex [smthnss]
+        const float g3dSmoothness = 1.0f - sqrt(academicRoughness);
+
+        // Never let the exponent go above the max representable non-mirror value in a uint8
+        return G3D::min(g3dSmoothness, 254.0f / 255.0f);
+        // return (clamp(sqrt((x - 0.5f) * (1.0f / 8192.0f)), 0.0, 1.0) * 253.0 + 1.0) * (1.0 / 255.0);
     }
 };
 
