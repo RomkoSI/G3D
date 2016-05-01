@@ -285,7 +285,7 @@ void ArticulatedViewer::onGraphics3D(RenderDevice* rd, App* app, const shared_pt
     }
 
     if (! mergeMaterials) {
-        screenPrintf("Material merging disabled in this build\n");
+        screenPrintf("Mesh merging by material DISABLED in this build. Models will render slowly but maintain assignments.\n");
     }
 
 
