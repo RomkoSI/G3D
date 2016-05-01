@@ -2,13 +2,16 @@
  \file ArticulatedViewer.cpp
  
  \created 2007-05-31
- \edited  2015-01-08
+ \edited  2016-05-01
  */
 #include "ArticulatedViewer.h"
 
 shared_ptr<ArticulatedViewer::InstructionSurface>   ArticulatedViewer::m_instructions;
 shared_ptr<Surface>              ArticulatedViewer::m_skyboxSurface;
 shared_ptr<GFont>                ArticulatedViewer::m_font;
+
+// Useful for debugging material assignments
+static const bool mergeMaterials = false;
 
 ArticulatedViewer::ArticulatedViewer() :
     m_numFaces(0),
@@ -78,7 +81,9 @@ void ArticulatedViewer::onInit(const String& filename) {
         any["filename"] = filename;
 
         // Prevent merging for material debugging
-        any["meshMergeOpaqueClusterRadius"] = 0;
+        if (! mergeMaterials) {
+            any["meshMergeOpaqueClusterRadius"] = 0;
+        }
 
         m_model = ArticulatedModel::create(any);
     }
@@ -246,6 +251,7 @@ void ArticulatedViewer::onPose(Array<shared_ptr<Surface> >& posed3D, Array<share
 void ArticulatedViewer::onGraphics3D(RenderDevice* rd, App* app, const shared_ptr<LightingEnvironment>& lighting, Array<shared_ptr<Surface> >& allSurfaces) {
     // app->gbuffer()->setSpecification(m_gbufferSpecification);
     app->gbuffer()->resize(app->framebuffer()->width(), app->framebuffer()->height());
+
     app->gbuffer()->prepare(rd, app->activeCamera(), 0, -(float)app->previousSimTimeStep(), app->settings().hdrFramebuffer.depthGuardBandThickness, app->settings().hdrFramebuffer.colorGuardBandThickness);
 
     app->renderer()->render(rd, app->framebuffer(), app->depthPeelFramebuffer(), *lighting, app->gbuffer(), allSurfaces);
@@ -277,6 +283,11 @@ void ArticulatedViewer::onGraphics3D(RenderDevice* rd, App* app, const shared_pt
             }
         }
     }
+
+    if (! mergeMaterials) {
+        screenPrintf("Material merging disabled in this build\n");
+    }
+
 
     float x, y, z, yaw, pitch, roll;
     app->activeCamera()->frame().getXYZYPRDegrees(x,y,z,yaw, pitch, roll);
