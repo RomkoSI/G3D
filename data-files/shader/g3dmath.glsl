@@ -239,14 +239,30 @@ vec3 schlickFresnel(in vec3 F0, in float cos_i, float smoothness) {
     return (F0.r + F0.g + F0.b > 0.0) ? mix(F0, vec3(1.0), 0.9 * (0.02 + smoothness * 0.98) * pow5(1.0 - max(0.0, cos_i))) : F0;
 }
 
-/** Matches UniversalBSDF::unpackGlossyExponent*/
-float unpackGlossyExponent(in float e) {
-    return square((e * 255.0 - 1.0) * (1.0 / 253.0)) * 8192.0f + 0.5f;
+/** Matches UniversalBSDF::unpackGlossyExponent.
+    Maps smoothness [0, 1] to Blinn-Phong exponent [0, infinity].
+*/
+float unpackGlossyExponent(in float g3dSmoothness) {
+    // From Graphics Codex [smthnss]
+    float academicRoughness = square(1.0 - min(g3dSmoothness, 254.0 / 255.0));
+
+    // From http://simonstechblog.blogspot.com/2011/12/microfacet-brdf.html
+    float blinnPhongExponent = 2.0 / square(academicRoughness) - 2.0;
+    return blinnPhongExponent;
+    // return square((e * 255.0 - 1.0) * (1.0 / 253.0)) * 8192.0f + 0.5f;
 }
 
-float packGlossyExponent(in float x) {
+float packGlossyExponent(in float blinnPhongExponent) {    
+    // From http://simonstechblog.blogspot.com/2011/12/microfacet-brdf.html
+    float academicRoughness = sqrt(2.0 / (blinnPhongExponent + 2.0));
+
+    // From Graphics Codex [smthnss]
+    float g3dSmoothness = 1 - sqrt(academicRoughness);
+
     // Never let the exponent go above the max representable non-mirror value in a uint8
-    return (clamp(sqrt((x - 0.5f) * (1.0f / 8192.0f)), 0.0, 1.0) * 253.0 + 1.0) * (1.0 / 255.0);
+    return min(g3dSmoothness, 254.0 / 255.0);
+
+    // return (clamp(sqrt((x - 0.5f) * (1.0f / 8192.0f)), 0.0, 1.0) * 253.0 + 1.0) * (1.0 / 255.0);
 }
 
 
