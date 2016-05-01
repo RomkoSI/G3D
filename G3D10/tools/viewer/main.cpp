@@ -55,6 +55,9 @@ int main(int argc, char** argv) {
     settings.window.width     = 1024;
     settings.window.height    = 768;
     settings.window.caption   = "G3D Viewer";
+    
+    settings.renderer.deferredShading = true;
+    settings.renderer.orderIndependentTransparency = true;
 
     logLazyPrintf("---------------------------------------------------------------------\n\n");
     logPrintf("Invoking App constructor\n");
