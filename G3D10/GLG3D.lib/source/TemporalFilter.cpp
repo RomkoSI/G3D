@@ -4,6 +4,8 @@
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Camera.h"
 #include "GLG3D/Shader.h"
+#include "GLG3D/GuiPane.h"
+#include "GLG3D/GuiTheme.h"
 
 namespace G3D {
 
@@ -11,6 +13,13 @@ void TemporalFilter::Settings::setArgs(Args& args) const {
     args.setUniform("hysteresis", hysteresis);
     args.setUniform("falloffStartDistance", falloffStartDistance);
     args.setUniform("falloffEndDistance", falloffEndDistance);
+}
+
+
+void TemporalFilter::Settings::makeGui(GuiPane* parent) {
+    parent->addNumberBox("Hysteresis",    &hysteresis, "", GuiTheme::LINEAR_SLIDER, 0.0f, 1.0f);
+    parent->addNumberBox("Falloff Start", &falloffStartDistance, "m", GuiTheme::LINEAR_SLIDER, 0.0f, 1.0f);
+    parent->addNumberBox("Falloff End",   &falloffEndDistance, "m",   GuiTheme::LINEAR_SLIDER, 0.0f, 1.0f);
 }
 
 
