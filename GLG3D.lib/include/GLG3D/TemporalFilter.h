@@ -9,6 +9,8 @@ class Framebuffer;
 class Texture;
 class Camera;
 class CoordinateFrame;
+class GuiPane;
+
 /** A simple helper class for temporally filtering a screen-space buffer filled with world-space
  * data. This is designed to be simple to use, not to maximize speed.
  * Directly use functions from temporalFiler.glsl in a full-screen pass instead of using this class if performance 
@@ -45,7 +47,7 @@ public:
         Settings(): hysteresis(0.9f), falloffStartDistance(0.05f), falloffEndDistance(0.07f) {}
         Settings(const Any& a);
         Any toAny() const;
-
+        void makeGui(GuiPane* parent);
     };
 protected:
 
