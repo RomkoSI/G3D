@@ -114,6 +114,8 @@
 	   <li> GApp::Settings::FilmSettings -> GApp::Settings::HDRFramebufferSettings </li>
 	   <li> Moved guard band from GApp::Settings to G3D::GApp::HDRFramebufferSettings </li>
 	   <li> Removed (unused) offset and downsample arguments from Film::exposeAndRender </li>
+	   <li> Switched to standard engine smoothness for encoding glossy lobes </li>
+	   <li> Re-tuned OBJ material import for glossy terms </li>
       </ul>
     </p>
 
