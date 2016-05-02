@@ -126,6 +126,7 @@ at the bottom.
     \link G3D::Renderer Renderer\endlink,
     \link G3D::DefaultRenderer DefaultRenderer\endlink,
     \link G3D::ShadowMap ShadowMap\endlink,
+    \link G3D::TemporalFilter TemporalFilter\endlink,
     \link G3D::LightingEnvironment LightingEnvironment\endlink,
     \link G3D::UniversalSurface UniversalSurface\endlink,
     \link G3D::UniversalSurface::CPUGeom UniversalSurface::CPUGeom\endlink,
