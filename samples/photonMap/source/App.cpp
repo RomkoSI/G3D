@@ -49,7 +49,7 @@ void App::onRenderButton() {
     shared_ptr<Texture> dstTexture;
 
     // Apply Film exposure
-    m_film->exposeAndRender(renderDevice, activeCamera()->filmSettings(), srcTexture, dstTexture);
+    m_film->exposeAndRender(renderDevice, activeCamera()->filmSettings(), srcTexture, dstTexture, settings().hdrFramebuffer.colorGuardBandThickness.x);
 
     // Display
     show(dstTexture);
