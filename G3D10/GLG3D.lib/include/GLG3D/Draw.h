@@ -103,10 +103,20 @@ public:
 	static void point(const Point2& point, RenderDevice* rd, const Color4& color = Color3::white(), float pixelRadius = 0.5f);
 
     /** Visualize a single light (simple version) dirDist is the distance away to draw the geometry for a directional light */
-    static void light(shared_ptr<Light> light, RenderDevice* rd,  float dirDist = 1000.0f);
+    static void light
+       (const shared_ptr<Light>&                light, 
+        RenderDevice*                           rd,  
+        RenderPassType                          passType, 
+        const String&                           singlePassBlendedOutputMacro,
+        float                                   dirDist = 1000.0f);
 
-    /** Visualize a the geometry of the effect of a single light. Currently does nothing for directional lights and shows a full effect sphere for both spot and omni lights */
-    static void visualizeLightGeometry(shared_ptr<Light> light, RenderDevice* rd);
+    /** Visualize a the geometry of the effect of a single light. Currently does nothing for directional
+        lights and shows a full effect sphere for both spot and omni lights */
+    static void visualizeLightGeometry
+       (const shared_ptr<Light>&                light, 
+        RenderDevice*                           rd,
+        RenderPassType                          passType, 
+        const String&                           singlePassBlendedOutputMacro);
 
     /** Draws a symbolic representation of the camera */
     static void camera(shared_ptr<Camera> camera, RenderDevice* rd);

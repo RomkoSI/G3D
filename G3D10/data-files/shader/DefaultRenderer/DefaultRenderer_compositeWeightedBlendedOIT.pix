@@ -58,7 +58,7 @@ void main() {
     }
 
     // Diffusion radius squared in pixels
-    float diffusion2 = backgroundModulationAndDiffusion.a * pixelsPerDiffusion2;
+    float diffusion2 = 0;//backgroundModulationAndDiffusion.a * pixelsPerDiffusion2;
     Vector2 delta = 3.0 * texelFetch(deltaTexture.sampler, C, 0).xy * (1.0 / 8.0);
     float4 accum = texelFetch(accumTexture.sampler, C, 0);
 
