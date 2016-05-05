@@ -34,17 +34,19 @@ shared_ptr<Texture> TemporalFilter::apply(RenderDevice* rd, const shared_ptr<Cam
         return apply(rd, clipConstant, projConstant, c2w, c2wPrev, unfilteredValue, depth, ssVelocity, guardBandSize, numFilterComponents, settings);
 }
 
-shared_ptr<Texture> TemporalFilter::apply(RenderDevice* rd, 
-        const Vector3&                  clipConstant,
-        const Vector4&                  projConstant,
-        const CFrame&                   currentCameraFrame,
-        const CFrame&                   prevCameraFrame, 
-        const shared_ptr<Texture>&      unfilteredValue, 
-        const shared_ptr<Texture>&      depth, 
-        const shared_ptr<Texture>&      ssVelocity, 
-        const Vector2&                  guardBandSize,
-        int                             numFilterComponents, 
-        const Settings&                 settings) {
+
+shared_ptr<Texture> TemporalFilter::apply
+   (RenderDevice* rd, 
+    const Vector3&                  clipConstant,
+    const Vector4&                  projConstant,
+    const CFrame&                   currentCameraFrame,
+    const CFrame&                   prevCameraFrame, 
+    const shared_ptr<Texture>&      unfilteredValue, 
+    const shared_ptr<Texture>&      depth, 
+    const shared_ptr<Texture>&      ssVelocity, 
+    const Vector2&                  guardBandSize,
+    int                             numFilterComponents, 
+    const Settings&                 settings) {
 
     if (settings.hysteresis == 0.0f) {
         return unfilteredValue;
@@ -61,7 +63,7 @@ shared_ptr<Texture> TemporalFilter::apply(RenderDevice* rd,
 
         unfilteredValue->copyInto(m_previousTexture);
         depth->copyInto(m_previousDepthBuffer);
-        m_resultFramebuffer = Framebuffer::create(Texture::createEmpty("TemporalFilter::result", m_previousTexture->width(), m_previousTexture->height(), m_previousTexture->format()));
+        m_resultFramebuffer = Framebuffer::create(Texture::createEmpty("TemporalFilter::m_resultFramebuffer", m_previousTexture->width(), m_previousTexture->height(), m_previousTexture->format()));
         Texture::copy(m_previousTexture, m_resultFramebuffer->texture(0));
         return m_resultFramebuffer->texture(0);
     }
@@ -104,7 +106,6 @@ TemporalFilter::Settings::Settings(const Any& a) {
     r.getIfPresent("hysteresis", hysteresis);
     r.getIfPresent("falloffStartDistance", falloffStartDistance);
     r.getIfPresent("falloffEndDistance", falloffEndDistance);
-
 
     r.verifyDone();
 }
