@@ -55,9 +55,9 @@ void VisualizeLightSurface::render
     const String&                           singlePassBlendedOutputMacro) const {
 
     if (m_showBounds) {
-        Draw::visualizeLightGeometry(m_light, rd);
+        Draw::visualizeLightGeometry(m_light, rd, passType, singlePassBlendedOutputMacro);
     } else {
-        Draw::light(m_light, rd);
+        Draw::light(m_light, rd, passType, singlePassBlendedOutputMacro);
     }
 }
 

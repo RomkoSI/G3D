@@ -390,7 +390,12 @@ void Draw::camera(shared_ptr<Camera> camera, RenderDevice* rd){
 }
 
 
-void Draw::visualizeLightGeometry(shared_ptr<Light> light, RenderDevice* rd) {
+void Draw::visualizeLightGeometry
+   (const shared_ptr<Light>&                light, 
+    RenderDevice*                           rd,
+    RenderPassType                          passType, 
+    const String&                           singlePassBlendedOutputMacro) {
+
     switch (light->type()) {
     case Light::Type::SPOT:
         {
@@ -429,7 +434,13 @@ void Draw::visualizeLightGeometry(shared_ptr<Light> light, RenderDevice* rd) {
 
 
 
-void Draw::light(shared_ptr<Light> light, RenderDevice* rd,  float dirDist) {
+void Draw::light
+   (const shared_ptr<Light>&                light, 
+    RenderDevice*                           rd, 
+    RenderPassType                          passType, 
+    const String&                           singlePassBlendedOutputMacro,
+    float                                   dirDist) {
+
     if (light->type() == Light::Type::SPOT) {       
         drawSpotLight(light, rd);
     } else if (light->type() == Light::Type::OMNI) {
