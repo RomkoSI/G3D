@@ -2407,7 +2407,8 @@ void Texture::setAllSamplerParameters
         target == GL_TEXTURE_RECTANGLE_EXT ||
         target == GL_TEXTURE_CUBE_MAP ||
         target == GL_TEXTURE_2D_ARRAY ||
-        target == GL_TEXTURE_3D);
+        target == GL_TEXTURE_3D || 
+        target == GL_TEXTURE_CUBE_MAP_ARRAY);
 
     debugAssertGLOk();
     
@@ -2435,7 +2436,8 @@ void Texture::updateSamplerParameters(const Sampler& settings) {
         target == GL_TEXTURE_RECTANGLE_EXT ||
         target == GL_TEXTURE_CUBE_MAP ||
         target == GL_TEXTURE_2D_ARRAY ||
-        target == GL_TEXTURE_3D);
+        target == GL_TEXTURE_3D ||
+        target == GL_TEXTURE_CUBE_MAP_ARRAY);
 
     debugAssertGLOk();
 
@@ -2799,7 +2801,13 @@ static void createTexture
 
         glTexImage3D(target, mipLevel, ImageFormat, m_width, m_height, depth, 0, bytesFormat, dataType, bytes);
         break;
-
+    case GL_TEXTURE_CUBE_MAP_ARRAY:
+        if (bytes != NULL) {
+            debugAssert(isValidPointer(bytes));
+        }
+        glTexImage3D(target, mipLevel, ImageFormat, m_width, m_height, 
+            depth*6, 0, bytesFormat, dataType, bytes);
+        break;
     default:
         debugAssertM(false, "Fell through switch");
     }
