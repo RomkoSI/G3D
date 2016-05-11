@@ -9,9 +9,9 @@
 */
 
 // Some constants
-const float pi = 3.1415927;
-const float invPi = 1.0 / pi;
-const float inv8pi = 1.0 / (8.0 * pi);
+const float pi          = 3.1415927;
+const float invPi       = 1.0 / pi;
+const float inv8pi      = 1.0 / (8.0 * pi);
 
 const float meters      = 1.0;
 const float centimeters = 0.01;
@@ -47,6 +47,14 @@ const float inf         = 1.0 / 0.0;
 #define Matrix4      mat4
 #define Matrix3      mat3
 #define Matrix2      mat2
+
+/** Given a z-axis, construct an orthonormal tangent space. Assumes z is a unit vector */
+Matrix3 referenceFrameFromZAxis(Vector3 z) {
+    Vector3 y = (abs(z.y) > 0.85) ? Vector3(-1, 0, 0) : Vector3(0, 1, 0);
+    Vector3 x = normalize(cross(y, z));
+    y = normalize(cross(z, x));
+    return Matrix3(x, y, z);
+}
 
 
 #foreach (gentype) in (int), (ivec2), (ivec3), (ivec4), (float), (vec2), (vec3), (vec4)
