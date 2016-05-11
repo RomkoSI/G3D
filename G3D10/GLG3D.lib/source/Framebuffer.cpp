@@ -612,6 +612,7 @@ void Framebuffer::Attachment::attach() const {
 	debugAssertGLOk();
 
     if (m_type == TEXTURE) {
+        const bool isCubeMapArray = (m_texture->dimension() == Texture::DIM_CUBE_MAP_ARRAY);
         const bool isCubeMap = (m_texture->dimension() == Texture::DIM_CUBE_MAP);
         const bool is2DArray = (m_texture->dimension() == Texture::DIM_2D_ARRAY);
         const bool is3D      = (m_texture->dimension() == Texture::DIM_3D);
@@ -622,6 +623,9 @@ void Framebuffer::Attachment::attach() const {
         } else if ((is2DArray || is3D) && (m_layer >= 0)) {
             glFramebufferTextureLayer(GL_FRAMEBUFFER, GLenum(m_point),
                 m_texture->openGLID(), m_mipLevel, m_layer);
+        } else if (isCubeMapArray && (m_layer >= 0)) {
+            glFramebufferTextureLayer(GL_FRAMEBUFFER, GLenum(m_point),
+                m_texture->openGLID(), m_mipLevel, m_layer * 6 + m_cubeFace);
         } else {
             glFramebufferTexture
                 (GL_FRAMEBUFFER, GLenum(m_point),

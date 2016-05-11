@@ -16,6 +16,10 @@ uniform bool      invertIntensity;
     
 in vec2 g3d_TexCoord;
 
+#   if IS_ARRAY
+#       expect LAYER
+#   endif
+
 out vec4 result;
 
 void main(void) {
@@ -25,7 +29,12 @@ void main(void) {
     float phi   = sphericalCoord.x * 2 * PI;
     float sinTheta = sin(theta);
     vec3 cartesianCoord = vec3(cos(phi) * sinTheta, cos(theta), sin(phi) * sinTheta); 
-    vec4 c = textureLod(tex_buffer, cartesianCoord, 0.0);
+
+#   if IS_ARRAY
+        vec4 c = textureLod(tex_buffer, vec4(cartesianCoord, LAYER), 0.0);
+#   else
+        vec4 c = textureLod(tex_buffer, cartesianCoord, 0.0);
+#   endif
     c = (c + bias) * scale;
     c = invertIntensity ? vec4(1.0 - c) : c;
     c = colorShift * c;

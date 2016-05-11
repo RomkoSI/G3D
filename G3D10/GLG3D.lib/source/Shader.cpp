@@ -111,6 +111,12 @@ GLenum Shader::toGLType(const String& s) {
         return GL_INT_SAMPLER_CUBE;
     } else if (s == "usamplerCube") {
         return GL_UNSIGNED_INT_SAMPLER_CUBE;
+    } else if (s == "samplerCubeArray") {
+        return GL_SAMPLER_CUBE_MAP_ARRAY;
+    } else if (s == "isamplerCubeArray") {
+        return GL_INT_SAMPLER_CUBE_MAP_ARRAY;
+    } else if (s == "usamplerCubeArray") {
+        return GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY;
     } else if (s == "sampler2DRect") {
         return GL_SAMPLER_2D_RECT;
     } else if (s == "usampler2DRect") {
@@ -394,6 +400,7 @@ void Shader::bindUniformArg(const Args::Arg& arg, const ShaderProgram::UniformDe
 	case GL_IMAGE_2D_MULTISAMPLE_ARRAY:
 	case GL_IMAGE_3D:
     case GL_IMAGE_CUBE:
+    case GL_IMAGE_CUBE_MAP_ARRAY:
     case GL_INT_IMAGE_1D:
     case GL_INT_IMAGE_2D:
 	case GL_INT_IMAGE_2D_MULTISAMPLE:
@@ -401,6 +408,7 @@ void Shader::bindUniformArg(const Args::Arg& arg, const ShaderProgram::UniformDe
 	case GL_INT_IMAGE_2D_MULTISAMPLE_ARRAY:
     case GL_INT_IMAGE_3D:
     case GL_INT_IMAGE_CUBE:
+    case GL_INT_IMAGE_CUBE_MAP_ARRAY:
     case GL_UNSIGNED_INT_IMAGE_1D:
     case GL_UNSIGNED_INT_IMAGE_2D:
 	case GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE:
@@ -408,6 +416,7 @@ void Shader::bindUniformArg(const Args::Arg& arg, const ShaderProgram::UniformDe
 	case GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY:
     case GL_UNSIGNED_INT_IMAGE_3D:
     case GL_UNSIGNED_INT_IMAGE_CUBE:
+    case GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY:
         {
 #if 1 //Non bindless
             // Images are bound as if they were integers.  The
@@ -463,6 +472,7 @@ void Shader::bindUniformArg(const Args::Arg& arg, const ShaderProgram::UniformDe
 
     case GL_SAMPLER_3D:
     case GL_SAMPLER_CUBE:
+    case GL_SAMPLER_CUBE_MAP_ARRAY:
     case GL_SAMPLER_1D_SHADOW:
     case GL_SAMPLER_2D_SHADOW:
     case GL_SAMPLER_2D_RECT_ARB:
@@ -474,6 +484,7 @@ void Shader::bindUniformArg(const Args::Arg& arg, const ShaderProgram::UniformDe
 	case GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY:
     case GL_INT_SAMPLER_3D:
     case GL_INT_SAMPLER_CUBE:
+    case GL_INT_SAMPLER_CUBE_MAP_ARRAY:
 
     case GL_UNSIGNED_INT_SAMPLER_1D:
     case GL_UNSIGNED_INT_SAMPLER_2D:
@@ -482,6 +493,7 @@ void Shader::bindUniformArg(const Args::Arg& arg, const ShaderProgram::UniformDe
 	case GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY:
     case GL_UNSIGNED_INT_SAMPLER_3D:
     case GL_UNSIGNED_INT_SAMPLER_CUBE:
+    case GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY:
         {
             if (arg.type == GL_UNSIGNED_INT64_ARB) { // Handles
                 glUniformHandleui64ARB(decl.location, arg.handle->glHandle());
