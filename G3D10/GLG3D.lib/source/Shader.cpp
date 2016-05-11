@@ -284,6 +284,10 @@ bool Shader::isSamplerType(GLenum e) {
        (e == GL_INT_SAMPLER_CUBE) ||
        (e == GL_UNSIGNED_INT_SAMPLER_CUBE) ||
 
+       (e == GL_SAMPLER_CUBE_MAP_ARRAY) ||
+       (e == GL_INT_SAMPLER_CUBE_MAP_ARRAY) ||
+       (e == GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY) ||
+
        (e == GL_SAMPLER_1D_SHADOW) ||
 
        (e == GL_SAMPLER_2D_SHADOW) ||
@@ -351,6 +355,16 @@ GLenum Shader::canonicalType(GLenum e) {
     case GL_INT_SAMPLER_3D_EXT:
     case GL_UNSIGNED_INT_SAMPLER_3D_EXT:
         return GL_TEXTURE_3D;
+
+#   if IMAGES_AS_TEXTURES
+    case GL_IMAGE_CUBE_MAP_ARRAY:
+    case GL_INT_IMAGE_CUBE_MAP_ARRAY:
+    case GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY:
+#   endif
+    case GL_SAMPLER_CUBE_MAP_ARRAY:
+    case GL_INT_SAMPLER_CUBE_MAP_ARRAY:
+    case GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY:
+        return GL_TEXTURE_CUBE_MAP_ARRAY;
 
     case GL_SAMPLER_2D_ARRAY:
     case GL_INT_SAMPLER_2D_ARRAY:
