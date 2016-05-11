@@ -624,7 +624,7 @@ public:
         return m_hasMipMaps;
     }
 
-	inline int numMipMapLevels(){
+	inline int numMipMapLevels() {
 		if(!hasMipMaps()){
 			return 1;
 		}else{
@@ -634,6 +634,8 @@ public:
 			return numMipMaps;
 		}
 	}
+
+    /** Deprecated, use dimension() == Texture::DIM_CUBE_MAP instead */
     inline bool isCubeMap() const {
         return (m_dimension == DIM_CUBE_MAP);
     }

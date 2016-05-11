@@ -225,7 +225,8 @@ public:
         int captionWidth = 55;
         m_xyLabel = addPair(dataPane, "xy =", "", 30);
         m_xyLabel->setWidth(70);
-        if(texture->isCubeMap()){
+        if (texture->dimension() == Texture::DIM_CUBE_MAP || 
+            texture->dimension() == Texture::DIM_CUBE_MAP_ARRAY){
             m_xyzLabel = addPair(dataPane, "xyz =", "", 30, m_xyLabel);
             m_xyzLabel->setWidth(160);
         } else {
@@ -237,7 +238,8 @@ public:
         m_rgbaLabel->moveBy(-13,0);
         m_ARGBLabel = addPair(dataPane, "ARGB =", "", captionWidth);
         dataPane->addLabel(GuiText("Before gamma correction", shared_ptr<GFont>(), 8))->moveBy(Vector2(5, -5));
-        if(texture->isCubeMap()){
+        if(texture->dimension() == Texture::DIM_CUBE_MAP ||
+            texture->dimension() == Texture::DIM_CUBE_MAP_ARRAY){
             dataPane->addCheckBox("Show Cube Edges", &m_textureBox->m_showCubemapEdges);
         }
         dataPane->pack();  
@@ -323,7 +325,8 @@ public:
         float u = m_textureBox->m_readbackXY.x / w;
         float v = m_textureBox->m_readbackXY.y / h;
 
-        if(tex->isCubeMap()){
+        if(tex->dimension() == Texture::DIM_CUBE_MAP ||
+            tex->dimension() == Texture::DIM_CUBE_MAP_ARRAY){
             float theta = v * pif();
             float phi   = u * 2 * pif();
             float sinTheta = sin(theta);
@@ -434,7 +437,8 @@ void GuiTextureBox::save() {
         shared_ptr<Framebuffer> fb = Framebuffer::create("GuiTextureBox: save");
         shared_ptr<Texture> color;
         bool generateMipMaps = false;
-        if (m_texture->isCubeMap()) {
+        if (m_texture->dimension() == Texture::DIM_CUBE_MAP ||
+            m_texture->dimension() == Texture::DIM_CUBE_MAP_ARRAY) {
             //Stretch cubemaps appropriately
             color = Texture::createEmpty("GuiTextureBox: save", 
                 m_texture->width()*4, m_texture->height()*2, ImageFormat::RGB8(), Texture::DIM_2D, generateMipMaps);
@@ -571,7 +575,7 @@ void GuiTextureBox::setShaderArgs(UniformTable& args) {
         m_texture->dimension() == Texture::Dimension::DIM_CUBE_MAP_ARRAY;
 
     args.setMacro("IS_GL_TEXTURE_RECTANGLE", m_texture->dimension() == Texture::DIM_2D_RECT ? 1 : 0);
-    args.setMacro("IS_2D_ARRAY", m_texture->dimension() == Texture::DIM_2D_ARRAY);
+    args.setMacro("IS_ARRAY", m_texture->dimension() == Texture::DIM_2D_ARRAY || m_texture->dimension() == Texture::DIM_CUBE_MAP_ARRAY);
     args.setMacro("IS_3D", m_texture->dimension() == Texture::DIM_3D);
 
     args.setMacro("DRAW_INVERTED", m_drawInverted);
@@ -640,7 +644,8 @@ void GuiTextureBox::drawTexture(RenderDevice* rd, const Rect2D& r) const {
         const_cast<GuiTextureBox*>(this)->setShaderArgs(args);
         args.setRect(r);
        
-        if (m_texture->isCubeMap()) {
+        if (m_texture->dimension() == Texture::DIM_CUBE_MAP ||
+            m_texture->dimension() == Texture::DIM_CUBE_MAP_ARRAY) {
             LAUNCH_SHADER_WITH_HINT("GuiTextureBox_Cubemap.pix", args, m_texture->name());
         } else {
             LAUNCH_SHADER_WITH_HINT("GuiTextureBox_2D.pix", args, m_texture->name());
@@ -672,7 +677,8 @@ void GuiTextureBox::render(RenderDevice* rd, const shared_ptr<GuiTheme>& theme, 
         // Shrink by the border size to save space for the border,
         // and then draw the largest rect that we can fit inside.
         Rect2D r = m_texture->rect2DBounds();
-        if (m_texture->isCubeMap()) {
+        if (m_texture->dimension() == Texture::DIM_CUBE_MAP ||
+            m_texture->dimension() == Texture::DIM_CUBE_MAP_ARRAY) {
             r = r * Vector2(2.0f, 1.0f);
         }
         r = r + (m_offset - r.center());
