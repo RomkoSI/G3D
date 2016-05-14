@@ -63,7 +63,9 @@ String Journal::findJournalFile(const String& hint) {
 
 static const std::regex& headerRegex() {
     // Find either "\n# <stuff>\n\n" or "\n<stuff>\n===...\n"
-    static const std::regex HEADER_REGEX("\n#.*\n\n|\n[^\n#].*\n={3,}\\s*?\n", std::regex::ECMAScript);
+    // With newlines able to be either unix-style "\n" or windows style "\r\n".
+    // (\r\n?|\n)
+    static const std::regex HEADER_REGEX("(\r\n?|\n)#.*(\r\n?|\n)(\r\n?|\n)|(\r\n?|\n)[^(\r\n?|\n)#].*(\r\n?|\n)={3,}\\s*?(\r\n?|\n)", std::regex::ECMAScript);
     return HEADER_REGEX;
 }
 
