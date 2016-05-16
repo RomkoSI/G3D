@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2001-02-28
-  \edited  2016-03-18
+  \edited  2016-05-16
 */
 
 #ifndef GLG3D_Texture_h
@@ -754,7 +754,7 @@ public:
 
         \sa toPixelTransferBuffer
     */
-    Color4 readTexel(int ix, int iy, class RenderDevice* rd = NULL, int mipLevel = 0, int iz = 0) const;
+    Color4 readTexel(int ix, int iy, class RenderDevice* rd = NULL, int mipLevel = 0, int iz = 0, CubeFace face = CubeFace::POS_X) const;
 
     /**
      Creates an empty texture (useful for later reading from the screen).

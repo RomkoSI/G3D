@@ -83,7 +83,7 @@ void Texture::getAllTextures(Array<weak_ptr<Texture> >& textures) {
 }
 
 
-Color4 Texture::readTexel(int x, int y, RenderDevice* rd, int mipLevel, int z) const {
+Color4 Texture::readTexel(int x, int y, RenderDevice* rd, int mipLevel, int z, CubeFace face) const {
     debugAssertGLOk();
     const shared_ptr<Framebuffer>& fbo = workingFramebuffer();
 
@@ -95,23 +95,23 @@ Color4 Texture::readTexel(int x, int y, RenderDevice* rd, int mipLevel, int z) c
 
     // Read back 1 pixel
     shared_ptr<Texture> me = dynamic_pointer_cast<Texture>(const_cast<Texture*>(this)->shared_from_this());
-    bool is3D = dimension() == DIM_2D_ARRAY || dimension() == DIM_3D;
+    bool is3D = dimension() == DIM_2D_ARRAY || dimension() == DIM_3D || dimension() == DIM_CUBE_MAP_ARRAY;
     int layer = is3D ? z : -1;
     if (format()->isIntegerFormat()) {
         int ints[4];
-        fbo->set(Framebuffer::COLOR0, me, CubeFace::POS_X, mipLevel, layer);
+        fbo->set(Framebuffer::COLOR0, me, face, mipLevel, layer);
         rd->pushState(fbo);
         glReadPixels(x, y, 1, 1, GL_RGBA_INTEGER, GL_INT, ints);
         c = Color4(float(ints[0]), float(ints[1]), float(ints[2]), float(ints[3]));
         rd->popState();
     } else if (format()->depthBits == 0) {
-        fbo->set(Framebuffer::COLOR0, me, CubeFace::POS_X, mipLevel, layer);
+        fbo->set(Framebuffer::COLOR0, me, face, mipLevel, layer);
         rd->pushState(fbo);
         glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, &c);
         rd->popState();
     } else {
         // This is a depth texture
-        fbo->set(Framebuffer::DEPTH, me, CubeFace::POS_X, mipLevel, layer);
+        fbo->set(Framebuffer::DEPTH, me, face, mipLevel, layer);
         rd->pushState(fbo);
         glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &c.r);
         rd->popState();
