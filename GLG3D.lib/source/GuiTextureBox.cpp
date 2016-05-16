@@ -24,6 +24,13 @@
 namespace G3D {
 
 
+static Vector3 uvToXYZ(float u, float v) {
+    float theta = v * pif();
+    float phi = u * 2 * pif();
+    float sinTheta = sin(theta);
+    return Vector3(cos(phi) * sinTheta, cos(theta), sin(phi) * sinTheta);
+}
+
 GuiTextureBox::GuiTextureBox
 (GuiContainer*       parent,
  const GuiText&      caption,
@@ -327,13 +334,8 @@ public:
 
         if(tex->dimension() == Texture::DIM_CUBE_MAP ||
             tex->dimension() == Texture::DIM_CUBE_MAP_ARRAY){
-            float theta = v * pif();
-            float phi   = u * 2 * pif();
-            float sinTheta = sin(theta);
-            float x = cos(phi) * sinTheta;
-            float y = cos(theta);
-            float z = sin(phi) * sinTheta; 
-            m_xyzLabel->setCaption(format("(%6.4f, %6.4f, %6.4f)", x, y, z));
+            Vector3 xyz = uvToXYZ(u, v);
+            m_xyzLabel->setCaption(format("(%6.4f, %6.4f, %6.4f)", xyz.x, xyz.y, xyz.z));
         } else {
             m_uvLabel->setCaption(format("(%6.4f, %6.4f)", u, v));
         }
@@ -657,6 +659,22 @@ void GuiTextureBox::drawTexture(RenderDevice* rd, const Rect2D& r) const {
 }
 
 
+static void directionToCubemapFaceAndCoordinate(const Vector3& dir, CubeFace& face, Vector2& uv) {
+    const Vector3& a = abs(dir);
+    if (a.x >= a.y && a.x >= a.z) {
+        face = (dir.x > 0) ? CubeFace::POS_X : CubeFace::NEG_X;
+        uv = ((dir.yz() / dir.x) * 0.5f) + Vector2(0.5f, 0.5f);
+    } else if (a.y >= a.x && a.y >= a.z) {
+        face = (dir.y > 0) ? CubeFace::POS_Y : CubeFace::NEG_Y;
+        uv = ((dir.zx() / dir.y) * 0.5f) + Vector2(0.5f, 0.5f);
+    } else if (a.z >= a.x && a.z >= a.y) {
+        face = (dir.z > 0) ? CubeFace::POS_Z : CubeFace::NEG_Z;
+        uv = ((dir.xy() / dir.z) * 0.5f) + Vector2(0.5f, 0.5f);
+    } else {
+        alwaysAssertM(false, "directionToCubemapFaceAndCoordinate() failed!");
+    }
+}
+
 void GuiTextureBox::render(RenderDevice* rd, const shared_ptr<GuiTheme>& theme, bool ancestorsEnabled) const {
     if (! m_visible) {
         return;
@@ -723,16 +741,38 @@ void GuiTextureBox::render(RenderDevice* rd, const shared_ptr<GuiTheme>& theme, 
                         mousePos *= Vector2((float)w, (float)h) / r.wh();
                         mousePos *= (1.0f / powf(2.0f, float(m_settings.mipLevel)));
                         //screenPrintf("w=%d h=%d", w, h);
-                        int ix = iFloor(mousePos.x);
-                        int iy = iFloor(mousePos.y);
-
-                        if (ix >= 0 && ix < w && iy >= 0 && iy < h) {
-                            if (m_readbackXY.x != ix || m_readbackXY.y != iy) {
-                                m_readbackXY.x = ix;
-                                m_readbackXY.y = iy;
-                                m_texel = m_texture->readTexel(ix, iy, rd, m_settings.mipLevel, m_settings.layer);
+                                
+                        if (m_texture->dimension() == Texture::DIM_CUBE_MAP ||
+                            m_texture->dimension() == Texture::DIM_CUBE_MAP_ARRAY) {
+                            int ix = iFloor(mousePos.x);
+                            int iy = iFloor(mousePos.y);
+                            if (ix >= 0 && ix < w && iy >= 0 && iy < h) {
+                                const Vector2 mipSize = m_texture->vector2Bounds() / powf(2.0f, float(m_settings.mipLevel));
+                                const Vector2 uv = Vector2(ix + 0.5f, iy + 0.5f) / mipSize;
+                                const Vector3& xyz = uvToXYZ(uv.x, uv.y);
+                                CubeFace face;
+                                Vector2 faceUV;
+                                directionToCubemapFaceAndCoordinate(xyz, face, faceUV);
+                                const int cubeIx = iFloor(faceUV.x * mipSize.x);
+                                const int cubeIy = iFloor(faceUV.y * mipSize.y);
+                                if (m_readbackXY.x != cubeIx || m_readbackXY.y != cubeIy) {
+                                    m_readbackXY.x = cubeIx;
+                                    m_readbackXY.y = cubeIy;
+                                    m_texel = m_texture->readTexel(cubeIx, cubeIy, rd, m_settings.mipLevel, m_settings.layer, face);
+                                }
+                            }
+                        } else {
+                            int ix = iFloor(mousePos.x);
+                            int iy = iFloor(mousePos.y);
+                            if (ix >= 0 && ix < w && iy >= 0 && iy < h) {
+                                if (m_readbackXY.x != ix || m_readbackXY.y != iy) {
+                                    m_readbackXY.x = ix;
+                                    m_readbackXY.y = iy;
+                                    m_texel = m_texture->readTexel(ix, iy, rd, m_settings.mipLevel, m_settings.layer);
+                                }
                             }
                         }
+                           
                     }
                 } 
 
