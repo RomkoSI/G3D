@@ -631,7 +631,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& all) {
         filmSettings.setBloomStrength(0.0);
         filmSettings.setIdentityToneCurve();
     }
-    m_film->exposeAndRender(rd, filmSettings, m_framebuffer->texture(0));    
+    m_film->exposeAndRender(rd, filmSettings, m_framebuffer->texture(0), settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x);
 }
 
 
