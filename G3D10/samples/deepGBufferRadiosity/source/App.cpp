@@ -210,8 +210,8 @@ void App::makeGUI() {
     m_titleFont = GFont::fromFile(System::findDataFile("times.fnt"));        
 
     pane->addLabel(GuiText("Deep G-Buffer Example", m_titleFont, 25));
-    pane->addLabel(GuiText("based on the technical paper", m_titleFont, 11))->moveBy(3, -6);
-    pane->addLabel(GuiText("\"Fast Global Illumination Approximations on Deep G-Buffers\" ", m_titleFont, 11))->moveBy(3, -10);
+    pane->addLabel(GuiText("based on the HPG'16 paper:", m_titleFont, 11))->moveBy(3, -6);
+    pane->addLabel(GuiText("Deep G-Buffers for Stable Global Illumination Approximation", m_titleFont, 11))->moveBy(3, -10);
     pane->addLabel(GuiText("by M. Mara, M. McGuire, D. Nowrouzezahrai, and D. Luebke", m_titleFont, 11))->moveBy(3, -10);
 
 	GuiTabPane* modePane = pane->addTabPane((int*)&m_demoSettings.demoMode);
