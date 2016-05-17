@@ -663,13 +663,25 @@ static void directionToCubemapFaceAndCoordinate(const Vector3& dir, CubeFace& fa
     const Vector3& a = abs(dir);
     if (a.x >= a.y && a.x >= a.z) {
         face = (dir.x > 0) ? CubeFace::POS_X : CubeFace::NEG_X;
-        uv = ((dir.yz() / dir.x) * 0.5f) + Vector2(0.5f, 0.5f);
+        uv = ((dir.zy() / dir.x) * 0.5f) + Vector2(0.5f, 0.5f);
+        uv.x = 1.0f - uv.x;
+        if (dir.x > 0) {
+            uv.y = 1.0f - uv.y;
+        }
     } else if (a.y >= a.x && a.y >= a.z) {
+        // POS_Y Good
         face = (dir.y > 0) ? CubeFace::POS_Y : CubeFace::NEG_Y;
-        uv = ((dir.zx() / dir.y) * 0.5f) + Vector2(0.5f, 0.5f);
+        uv = ((dir.xz() / dir.y) * 0.5f) + Vector2(0.5f, 0.5f);
+        if (dir.y < 0) {
+            uv.x = 1.0 - uv.x;
+        }
     } else if (a.z >= a.x && a.z >= a.y) {
+        // Good
         face = (dir.z > 0) ? CubeFace::POS_Z : CubeFace::NEG_Z;
         uv = ((dir.xy() / dir.z) * 0.5f) + Vector2(0.5f, 0.5f);
+        if (dir.z > 0) {
+            uv.y = 1.0 - uv.y;
+        }
     } else {
         alwaysAssertM(false, "directionToCubemapFaceAndCoordinate() failed!");
     }
