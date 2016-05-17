@@ -4,9 +4,9 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2004-03-28
- \edited  2012-01-05
+ \edited  2016-05-17
 
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 
@@ -216,6 +216,11 @@ public:
     static const String& vendor();
 
     static Vendor enumVendor();
+
+    /** Returns a small high-dynamic range (float) RGB format supported on this machine.
+        Prefers: R11G11B10F, RGB16F, RGB32F
+      */
+    static const class ImageFormat* smallHDRFormat();
 
     /** 
         Returns true if this GPU/driver supports the features needed

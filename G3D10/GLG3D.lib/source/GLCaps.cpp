@@ -68,6 +68,24 @@ void GLCaps::getExtensions(Array<String>& extensions) {
   extensionSet.getMembers(extensions);
 }
 
+
+const ImageFormat* GLCaps::smallHDRFormat() {
+    static const ImageFormat* f = nullptr;
+
+    if (!f) {
+        Array<const ImageFormat*> preferredColorFormats(ImageFormat::R11G11B10F(), ImageFormat::RGB16F(), ImageFormat::RGBA16F(), ImageFormat::RGB32F(), ImageFormat::RGBA32F());
+        for (int i = 0; i < preferredColorFormats.size(); ++i) {
+            if (GLCaps::supportsTexture(preferredColorFormats[i])) {
+                f = preferredColorFormats[i];
+                return f;
+            }
+        }
+    }
+
+    return f;
+}
+
+
 GLCaps::Vendor GLCaps::computeVendor() {
     static bool initialized = false;
     static Vendor v;
