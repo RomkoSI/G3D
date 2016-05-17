@@ -42,11 +42,7 @@ void App::initGBuffers() {
     m_gbufferSpecification.encoding[GBuffer::Field::SS_POSITION_CHANGE].format = ImageFormat::RG16F();
 
     // To improve performance on scenes without emissive objects, remove this
-    m_gbufferSpecification.encoding[GBuffer::Field::EMISSIVE]           =  
-        GLCaps::supportsTexture(ImageFormat::RGB5()) ? 
-            Texture::Encoding(ImageFormat::RGB5(), FrameName::NONE, 2.0f, 0.0f) : 
-            Texture::Encoding(ImageFormat::R11G11B10F());
-
+    m_gbufferSpecification.encoding[GBuffer::Field::EMISSIVE]           = Texture::Encoding(GLCaps::supportsTexture(ImageFormat::RGB5()) ? ImageFormat::RGB5() : ImageFormat::RGB8(), FrameName::NONE, 2.0f, 0.0f);
     m_gbufferSpecification.encoding[GBuffer::Field::LAMBERTIAN]         = ImageFormat::RGB8();
     m_gbufferSpecification.encoding[GBuffer::Field::GLOSSY]             = ImageFormat::RGBA8();
     m_gbufferSpecification.encoding[GBuffer::Field::DEPTH_AND_STENCIL]  = ImageFormat::DEPTH32F();

@@ -291,7 +291,7 @@ void RenderDevice::init(OSWindow* window) {
 
         String e;
         bool s = GLCaps::supportsG3D10(e);
-        logLazyPrintf("This driver will%s support G3D 9.00:\n%s\n\n",
+        logLazyPrintf("This driver does%s support G3D 10:\n%s\n\n",
                       s ? "" : " NOT", e.c_str());
         logPrintf("Done initializing RenderDevice.\n"); 
     }

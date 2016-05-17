@@ -1,7 +1,7 @@
 /**
   \file App.h
 
-  The G3D 9.00 default starter app is configured for OpenGL 3.0 and
+  The G3D 10.00 default starter app is configured for OpenGL 4.0 and
   relatively recent GPUs.
  */
 #ifndef App_h
