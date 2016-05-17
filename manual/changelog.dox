@@ -116,6 +116,7 @@
 	   <li> Removed (unused) offset and downsample arguments from Film::exposeAndRender </li>
 	   <li> Switched to standard engine smoothness for encoding glossy lobes </li>
 	   <li> Re-tuned OBJ material import for glossy terms </li>
+	   <li> Added GLCaps::smallHDRFormat </li>
       </ul>
     </p>
 

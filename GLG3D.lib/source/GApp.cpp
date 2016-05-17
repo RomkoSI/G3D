@@ -373,11 +373,7 @@ void GApp::initializeOpenGL(RenderDevice* rd, OSWindow* window, bool createWindo
 
     if (settings.renderer.deferredShading && notNull(defaultRenderer)) {
         m_gbufferSpecification.encoding[GBuffer::Field::CS_FACE_NORMAL].format = NULL;
-        m_gbufferSpecification.encoding[GBuffer::Field::EMISSIVE]           =
-            GLCaps::supportsTexture(ImageFormat::RGB5()) ?
-                Texture::Encoding(ImageFormat::RGB5(), FrameName::NONE, 3.0f, 0.0f) :
-                Texture::Encoding(ImageFormat::R11G11B10F());
-
+        m_gbufferSpecification.encoding[GBuffer::Field::EMISSIVE]           = Texture::Encoding(GLCaps::supportsTexture(ImageFormat::RGB5()) ? ImageFormat::RGB5() : ImageFormat::RGB8(), FrameName::NONE, 3.0f, 0.0f);
         m_gbufferSpecification.encoding[GBuffer::Field::LAMBERTIAN]         = ImageFormat::RGB8();
         m_gbufferSpecification.encoding[GBuffer::Field::GLOSSY]             = ImageFormat::RGBA8();
 
