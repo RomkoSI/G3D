@@ -13,6 +13,7 @@ uniform float     bias;
 uniform float     scale;
 uniform float     edgeThreshold;
 uniform bool      invertIntensity;
+uniform float     mipLevel;
     
 in vec2 g3d_TexCoord;
 
@@ -31,9 +32,9 @@ void main(void) {
     vec3 cartesianCoord = vec3(cos(phi) * sinTheta, cos(theta), sin(phi) * sinTheta); 
 
 #   if IS_ARRAY
-        vec4 c = textureLod(tex_buffer, vec4(cartesianCoord, LAYER), 0.0);
+        vec4 c = textureLod(tex_buffer, vec4(cartesianCoord, LAYER), mipLevel);
 #   else
-        vec4 c = textureLod(tex_buffer, cartesianCoord, 0.0);
+        vec4 c = textureLod(tex_buffer, cartesianCoord, mipLevel);
 #   endif
     c = (c + bias) * scale;
     c = invertIntensity ? vec4(1.0 - c) : c;
