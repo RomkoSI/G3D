@@ -80,7 +80,7 @@ void App::onInit() {
     makeAdvancedGUI();
     makeGUI();
     Profiler::setEnabled(true);
-    loadScene("Sponza (Statue)");
+    loadScene("G3D Sponza (Statue)");
 }
 
 

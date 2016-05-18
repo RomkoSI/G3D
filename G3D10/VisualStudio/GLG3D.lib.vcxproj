@@ -433,6 +433,7 @@
     <None Include="..\..\data10\research\scene\seymour.Scene.Any" />
     <None Include="..\..\data10\research\scene\sibenik.Scene.Any" />
     <None Include="..\..\data10\research\scene\sponzaFoggy.Scene.Any" />
+    <None Include="..\..\data10\research\scene\sponzaStatue.Scene.Any" />
     <None Include="..\..\data10\research\scene\transparencyTest.Scene.Any" />
     <None Include="..\data-files\shader\AlphaHint.glsl" />
     <None Include="..\data-files\shader\AmbientOcclusion\AmbientOcclusion_AO.pix" />
