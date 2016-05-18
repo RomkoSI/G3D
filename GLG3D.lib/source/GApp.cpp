@@ -1610,7 +1610,9 @@ void GApp::renderCubeMap(RenderDevice* rd, Array<shared_ptr<Texture> >& output, 
         onGraphics3D(rd, surface);
         onGraphics3D(rd, surface);
 
-        Texture::copy(m_osWindowHDRFramebuffer->texture(0), output[face], 0, 0, 1, Vector2int16(settings().hdrFramebuffer.colorGuardBandThickness + settings().hdrFramebuffer.depthGuardBandThickness));
+        Texture::copy(m_osWindowHDRFramebuffer->texture(0), output[face], 0, 0, 1, 
+            Vector2int16((m_osWindowHDRFramebuffer->texture(0)->vector2Bounds() - output[face]->vector2Bounds()) / 2.0f),
+            CubeFace::POS_X, CubeFace::POS_X, nullptr, false);
         //m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_osWindowHDRFramebuffer->texture(0), settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x, output[face]);
     }
     setActiveCamera(oldCamera);
