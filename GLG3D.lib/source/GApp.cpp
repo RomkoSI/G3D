@@ -873,7 +873,7 @@ bool GApp::onEvent(const GEvent& event) {
         window()->setCaption(oldCaption);
         return true;
 
-    } else if (event.type == GEventType::KEY_DOWN && event.key.keysym.sym == GKey::F8) {
+    } else if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == GKey::F8)) {
 
         Array<shared_ptr<Texture> > output;
         renderCubeMap(renderDevice, output, m_debugCamera, shared_ptr<Texture>(), 2048);
@@ -881,11 +881,11 @@ bool GApp::onEvent(const GEvent& event) {
         const CubeMapConvention::CubeMapInfo& cubeMapInfo = Texture::cubeMapInfo(CubeMapConvention::DIRECTX);
         for (int f = 0; f < 6; ++f) {
             const CubeMapConvention::CubeMapInfo::Face& faceInfo = cubeMapInfo.face[f];
-            shared_ptr<Image> temp = Image::fromPixelTransferBuffer(output[f]->toPixelTransferBuffer(ImageFormat::RGB8()));
-            temp->rotateCW(toRadians(90.0) * (-faceInfo.rotations));
+            const shared_ptr<Image>& temp = Image::fromPixelTransferBuffer(output[f]->toPixelTransferBuffer(ImageFormat::RGB32F()));
+            temp->rotateCW(toRadians(-90.0f) * faceInfo.rotations);
             if (faceInfo.flipY) { temp->flipVertical();   }
             if (faceInfo.flipX) { temp->flipHorizontal(); }
-            temp->save(format("cube-%s.png", faceInfo.suffix.c_str()));
+            temp->save(format("cube-%s.exr", faceInfo.suffix.c_str()));
         }
         return true;
 
@@ -1605,11 +1605,13 @@ void GApp::renderCubeMap(RenderDevice* rd, Array<shared_ptr<Texture> >& output, 
         newCamera->setFrame(cframe);
 
         rd->setProjectionAndCameraMatrix(activeCamera()->projection(), activeCamera()->frame());
+
+        // Render every face twice to let the screen space reflection/refraction texture to stabilize
         onGraphics3D(rd, surface);
-        // render every face twice to let the screen space reflection/refraction texture to stabilize
         onGraphics3D(rd, surface);
 
-        m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_osWindowHDRFramebuffer->texture(0), settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x, output[face]);
+        Texture::copy(m_osWindowHDRFramebuffer->texture(0), output[face], 0, 0, 1, Vector2int16(settings().hdrFramebuffer.colorGuardBandThickness + settings().hdrFramebuffer.depthGuardBandThickness));
+        //m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_osWindowHDRFramebuffer->texture(0), settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x, output[face]);
     }
     setActiveCamera(oldCamera);
     m_osWindowHDRFramebuffer->resize(oldFramebufferWidth, oldFramebufferHeight);
