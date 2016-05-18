@@ -1,5 +1,6 @@
 #ifndef utilities_glsl
 #define utilities_glsl
+#include <g3dmath.glsl>
 
 float packSnorm8Float(float f) {
     return round(clamp(f + 1.0, 0.0, 2.0) * float(127));
