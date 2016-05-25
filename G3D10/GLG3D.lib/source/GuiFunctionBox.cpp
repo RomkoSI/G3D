@@ -345,8 +345,6 @@ void GuiFunctionBox::drawControlPoints(RenderDevice* rd, const shared_ptr<GuiThe
 		slowMesh.render(rd);
     }
 
-	rd->setPointSize(size);
-
     SlowMesh mesh(PrimitiveType::POINTS);
     mesh.setPointSize(size);
 	mesh.setColor(m_controlColor);	

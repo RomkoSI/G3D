@@ -31,8 +31,8 @@
 namespace G3D {
 
 void Draw::points(const Array<Point3>& point, RenderDevice* rd, const Array<Color3>& colors, float pixelRadius) {
-	rd->setPointSize(pixelRadius * 2.0f);
 	SlowMesh mesh(PrimitiveType::POINTS);
+    mesh.setPointSize(pixelRadius * 2.0f);
 	mesh.reserveSpace(point.size());
 	for (int i = 0; i < point.size(); ++i) {
 		mesh.setColor(colors[i]);
@@ -42,8 +42,8 @@ void Draw::points(const Array<Point3>& point, RenderDevice* rd, const Array<Colo
 }
 
 void Draw::points(const Array<Point3>& point, RenderDevice* rd, const Color4& color, float pixelRadius) {
-	rd->setPointSize(pixelRadius * 2.0f);
 	SlowMesh mesh(PrimitiveType::POINTS);
+    mesh.setPointSize(pixelRadius * 2.0f);
 	mesh.setColor(color);
 	for (int i = 0; i < point.size(); ++i) {
 		mesh.makeVertex(point[i]);

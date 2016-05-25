@@ -127,9 +127,9 @@ namespace G3D {
             args.setAttributeArray("g3d_TexCoord0", texCoord0);
             args.setAttributeArray("g3d_Color", vertexColors);
 
-            if (m_primitiveType == PrimitiveType::POINTS) { glEnable(GL_PROGRAM_POINT_SIZE); }
+            if (m_primitiveType == PrimitiveType::POINTS) { glEnable(GL_POINT_SPRITE); glEnable(GL_PROGRAM_POINT_SIZE); }
             LAUNCH_SHADER("SlowMesh_render.*", args);
-            if (m_primitiveType == PrimitiveType::POINTS) { glDisable(GL_PROGRAM_POINT_SIZE); }
+            if (m_primitiveType == PrimitiveType::POINTS) { glDisable(GL_PROGRAM_POINT_SIZE); glDisable(GL_POINT_SPRITE); }
 
         }
     }
