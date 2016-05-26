@@ -397,14 +397,6 @@ def libTarget():
         copyIfNewer('openvr/win64/lib/*', 'build/lib/')
         copyIfNewer('openvr/win64/bin/*', 'build/bin/')
 
-        # (G3D doesn't currently use OVR directly)
-		# Oculus libraries use precompiled binaries currently,
-		# so just copy them directly. They are only built on Windows
-        # copyIfNewer('LibOVR.lib/include/*', 'build/include/')
-        # copyIfNewer('LibOVR.lib/lib64/*', 'build/lib/')
-        # copyIfNewer('LibOVRKernel.lib/include/*', 'build/include/')
-        # copyIfNewer('LibOVRKernel.lib/lib64/*', 'build/lib/')
-
         x = VisualStudio('VisualStudio/G3D.sln', ['External Libraries\\freeimage.lib', 'External Libraries\\zlib.lib', 'External Libraries\\zip.lib', 'External Libraries\\civetweb.lib', 'External Libraries\\qrencode.lib', 'G3D.lib', 'GLG3D.lib', 'GLG3DVR.lib', 'External Libraries\\enet.lib', 'External Libraries\\glfw.lib', 'External Libraries\\glew.lib']);
 
     else:
