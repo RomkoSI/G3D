@@ -168,17 +168,16 @@ static void toMaterialSpecification(
 
     /** Lambertian */
     const String& diffuseFilename = getTextureFilename(aiTextureType_DIFFUSE, mat, basePath);
-    aiColor3D aiDiffuse;
-    mat->Get(AI_MATKEY_COLOR_DIFFUSE, aiDiffuse);
+    aiColor3D aiDiffuse = { 1.0f, 1.0f, 1.0f };
+    aiReturn ret = mat->Get(AI_MATKEY_COLOR_DIFFUSE, aiDiffuse);
     Color3 diffuseColor(aiDiffuse.r, aiDiffuse.g, aiDiffuse.b);
     if (diffuseFilename != "") {
-        aiTextureOp operation;
-        mat->Get(_AI_MATKEY_TEXOP_BASE, aiTextureType_DIFFUSE, 0, operation);
+        aiTextureOp operation = (aiTextureOp)-1;
+        ret = mat->Get(_AI_MATKEY_TEXOP_BASE, aiTextureType_DIFFUSE, 0, operation);
         // Necessary because ASSIMP doesn't necessarily return a valid enum value,
         // enums might be signed or unsigned, and we need to check for validity
-        int operationInt = (int)operation; 
         int textureCount = mat->GetTextureCount(aiTextureType_DIFFUSE);
-        if ((textureCount == 1) || ((operationInt > 5) || (operationInt < 0))) {
+        if ((textureCount == 1) || (ret != AI_SUCCESS || (unsigned int)operation > 5)) {
             Texture::Specification t(diffuseFilename, true);
             t.encoding.readMultiplyFirst = diffuseColor;
             spec.setLambertian(t);
@@ -196,16 +195,18 @@ static void toMaterialSpecification(
 
     // Emissive
     const String& emissiveFilename = getTextureFilename(aiTextureType_EMISSIVE, mat, basePath);
-    aiColor3D aiEmissive;
-    mat->Get(AI_MATKEY_COLOR_EMISSIVE, aiEmissive);
+    aiColor3D aiEmissive = { 0.0f, 0.0f, 0.0f };
+    ret = mat->Get(AI_MATKEY_COLOR_EMISSIVE, aiEmissive);
+    bool have_emissive = (ret == AI_SUCCESS);
     Color3 emissiveColor(aiEmissive.r, aiEmissive.g, aiEmissive.b);
     if (! emissiveFilename.empty()) {
-        aiTextureOp operation;
-        mat->Get(_AI_MATKEY_TEXOP_BASE, aiTextureType_EMISSIVE, 0, operation);
+        aiTextureOp operation = (aiTextureOp)-1;
+        ret = mat->Get(_AI_MATKEY_TEXOP_BASE, aiTextureType_EMISSIVE, 0, operation);
         int textureCount = mat->GetTextureCount(aiTextureType_EMISSIVE);
-        if ((textureCount == 1) && (operation > 5)) {
+        if ((textureCount == 1) || (ret != AI_SUCCESS || (unsigned int)operation > 5)) {
             Texture::Specification s(emissiveFilename, true);
-            s.encoding.readMultiplyFirst = emissiveColor;
+            //if (have_emissive) // BUG: some fbx have black emissive color with good emissive texture
+            //    s.encoding.readMultiplyFirst = emissiveColor;
             spec.setEmissive(s);
         } else {
             spec.setEmissive(getCombinedTexture(emissiveColor, 
@@ -221,16 +222,16 @@ static void toMaterialSpecification(
 
 
     //only works for models that have set the same form of specular as g3d
-    aiShadingMode shademode;
-    mat->Get(AI_MATKEY_SHADING_MODEL, shademode);      
+    aiShadingMode shademode = (aiShadingMode)-1;
+    ret = mat->Get(AI_MATKEY_SHADING_MODEL, shademode);
     float exponentGlossy = 0;
-    mat->Get(AI_MATKEY_SHININESS, exponentGlossy);    
+    ret = mat->Get(AI_MATKEY_SHININESS, exponentGlossy);
     if ((shademode == aiShadingMode_Blinn) || (shademode == aiShadingMode_Phong) || (exponentGlossy != 0)) {
         /** glossy */        
         float scaleGlossy = 1;
-        mat->Get(AI_MATKEY_SHININESS_STRENGTH, scaleGlossy);
+        ret = mat->Get(AI_MATKEY_SHININESS_STRENGTH, scaleGlossy);
         aiColor3D aiSpecular;
-        mat->Get(AI_MATKEY_COLOR_SPECULAR, aiSpecular);
+        ret = mat->Get(AI_MATKEY_COLOR_SPECULAR, aiSpecular);
         
         const String& glossyFilename = getTextureFilename(aiTextureType_SPECULAR, mat, basePath);
         const String& shininessFilename = getTextureFilename(aiTextureType_SHININESS, mat, basePath);
@@ -262,17 +263,21 @@ static void toMaterialSpecification(
 
     // Transmissive
     const String& transmissiveFilename = getTextureFilename(aiTextureType_OPACITY, mat, basePath);
-    aiColor3D aiTransparent;
-    float     opacity;
-    mat->Get(AI_MATKEY_OPACITY, opacity);
-    mat->Get(AI_MATKEY_COLOR_TRANSPARENT, aiTransparent);
+    aiColor3D aiTransparent = { 0.0f, 0.0f, 0.0f };
+    float     opacity = 1.0f;
+    ret = mat->Get(AI_MATKEY_OPACITY, opacity);
+    aiReturn ret2 = mat->Get(AI_MATKEY_COLOR_TRANSPARENT, aiTransparent);
     transmissiveColor = Color3(aiTransparent.r, aiTransparent.g, aiTransparent.b) * opacity;
+    bool have_transmissive = (ret == AI_SUCCESS) || (ret2 == AI_SUCCESS);
     if (! transmissiveFilename.empty()) {
-        aiTextureOp operation;
-        mat->Get(_AI_MATKEY_TEXOP_BASE, aiTextureType_OPACITY, 0, operation);
+        aiTextureOp operation = (aiTextureOp)-1;
+        ret = mat->Get(_AI_MATKEY_TEXOP_BASE, aiTextureType_OPACITY, 0, operation);
         int textureCount = mat->GetTextureCount(aiTextureType_OPACITY);
-        if ((textureCount == 1) && (operation > 5)) {
-            //spec.setTransmissive(transmissiveFilename, transmissiveColor);
+        if ((textureCount == 1) || (ret != AI_SUCCESS || (unsigned int)operation > 5)) {
+            Texture::Specification t(diffuseFilename, true);
+            if (have_transmissive)
+                t.encoding.readMultiplyFirst = transmissiveColor;
+            spec.setTransmissive(t);
         } else {
             spec.setTransmissive(getCombinedTexture(transmissiveColor, 
                                                     transmissiveFilename, 
@@ -325,6 +330,15 @@ class AssimpNodesToArticulatedModelParts {
                 geom->cpuVertexArray.hasTexCoord1 = mesh->HasTextureCoords(1);
                 geom->cpuVertexArray.hasTangent = mesh->HasTangentsAndBitangents();
                 geom->cpuVertexArray.hasVertexColors = mesh->HasVertexColors(0);
+                if (geom->cpuVertexArray.hasVertexColors)
+                {   // detect if we really need vertex array (fixes some fbx files, bug im vertexColors processing?)
+                    unsigned int v;
+                    for (v = 0; v < mesh->mNumVertices; ++v) {
+                        if (mesh->mColors[0][v].r != 1.0 || mesh->mColors[0][v].g != 1.0 || mesh->mColors[0][v].b != 1.0 || mesh->mColors[0][v].a != 1.0)
+                            break;
+                    }
+                    geom->cpuVertexArray.hasVertexColors = (v != mesh->mNumVertices);
+                }
 
                 if (geom->cpuVertexArray.hasTexCoord1) {
                     geom->cpuVertexArray.texCoord1.resize(vertex.size());
@@ -355,10 +369,10 @@ class AssimpNodesToArticulatedModelParts {
                     if (mesh->HasTextureCoords(0)) {
                         getVector2(vtx.texCoord0, mesh->mTextureCoords[0][v]);
                     }
-                    if (mesh->HasTextureCoords(1)) {
+                    if (geom->cpuVertexArray.hasTexCoord1) {
                         getPoint2unorm16(geom->cpuVertexArray.texCoord1[v + indexOffset], mesh->mTextureCoords[1][v]);
                     }
-                    if (mesh->HasVertexColors(0)) {
+                    if (geom->cpuVertexArray.hasVertexColors) {
                         getColor4(geom->cpuVertexArray.vertexColors[v + indexOffset], mesh->mColors[0][v]);
                     }
                 }
@@ -419,7 +433,7 @@ class AssimpNodesToArticulatedModelParts {
                         g3dMesh->cpuIndexArray[i*3 + j] = mesh->mFaces[i].mIndices[j] + indexOffset;
                     }
                 }
-                g3dMesh->twoSided = false;
+                g3dMesh->twoSided = true;
                 g3dMesh->primitive = PrimitiveType::TRIANGLES;
                 if ( materials.size() > 0 ) {
                     g3dMesh->material = materials[mesh->mMaterialIndex];
@@ -478,7 +492,6 @@ public:
             
         }
 
-        
         if ( boneTable.size() > 0 ) {
             articulatedModel->m_boneArray.resize(boneTable.size());
             for ( Table<String, int>::Iterator it = boneTable.begin();
@@ -533,7 +546,7 @@ public:
                 articulatedModel->m_boneArray[i]->inverseBindPoseTransform = inverseBindPoseTransforms[i];
             }
         }
-        
+
         for (int i = 0; i < animationCount; ++i) {
             const aiAnimation* aiAnim = assimpAnimations[i];
             ArticulatedModel::Animation& animation = articulatedModel->m_animationTable.getCreate(aiAnim->mName.C_Str());
@@ -571,6 +584,8 @@ public:
                 // Get position spline
                 for (unsigned int i = 0; i < aiChannel->mNumPositionKeys; ++i) {
                     getPoint3(currentPhysicsFrame.translation, aiChannel->mPositionKeys[i].mValue);
+                    if (positionSpline.time.size() && !fuzzyGt(aiChannel->mPositionKeys[i].mTime, positionSpline.time.last()))
+                        continue; // in some fbx files double to float convestion makes next key time same
                     positionSpline.append(float(aiChannel->mPositionKeys[i].mTime), currentPhysicsFrame);
                 }
                 positionSpline.finalInterval = float(positionSpline.time.first() + (animation.duration - positionSpline.time.last()));
@@ -589,6 +604,8 @@ public:
                             currentPhysicsFrame.rotation /= currentPhysicsFrame.rotation.magnitude();
                         }
                     }
+                    if (rotationSpline.time.size() && !fuzzyGt(aiChannel->mRotationKeys[i].mTime, rotationSpline.time.last()))
+                        continue; // in some fbx files double to float convestion makes next key time same
                     rotationSpline.append(float(aiChannel->mRotationKeys[i].mTime), currentPhysicsFrame);
                 }
                 rotationSpline.finalInterval = float(rotationSpline.time.first() + (animation.duration - rotationSpline.time.last()));
