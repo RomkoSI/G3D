@@ -4,9 +4,9 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2002-11-02
- \edited  2014-07-25
+ \edited  2016-06-25
 
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 
@@ -113,8 +113,8 @@ shared_ptr<GFont> GFont::fromMemory(const String& name, const uint8* bytes, cons
 
 GFont::GFont(const String& filename, BinaryInput& b) {    
 
-    int ver = b.readInt32();
-    debugAssertM(ver == 1 || ver == 2, "Can't read font files other than version 1");
+    const int ver = b.readInt32();
+    debugAssertM((ver == 1) || (ver == 2), "Can't read font files other than version 1");
     (void)ver;
 
     if (ver == 1) {
@@ -135,8 +135,8 @@ GFont::GFont(const String& filename, BinaryInput& b) {
     charHeight = texWidth / 16;
 
     // The input may not be a power of 2
-    int width  = ceilPow2(unsigned(charWidth * 16));
-    int height = ceilPow2(unsigned(charHeight * (charsetSize / 16)));
+    const int width  = ceilPow2(unsigned(charWidth * 16));
+    const int height = ceilPow2(unsigned(charHeight * (charsetSize / 16)));
   
     // Create a texture
     const uint8* ptr = ((uint8*)b.getCArray()) + b.getPosition();
@@ -150,7 +150,7 @@ GFont::GFont(const String& filename, BinaryInput& b) {
     
     m_texture = 
         Texture::fromMemory
-        (   filename, 
+        (   "G3D::GFont " + filename, 
             ptr,
             ImageFormat::R8(),
             width, 
