@@ -234,6 +234,10 @@ public:
         return m_selectedEntity;
     }
 
+    const shared_ptr<ThirdPersonManipulator>& manipulator() const {
+        return m_manipulator;
+    }
+
     void setShowLightSources(bool showLightSources) {
         m_showLightSources = showLightSources;
     }
