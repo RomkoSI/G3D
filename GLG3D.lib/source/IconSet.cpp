@@ -22,43 +22,47 @@
 
 namespace G3D {
 
-static WeakCache<String, shared_ptr<IconSet> > cache;
+// We make this a strong instead of weak cache because it is rare to need more than a single icon set
+// and they are small in memory anyway.
+static Table<String, shared_ptr<IconSet> > cache;
 
 shared_ptr<IconSet> IconSet::fromFile(const String& filename) {
-    shared_ptr<IconSet> set = cache[filename];
-    if (notNull(set)) {
-        return set;
+    const String& cleanFilename = FileSystem::resolve(FilePath::canonicalize(filename));
+
+    shared_ptr<IconSet>* ptr = cache.getPointer(cleanFilename);
+    shared_ptr<IconSet> set = notNull(ptr) ? *ptr : nullptr;
+
+    if (isNull(set)) {
+        BinaryInput b(cleanFilename, G3D_LITTLE_ENDIAN);
+    
+        const String& header = b.readString();
+        alwaysAssertM(header == "ICON", "Corrupt icon file");
+    
+        const float version = b.readFloat32();
+        alwaysAssertM(version == 1.0f, "Unsupported icon file version");
+
+        set = shared_ptr<IconSet>(new IconSet());
+
+        set->m_icon.resize(b.readInt32());
+        for (int i = 0; i < set->m_icon.size(); ++i) {
+            Entry& e = set->m_icon[i];
+            e.filename = b.readString32();
+            float x, y, w, h;
+            x = b.readFloat32();
+            y = b.readFloat32();
+            w = b.readFloat32();
+            h = b.readFloat32();
+            e.rect = Rect2D::xywh(x, y, w, h);
+            set->m_index.set(e.filename, i);
+        }
+
+        const shared_ptr<Image>& image = Image::fromBinaryInput(b);
+        const bool generateMipMaps = true;
+        set->m_texture = Texture::fromPixelTransferBuffer(cleanFilename, image->toPixelTransferBuffer(), ImageFormat::AUTO(), Texture::DIM_2D, generateMipMaps);
+        cache.set(cleanFilename, set);
     }
 
-    BinaryInput b(filename, G3D_LITTLE_ENDIAN);
-    
-    const String& header = b.readString();
-    alwaysAssertM(header == "ICON", "Corrupt icon file");
-    
-    const float version = b.readFloat32();
-    alwaysAssertM(version == 1.0f, "Unsupported icon file version");
-
-    shared_ptr<IconSet> s(new IconSet());
-
-    s->m_icon.resize(b.readInt32());
-    for (int i = 0; i < s->m_icon.size(); ++i) {
-        Entry& e = s->m_icon[i];
-        e.filename = b.readString32();
-        float x, y, w, h;
-        x = b.readFloat32();
-        y = b.readFloat32();
-        w = b.readFloat32();
-        h = b.readFloat32();
-        e.rect = Rect2D::xywh(x, y, w, h);
-        s->m_index.set(e.filename, i);
-    }
-
-    shared_ptr<Image> image = Image::fromBinaryInput(b);
-    bool generateMipMaps = true;
-    s->m_texture = Texture::fromPixelTransferBuffer(filename, image->toPixelTransferBuffer(), ImageFormat::AUTO(), Texture::DIM_2D, generateMipMaps);
-
-    cache.set(filename, s);
-    return s;
+    return set;
 }
 
 
