@@ -158,12 +158,15 @@ void Shader::ShaderProgram::link() {
 
     GLint maxLength = 0, length = 0;
     glGetProgramiv(glProgramObject, GL_INFO_LOG_LENGTH, &maxLength);
-    GLchar* pInfoLog = (GLchar *)malloc(maxLength * sizeof(GLcharARB));
+    GLchar* pInfoLog = (GLchar *)malloc((maxLength + 1) * sizeof(GLcharARB));
     glGetProgramInfoLog(glProgramObject, maxLength, &length, pInfoLog);
     debugAssertGLOk();
 
     messages += String(pInfoLog);
     ok = ok && (linked == GL_TRUE);
+
+    free(pInfoLog);
+    pInfoLog = nullptr;
 }
 
 

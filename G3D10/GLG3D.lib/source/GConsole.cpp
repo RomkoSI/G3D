@@ -62,7 +62,8 @@ GConsole::GConsole(const shared_ptr<GFont>& f, const Settings& s, Callback callb
     m_rect(Rect2D::xywh(-finf(), -(float)inf(), (float)inf(), (float)inf())),
     m_bufferShift(0),
     m_inCompletion(false),
-    m_cursorPos(0) {
+    m_cursorPos(0),
+    m_active(false) {
 
     debugAssert(m_font);
 

@@ -162,13 +162,14 @@ Array<String> Scene::sceneNames() {
 }
 
 
-Scene::Scene(const shared_ptr<AmbientOcclusion>& ambientOcclusion) : 
+Scene::Scene(const shared_ptr<AmbientOcclusion>& ambientOcclusion) :
     m_time(0),
     m_lastStructuralChangeTime(0),
     m_lastVisibleChangeTime(0),
     m_lastLightChangeTime(0),
     m_editing(false),
-    m_lastEditingTime(0) {
+    m_lastEditingTime(0),
+    m_needEntitySort(false) {
 
     m_localLightingEnvironment.ambientOcclusion = ambientOcclusion;
     registerEntitySubclass("VisibleEntity",  &VisibleEntity::create);

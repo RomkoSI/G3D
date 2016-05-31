@@ -1500,18 +1500,18 @@ return( lhs < rhs? true : false );
     /** Ensures that future append() calls can grow up to size \a n without allocating memory.*/
     void reserve(int n) {
         debugAssert(n >= size());
-        if (n > numAllocated) {
+        if (size_t(n) > numAllocated) {
             const int oldSize = size();
             resize(n, false);
             resize(oldSize, false);
         }
     }
 
-	/** Number of bytes used by the array object and the memory allocated for it's data pointer. Does *not*
-	  * include the memory of objects pointed to by objects in the data array */
-	size_t sizeInMemory() const {
-		return sizeof(Array<T>) + (sizeof(T) * numAllocated);
-	}
+    /** Number of bytes used by the array object and the memory allocated for it's data pointer. Does *not*
+        include the memory of objects pointed to by objects in the data array */
+    size_t sizeInMemory() const {
+        return sizeof(Array<T>) + (sizeof(T) * numAllocated);
+    }
 
     /** Remove all NULL elements in linear time without affecting order of the other elements. */
     void removeNulls() {

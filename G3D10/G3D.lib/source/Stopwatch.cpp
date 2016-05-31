@@ -19,7 +19,7 @@ Stopwatch::Stopwatch(const String& myName) :
     myName(myName), 
     inBetween(false), lastTockTime(-1), 
     lastDuration(0), lastCycleCount(0), m_fps(0), emwaFPS(0),
-    m_smoothFPS(0), emwaDuration(0) {
+    m_smoothFPS(0), emwaDuration(0), m_enabled(false) {
     computeOverhead();
     reset();
 }
