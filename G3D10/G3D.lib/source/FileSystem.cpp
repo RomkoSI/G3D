@@ -284,16 +284,16 @@ bool FileSystem::_inZipfile(const String& _path, String& z) {
 
 
 bool FileSystem::_isZipfile(const String& _filename) {
+
     const String& filename = FilePath::canonicalize(FilePath::expandEnvironmentVariables(_filename));
-
-
     
     FILE* f = fopen(FilePath::removeTrailingSlash(filename).c_str(), "r");
-    if (f == NULL) {
+    if (f == nullptr) {
         return false;
     }
+
     uint8 header[4];
-    if (fread(header, 4, 1, f) != 4) {
+    if (fread(header, 1, 4, f) != 4) {
         fclose(f);
         return false;
     }
