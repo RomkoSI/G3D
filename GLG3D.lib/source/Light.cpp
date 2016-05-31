@@ -62,7 +62,7 @@ void Light::init(const String& name, AnyTableReader& propertyTable){
     float f;
     bool hasShadowMapBias = propertyTable.getIfPresent("shadowMapBias", f);
     if (m_castsShadows && (min(shadowMapSize.x, shadowMapSize.y) > 0)) {
-        m_shadowMap = ShadowMap::create(name + " Shadow Map", shadowMapSize, m_stochasticShadows, m_varianceShadowSettings);
+        m_shadowMap = ShadowMap::create("G3D::ShadowMap for " + name, shadowMapSize, m_stochasticShadows, m_varianceShadowSettings);
         if (hasShadowMapBias) {
             m_shadowMap->setBias(f);
         }
