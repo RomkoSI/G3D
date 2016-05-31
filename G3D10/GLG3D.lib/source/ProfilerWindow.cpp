@@ -83,7 +83,7 @@ bool ProfilerWindow::ProfilerTreeDisplay::onEvent(const GEvent & event) {
 
 ProfilerWindow::ProfilerTreeDisplay::ProfilerTreeDisplay(GuiWindow* w) : GuiControl(w) {
     m_icon = GFont::fromFile(System::findDataFile("icon.fnt"));
-    shared_ptr<IconSet> iconSet = IconSet::fromFile(System::findDataFile("icon/tango.icn"));
+    const shared_ptr<IconSet>& iconSet = IconSet::fromFile(System::findDataFile("icon/tango.icn"));
     collapsedIfIncluded = true;
     m_collapsed.clear();
     m_selected = -1;
