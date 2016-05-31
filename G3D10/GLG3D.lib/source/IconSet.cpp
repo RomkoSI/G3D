@@ -58,7 +58,7 @@ shared_ptr<IconSet> IconSet::fromFile(const String& filename) {
 
         const shared_ptr<Image>& image = Image::fromBinaryInput(b);
         const bool generateMipMaps = true;
-        set->m_texture = Texture::fromPixelTransferBuffer(cleanFilename, image->toPixelTransferBuffer(), ImageFormat::AUTO(), Texture::DIM_2D, generateMipMaps);
+        set->m_texture = Texture::fromPixelTransferBuffer("G3D::IconSet " + cleanFilename, image->toPixelTransferBuffer(), ImageFormat::AUTO(), Texture::DIM_2D, generateMipMaps);
         cache.set(cleanFilename, set);
     }
 

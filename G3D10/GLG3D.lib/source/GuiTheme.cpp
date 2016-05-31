@@ -3,10 +3,10 @@
  \author Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2008-01-01
- \edited  2013-08-18
+ \edited  2016-05-31
 
  G3D Library http://g3d.cs.williams.edu
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 
 */
@@ -128,7 +128,7 @@ void GuiTheme::loadTheme(BinaryInput& b) {
     
     // Load theme texture
     bool generateMipMaps = false;
-    m_texture = Texture::fromPixelTransferBuffer(b.getFilename(), image->toPixelTransferBuffer(), ImageFormat::RGBA8(), Texture::DIM_2D, generateMipMaps, p);
+    m_texture = Texture::fromPixelTransferBuffer(String("G3D::GuiTheme ") + b.getFilename(), image->toPixelTransferBuffer(), ImageFormat::RGBA8(), Texture::DIM_2D, generateMipMaps, p);
     glBindTexture(m_texture->openGLTextureTarget(), m_texture->openGLID()); {
         glTexParameteri(m_texture->openGLTextureTarget(), GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
         glTexParameteri(m_texture->openGLTextureTarget(), GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
