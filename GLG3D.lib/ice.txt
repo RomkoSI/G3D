@@ -92,7 +92,7 @@
 
 compiler: %(defaultcompiler)s
 
-include: %(defaultinclude)s;../temp/ffmpeg/native/install/include
+include: %(defaultinclude)s;../temp/ffmpeg/native/install/include;../assimp.lib/include
 
 library: %(defaultlibrary)s
 
