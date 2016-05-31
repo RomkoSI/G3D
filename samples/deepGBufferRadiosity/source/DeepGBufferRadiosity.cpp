@@ -1,8 +1,8 @@
 /**
- \file DeepGBufferRadiosity.cpp
- \author Michael Mara, NVIDIA, http://research.nvidia.com
+   \file DeepGBufferRadiosity.cpp
+   \author Michael Mara, NVIDIA, http://research.nvidia.com
 
- */
+*/
 #include "DeepGBufferRadiosity.h"
 
 /** Floating point bits per pixel for CSZ: 16 or 32. */
@@ -17,17 +17,17 @@
 
 static const ImageFormat* cszBufferImageFormat(bool twoChannelFormat) {
     return twoChannelFormat ? 
-                ((ZBITS == 16) ? ImageFormat::RG16F() : ImageFormat::RG32F()) :
-                // R16F is too low-precision, but we provide it as a fallback
-                (ZBITS == 16) ? 
+        ((ZBITS == 16) ? ImageFormat::RG16F() : ImageFormat::RG32F()) :
+        // R16F is too low-precision, but we provide it as a fallback
+        (ZBITS == 16) ? 
 
-                    (GLCaps::supportsTextureDrawBuffer(ImageFormat::R16F()) ? ImageFormat::R16F() : ImageFormat::L16F()) :
+        (GLCaps::supportsTextureDrawBuffer(ImageFormat::R16F()) ? ImageFormat::R16F() : ImageFormat::L16F()) :
 
-                    (GLCaps::supportsTextureDrawBuffer(ImageFormat::R32F()) ? 
-                        ImageFormat::R32F() : 
-                        (GLCaps::supportsTextureDrawBuffer(ImageFormat::L32F()) ? 
-                            ImageFormat::L32F() :
-                            ImageFormat::RG32F()));
+        (GLCaps::supportsTextureDrawBuffer(ImageFormat::R32F()) ? 
+         ImageFormat::R32F() : 
+         (GLCaps::supportsTextureDrawBuffer(ImageFormat::L32F()) ? 
+          ImageFormat::L32F() :
+          ImageFormat::RG32F()));
 }
 
 
@@ -68,8 +68,8 @@ void DeepGBufferRadiosity::MipMappedBuffers::initializeTextures(int width, int h
 
 
 void DeepGBufferRadiosity::MipMappedBuffers::prepare(const shared_ptr<Texture>& depthTexture, const shared_ptr<Texture>& frontColorLayer, const shared_ptr<Texture>& frontNormalLayer,
-                                               const shared_ptr<Texture>& peeledDepthTexture, const shared_ptr<Texture>& peeledColorLayer, 
-                                               const shared_ptr<Texture>& peeledNormalLayer, bool useOct16Normals, bool useHalfPrecisionColors) {
+                                                     const shared_ptr<Texture>& peeledDepthTexture, const shared_ptr<Texture>& peeledColorLayer, 
+                                                     const shared_ptr<Texture>& peeledNormalLayer, bool useOct16Normals, bool useHalfPrecisionColors) {
     debugAssert(depthTexture->rect2DBounds() == frontColorLayer->rect2DBounds());
     bool rebind = false;
     const int width = depthTexture->width();
@@ -132,7 +132,7 @@ void DeepGBufferRadiosity::MipMappedBuffers::prepare(const shared_ptr<Texture>& 
 }
 
 void DeepGBufferRadiosity::MipMappedBuffers::computeFullRes(RenderDevice* rd, const shared_ptr<Texture>& depthTexture, const shared_ptr<Texture>& frontColorLayer, const shared_ptr<Texture>& frontNormalLayer,
-                const shared_ptr<Texture>& peeledDepthTexture, const shared_ptr<Texture>& peeledColorLayer,   const shared_ptr<Texture>& peeledNormalLayer, const Vector3& clipInfo, bool useOct16Normals) {
+                                                            const shared_ptr<Texture>& peeledDepthTexture, const shared_ptr<Texture>& peeledColorLayer,   const shared_ptr<Texture>& peeledNormalLayer, const Vector3& clipInfo, bool useOct16Normals) {
     rd->push2D(m_framebuffers[0]); {
         Args args;
         args.setUniform("clipInfo",                 clipInfo);
@@ -176,8 +176,8 @@ void DeepGBufferRadiosity::MipMappedBuffers::computeMipMaps(RenderDevice* rd, bo
 }
 
 void DeepGBufferRadiosity::MipMappedBuffers::compute(RenderDevice* rd, const shared_ptr<Texture>& depthTexture, const shared_ptr<Texture>& frontColorLayer, const shared_ptr<Texture>& frontNormalLayer,
-                                               const shared_ptr<Texture>& peeledDepthTexture, const shared_ptr<Texture>& peeledColorLayer,  const shared_ptr<Texture>& peeledNormalLayer,
-                                               const Vector3& clipInfo, bool useOct16Normals, bool useHalfPrecisionColors) {
+                                                     const shared_ptr<Texture>& peeledDepthTexture, const shared_ptr<Texture>& peeledColorLayer,  const shared_ptr<Texture>& peeledNormalLayer,
+                                                     const Vector3& clipInfo, bool useOct16Normals, bool useHalfPrecisionColors) {
     prepare(depthTexture, frontColorLayer, frontNormalLayer, peeledDepthTexture, peeledColorLayer, peeledNormalLayer, useOct16Normals, useHalfPrecisionColors);
     computeFullRes(rd, depthTexture, frontColorLayer, frontNormalLayer, peeledDepthTexture, peeledColorLayer, peeledNormalLayer, clipInfo, useOct16Normals);
     computeMipMaps(rd, m_hasPeeledLayer, useOct16Normals);
@@ -203,12 +203,12 @@ static bool willComputePeeledLayer(const DeepGBufferRadiositySettings& settings)
 
 
 static void computeNextBounceBuffer
-    (RenderDevice*                  rd, 
-    const shared_ptr<Framebuffer>&  fb, 
-    const shared_ptr<Texture>&      lambertianBuffer, 
-    const shared_ptr<Texture>&      directBuffer,
-    const shared_ptr<Texture>&      ssiiResult, 
-    const DeepGBufferRadiositySettings&      settings) {
+(RenderDevice*                  rd, 
+ const shared_ptr<Framebuffer>&  fb, 
+ const shared_ptr<Texture>&      lambertianBuffer, 
+ const shared_ptr<Texture>&      directBuffer,
+ const shared_ptr<Texture>&      ssiiResult, 
+ const DeepGBufferRadiositySettings&      settings) {
 
     rd->push2D(fb); {
         Args args;
@@ -241,21 +241,21 @@ shared_ptr<Texture> DeepGBufferRadiosity::getActualResultTexture(const DeepGBuff
 
 
 void DeepGBufferRadiosity::update
-   (RenderDevice*                       rd,         
-    const DeepGBufferRadiositySettings&          settings, 
-    const shared_ptr<Camera>&           camera,               
-    const shared_ptr<Texture>&          depthTexture,
-    const shared_ptr<Texture>&          previousBounceBuffer, 
-    const shared_ptr<Texture>&          peeledDepthBuffer,   
-    const shared_ptr<Texture>&          peeledColorBuffer,  
-    const shared_ptr<Texture>&          normalBuffer,
-    const shared_ptr<Texture>&          peeledNormalBuffer,
-    const shared_ptr<Texture>&          lambertianBuffer,
-    const shared_ptr<Texture>&          peeledLambertianBuffer,
-    const Vector2int16                  inputGuardBandSizev,
-    const Vector2int16                  outputGuardBandSizev,
-    const shared_ptr<GBuffer>&          gbuffer,
-    const shared_ptr<Scene>&            scene) {
+(RenderDevice*                       rd,         
+ const DeepGBufferRadiositySettings&          settings, 
+ const shared_ptr<Camera>&           camera,               
+ const shared_ptr<Texture>&          depthTexture,
+ const shared_ptr<Texture>&          previousBounceBuffer, 
+ const shared_ptr<Texture>&          peeledDepthBuffer,   
+ const shared_ptr<Texture>&          peeledColorBuffer,  
+ const shared_ptr<Texture>&          normalBuffer,
+ const shared_ptr<Texture>&          peeledNormalBuffer,
+ const shared_ptr<Texture>&          lambertianBuffer,
+ const shared_ptr<Texture>&          peeledLambertianBuffer,
+ const Vector2int16                  inputGuardBandSizev,
+ const Vector2int16                  outputGuardBandSizev,
+ const shared_ptr<GBuffer>&          gbuffer,
+ const shared_ptr<Scene>&            scene) {
     alwaysAssertM(settings.numBounces >= 0, "Can't have negative bounces of light!");
     alwaysAssertM(inputGuardBandSizev.x == inputGuardBandSizev.y, "Guard band must be the same size in each dimension");
     alwaysAssertM(outputGuardBandSizev.x == outputGuardBandSizev.y, "Guard band must be the same size in each dimension");
@@ -316,15 +316,15 @@ void DeepGBufferRadiosity::update
 
 
 void DeepGBufferRadiosity::update
-   (RenderDevice*                   rd,
-    const DeepGBufferRadiositySettings&      settings, 
-    const shared_ptr<GBuffer>&      gBuffer,
-    const shared_ptr<Texture>&      previousBounceBuffer,
-    const shared_ptr<GBuffer>&      peeledGBuffer,
-    const shared_ptr<Texture>&      peeledPreviousBounceBuffer,
-    const Vector2int16              inputGuardBandSize,
-    const Vector2int16              outputGuardBandSize,
-    const shared_ptr<Scene>         scene) {
+(RenderDevice*                   rd,
+ const DeepGBufferRadiositySettings&      settings, 
+ const shared_ptr<GBuffer>&      gBuffer,
+ const shared_ptr<Texture>&      previousBounceBuffer,
+ const shared_ptr<GBuffer>&      peeledGBuffer,
+ const shared_ptr<Texture>&      peeledPreviousBounceBuffer,
+ const Vector2int16              inputGuardBandSize,
+ const Vector2int16              outputGuardBandSize,
+ const shared_ptr<Scene>         scene) {
 
     const shared_ptr<Texture>&  depthTexture            = gBuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL);
     const shared_ptr<Texture>&  peeledDepthBuffer       = notNull(peeledGBuffer) ? peeledGBuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL) : shared_ptr<Texture>();
@@ -333,7 +333,7 @@ void DeepGBufferRadiosity::update
     const shared_ptr<Texture>&  lambertianBuffer        = gBuffer->texture(GBuffer::Field::LAMBERTIAN);
     const shared_ptr<Texture>&  peeledLambertianBuffer  = notNull(peeledGBuffer) ? peeledGBuffer->texture(GBuffer::Field::LAMBERTIAN) : shared_ptr<Texture>();
     update(rd, settings, gBuffer->camera(), depthTexture, previousBounceBuffer, peeledDepthBuffer, 
-        peeledPreviousBounceBuffer, normalBuffer, peeledNormalBuffer, lambertianBuffer, peeledLambertianBuffer, inputGuardBandSize, outputGuardBandSize, gBuffer, scene);
+           peeledPreviousBounceBuffer, normalBuffer, peeledNormalBuffer, lambertianBuffer, peeledLambertianBuffer, inputGuardBandSize, outputGuardBandSize, gBuffer, scene);
 }
 
 
@@ -343,21 +343,21 @@ shared_ptr<DeepGBufferRadiosity> DeepGBufferRadiosity::create() {
 
 
 void DeepGBufferRadiosity::compute
-   (RenderDevice*                   rd,
-    const DeepGBufferRadiositySettings&      settings,
-    const shared_ptr<Texture>&      depthBuffer, 
-    const shared_ptr<Texture>&      colorBuffer,
-    const Vector3&                  clipConstant,
-    const Vector4&                  projConstant,
-    float                           projScale,
-    const Matrix4&                  projectionMatrix,
-    const shared_ptr<Texture>&      peeledDepthBuffer,
-    const shared_ptr<Texture>&      peeledColorBuffer,
-    const shared_ptr<Texture>&      normalBuffer,
-    const shared_ptr<Texture>&      peeledNormalBuffer,
-    bool                            computePeeledLayer,
-    const shared_ptr<GBuffer>&      gbuffer,
-    const shared_ptr<Scene>&        scene) {
+(RenderDevice*                   rd,
+ const DeepGBufferRadiositySettings&      settings,
+ const shared_ptr<Texture>&      depthBuffer, 
+ const shared_ptr<Texture>&      colorBuffer,
+ const Vector3&                  clipConstant,
+ const Vector4&                  projConstant,
+ float                           projScale,
+ const Matrix4&                  projectionMatrix,
+ const shared_ptr<Texture>&      peeledDepthBuffer,
+ const shared_ptr<Texture>&      peeledColorBuffer,
+ const shared_ptr<Texture>&      normalBuffer,
+ const shared_ptr<Texture>&      peeledNormalBuffer,
+ bool                            computePeeledLayer,
+ const shared_ptr<GBuffer>&      gbuffer,
+ const shared_ptr<Scene>&        scene) {
 
     alwaysAssertM(depthBuffer, "Depth buffer is required.");
 
@@ -374,8 +374,8 @@ void DeepGBufferRadiosity::compute
             // +1 avoids issues with bilinear filtering into the actual guard band
             const float r = max(float(m_inputGuardBandSize), float(m_outputGuardBandSize) * (1.0f - settings.computeGuardBandFraction))+1;
             m_temporallyFilteredResult = m_temporalFilter.apply(rd, clipConstant, projConstant, gbuffer->camera()->frame(), 
-                    gbuffer->camera()->previousFrame(), m_rawIIBuffer, depthBuffer, gbuffer->texture(GBuffer::Field::SS_POSITION_CHANGE), 
-                    Vector2(r, r), 4, settings.temporalFilterSettings);
+                                                                gbuffer->camera()->previousFrame(), m_rawIIBuffer, depthBuffer, gbuffer->texture(GBuffer::Field::SS_POSITION_CHANGE), 
+                                                                Vector2(r, r), 4, settings.temporalFilterSettings);
     
 
             if (settings.blurRadius != 0) {
@@ -458,15 +458,15 @@ void DeepGBufferRadiosity::resizeBuffers(const shared_ptr<Texture>& depthTexture
 
 
 void DeepGBufferRadiosity::computeRawII
-   (RenderDevice*                   rd,
-    const DeepGBufferRadiositySettings&      settings,
-    const shared_ptr<Texture>&      depthBuffer,
-    const Vector3&                  clipConstant,
-    const Vector4&                  projConstant,
-    const float                     projScale,
-    const Matrix4&                  projectionMatrix,
-    const MipMappedBuffers&         mipMappedBuffers,
-    bool                            computePeeledLayer) {
+(RenderDevice*                   rd,
+ const DeepGBufferRadiositySettings&      settings,
+ const shared_ptr<Texture>&      depthBuffer,
+ const Vector3&                  clipConstant,
+ const Vector4&                  projConstant,
+ const float                     projScale,
+ const Matrix4&                  projectionMatrix,
+ const MipMappedBuffers&         mipMappedBuffers,
+ bool                            computePeeledLayer) {
 
     debugAssert(projScale > 0);
     m_rawIIFramebuffer->set(Framebuffer::DEPTH, depthBuffer);
@@ -508,15 +508,15 @@ void DeepGBufferRadiosity::computeRawII
 
 
 void DeepGBufferRadiosity::blurOneDirection
-    (RenderDevice*                      rd,
-    const DeepGBufferRadiositySettings&          settings,
-    const Vector4&                      projConstant,
-    const shared_ptr<Texture>&          cszBuffer,
-    const shared_ptr<Texture>&          normalBuffer,
-    const Vector2int16&                 axis,
-    const shared_ptr<Framebuffer>&      framebuffer,
-    const shared_ptr<Texture>&          source,
-    bool                                peeledLayer) {
+(RenderDevice*                      rd,
+ const DeepGBufferRadiositySettings&          settings,
+ const Vector4&                      projConstant,
+ const shared_ptr<Texture>&          cszBuffer,
+ const shared_ptr<Texture>&          normalBuffer,
+ const Vector2int16&                 axis,
+ const shared_ptr<Framebuffer>&      framebuffer,
+ const shared_ptr<Texture>&          source,
+ bool                                peeledLayer) {
 
     // Changes inside the loop
     shared_ptr<Texture> input = source;
@@ -549,7 +549,7 @@ void DeepGBufferRadiosity::blurOneDirection
             rd->setClip2D(Rect2D::xyxy(r, r, rd->viewport().width() - r, rd->viewport().height() - r));
             args.setRect(rd->viewport());
             LAUNCH_SHADER("DeepGBufferRadiosity_blur.*", args)
-        } rd->pop2D();
+                } rd->pop2D();
 
         if (radiusToGo > 0) {
             static shared_ptr<Texture> tempBlurTexture = Texture::createEmpty("DeepGBufferRadiosity::TempBlurTexture", 1, 1);
@@ -561,56 +561,56 @@ void DeepGBufferRadiosity::blurOneDirection
 
 
 void DeepGBufferRadiosity::blurHorizontal
-   (RenderDevice*                       rd,
-    const DeepGBufferRadiositySettings&          settings,
-    const Vector4&                      projConstant,
-    const shared_ptr<Texture>&          cszBuffer,
-    const shared_ptr<Texture>&          normalBuffer,
-    const shared_ptr<Texture>&          normalPeeledBuffer,
-    bool                                computePeeledLayer) {
+(RenderDevice*                       rd,
+ const DeepGBufferRadiositySettings&          settings,
+ const Vector4&                      projConstant,
+ const shared_ptr<Texture>&          cszBuffer,
+ const shared_ptr<Texture>&          normalBuffer,
+ const shared_ptr<Texture>&          normalPeeledBuffer,
+ bool                                computePeeledLayer) {
 
     Vector2int16 axis(1, 0);
     blurOneDirection(rd, settings, projConstant, cszBuffer, normalBuffer, 
-                    axis, m_hBlurredFramebuffer, m_temporallyFilteredResult, false);
+                     axis, m_hBlurredFramebuffer, m_temporallyFilteredResult, false);
     if (computePeeledLayer) {
         blurOneDirection(rd, settings, projConstant, cszBuffer, normalPeeledBuffer, 
-                    axis, m_hBlurredPeeledFramebuffer, m_rawIIPeeledBuffer, true);
+                         axis, m_hBlurredPeeledFramebuffer, m_rawIIPeeledBuffer, true);
     }
 }
 
 
 void DeepGBufferRadiosity::blurVertical
-   (RenderDevice*                       rd,
-    const DeepGBufferRadiositySettings&          settings,
-    const Vector4&                      projConstant,
-    const shared_ptr<Texture>&          cszBuffer,
-    const shared_ptr<Texture>&          normalBuffer,
-    const shared_ptr<Texture>&          normalPeeledBuffer,
-    bool                                computePeeledLayer) {
+(RenderDevice*                       rd,
+ const DeepGBufferRadiositySettings&          settings,
+ const Vector4&                      projConstant,
+ const shared_ptr<Texture>&          cszBuffer,
+ const shared_ptr<Texture>&          normalBuffer,
+ const shared_ptr<Texture>&          normalPeeledBuffer,
+ bool                                computePeeledLayer) {
 
     Vector2int16 axis(0, 1);
     blurOneDirection(rd, settings, projConstant, cszBuffer, normalBuffer, 
-                    axis, m_resultFramebuffer, m_hBlurredBuffer, false);
+                     axis, m_resultFramebuffer, m_hBlurredBuffer, false);
     if (computePeeledLayer) {
         blurOneDirection(rd, settings, projConstant, cszBuffer, normalPeeledBuffer,  
-                    axis, m_resultPeeledFramebuffer, m_hBlurredPeeledBuffer, true);
+                         axis, m_resultPeeledFramebuffer, m_hBlurredPeeledBuffer, true);
     }
 }
 
 
 void DeepGBufferRadiosity::compute
-   (RenderDevice*                   rd,
-    const DeepGBufferRadiositySettings&      settings,
-    const shared_ptr<Texture>&      depthBuffer, 
-    const shared_ptr<Texture>&      colorBuffer, 
-    const shared_ptr<Camera>&       camera,
-    const shared_ptr<Texture>&      peeledDepthBuffer,
-    const shared_ptr<Texture>&      peeledColorBuffer, 
-    const shared_ptr<Texture>&      normalBuffer,
-    const shared_ptr<Texture>&      peeledNormalBuffer,
-    bool                            computePeeledLayer,
-    const shared_ptr<GBuffer>&      gbuffer,
-    const shared_ptr<Scene>&        scene) {
+(RenderDevice*                   rd,
+ const DeepGBufferRadiositySettings&      settings,
+ const shared_ptr<Texture>&      depthBuffer, 
+ const shared_ptr<Texture>&      colorBuffer, 
+ const shared_ptr<Camera>&       camera,
+ const shared_ptr<Texture>&      peeledDepthBuffer,
+ const shared_ptr<Texture>&      peeledColorBuffer, 
+ const shared_ptr<Texture>&      normalBuffer,
+ const shared_ptr<Texture>&      peeledNormalBuffer,
+ bool                            computePeeledLayer,
+ const shared_ptr<GBuffer>&      gbuffer,
+ const shared_ptr<Scene>&        scene) {
 
     alwaysAssertM(notNull(normalBuffer), "Must use non-null normal buffer in DeepGBufferRadiosity");
     Matrix4 P;
@@ -621,6 +621,3 @@ void DeepGBufferRadiosity::compute
     compute(rd, settings, depthBuffer, colorBuffer, clipConstant, projConstant, (float)abs(camera->imagePlanePixelsPerMeter(rd->viewport())), P, 
             peeledDepthBuffer, peeledColorBuffer, normalBuffer, peeledNormalBuffer, computePeeledLayer, gbuffer, scene);
 }
-
-
-
