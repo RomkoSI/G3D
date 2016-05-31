@@ -280,7 +280,7 @@ def buildNativeFFmpeg():
     sourceDir = os.path.abspath('temp/ffmpeg/native')
     installDir = os.path.abspath('temp/ffmpeg/native/install')
 
-    doClean = True
+    doClean = False
     if doClean:
         # remove old build
         ice.utils.rmdir(os.path.abspath('temp/ffmpeg/native'), False)
