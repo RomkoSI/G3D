@@ -293,7 +293,10 @@ bool FileSystem::_isZipfile(const String& _filename) {
         return false;
     }
     uint8 header[4];
-    (void)fread(header, 4, 1, f);
+    if (fread(header, 4, 1, f) != 4) {
+        fclose(f);
+        return false;
+    }
     
     const uint8 zipHeader[4] = {0x50, 0x4b, 0x03, 0x04};
     for (int i = 0; i < 4; ++i) {

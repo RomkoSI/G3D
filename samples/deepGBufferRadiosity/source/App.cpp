@@ -332,8 +332,15 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
         alwaysAssertM(eventTreeArray.size() > 0, "No profiler events on any thread");
         const Array<Profiler::Event>& eventTree = *(eventTreeArray[0]);
 
-        m_radiosityTimeLabel->setCaption(format("%4.1f", eventTree.find("DeepGBufferRadiosity_DeepGBufferRadiosity.*")->gfxDuration() / (1 * units::milliseconds())));
-        m_filteringTimeLabel->setCaption(format("%4.1f", eventTree.find("Reconstruction Filter")->gfxDuration() / (1 * units::milliseconds())));
+        auto e = eventTree.find("DeepGBufferRadiosity_DeepGBufferRadiosity.*");
+        if (e != eventTree.end()) {
+            m_radiosityTimeLabel->setCaption(format("%4.1f", e->gfxDuration() / (1 * units::milliseconds())));
+        }
+        
+        e = eventTree.find("Reconstruction Filter");
+        if (e != eventTree.end()) {
+            m_filteringTimeLabel->setCaption(format("%4.1f", e->gfxDuration() / (1 * units::milliseconds())));
+        }
     }
 }
 
