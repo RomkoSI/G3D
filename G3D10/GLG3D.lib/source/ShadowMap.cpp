@@ -20,8 +20,8 @@ namespace G3D {
 
 ShadowMap::ShadowMap(const String& name) :
     m_name(name), 
-    m_baseLayer(name + ".m_baseLayer"),
-    m_dynamicLayer(name + ".m_dynamicLayer"),
+    m_baseLayer(name + " m_baseLayer"),
+    m_dynamicLayer(name + " m_dynamicLayer"),
     m_bias(1.5f * units::centimeters()),
     m_polygonOffset(0.0f),
     m_backfacePolygonOffset(0.0f),
