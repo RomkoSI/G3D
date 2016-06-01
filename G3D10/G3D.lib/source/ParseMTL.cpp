@@ -135,8 +135,8 @@ void ParseMTL::processCommand(TextInput& ti, const String& cmd) {
         }
         m_currentMaterial->d = (float)ti.readNumber();
     } else if (cmd == "Tr") {
-        // 1 - alpha on range [0,1]
-        m_currentMaterial->Tr = (float)ti.readNumber();
+        // Nonstandard 1 - alpha on range [0,1]
+        m_currentMaterial->d = 1.0f - (float)ti.readNumber();
     } else if (cmd == "Ns") {
         // Specular Exponent
         m_currentMaterial->Ns = (float)ti.readNumber();
