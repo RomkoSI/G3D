@@ -1285,16 +1285,18 @@ public:
 
     /** Returns a texture of 1024^2 oct32-encoded cosine-weighted hemispherical random vectors about the
         positive z-axis.
-        Use octDecode(texelFetch(cosHemiRandom, pos, 0).xy) in a shader to decode these.
+        Use octDecode(texelFetch(g3d_cosHemiRandom, pos, 0).xy) in a shader to decode these.
+        This is automatically bound as g3d_cosHemiRandom in shaders that use it.
     */
     static shared_ptr<Texture> cosHemiRandom();
 
     /** Returns a texture of 1024^2 oct32-encoded uniformly distributed random vectors on the sphere.
-        Use octDecode(texelFetch(cosHemiRandom, pos, 0).xy) in a shader to decode these.
+        Use octDecode(texelFetch(g3d_cosHemiRandom, pos, 0).xy) in a shader to decode these.
+        This is automatically bound as g3d_sphereRandom in shaders that use it.
     */
     static shared_ptr<Texture> sphereRandom();
 
-    /** Returns a texture of 1024^2 RG16 uniformly distributed random vectors.*/
+    /** Returns a texture of 1024^2 RG16 uniformly distributed random vectors. This is automatically bound as g3d_uniformRandom in shaders that use it. */
     static shared_ptr<Texture> uniformRandom();
 
 private:

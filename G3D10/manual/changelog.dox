@@ -117,6 +117,7 @@
 	   <li> Switched to standard engine smoothness for encoding glossy lobes </li>
 	   <li> Re-tuned OBJ material import for glossy terms </li>
 	   <li> Added GLCaps::smallHDRFormat </li>
+	   <li> G3D::Texture::cosHemiRandom(), G3D::Texture::sphereRandom(), G3D::Texture::uniformRandom()</li>
       </ul>
     </p>
 

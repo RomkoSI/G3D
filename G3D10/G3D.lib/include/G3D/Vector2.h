@@ -6,9 +6,9 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
   
   \created 2001-06-02
-  \edited  2014-11-10
+  \edited  2016-06-01
 
-  Copyright 2000-2015, Morgan McGuire.
+  Copyright 2000-2016, Morgan McGuire.
   All rights reserved.
 */
 
@@ -195,6 +195,14 @@ public:
 
     /** Component-wise maximum */
     Vector2 max(const Vector2& v) const;
+    
+    Vector2 floor() const {
+        return Vector2(std::floor(x), std::floor(y));
+    }
+
+    Vector2 ceil() const {
+        return Vector2(std::ceil(x), std::ceil(y));
+    }
 
     /** Component-wise argmax(abs(), v.abs()).
 
@@ -504,6 +512,7 @@ inline bool Vector2::isUnit() const {
 typedef Vector2 Point2;
 void serialize(const Vector2& v, class BinaryOutput& b);
 void deserialize(Vector2& v, class BinaryInput& b);
+
 
 } // namespace G3D
 

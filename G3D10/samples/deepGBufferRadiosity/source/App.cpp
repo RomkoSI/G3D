@@ -431,9 +431,15 @@ bool App::onEvent(const GEvent& event) {
 
 void App::forwardShade(RenderDevice* rd, Array<shared_ptr<Surface> >& all, const LightingEnvironment& environment) {
     static const Array<shared_ptr<Surface> > noNewShadowCasters;
-    /*Surface::render(rd, activeCamera()->frame(), activeCamera()->projection(), all, 
-      noNewShadowCasters, environment, false, m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);*/
 
+    /*
+    for (int i = 0; i < surfaceArray.size(); ++i) {
+        surfaceArray[i]->render(rd, environment, RenderPassType::OPAQUE_SAMPLES, singlePassBlendedOutputMacro);
+    }
+
+    Surface::render(rd, activeCamera()->frame(), activeCamera()->projection(), all, 
+      noNewShadowCasters, environment, false, m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);
+      */
     drawDebugShapes();
 }
 

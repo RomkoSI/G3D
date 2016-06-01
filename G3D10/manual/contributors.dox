@@ -1,15 +1,13 @@
 /**
 @page contributors G3D Developer Credits
 
- <b>10.00 Release Team</b>
+ <b>10.01 Release Team</b>
 
  <br>Morgan McGuire [Williams College and NVIDIA] - Project Manager
- <br>Michael Mara [NVIDIA] - Developer
- <br>Daniel Evangelakos [Williams College] - Developer
+ <br>Michael Mara [Stanford and NVIDIA] - Developer
+ <br>Daniel Evangelakos [NVIDIA and Williams College] - Developer
  <br>Sam Donow [Williams College] - Developer
  <br>Cyril Crassin [NVIDIA]
- <br>Kelly Wang [Williams College] - Developer
- <br>Jamie Lesser [Williams College] - Developer
 
  <b>Credits for Previous Contributors and Cited Sources</b> 
  
@@ -70,6 +68,7 @@
    <BR>Ben Landon*, Lincoln Labs
    <BR>Thomas G. Lane
    <BR>Ray Larabie
+   <br>Jamie Lesser*, Williams College
    <br>Lev Levchenko
    <br>Axel Lewenhaupt
    <BR>Jukka Liimatta
