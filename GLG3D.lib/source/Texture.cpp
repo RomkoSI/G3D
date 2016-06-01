@@ -107,16 +107,14 @@ shared_ptr<Texture> Texture::cosHemiRandom() {
 
     if (isNull(t)) {
         Random rnd;
-        const shared_ptr<GLPixelTransferBuffer>& ptb = GLPixelTransferBuffer::create(1024, 1024, ImageFormat::RG16());
+        const shared_ptr<GLPixelTransferBuffer>& ptb = GLPixelTransferBuffer::create(1024, 1024, ImageFormat::RG32F());
         {
-            snorm16* ptr = (snorm16*)ptb->mapWrite();
-            for (int i = 0; i < ptb->width() * ptb->height() * 2; ++i) {
+            Vector2* ptr = (Vector2*)ptb->mapWrite();
+            for (int i = 0; i < ptb->width() * ptb->height(); ++i) {
                 Vector3 v;
                 rnd.cosHemi(v.x, v.y, v.z);
 
-                const Vector2& oct = float32x3_to_octn_precise(v, 32);
-                ptr[i] = snorm16(oct.x); ++i;
-                ptr[i] = snorm16(oct.y);
+                ptr[i] = float32x3_to_octn_precise(v, 32);
             }
             ptr = nullptr;
             ptb->unmap();
@@ -133,16 +131,14 @@ shared_ptr<Texture> Texture::sphereRandom() {
 
     if (isNull(t)) {
         Random rnd;
-        const shared_ptr<GLPixelTransferBuffer>& ptb = GLPixelTransferBuffer::create(1024, 1024, ImageFormat::RG16());
+        const shared_ptr<GLPixelTransferBuffer>& ptb = GLPixelTransferBuffer::create(1024, 1024, ImageFormat::RG32F());
         {
-            snorm16* ptr = (snorm16*)ptb->mapWrite();
-            for (int i = 0; i < ptb->width() * ptb->height() * 2; ++i) {
+            Vector2* ptr = (Vector2*)ptb->mapWrite();
+            for (int i = 0; i < ptb->width() * ptb->height(); ++i) {
                 Vector3 v;
                 rnd.sphere(v.x, v.y, v.z);
 
-                const Vector2& oct = float32x3_to_octn_precise(v, 32);
-                ptr[i] = snorm16(oct.x); ++i;
-                ptr[i] = snorm16(oct.y);
+                ptr[i] = float32x3_to_octn_precise(v, 32);
             }
             ptr = nullptr;
             ptb->unmap();
