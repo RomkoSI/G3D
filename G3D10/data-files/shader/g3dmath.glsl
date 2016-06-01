@@ -584,14 +584,16 @@ bool isFinite(float x) {
 */
 Vector3 sphericalFibonacci(float i, float n) {
     const float PHI = sqrt(5) * 0.5 + 0.5;
-#   define madfrac(A,B) ((A)*(B)-floor((A)*(B)))
-    float phi = 2.0 * PI * madfrac(i, PHI - 1);
+#   define madfrac(A, B) ((A)*(B)-floor((A)*(B)))
+    float phi = 2.0 * pi * madfrac(i, PHI - 1);
     float cosTheta = 1.0 - (2.0 * i + 1.0) * (1.0 / n);
     float sinTheta = sqrt(saturate(1.0 - cosTheta*cosTheta));
+
     return Vector3(
-        cos(phi)*sinTheta,
-        sin(phi)*sinTheta,
+        cos(phi) * sinTheta,
+        sin(phi) * sinTheta,
         cosTheta);
+
 #   undef madfrac
 }
 
@@ -607,7 +609,7 @@ Vector3 sphericalFibonacci(float i, float n) {
 Vector3 sphereRandom(vec2 r) {
     float cosPhi = r.x * 2.0 - 1.0;
     float sinPhi = sqrt(1 - square(cosPhi));
-    float theta = r.y * 2.0 * PI;
+    float theta = r.y * 2.0 * pi;
     return Vector3(sinPhi * cos(theta), sinPhi * cos(theta), cosPhi);
 }
 
@@ -618,7 +620,7 @@ Vector3 sphereRandom(vec2 r) {
     See also hemisphereRandom texture.
 */
 Vector3 hemisphereRandom(vec2 r) {
-    Vector3 s = sphereRandom(r.x, r.y);
+    Vector3 s = sphereRandom(r);
     return Vector3(s.x, s.y, abs(s.z));
 }
 
