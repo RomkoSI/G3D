@@ -569,4 +569,74 @@ bool isFinite(float x) {
     return ! isnan(x) && (abs(x) != inf);
 }
 
+
+
+/**  Generate a spherical fibonacci point
+    http://lgdv.cs.fau.de/publications/publication/Pub.2015.tech.IMMD.IMMD9.spheri/
+    To generate a nearly uniform point distribution on the unit sphere of size N, do
+    for (float i = 0.0; i < N; i += 1.0) {
+        float3 point = sphericalFibonacci(i,N);
+    }
+
+    The points go from z = +1 down to z = -1 in a spiral. To generate samples on the +z hemisphere,
+    just stop before i > N/2.
+
+*/
+Vector3 sphericalFibonacci(float i, float n) {
+    const float PHI = sqrt(5) * 0.5 + 0.5;
+#   define madfrac(A,B) ((A)*(B)-floor((A)*(B)))
+    float phi = 2.0 * PI * madfrac(i, PHI - 1);
+    float cosTheta = 1.0 - (2.0 * i + 1.0) * (1.0 / n);
+    float sinTheta = sqrt(saturate(1.0 - cosTheta*cosTheta));
+    return Vector3(
+        cos(phi)*sinTheta,
+        sin(phi)*sinTheta,
+        cosTheta);
+#   undef madfrac
+}
+
+/**
+    \param r Two uniform random numbers on [0,1]
+
+    \return uniformly distributed random sample on unit sphere
+
+    http://mathworld.wolfram.com/SpherePointPicking.html
+
+    See also g3d_sphereRandom texture and sphericalFibonacci()
+*/
+Vector3 sphereRandom(vec2 r) {
+    float cosPhi = r.x * 2.0 - 1.0;
+    float sinPhi = sqrt(1 - square(cosPhi));
+    float theta = r.y * 2.0 * PI;
+    return Vector3(sinPhi * cos(theta), sinPhi * cos(theta), cosPhi);
+}
+
+/**
+    \param r Two uniform random numbers on [0,1]
+
+  \return uniformly distributed random sample on unit hemisphere about +z
+    See also hemisphereRandom texture.
+*/
+Vector3 hemisphereRandom(vec2 r) {
+    Vector3 s = sphereRandom(r.x, r.y);
+    return Vector3(s.x, s.y, abs(s.z));
+}
+
+
+/** Returns cos^k distributed random values distributed on the
+    hemisphere about +z
+
+    \param r Two uniform random numbers on [0,1]
+    See also cosHemiRandom texture.
+*/
+Vector3 cosPowHemiRandom(vec2 r, const float k) {
+    float cos_theta = pow(r.x, 1.0 / (k + 1.0));
+    float sin_theta = sqrt(1.0f - square(cos_theta));
+    float phi = 6.28318531 * r.y;
+
+    return Vector3( cos(phi) * sin_theta,
+                    sin(phi) * sin_theta,
+                    cos_theta);
+}
+
 #endif

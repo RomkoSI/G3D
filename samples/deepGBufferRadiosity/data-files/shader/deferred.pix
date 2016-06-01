@@ -29,15 +29,17 @@ void main() {
     // Screen-space point being shaded
     ivec2 C = ivec2(gl_FragCoord.xy);
     
+    Radiance3 emissiveColor = texelFetch(gbuffer_EMISSIVE_buffer, C, 0).rgb * gbuffer_EMISSIVE_readMultiplyFirst.rgb + gbuffer_EMISSIVE_readAddSecond.rgb;
+
     // Surface normal
     vec3 csN = texelFetch(gbuffer_CS_NORMAL_buffer, C, 0).xyz;
     vec3 wsN;
     if (dot(csN, csN) < 0.01) {
-        // This is a background pixel, not part of an object
-        discard;
-    } else {
-        wsN = normalize(mat3x3(gbuffer_camera_frame) * (csN * gbuffer_CS_NORMAL_readMultiplyFirst.xyz + gbuffer_CS_NORMAL_readAddSecond.xyz));
+        // This is a background pixel, not part of an object. Emissive only
+        result = emissiveColor;
+        return;
     }
+    wsN = normalize(mat3x3(gbuffer_camera_frame) * (csN * gbuffer_CS_NORMAL_readMultiplyFirst.xyz + gbuffer_CS_NORMAL_readAddSecond.xyz));
 
     // Point being shaded
     float csZ = reconstructCSZ(texelFetch(gbuffer_DEPTH_buffer, C, 0).r, gbuffer_camera_clipInfo);
@@ -55,7 +57,7 @@ void main() {
     // G3D::UniversalBSDF's encoding)
     Color4  F0 = texelFetch(gbuffer_GLOSSY_buffer, C, 0);
     float glossyExponent = unpackGlossyExponent(F0.a);
-    
+
     float cos_o = dot(wsN, w_o);
     Color3 F = schlickFresnel(F0.rgb, max(0.0, cos_o), F0.a);
     lambertianColor *= 1.0 - F;
@@ -80,7 +82,6 @@ void main() {
             1.0;
 #       endif
 
-    vec3 emissiveColor = texelFetch(gbuffer_EMISSIVE_buffer, C, 0).rgb * gbuffer_EMISSIVE_readMultiplyFirst.rgb + gbuffer_EMISSIVE_readAddSecond.rgb;
 
     // How much ambient occlusion to apply to direct illumination (sort of approximates area lights,
     // more importantly: NPR term that adds local contrast)
