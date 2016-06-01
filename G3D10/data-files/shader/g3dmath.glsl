@@ -634,7 +634,7 @@ Vector3 hemisphereRandom(vec2 r) {
 Vector3 cosPowHemiRandom(vec2 r, const float k) {
     float cos_theta = pow(r.x, 1.0 / (k + 1.0));
     float sin_theta = sqrt(1.0f - square(cos_theta));
-    float phi = 6.28318531 * r.y;
+    float phi = 2 * pi * r.y;
 
     return Vector3( cos(phi) * sin_theta,
                     sin(phi) * sin_theta,
