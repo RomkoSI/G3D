@@ -1184,7 +1184,6 @@ public:
         return m_depth;
     }
 
-
     inline Vector2 vector2Bounds() const {
         return Vector2((float)m_width, (float)m_height);
     }
@@ -1226,7 +1225,6 @@ public:
        generate mipmaps from the level 0 mipmap immediately.  For other textures, does nothing.
        */
     void generateMipMaps();
-
 
     /**
        Upload new data from the CPU to this texture.  Corresponds to <a
@@ -1284,6 +1282,20 @@ public:
         \sa uniform_Texture
     */
     void setShaderArgs(class UniformTable& args, const String& prefix, const Sampler& sampler);
+
+    /** Returns a texture of 1024^2 oct32-encoded cosine-weighted hemispherical random vectors about the
+        positive z-axis.
+        Use octDecode(texelFetch(cosHemiRandom, pos, 0).xy) in a shader to decode these.
+    */
+    static shared_ptr<Texture> cosHemiRandom();
+
+    /** Returns a texture of 1024^2 oct32-encoded uniformly distributed random vectors on the sphere.
+        Use octDecode(texelFetch(cosHemiRandom, pos, 0).xy) in a shader to decode these.
+    */
+    static shared_ptr<Texture> sphereRandom();
+
+    /** Returns a texture of 1024^2 RG16 uniformly distributed random vectors.*/
+    static shared_ptr<Texture> uniformRandom();
 
 private:
 
