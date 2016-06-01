@@ -4,7 +4,7 @@
  \author Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2001-02-28
- \edited  2016-02-16
+ \edited  2016-06-01
 
  Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
@@ -37,6 +37,145 @@
 #endif
 
 namespace G3D {
+
+// From http://jcgt.org/published/0003/02/01/paper-lowres.pdf
+// Returns +/-1
+static Vector2 signNotZero(Vector2 v) {
+    return Vector2((v.x >= 0.0f) ? +1.0f : -1.0f, (v.y >= 0.0f) ? +1.0f : -1.0f);
+}
+
+// Assume normalized input. Output is on [-1, 1] for each component.
+static Vector2 float32x3_to_oct(Vector3 v) {
+    // Project the sphere onto the octahedron, and then onto the xy plane
+    const Vector2& p = v.xy() * (1.0f / (fabsf(v.x) + fabsf(v.y) + fabsf(v.z)));
+    // Reflect the folds of the lower hemisphere over the diagonals
+    return (v.z <= 0.0f) ? ((Vector2(1.0f, 1.0f) - abs(p.yx())) * signNotZero(p)) : p;
+}
+
+// From http://jcgt.org/published/0003/02/01/paper-lowres.pdf
+static Vector3 oct_to_float32x3(Vector2 e) {
+    Vector3 v(e.xy(), 1.0f - fabsf(e.x) - fabsf(e.y));
+
+    if (v.z < 0) {
+        v = Vector3((Vector2(1.0f, 1.0f) - abs(v.yx())) * signNotZero(v.xy()), v.z);
+    }
+
+    return v.direction();
+}
+
+// From http://jcgt.org/published/0003/02/01/paper-lowres.pdf
+static Vector2 float32x3_to_octn_precise(Vector3 v, const int n) {
+    Vector2 s = float32x3_to_oct(v); // Remap to the square
+
+    // Each snorm’s max value interpreted as an integer,
+    // e.g., 127.0 for snorm8
+    const float M = float(1 << ((n / 2) - 1)) - 1.0f;
+
+    // Remap components to snorm(n/2) precision...with floor instead
+    // of round (see equation 1)
+    s = (s.clamp(-1.0f, +1.0f) * M).floor() * (1.0f / M);
+    Vector2 bestRepresentation = s;
+    float highestCosine = dot(oct_to_float32x3(s), v);
+
+    // Test all combinations of floor and ceil and keep the best.
+    // Note that at +/- 1, this will exit the square... but that
+    // will be a worse encoding and never win.
+    for (int i = 0; i <= 1; ++i) {
+        for (int j = 0; j <= 1; ++j) {
+            // This branch will be evaluated at compile time
+            if ((i != 0) || (j != 0)) {
+                // Offset the bit pattern (which is stored in floating
+                // point!) to effectively change the rounding mode
+                // (when i or j is 0: floor, when it is one: ceiling)
+                const Vector2 candidate = Vector2(float(i), float(j)) * (1.0f / M) + s;
+                
+                const float cosine = dot(oct_to_float32x3(candidate), v);
+                if (cosine > highestCosine) {
+                    bestRepresentation = candidate;
+                    highestCosine = cosine;
+                }
+            }
+        }
+    }
+
+    return bestRepresentation;
+}
+
+
+shared_ptr<Texture> Texture::cosHemiRandom() {
+    static shared_ptr<Texture> t;
+
+    if (isNull(t)) {
+        Random rnd;
+        const shared_ptr<GLPixelTransferBuffer>& ptb = GLPixelTransferBuffer::create(1024, 1024, ImageFormat::RG16());
+        {
+            snorm16* ptr = (snorm16*)ptb->mapWrite();
+            for (int i = 0; i < ptb->width() * ptb->height() * 2; ++i) {
+                Vector3 v;
+                rnd.cosHemi(v.x, v.y, v.z);
+
+                const Vector2& oct = float32x3_to_octn_precise(v, 32);
+                ptr[i] = snorm16(oct.x); ++i;
+                ptr[i] = snorm16(oct.y);
+            }
+            ptr = nullptr;
+            ptb->unmap();
+        }
+        t = Texture::fromPixelTransferBuffer("G3D::Texture::cosHemiRandom", ptb, ImageFormat::RG16_SNORM(), Texture::DIM_2D, false);
+    }
+
+    return t;
+}
+
+
+shared_ptr<Texture> Texture::sphereRandom() {
+    static shared_ptr<Texture> t;
+
+    if (isNull(t)) {
+        Random rnd;
+        const shared_ptr<GLPixelTransferBuffer>& ptb = GLPixelTransferBuffer::create(1024, 1024, ImageFormat::RG16());
+        {
+            snorm16* ptr = (snorm16*)ptb->mapWrite();
+            for (int i = 0; i < ptb->width() * ptb->height() * 2; ++i) {
+                Vector3 v;
+                rnd.sphere(v.x, v.y, v.z);
+
+                const Vector2& oct = float32x3_to_octn_precise(v, 32);
+                ptr[i] = snorm16(oct.x); ++i;
+                ptr[i] = snorm16(oct.y);
+            }
+            ptr = nullptr;
+            ptb->unmap();
+        }
+        t = Texture::fromPixelTransferBuffer("G3D::Texture::sphereRandom", ptb, ImageFormat::RG16_SNORM(), Texture::DIM_2D, false);
+    }
+
+    return t;
+}
+
+
+shared_ptr<Texture> Texture::uniformRandom() {
+    static shared_ptr<Texture> t;
+
+    if (isNull(t)) {
+        Random rnd;
+        const shared_ptr<GLPixelTransferBuffer>& ptb = GLPixelTransferBuffer::create(1024, 1024, ImageFormat::RG16());
+        {
+            snorm16* ptr = (snorm16*)ptb->mapWrite();
+            for (int i = 0; i < ptb->width() * ptb->height() * 2; ++i) {
+                ptr[i] = snorm16(rnd.uniform()); ++i;
+                ptr[i] = snorm16(rnd.uniform());
+            }
+            ptr = nullptr;
+            ptb->unmap();
+        }
+        t = Texture::fromPixelTransferBuffer("G3D::Texture::uniformRandom", ptb, ImageFormat::RG16(), Texture::DIM_2D, false);
+    }
+
+    return t;
+}
+
+//////////////////////////////////////////////////////////
 
 void Texture::clearCache() {
     s_cache.clear();
