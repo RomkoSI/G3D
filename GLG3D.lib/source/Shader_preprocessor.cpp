@@ -741,7 +741,11 @@ bool Shader::g3dLoadTimePreprocessor(const String& dir, PreprocessedShaderSource
                 uniform vec2   g3d_FragCoordExtent;
                 uniform vec2   g3d_FragCoordMin;
                 uniform vec2   g3d_FragCoordMax;
-                uniform int    g3d_NumInstances;);
+                uniform int    g3d_NumInstances;
+                uniform sampler2D g3d_cosHemiRandom;
+                uniform sampler2D g3d_sphereRandom;
+                uniform sampler2D g3d_uniformRandom;
+                );
 
         processVersion(code, versionString);
 

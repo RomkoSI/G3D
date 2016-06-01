@@ -994,9 +994,20 @@ void Shader::bindG3DArgs(const shared_ptr<ShaderProgram>& p, RenderDevice* rende
 
 #   define ARG(nameString, val)\
 	decl = p->uniformDeclarationTable.getPointer(nameString);\
-	if (notNull(decl) && decl->dummy == false) {\
+	if (notNull(decl) && ! decl->dummy) {\
         arg.value.clear(false);\
         arg.set((val), false);\
+		bindUniformArg(arg, *decl, maxModifiedTextureUnit); \
+    }
+
+#   define TEXARG(nameString, val)\
+	decl = p->uniformDeclarationTable.getPointer(nameString);\
+	if (notNull(decl) && ! decl->dummy) {\
+        arg.value.clear(false);\
+        arg.type        = (val)->openGLTextureTarget();\
+        arg.texture     = (val);\
+        arg.sampler     = GLSamplerObject::create(Sampler::buffer());\
+        arg.optional    = true;\
 		bindUniformArg(arg, *decl, maxModifiedTextureUnit); \
     }
 
@@ -1056,6 +1067,11 @@ void Shader::bindG3DArgs(const shared_ptr<ShaderProgram>& p, RenderDevice* rende
     }
     
     ARG("g3d_NumInstances", sourceArgs.numInstances());
+
+    TEXARG("g3d_cosHemiRandom", Texture::cosHemiRandom());
+    TEXARG("g3d_sphereRandom",  Texture::sphereRandom());
+    TEXARG("g3d_uniformRandom", Texture::uniformRandom());
+
 #   undef ARG
 }
 

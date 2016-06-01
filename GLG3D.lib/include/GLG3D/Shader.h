@@ -190,6 +190,11 @@ namespace G3D {
         uniform vec2   g3d_FragCoordMax;   // Only if Args::setRect was invoked
 
         uniform int    g3d_NumInstances;
+
+        uniform sampler2D g3d_cosHemiRandom; // See the static Texture methods of the same names
+        uniform sampler2D g3d_sphereRandom;
+        uniform sampler2D g3d_uniformRandom;
+
         \endcode
 
   <h2>Implementation</h2> G3D has two distinct preprocessing steps for
