@@ -80,14 +80,12 @@ public:
         /** Shininess of the material, on the range 0-1000. */
         float           Ns;
 
-        /** Opacity (alpha) level, on the range 0-1, where 1 = opaque (default) */
+        /** Opacity (alpha) level, on the range 0-1, where 1 = opaque (default).
+            Some non-standard MTL files (e.g., produced by MeshLab) write Tr = 1 - d instead.
+            If ParseMTL encounters Tr, it sets d = 1 - Tr.
+         */
         float           d;
         String          map_d;
-
-        /** Transparency level, on the range 0-1. Amount of light
-            transmitted.  This is questionable and does not seem to be
-            widely used.*/
-        float           Tr;
 
         /** 1 - Transmission, as processed by 3DS Max 
             (http://casual-effects.blogspot.com/2012/01/translucency-in-obj-mtl-files.html).  Other specification documents
@@ -131,7 +129,7 @@ public:
         // is a map_Ks and 0.75f otherwise (which then gets raised to the ninth power by G3D)
         // We thus have to check and properly set the default whenever we finish parsing a material or
         // assign map_Ks
-        Material() : Ka(1.0f), Kd(1.0f), Ks(-1.0f), Ke(0.0f), bump(0.0f), Ns(10.0f), d(1.0f), Tr(0.0f), Tf(1.0f), illum(2), Ni(1.0f), interpolateMode("TRILINEAR_MIPMAP") {}
+        Material() : Ka(1.0f), Kd(1.0f), Ks(-1.0f), Ke(0.0f), bump(0.0f), Ns(10.0f), d(1.0f), Tf(1.0f), illum(2), Ni(1.0f), interpolateMode("TRILINEAR_MIPMAP") {}
 
     public:
         /** We default Ks to 0.8f if there is no map_Ks. 
