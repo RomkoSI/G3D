@@ -281,7 +281,7 @@ void TextInput::nextToken(Token& t) {
         whitespaceDone = true;
 
         // generate newlines tokens for '\n' and '\r' and '\r\n'
-        while (isWhiteSpace(c)) {
+        while (isWhitespace(c)) {
             if (options.generateNewlineTokens && isNewline(c)) {
                 t._type         = Token::NEWLINE;
                 t._extendedType = Token::NEWLINE_TYPE;

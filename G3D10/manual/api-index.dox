@@ -403,7 +403,7 @@ at the bottom.
         \link G3D::format format\endlink,
 		\link G3D::greatestCommonPrefix greatestCommonPrefix\endlink
         \link G3D::isSlash isSlash\endlink,
-        \link G3D::isWhiteSpace isWhiteSpace\endlink,
+        \link G3D::isWhitespace isWhitespace\endlink,
         \link G3D::isDigit isDigit\endlink,
         \link G3D::isNewline isNewline\endlink,
         \link G3D::isLetter isLetter\endlink,

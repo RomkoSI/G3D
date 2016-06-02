@@ -118,6 +118,8 @@
 	   <li> Re-tuned OBJ material import for glossy terms </li>
 	   <li> Added GLCaps::smallHDRFormat </li>
 	   <li> G3D::Texture::cosHemiRandom(), G3D::Texture::sphereRandom(), G3D::Texture::uniformRandom()</li>
+	   <li> Fixed SNORM ImageFormats when invoking Texture::fromPixelTransferBuffer</li>
+	   <li> isWhiteSpace &rarr isWhitespace</li>
       </ul>
     </p>
 
