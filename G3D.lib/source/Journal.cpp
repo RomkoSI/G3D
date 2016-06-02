@@ -232,7 +232,7 @@ void Journal::insertNewSection(const String& journalFilename, const String& titl
                 pos = 0;
             }
             
-            while ((pos < file.length() - 1) && isWhiteSpace(file[pos])) {
+            while ((pos < file.length() - 1) && isWhitespace(file[pos])) {
                 ++pos;
             }
 

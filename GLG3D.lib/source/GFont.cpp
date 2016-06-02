@@ -620,7 +620,7 @@ int GFont::wordWrapCut
     --i;
 
     // Search backwards for a space.  Only look up to 25% of maxWidth
-    while ((i > 1) && ! isWhiteSpace(s[i]) && (x > maxWidth * 0.25f)) {
+    while ((i > 1) && ! isWhitespace(s[i]) && (x > maxWidth * 0.25f)) {
         const unsigned char c = s[i] & (charsetSize - 1);
         if (spacing == PROPORTIONAL_SPACING) {
             x -= propW * subWidth[(int)c];

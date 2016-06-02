@@ -290,7 +290,7 @@ void GConsole::generateFilenameCompletions(Array<string>& files) {
     int i = m_cursorPos - 1;
 
     while ((i > 0) && 
-            ! isWhiteSpace(m_currentLine[i - 1]) &&
+            ! isWhitespace(m_currentLine[i - 1]) &&
             ! isQuote(m_currentLine[i - 1])) {
         --i;
     }

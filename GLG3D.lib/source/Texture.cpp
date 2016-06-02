@@ -120,6 +120,9 @@ shared_ptr<Texture> Texture::cosHemiRandom() {
             ptb->unmap();
         }
         t = Texture::fromPixelTransferBuffer("G3D::Texture::cosHemiRandom", ptb, ImageFormat::RG16_SNORM(), Texture::DIM_2D, false);
+        t->visualization.max =  1.0f;
+        t->visualization.min = -1.0f;
+        t->visualization.documentGamma = 2.1f;
     }
 
     return t;
@@ -144,6 +147,9 @@ shared_ptr<Texture> Texture::sphereRandom() {
             ptb->unmap();
         }
         t = Texture::fromPixelTransferBuffer("G3D::Texture::sphereRandom", ptb, ImageFormat::RG16_SNORM(), Texture::DIM_2D, false);
+        t->visualization.max =  1.0f;
+        t->visualization.min = -1.0f;
+        t->visualization.documentGamma = 2.1f;
     }
 
     return t;
@@ -166,6 +172,9 @@ shared_ptr<Texture> Texture::uniformRandom() {
             ptb->unmap();
         }
         t = Texture::fromPixelTransferBuffer("G3D::Texture::uniformRandom", ptb, ImageFormat::RG16(), Texture::DIM_2D, false);
+        t->visualization.max = 1.0f;
+        t->visualization.min = 0.0f;
+        t->visualization.documentGamma = 2.1f;
     }
 
     return t;

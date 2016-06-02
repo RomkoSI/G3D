@@ -155,7 +155,7 @@ String trimWhitespace(
 /** These standard C functions are renamed for clarity/naming
    conventions and to return bool, not int.
    */
-inline bool isWhiteSpace(const unsigned char c) {
+inline bool isWhitespace(const unsigned char c) {
     return isspace(c) != 0;
 }
 
