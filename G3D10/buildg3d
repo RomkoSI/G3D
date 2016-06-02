@@ -536,7 +536,7 @@ def docTarget():
            'PROJECT_NUMBER': version}
 
     copyIfNewer('doc-files/', 'build/manual/')
-    copyIfNewer('readme.md.html', 'build/manual/')
+    copyIfNewer('readme.md.html', 'build/manual/readme.md.html')
     # Generate C++ docs
     (code, out, err) = runWithOutput(doxygen, ['Doxyfile'], True, env)
 
