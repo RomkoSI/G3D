@@ -286,7 +286,9 @@ String Journal::formatImage(const String& journalFilename, const String& imageFi
         const String macroString = isVideo ? "video" : "thumbnail";
         return "\n\\" + macroString + "{" + relativeImagePath + ", " + escapeDoxygenCaption(caption) + "}\n\n" + discussion + "\n";
     } else {
-        return "\n![" + caption + "](" + relativeImagePath + ")\n\n" + discussion + "\n";
+        const String& discussionSection = (discussion.empty()) ? "" : "\n\n" + discussion;
+
+        return "\n![" + caption + "](" + relativeImagePath + ")" + discussionSection + "\n";
     }
 }
 
