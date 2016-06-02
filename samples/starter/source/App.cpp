@@ -74,8 +74,6 @@ void App::onInit() {
 
 
 void App::makeGUI() {
-    Texture::cosHemiRandom();
-
     // Initialize the developer HUD (using the existing scene)
     createDeveloperHUD();
     debugWindow->setVisible(true);
