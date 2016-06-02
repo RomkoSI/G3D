@@ -276,11 +276,17 @@ String Journal::formatImage(const String& journalFilename, const String& imageFi
 
     const JournalSyntax syntax = detectSyntax(journalFilename);
 
+    const String& journalFullPath = FileSystem::resolve(journalFilename);
+    const String& imageFullPath = FileSystem::resolve(imageFilename);
+
+    const String& prefix = G3D::greatestCommonPrefix(journalFullPath, imageFullPath);
+    const String& relativeImagePath = imageFullPath.substr(prefix.length());
+
     if (syntax == JournalSyntax::DOXYGEN) {
         const String macroString = isVideo ? "video" : "thumbnail";
-        return "\n\\" + macroString + "{" + FilePath::baseExt(imageFilename) + ", " + escapeDoxygenCaption(caption) + "}\n\n" + discussion + "\n";
+        return "\n\\" + macroString + "{" + relativeImagePath + ", " + escapeDoxygenCaption(caption) + "}\n\n" + discussion + "\n";
     } else {
-        return "\n![" + caption + "](" + imageFilename + ")\n\n" + discussion + "\n";
+        return "\n![" + caption + "](" + relativeImagePath + ")\n\n" + discussion + "\n";
     }
 }
 
