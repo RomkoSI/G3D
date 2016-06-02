@@ -287,7 +287,6 @@ String Journal::formatImage(const String& journalFilename, const String& imageFi
         return "\n\\" + macroString + "{" + relativeImagePath + ", " + escapeDoxygenCaption(caption) + "}\n\n" + discussion + "\n";
     } else {
         const String& discussionSection = (discussion.empty()) ? "" : "\n\n" + discussion;
-
         return "\n![" + caption + "](" + relativeImagePath + ")" + discussionSection + "\n";
     }
 }
