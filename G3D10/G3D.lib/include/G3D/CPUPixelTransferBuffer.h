@@ -1,7 +1,7 @@
 /**
   \file G3D/CPUPixelTransferBuffer.h
  
-  Copyright 2000-2015, Morgan McGuire.
+  Copyright 2000-2016, Morgan McGuire.
   All rights reserved.
  */
 #ifndef G3D_CPUPixelTransferBuffer_h
