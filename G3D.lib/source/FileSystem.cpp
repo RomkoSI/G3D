@@ -1021,6 +1021,12 @@ String FilePath::mangle(const String& filename) {
     String outputFilename;
     for (size_t i = 0; i < filename.size(); ++i) {
         switch (filename[i]) {
+        case '(':
+            outputFilename += "_9";
+            break;
+        case ')':
+            outputFilename += "_0";
+            break;
         case ':':
             outputFilename += "_c";
             break;
@@ -1110,6 +1116,14 @@ String FilePath::unMangle(const String& mangledFilename) {
                 break;
             case 'u':
                 current = '_';
+                ++i;
+                break;
+            case '9':
+                current = '(';
+                ++i;
+                break;
+            case '0':
+                current = ')';
                 ++i;
                 break;
             default:
