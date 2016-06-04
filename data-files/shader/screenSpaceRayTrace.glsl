@@ -266,6 +266,11 @@ bool traceScreenSpaceRay1
     Vector3 dQ = (Q1 - Q0) * invdx;
     float   dk = (k1 - k0) * invdx;
     
+    // Because we test 1/2 a texel forward along the ray, on the very last iteration
+    // the interpolation can go past the end of the ray. Use these bounds to clamp it.
+    float zMin = min(csEndPoint.z, csOrigin.z);
+    float zMax = max(csEndPoint.z, csOrigin.z);
+
     // Scale derivatives by the desired pixel stride
 	dP *= stride; dQ *= stride; dk *= stride;
 
@@ -310,6 +315,7 @@ bool traceScreenSpaceRay1
 
         // Compute the value at 1/2 step into the future
         rayZMax = (dQ.z * 0.5 + Q.z) / (dk * 0.5 + k);
+        rayZMax = clamp(rayZMax, zMin, zMax);
 		prevZMaxEstimate = rayZMax;
 
         // Since we don't know if the ray is stepping forward or backward in depth,
@@ -367,6 +373,8 @@ bool traceScreenSpaceRay1
 
             // Compute the ray camera-space Z value at 1/2 fine step (pixel) into the future
             rayZMax = (dQ.z * 0.5 + Q.z) / (dk * 0.5 + k);
+            rayZMax = clamp(rayZMax, zMin, zMax);
+
             prevZMaxEstimate = rayZMax;
             rayZMin = min(rayZMax, rayZMin);
 
