@@ -414,7 +414,7 @@ public:
         const int count = EnumClass::count();
         for (int i = 0; i < count; ++i) {
             const EnumClass e = EnumClass::nthValue(i);
-            addRadioButton(e.toString(), int(e.value), valuePtr, style);
+            addRadioButton(e.toString(), e.value, valuePtr, style);
         }
 
         if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
