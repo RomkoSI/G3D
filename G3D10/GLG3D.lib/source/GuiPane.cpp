@@ -211,32 +211,6 @@ GuiDropDownList* GuiPane::addDropDownList
 }
 
 
-GuiRadioButton* GuiPane::addRadioButton(const GuiText& text, int myID, void* selection, 
-                                        GuiTheme::RadioButtonStyle style) {
-
-    GuiRadioButton* c = addControl
-        (new GuiRadioButton(this, text, myID, Pointer<int>(reinterpret_cast<int*>(selection)), style));
-
-    Vector2 size(0, (float)CONTROL_HEIGHT);
-
-    if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
-        Vector2 bounds = theme()->minButtonSize(text, GuiTheme::TOOL_BUTTON_STYLE);
-        size.x = max(float(TOOL_BUTTON_WIDTH), bounds.x);
-    } else if (style == 1) { // Doesn't compile on gcc unless we put the integer in. GuiTheme::BUTTON_RADIO_BUTTON_STYLE) {
-        size.x = BUTTON_WIDTH;
-        Vector2 bounds = theme()->minButtonSize(text, GuiTheme::NORMAL_BUTTON_STYLE);
-        size = size.max(bounds);
-    } else { // NORMAL_RADIO_BUTTON_STYLE
-        Vector2 bounds = theme()->minButtonSize(text, GuiTheme::NORMAL_BUTTON_STYLE);
-        size.x = bounds.x;
-    }
-
-    c->setSize(size);
-
-    return c;
-}
-
-
 GuiCheckBox* GuiPane::addCheckBox
 (const GuiText& text,
  const Pointer<bool>& pointer,
@@ -271,28 +245,6 @@ GuiControl* GuiPane::addCustom(GuiControl* c) {
     }
 
     increaseBounds(c->rect().x1y1());
-    return c;
-}
-
-
-GuiRadioButton* GuiPane::addRadioButton(const GuiText& text, int myID,  
-    const Pointer<int>& ptr, 
-    GuiTheme::RadioButtonStyle style) {
-    
-    GuiRadioButton* c = addControl(new GuiRadioButton(this, text, myID, ptr, style));
-    
-    Vector2 size((float)BUTTON_WIDTH, (float)CONTROL_HEIGHT);
-
-    // Ensure that the button is wide enough for the caption
-    const Vector2& bounds = theme()->minButtonSize(text, 
-        (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) ? GuiTheme::TOOL_BUTTON_STYLE : GuiTheme::NORMAL_BUTTON_STYLE);
-
-    if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
-        c->setSize(Vector2(max((float)TOOL_BUTTON_WIDTH, bounds.x), CONTROL_HEIGHT));
-    } else if (style == GuiTheme::BUTTON_RADIO_BUTTON_STYLE) {
-        c->setSize(Vector2(max((float)BUTTON_WIDTH, bounds.x), CONTROL_HEIGHT));
-    }
-
     return c;
 }
 

@@ -40,7 +40,7 @@ protected:
     GuiRadioButton(GuiContainer* parent, const GuiText& text, int myID,
                    const Pointer<int>& groupSelection,
                    GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE);
-
+    
     bool selected() const;
     
     void setSelected();
