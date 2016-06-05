@@ -319,8 +319,8 @@ void VideoRecordDialog::stopRecording() {
     String oldFilename = m_video->filename();
     String newFilename = oldFilename;
     m_video.reset();
-
-    if (ScreenshotDialog::create(window(), theme(), FilePath::parent(newFilename))->getFilename(newFilename, "Save Movie")) {
+    bool addToSVN = false;
+    if (ScreenshotDialog::create(window(), theme(), FilePath::parent(newFilename))->getFilename(newFilename, addToSVN, "Save Movie")) {
         newFilename = trimWhitespace(newFilename);
 
         if (newFilename.empty()) {
@@ -329,6 +329,9 @@ void VideoRecordDialog::stopRecording() {
         } else {
             if (oldFilename != newFilename) {
                 FileSystem::rename(oldFilename, newFilename);
+            }
+            if (addToSVN) {
+                G3D::svnAdd(FileSystem::resolve(newFilename));
             }
             saveMessage(newFilename);
         }
@@ -414,12 +417,15 @@ void VideoRecordDialog::screenshot(RenderDevice* rd) {
         image->flipVertical();
     }
 
-    if (ScreenshotDialog::create(window(), theme(), FilePath::parent(filename))->getFilename(filename, "Save Screenshot", texture)) {
+    bool addToSVN = false;
+    if (ScreenshotDialog::create(window(), theme(), FilePath::parent(filename))->getFilename(filename, addToSVN, "Save Screenshot", texture)) {
         filename = trimWhitespace(filename);
-
         if (! filename.empty()) {
             image->save(filename);
             saveMessage(filename);
+            if (addToSVN) {
+                G3D::svnAdd(FileSystem::resolve(filename));
+            }
         }
     }
 }

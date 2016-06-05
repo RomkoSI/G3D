@@ -4,6 +4,7 @@
 #include "G3D/g3dmath.h"
 #include "G3D/platform.h"
 #include "G3D/TextInput.h"
+#include "G3D/FileSystem.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -52,6 +53,54 @@ static String g3d_exec(const char* cmd) {
     }
     g3d_pclose(pipe);
     return result;
+}
+
+static bool commandExists(const String& cmd) {
+    const char* path = System::getEnv("PATH");
+    if (path != NULL) {
+#   ifdef G3D_WINDOWS
+        Array<String> pathDirs = G3D::stringSplit(path, ';');
+#   else
+        Array<String> pathDirs = G3D::stringSplit(path, ':');
+#   endif
+        for (const String& p : pathDirs) {
+            if (FileSystem::exists(p + "/" + cmd)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+static String svnName() {
+#   ifdef G3D_WINDOWS
+    return "svn.exe";
+#   else
+    return "svn";
+#   endif
+    
+}
+
+bool hasCommandLineSVN() {
+    static bool initialized = false;
+    static bool hasSVN = false;
+    if (!initialized) {
+        hasSVN = commandExists(svnName());
+        initialized = true;
+    }
+    return hasSVN;
+}
+
+int svnAdd(const String& path) {
+    if (hasCommandLineSVN()) {
+        const String& command = (svnName() + " add \"" + path + "\"");
+        debugPrintf("Command: %s\n", command.c_str());
+        const String& result = g3d_exec(command.c_str());
+        if (result != "ERROR") {
+            return 0;
+        }
+    }
+    return -1;
 }
 
 /** 

@@ -15,6 +15,10 @@ int getSVNDirectoryRevision(const String& path);
     */
 int getSVNRepositoryRevision(const String& rawPath);
 
+int svnAdd(const String& path);
+
+bool hasCommandLineSVN();
+
 }
 
 #endif

@@ -10,6 +10,7 @@
 */
 #include "G3D/fileutils.h"
 #include "G3D/FileSystem.h"
+#include "G3D/svnutils.h"
 #include "GLG3D/GuiTextureBox.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/GuiButton.h"
@@ -460,10 +461,14 @@ void GuiTextureBox::save() {
         rd->pop2D();
         shared_ptr<GuiTextureBoxInspector> ins(m_inspector.lock());
         if (notNull(m_app)) {
-            if (ScreenshotDialog::create(window()->window(), theme(), FilePath::parent(filename), false)->getFilename(filename, m_texture->name(), color)) {
+            bool addToSVN = false;
+            if (ScreenshotDialog::create(window()->window(), theme(), FilePath::parent(filename), false)->getFilename(filename, addToSVN, m_texture->name(), color)) {
                 filename = trimWhitespace(filename);
                 if (!filename.empty()) {
                     color->toImage()->save(filename);
+                    if (addToSVN) {
+                        G3D::svnAdd(FileSystem::resolve(filename));
+                    }
                 }
             }
         }

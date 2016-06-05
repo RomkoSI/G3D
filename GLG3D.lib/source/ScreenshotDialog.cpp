@@ -30,7 +30,10 @@ namespace G3D {
 
 ScreenshotDialog::ScreenshotDialog(OSWindow* osWindow, const shared_ptr<GuiTheme>& theme, const String& journalDirHint, const bool flip) : 
     GuiWindow("", theme, Rect2D::xywh(400, 100, 10, 10), GuiTheme::DIALOG_WINDOW_STYLE, HIDE_ON_CLOSE), 
-    ok(false), m_flip(flip), m_osWindow(osWindow), m_location(APPEND) {
+    ok(false), m_flip(flip), m_osWindow(osWindow), m_location(APPEND), 
+    m_addToSVN(false) {
+
+    static int projectRevision = getSVNRepositoryRevision(FileSystem::currentDirectory());
 
     GuiPane* rootPane = pane();
 
@@ -70,6 +73,14 @@ ScreenshotDialog::ScreenshotDialog(OSWindow* osWindow, const shared_ptr<GuiTheme
         discussionBox->setSize(400, 100);
     } journalPane->endRow();
 
+
+
+    journalPane->beginRow(); {
+        GuiCheckBox* box = journalPane->addCheckBox("Add to SVN", &m_addToSVN);
+        box->setEnabled(G3D::hasCommandLineSVN() && (projectRevision >= 0));
+        m_addToSVN = G3D::hasCommandLineSVN() && (projectRevision >= 0);
+    } journalPane->endRow();
+
     journalPane->addLabel("Include in filename:");
 
     journalPane->beginRow(); {
@@ -95,12 +106,12 @@ ScreenshotDialog::ScreenshotDialog(OSWindow* osWindow, const shared_ptr<GuiTheme
     } journalPane->endRow();
 
     journalPane->beginRow(); {
-        static bool showProjectSVNRevision = true;
-        static int projectRevision = getSVNRepositoryRevision(FileSystem::currentDirectory());
+        static bool showProjectSVNRevision = (projectRevision >= 0);
 
         GuiControl* c = journalPane->addCheckBox("Project SVN Revision", &showProjectSVNRevision);
         c->setWidth(150);
         c->moveBy(15, 0);
+        c->setEnabled(projectRevision >= 0);
 
         GuiNumberBox<int>* n = journalPane->addNumberBox("", &projectRevision);
         n->setUnitsSize(0);
@@ -157,7 +168,7 @@ String ScreenshotDialog::nextFilenameBase(const String& prefix) {
 }
 
 
-bool ScreenshotDialog::getFilename(String& filename, const String& caption, const shared_ptr<Texture>& texture) {
+bool ScreenshotDialog::getFilename(String& filename, bool& addToSVN, const String& caption, const shared_ptr<Texture>& texture) {
     setCaption(caption);
     m_textureBox->setTexture(texture);
     m_textureBox->setVisible(notNull(texture));
@@ -167,6 +178,7 @@ bool ScreenshotDialog::getFilename(String& filename, const String& caption, cons
 
     if (ok) {
         filename = m_filename;
+        addToSVN = m_addToSVN;
     }
     return ok;
 }
