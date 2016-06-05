@@ -40,7 +40,7 @@ ArticulatedModelSpecificationEditorDialog::ArticulatedModelSpecificationEditorDi
         translation = NONE;
 
         sPane->addLabel("Translation:");   
-        sPane->addRadioButton("None", NONE  , &translation);
+        sPane->addRadioButton("None", NONE, &translation);
         sPane->addRadioButton("Center to Origin", CENTER, &translation); 
         sPane->addRadioButton("Base to Origin",  BASE  , &translation); 
 

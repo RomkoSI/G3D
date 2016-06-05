@@ -293,34 +293,105 @@ public:
     }
     
 
-    GuiRadioButton* addRadioButton(const GuiText& text, int myID,  
-        const Pointer<int>& ptr, 
-        GuiTheme::RadioButtonStyle style);
+    /**
+       Example:
+       <pre>
+       enum Day {SUN, MON, TUE, WED, THU, FRI, SAT};
 
+       Day day;
+       
+       gui->addRadioButton("Sun", SUN, &day);
+       gui->addRadioButton("Mon", MON, &day);
+       gui->addRadioButton("Tue", TUE, &day);
+       ...
+       </pre>
+
+       @param ptr Must be a pointer to an int or enum.  The
+       current selection value for a group of radio buttons.
+     */
+    template <typename EnumOrInt>
+    GuiRadioButton* addRadioButton
+       (const GuiText& text, 
+        EnumOrInt myID,
+        const Pointer<EnumOrInt>& ptr,
+        GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE) {
+
+        GuiRadioButton* c = addControl(new GuiRadioButton(
+            this,
+            text, 
+            int(myID), 
+            Pointer<int>([ptr]() { return int(*ptr); },
+                         [ptr](int m) { *ptr = EnumOrInt(m); }), 
+            style));
+
+        Vector2 size(0, (float)CONTROL_HEIGHT);
+
+        if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
+            Vector2 bounds = theme()->minButtonSize(text, GuiTheme::TOOL_BUTTON_STYLE);
+            size.x = max(float(TOOL_BUTTON_WIDTH), bounds.x);
+        } else if (style == 1) { // Doesn't compile on gcc unless we put the integer in. GuiTheme::BUTTON_RADIO_BUTTON_STYLE) {
+            size.x = BUTTON_WIDTH;
+            Vector2 bounds = theme()->minButtonSize(text, GuiTheme::NORMAL_BUTTON_STYLE);
+            size = size.max(bounds);
+        } else { // NORMAL_RADIO_BUTTON_STYLE
+            Vector2 bounds = theme()->minButtonSize(text, GuiTheme::NORMAL_BUTTON_STYLE);
+            size.x = bounds.x;
+        }
+
+        c->setSize(size);
+
+        return c;
+    }
+
+    template <class G3DEnum>
+    GuiRadioButton* addRadioButton
+       (const GuiText& text, 
+        typename G3DEnum::Value myID,
+        const Pointer<G3DEnum>& ptr,
+        GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE) {
+
+        return addRadioButton(text, myID, 
+                 Pointer<typename G3DEnum::Value>([ptr]() { return G3DEnum(*ptr).value; },
+                                                  [ptr](typename G3DEnum::Value m) { *ptr = m; }));
+    }
+
+    // Helps C++ figure out what to do when the text is a C string and the ptr is a raw ptr, requiring too
+    // many implicit casts
+    template <typename EnumOrInt>
+    GuiRadioButton* addRadioButton
+       (const GuiText& text, 
+        EnumOrInt myID,
+        EnumOrInt* ptr,
+        GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE) {
+        return addRadioButton<EnumOrInt>(text, myID, Pointer<EnumOrInt>(ptr), style);
+    }
+
+    
     template<typename EnumOrInt, class T>
     GuiRadioButton* addRadioButton
-        (const GuiText& text, 
-        int myID,  
-        T* object,
+       (const GuiText&  text, 
+        int             myID,
+        T*              object,
         EnumOrInt (T::*get)() const,
         void (T::*set)(EnumOrInt), 
         GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE) {
         
-            return addRadioButton(text, myID, Pointer<int>(object, 
-                                        reinterpret_cast<int (T::*)() const>(get), 
-                                        reinterpret_cast<void (T::*)(int)>(set)), style);
+        return addRadioButton(text, myID, Pointer<int>(object, 
+                                    reinterpret_cast<int (T::*)() const>(get), 
+                                    reinterpret_cast<void (T::*)(int)>(set)), style);
     }
 
     template<typename EnumOrInt, class T>
-    GuiRadioButton* addRadioButton(const GuiText& text, int myID,  
+    GuiRadioButton* addRadioButton
+       (const GuiText& text, int myID,  
         shared_ptr<T> object,
         EnumOrInt (T::*get)() const,
         void (T::*set)(EnumOrInt), 
         GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE) {
         
-            return addRadioButton(text, myID, Pointer<int>(object, 
-                                        reinterpret_cast<int (T::*)() const>(get), 
-                                        reinterpret_cast<void (T::*)(int)>(set)), style);
+        return addRadioButton(text, myID, Pointer<int>(object, 
+                                    reinterpret_cast<int (T::*)() const>(get), 
+                                    reinterpret_cast<void (T::*)(int)>(set)), style);
     }
     
     /** 
@@ -331,7 +402,7 @@ public:
       \param style Style of the individual buttons.
      */
     template<class EnumClass>
-    void addEnumClassRadioButtons(const GuiText& label, EnumClass* valuePtr, GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE) {
+    void addEnumClassRadioButtons(const GuiText& label, const Pointer<EnumClass>& valuePtr, GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE) {
         if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
             beginRow();
         }
@@ -421,25 +492,6 @@ public:
                                 bool useUpperInf               = false) {
         return addSlider(text, Pointer<Value>(value), min, max, horizontal, scale, useLowerInf, useUpperInf);
     }
-
-    /**
-       Example:
-       <pre>
-       enum Day {SUN, MON, TUE, WED, THU, FRI, SAT};
-
-       Day day;
-       
-       gui->addRadioButton("Sun", SUN, &day);
-       gui->addRadioButton("Mon", MON, &day);
-       gui->addRadioButton("Tue", TUE, &day);
-       ...
-       </pre>
-
-       @param selection Must be a pointer to an int or enum.  The
-       current selection value for a group of radio buttons.
-     */
-    GuiRadioButton* addRadioButton(const GuiText& text, int myID, void* selection, 
-                                   GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE);
 
     GuiButton* addButton(const GuiText& text, const GuiControl::Callback& actionCallback, GuiTheme::ButtonStyle style);
 

@@ -120,6 +120,9 @@
 	   <li> G3D::Texture::cosHemiRandom(), G3D::Texture::sphereRandom(), G3D::Texture::uniformRandom()</li>
 	   <li> Fixed SNORM ImageFormats when invoking Texture::fromPixelTransferBuffer</li>
 	   <li> isWhiteSpace &rarr isWhitespace</li>
+	   <li> Added automatic SVN ADD in ScreenshotDialog (requires TortoiseSVN with command line tools on Windows)</li>
+	   <li> Pointer can now return a Pointer::IndirectValue for a const Pointer (to a non-const value) </li>
+	   <li> Cleaned up GuiPane::addRadioButton template type safety </li>
       </ul>
     </p>
 

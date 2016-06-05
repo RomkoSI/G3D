@@ -380,7 +380,7 @@ CameraControlWindow::CameraControlWindow
         b->setWidth(290);  b->setCaptionWidth(105);
 
         projectionPane->beginRow();
-        Pointer<int> directionPtr(m_camera, &Camera::_fieldOfViewDirectionInt, &Camera::_setFieldOfViewDirectionInt);
+        Pointer<FOVDirection> directionPtr(m_camera, &Camera::fieldOfViewDirection, &Camera::setFieldOfViewDirection);
         GuiRadioButton* radioButton2 = projectionPane->addRadioButton("Horizontal", FOVDirection::HORIZONTAL, directionPtr, GuiTheme::TOOL_RADIO_BUTTON_STYLE);
         radioButton2->moveBy(106, 0);
         radioButton2->setWidth(91);

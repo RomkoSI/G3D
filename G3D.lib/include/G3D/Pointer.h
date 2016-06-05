@@ -4,9 +4,9 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
   \created 2007-05-16
-  \edited  2012-10-06
+  \edited  2016-06-05
 
-  Copyright 2000-2015, Morgan McGuire.
+  Copyright 2000-2016, Morgan McGuire.
   All rights reserved.
  */
 #ifndef G3D_Pointer_h
@@ -204,8 +204,7 @@ private:
            (const shared_ptr<T>& object, 
             GetMethod getMethod, 
             SetMethod setMethod) : object(object), getMethod(getMethod), setMethod(setMethod) {
-
-	  debugAssert(notNull(object));
+	        debugAssert(notNull(object));
         }
 
         virtual void set(ValueType v) {
@@ -285,7 +284,6 @@ public:
             void (*setMethod)(ValueType)) : 
         m_interface(new FcnAccessor<const ValueType& (*)(), void (*)(ValueType)>(getMethod, setMethod)) {}
 
-
     /** \param setMethod May be NULL */
     template<class Class>
     Pointer(const shared_ptr<Class>& object,
@@ -339,7 +337,7 @@ public:
 
     /** \brief Assign a value to the referenced element.
         If this Pointer was initialized with a NULL setMethod, the call is ignored */
-    inline void setValue(const ValueType& v) {
+    inline void setValue(const ValueType& v) const {
         debugAssert(m_interface != NULL);
         m_interface->set(v);
     }
@@ -348,8 +346,8 @@ public:
     private:
 
         friend class Pointer;
-        Pointer* pointer;
-        IndirectValue(Pointer* p) : pointer(p) {}
+        const Pointer* pointer;
+        IndirectValue(const Pointer* p) : pointer(p) {}
 
     public:
 
@@ -367,9 +365,14 @@ public:
         return IndirectValue(this);
     }
 
-    inline const ValueType operator*() const {
+    inline IndirectValue operator*() const {
+        return IndirectValue(this);
+    }
+
+/*    inline const ValueType operator*() const {
         return getValue();
     }
+    */
 };
 
 template<class T>

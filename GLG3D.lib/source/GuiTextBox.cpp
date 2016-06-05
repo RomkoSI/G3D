@@ -59,7 +59,7 @@ void GuiTextBox::render(RenderDevice* rd, const shared_ptr<GuiTheme>& theme, boo
                     m_gui->fireEvent(response);
                 }
                 me->m_editing = false;
-            } else if (*m_value != m_oldValue) {
+            } else if (String(*m_value) != m_oldValue) {
                 // The value has been changed by the program while we
                 // were editing; override our copy with the
                 // programmatic value.
