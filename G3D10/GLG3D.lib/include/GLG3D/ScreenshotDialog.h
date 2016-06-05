@@ -50,6 +50,7 @@ protected:
     enum Location {APPEND, NEW} location;	
     Location		m_location;
     
+    bool        m_addToSVN;
     String		m_newEntryName;
     String		m_caption;
     String		m_discussion;
@@ -84,7 +85,7 @@ public:
      */
     // filename is passed as a reference instead of a pointer because it will not be used after the
     // method ends, so there is no danger of the caller misunderstanding as there is with the GuiPane::addTextBox method.
-    virtual bool getFilename(String& filename, const String& caption = "Save Screenshot", const shared_ptr<Texture>& texture = shared_ptr<Texture>());
+    virtual bool getFilename(String& filename, bool& addToSVN, const String& caption = "Save Screenshot", const shared_ptr<Texture>& texture = shared_ptr<Texture>());
 
     virtual bool onEvent(const GEvent& e);
 
