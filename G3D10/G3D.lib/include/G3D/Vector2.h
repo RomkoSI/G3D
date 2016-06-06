@@ -16,6 +16,7 @@
 #define G3D_Vector2_h
 
 #include "G3D/platform.h"
+#include <cmath>
 #include "G3D/G3DString.h"
 #include "G3D/DoNotInitialize.h"
 #include "G3D/g3dmath.h"
