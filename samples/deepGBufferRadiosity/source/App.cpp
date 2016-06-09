@@ -237,7 +237,7 @@ void App::makeGUI() {
 
     GuiPane* lightingPane = radiosityPane->addPane("", GuiTheme::NO_PANE_STYLE);
     lightingPane->moveBy(0, 10);
-    lightingPane->addRadioButton("Deep G-Buffer Radiosity", DemoSettings::GlobalIlluminationMode::RADIOSITY,  &m_demoSettings.globalIlluminationMode);
+    lightingPane->addRadioButton("Deep G-Buffer Radiosity", DemoSettings::GlobalIlluminationMode::RADIOSITY,  &m_demoSettings.globalIlluminationMode.value);
     lightingPane->beginRow(); {
         const float h = 16.0f;
         const float w = 75.0f; 
@@ -245,14 +245,14 @@ void App::makeGUI() {
         GuiLabel* label = lightingPane->addLabel(GuiText("Preset:", shared_ptr<GFont>(), fontSize + 1));
         label->moveBy(22, 0);
         label->setWidth(42);
-        lightingPane->addRadioButton(GuiText("Performance", shared_ptr<GFont>(), fontSize), DemoSettings::QualityPreset::MAX_PERFORMANCE, &m_demoSettings.QualityPreset, GuiTheme::TOOL_RADIO_BUTTON_STYLE)->setSize(w, h);
-        lightingPane->addRadioButton(GuiText("Balanced", shared_ptr<GFont>(), fontSize),    DemoSettings::QualityPreset::BALANCED,          &m_demoSettings.QualityPreset, GuiTheme::TOOL_RADIO_BUTTON_STYLE)->setSize(w, h);
-        lightingPane->addRadioButton(GuiText("Quality", shared_ptr<GFont>(), fontSize),     DemoSettings::QualityPreset::MAX_QUALITY,     &m_demoSettings.QualityPreset, GuiTheme::TOOL_RADIO_BUTTON_STYLE)->setSize(w, h);
+        lightingPane->addRadioButton(GuiText("Performance", shared_ptr<GFont>(), fontSize), DemoSettings::QualityPreset::MAX_PERFORMANCE, &m_demoSettings.QualityPreset.value, GuiTheme::TOOL_RADIO_BUTTON_STYLE)->setSize(w, h);
+        lightingPane->addRadioButton(GuiText("Balanced", shared_ptr<GFont>(), fontSize),    DemoSettings::QualityPreset::BALANCED,          &m_demoSettings.QualityPreset.value, GuiTheme::TOOL_RADIO_BUTTON_STYLE)->setSize(w, h);
+        lightingPane->addRadioButton(GuiText("Quality", shared_ptr<GFont>(), fontSize),     DemoSettings::QualityPreset::MAX_QUALITY,     &m_demoSettings.QualityPreset.value, GuiTheme::TOOL_RADIO_BUTTON_STYLE)->setSize(w, h);
         label->moveBy(0, -5);
     } lightingPane->endRow();
     
-    lightingPane->addRadioButton("Prerendered Light Probe", DemoSettings::GlobalIlluminationMode::STATIC_LIGHT_PROBE,   &m_demoSettings.globalIlluminationMode)->moveBy(0, 1);
-    lightingPane->addRadioButton("Split Screen Comparison", DemoSettings::GlobalIlluminationMode::SPLIT_SCREEN,         &m_demoSettings.globalIlluminationMode);
+    lightingPane->addRadioButton("Prerendered Light Probe", DemoSettings::GlobalIlluminationMode::STATIC_LIGHT_PROBE,   &m_demoSettings.globalIlluminationMode.value)->moveBy(0, 1);
+    lightingPane->addRadioButton("Split Screen Comparison", DemoSettings::GlobalIlluminationMode::SPLIT_SCREEN,         &m_demoSettings.globalIlluminationMode.value);
 
     lightingPane->addCheckBox("Animated Light Rig", &m_demoSettings.dynamicLights)->moveBy(0, 15);
 
@@ -270,9 +270,9 @@ void App::makeGUI() {
 
     GuiPane* cameraPane = pane->addPane("Camera", GuiTheme::SIMPLE_PANE_STYLE);
     cameraPane->moveBy(0, 5);
-    cameraPane->addRadioButton("Static",  DemoSettings::CameraMode::STATIC,   &m_demoSettings.cameraMode);
-    cameraPane->addRadioButton("Dynamic", DemoSettings::CameraMode::DYNAMIC,  &m_demoSettings.cameraMode);
-    cameraPane->addRadioButton("Manual ", DemoSettings::CameraMode::FREE,     &m_demoSettings.cameraMode);
+    cameraPane->addRadioButton("Static",  DemoSettings::CameraMode::STATIC,   &m_demoSettings.cameraMode.value);
+    cameraPane->addRadioButton("Dynamic", DemoSettings::CameraMode::DYNAMIC,  &m_demoSettings.cameraMode.value);
+    cameraPane->addRadioButton("Manual ", DemoSettings::CameraMode::FREE,     &m_demoSettings.cameraMode.value);
 
     const shared_ptr<Texture>& legend = Texture::fromFile(System::findDataFile("keyguide-small.png"));
     m_controlLabel = cameraPane->addLabel(GuiText(legend));
