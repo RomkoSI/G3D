@@ -34,7 +34,7 @@ int main(int argc, const char* argv[]) {
     settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(64, 64);
     settings.hdrFramebuffer.colorGuardBandThickness = Vector2int16(0, 0);
     settings.dataDir                    = FileSystem::currentDirectory();
-    settings.screenshotDirectory        = ".";
+//    settings.screenshotDirectory        = ".";
 
     settings.renderer.deferredShading = true;
     settings.renderer.orderIndependentTransparency = false;
@@ -45,6 +45,76 @@ int main(int argc, const char* argv[]) {
 
 
 App::App(const GApp::Settings& settings) : GApp(settings) {
+}
+
+
+PxTriangleMesh* App::cookModelIntoTriangleMesh(const Array<Vector3>& vertices, const Array<int>& indices) {
+    PxTriangleMeshDesc meshDesc;
+    meshDesc.points.count           = vertices.size();
+    meshDesc.points.stride          = sizeof(PxVec3);
+    meshDesc.points.data            = vertices.getCArray();
+
+    meshDesc.triangles.count        = indices.size()/3;
+    meshDesc.triangles.stride       = 3*sizeof(PxU32);
+    meshDesc.triangles.data         = indices.getCArray();
+
+
+    debugPrintf("vertices.size() = %d\n", vertices.size());
+    debugPrintf("indices.size() = %d\n", indices.size());
+
+    PxDefaultMemoryOutputStream writeBuffer;
+    bool status = m_physxWorld.cooking->cookTriangleMesh(meshDesc, writeBuffer);
+    if(!status) {
+        alwaysAssertM(false, "Unable to cook triangle mesh");
+        return NULL;
+    }
+
+    PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+    return m_physxWorld.physics->createTriangleMesh(readBuffer);
+}
+
+
+void App::initPhysX() {
+    static PxDefaultErrorCallback gDefaultErrorCallback;
+    static PxDefaultAllocator gDefaultAllocatorCallback;
+
+    m_physxWorld.foundation = PxCreateFoundation(PX_PHYSICS_VERSION, gDefaultAllocatorCallback, gDefaultErrorCallback);
+
+    alwaysAssertM(notNull(m_physxWorld.foundation), "PxCreateFoundation failed!");
+
+
+    m_physxWorld.profileZoneManager = &PxProfileZoneManager::createProfileZoneManager(m_physxWorld.foundation);
+    alwaysAssertM(notNull(m_physxWorld.profileZoneManager), "PxProfileZoneManager::createProfileZoneManager failed!");
+
+    PxTolerancesScale scale;
+    scale.length = 1;        // typical length of an object
+    scale.speed = 9.81;         // typical speed of an object, gravity*1s is a reasonable choice
+
+    bool recordMemoryAllocations = true;
+    m_physxWorld.physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_physxWorld.foundation,
+            scale, recordMemoryAllocations, m_physxWorld.profileZoneManager );
+    alwaysAssertM(notNull(m_physxWorld.physics), "PxCreatePhysics failed!");
+
+    m_physxWorld.cooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_physxWorld.foundation, PxCookingParams(scale));
+    alwaysAssertM(notNull(m_physxWorld.cooking), "PxCreateCooking failed!");
+
+    PxSceneDesc sceneDesc(m_physxWorld.physics->getTolerancesScale());
+    sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+    //customizeSceneDesc(sceneDesc);
+
+    int threadCount = 1;
+    if (! sceneDesc.cpuDispatcher) {
+        m_physxWorld.cpuDispatcher = PxDefaultCpuDispatcherCreate(threadCount);
+        alwaysAssertM(notNull(m_physxWorld.cpuDispatcher),"PxDefaultCpuDispatcherCreate failed!");
+        sceneDesc.cpuDispatcher    = m_physxWorld.cpuDispatcher;
+    }
+    if (! sceneDesc.filterShader) {
+        sceneDesc.filterShader    = PxDefaultSimulationFilterShader;
+    }
+
+    m_physxWorld.scene = m_physxWorld.physics->createScene(sceneDesc);
+    alwaysAssertM(notNull(m_physxWorld.scene), "createScene failed!");
+    m_physxWorld.defaultMaterial = m_physxWorld.physics->createMaterial(0.5f, 0.5f, 0.6f);
 }
 
 
@@ -70,28 +140,6 @@ void App::onInit() {
         "G3D Cornell Box" // Load something simple
         //developerWindow->sceneEditorWindow->selectedSceneName()  // Load the first scene encountered 
         );
-
-    {
-        RenderDevice* rd = renderDevice;
-        testTexture = Texture::createEmpty("Test", 256, 256, ImageFormat::RG8_SNORM());
-        testFramebuffer = Framebuffer::create(testTexture);
-
-        highPrecisionTexture = Texture::createEmpty("high precision", 256, 256, ImageFormat::RG16_SNORM());
-        highPrecisionFramebuffer = Framebuffer::create(highPrecisionTexture);
-
-        rd->push2D(testFramebuffer); {
-            Args args;
-            args.setRect(rd->viewport());
-            LAUNCH_SHADER("generateTestData.*", args);
-        } rd->pop2D();
-
-        rd->push2D(highPrecisionFramebuffer); {
-            Args args;
-//            args.setUniform("source", testTexture, Sampler::buffer());
-            args.setRect(rd->viewport());
-            LAUNCH_SHADER("generateTestData.*", args);
-        } rd->pop2D();
-    }
 }
 
 

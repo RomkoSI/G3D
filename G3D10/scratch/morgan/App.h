@@ -6,7 +6,8 @@
  */
 #ifndef App_h
 #define App_h
-#include <G3D/G3DAll.h>
+#include <physx/GLG3DPhysXAll.h>
+
 
 /** Application framework. */
 class App : public GApp {
@@ -17,11 +18,27 @@ protected:
 
 public:
 
-    shared_ptr<Texture> testTexture;
-    shared_ptr<Framebuffer> testFramebuffer;
+    
+    struct PhysXWorld {
+        PxFoundation* foundation;
 
-    shared_ptr<Texture> highPrecisionTexture;
-    shared_ptr<Framebuffer> highPrecisionFramebuffer;
+        PxProfileZoneManager* profileZoneManager;
+
+        PxPhysics* physics;
+
+        PxMaterial* defaultMaterial;
+
+        PxCooking* cooking;
+
+        PxScene* scene;
+
+        PxCpuDispatcher* cpuDispatcher;
+    };
+
+    PhysXWorld m_physxWorld;
+
+    void initPhysX();
+    PxTriangleMesh* cookModelIntoTriangleMesh(const Array<Vector3>& vertices, const Array<int>& indices);
 
     App(const GApp::Settings& settings = GApp::Settings());
 
