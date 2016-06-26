@@ -76,15 +76,15 @@ inline Quat toQuat(const PxQuat& q) {
 
 inline CFrame toCFrame(const PxTransform& t) {
     CFrame frame;
-    frame.translation = toVector3(t.p.x, t.p.y, t.p.z);
+    frame.translation = toVector3(t.p);
     frame.rotation = Matrix3(toQuat(t.q));
     return frame;
 }
 
 inline PhysicsFrame toPhysicsFrame(const PxTransform& t) {
     PhysicsFrame frame;
-    frame.translation = Point3(t.p.x, t.p.y, t.p.z);
-    frame.rotation = toVector3(t.q);
+    frame.translation = toVector3(t.p);
+    frame.rotation = toQuat(t.q);
     return frame;
 }
 
