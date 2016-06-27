@@ -105,7 +105,7 @@ bool PhysXWorld::TriTree::intersectRay(Ray ray, Tri::Intersector& intersectCallb
             const int triIndex = m_geometry->triangleMesh->getTrianglesRemap()[hitInfo.faceIndex];
 
             const Tri& tri = m_triArray[hitInfo.faceIndex];
-            if (intersectCallback(ray, m_cpuVertexArray, tri, twoSided, distance)) {
+            if (intersectCallback(ray, m_cpuVertexArray, tri, twoSided, distance, true)) {
                 distance = hitInfo.distance + accumulatedDistance;
                 intersectCallback.primitiveIndex = triIndex;
                 intersectCallback.cpuVertexArray = &m_cpuVertexArray;
