@@ -101,6 +101,7 @@ bool PhysXWorld::TriTree::intersectRay(Ray ray, Tri::Intersector& intersectCallb
         PxRaycastHit hitInfo;
         const PxU32 hitCount = PxGeometryQuery::raycast(toPxVec3(ray.origin()), toPxVec3(ray.direction()), *const_cast<TriTree*>(this)->m_geometry, PxTransform(PxVec3(0, 0, 0)), distance, hitFlags, maxHits, &hitInfo, exitOnAnyHit);
         if (hitCount > 0) {
+            // TODO: is this remapping correct?
             const int triIndex = m_geometry->triangleMesh->getTrianglesRemap()[hitInfo.faceIndex];
 
             const Tri& tri = m_triArray[hitInfo.faceIndex];
@@ -331,12 +332,12 @@ void App::onInit() {
         debugPrintf("G3D   tree construction: %f ms\n", watch.elapsedTime() / units::milliseconds());
 
 
-        const int N = 10000000;
+        const int N = 1000000;
 
         watch.tick();
         for (int i = 0; i < N; ++i) {
             float distance = finf();
-            Ray ray = Ray::fromOriginAndDirection(Point3(0, 4, 0), Vector3(1, 0, 0));
+            Ray ray = Ray::fromOriginAndDirection(Point3(0, 4, 0), Vector3(1, 0, 1).direction());
             m_physXTriTree->intersectRay(ray, distance);
         }
         watch.tock();
@@ -345,7 +346,7 @@ void App::onInit() {
         watch.tick();
         for (int i = 0; i < N; ++i) {
             float distance = finf();
-            Ray ray = Ray::fromOriginAndDirection(Point3(0, 4, 0), Vector3(1, 0, 0));
+            Ray ray = Ray::fromOriginAndDirection(Point3(0, 4, 0), Vector3(1, 0, 1).direction());
             m_g3dTriTree.intersectRay(ray, distance);
         }
         watch.tock();
