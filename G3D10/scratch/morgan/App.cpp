@@ -27,12 +27,26 @@ void PhysXWorld::TriTree::setContents
     PxTriangleMeshDesc meshDesc;
     meshDesc.points.count           = m_cpuVertexArray.size();
     meshDesc.points.stride          = sizeof(CPUVertexArray::Vertex);
-    meshDesc.points.data            = &m_cpuVertexArray.vertex[0].position;
+    meshDesc.points.data            = &(m_cpuVertexArray.vertex[0].position.x);
+
+    /*
+    meshDesc.points.stride          = sizeof(Point3);
+    {
+        Vector3* vtxPtr = new Point3[m_cpuVertexArray.size()];
+        meshDesc.points.data = vtxPtr;
+        for (int v = 0; v < m_cpuVertexArray.size(); ++v, ++vtxPtr) {
+            *vtxPtr = m_cpuVertexArray.vertex[v].position;
+        }
+    }*/
 
     // Triangle indices are not packed with uniform stride in the m_triArray, so 
     // we must copy them here.
+   
     meshDesc.triangles.count        = m_triArray.size();
-    meshDesc.triangles.stride       = sizeof(int);
+    meshDesc.triangles.stride       = sizeof(Tri);
+    meshDesc.triangles.data         = &(m_triArray[0].index[0]);
+    /*
+    meshDesc.triangles.stride       = sizeof(int) * 3;
     {
         int* indexPtr = new int[m_triArray.size() * 3];
         meshDesc.triangles.data = indexPtr;
@@ -43,6 +57,7 @@ void PhysXWorld::TriTree::setContents
             }
         }
     }
+    */
 
     PxDefaultMemoryOutputStream writeBuffer;
     const bool status = m_world->cooking->cookTriangleMesh(meshDesc, writeBuffer);
@@ -53,12 +68,14 @@ void PhysXWorld::TriTree::setContents
     PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
     PxTriangleMesh* mesh = m_world->physics->createTriangleMesh(readBuffer);
 
-    // Free the copied indices used for construction
+/*    // Free the copied indices used for construction
     delete[] meshDesc.triangles.data;
     meshDesc.triangles.data = nullptr;
+    */
 
     m_geometry = new PxTriangleMeshGeometry(mesh);
 }
+
 
 shared_ptr<Surfel> PhysXWorld::TriTree::intersectRay(const Ray& ray, float& distance, bool exitOnAnyHit, bool twoSided) const {
     Tri::Intersector intersector;
@@ -275,6 +292,7 @@ void App::onInit() {
     setFrameDuration(1.0f / 120.0f);
 
     m_physXWorld = PhysXWorld::create();
+    m_physXTriTree = PhysXWorld::TriTree::create(m_physXWorld.get());
 
     // Call setScene(shared_ptr<Scene>()) or setScene(MyScene::create()) to replace
     // the default scene here.
@@ -291,6 +309,16 @@ void App::onInit() {
         "G3D Cornell Box" // Load something simple
         //developerWindow->sceneEditorWindow->selectedSceneName()  // Load the first scene encountered 
         );
+
+    {
+        Array<shared_ptr<Surface>> surfaceArray;
+        scene()->onPose(surfaceArray);
+        Stopwatch watch;
+        watch.tick();
+        m_physXTriTree->setContents(surfaceArray);
+        watch.tock();
+        debugPrintf("PhysX tree construction: %f ms\n", watch.elapsedTime() / units::milliseconds());
+    }
 }
 
 

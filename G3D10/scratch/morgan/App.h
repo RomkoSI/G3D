@@ -34,17 +34,21 @@ public:
 
     /** Designed to mirror G3D::TriTree */
     class TriTree : public ReferenceCountedObject {
-    private:
+    protected:
         Array<Tri>              m_triArray;
         CPUVertexArray          m_cpuVertexArray;
         PhysXWorld*             m_world;
         PxTriangleMeshGeometry* m_geometry;
 
-    public:
-
         TriTree(PhysXWorld* world) : m_world(world), m_geometry(nullptr) {}
 
-        ~TriTree();
+    public:
+
+        static shared_ptr<TriTree> create(PhysXWorld* world) {
+            return shared_ptr<TriTree>(new TriTree(world));
+        }
+
+        virtual ~TriTree();
 
         void clear();
 
@@ -67,6 +71,7 @@ protected:
 public:
     
     shared_ptr<PhysXWorld> m_physXWorld;
+    shared_ptr<PhysXWorld::TriTree> m_physXTriTree;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
