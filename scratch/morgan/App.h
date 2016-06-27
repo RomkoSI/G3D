@@ -50,7 +50,8 @@ public:
 
         void setContents(const Array<shared_ptr<Surface>>& surfaceArray, ImageStorage newStorage = COPY_TO_CPU); 
 
-        bool intersectRay(const Ray &ray, Tri::Intersector& intersectCallback, float& distance, bool exitOnAnyHit = false, bool twoSided = false) const;
+        bool intersectRay(Ray ray, Tri::Intersector& intersectCallback, float& distance, bool exitOnAnyHit = false, bool twoSided = false) const;
+
         shared_ptr<Surfel> intersectRay(const Ray& ray, float& distance, bool exitOnAnyHit = false, bool twoSided = false) const;
     };
 };

@@ -70,23 +70,41 @@ shared_ptr<Surfel> PhysXWorld::TriTree::intersectRay(const Ray& ray, float& dist
 }
 
 
-bool PhysXWorld::TriTree::intersectRay(const Ray &ray, Tri::Intersector& intersectCallback, float& distance, bool exitOnAnyHit, bool twoSided) const {
-    PxRaycastHit hitInfo;
+bool PhysXWorld::TriTree::intersectRay(Ray ray, Tri::Intersector& intersectCallback, float& distance, bool exitOnAnyHit, bool twoSided) const {
+    static const float bump = 0.0002f;
     const PxU32 maxHits = 1;
-    const PxHitFlags hitFlags = PxHitFlag::eDISTANCE | (exitOnAnyHit ? PxHitFlag::eMESH_ANY : PxHitFlag::Enum(0));
-    const PxU32 hitCount = PxGeometryQuery::raycast(toPxVec3(ray.origin()), toPxVec3(ray.direction()), *const_cast<TriTree*>(this)->m_geometry, PxTransform(PxVec3(0, 0, 0)), distance, hitFlags, maxHits, &hitInfo, exitOnAnyHit);
-    if (hitCount > 0) {
-        // TODO: run the intersector
-        // TODO: if the intersector reports no intersection and hitInfo.distance < distance, continue the ray
+    const PxHitFlags hitFlags = PxHitFlag::eDISTANCE | 
+        (exitOnAnyHit ? PxHitFlag::eMESH_ANY : PxHitFlag::Enum(0)) |
+        (twoSided ? PxHitFlag::eMESH_BOTH_SIDES : PxHitFlag::Enum(0));
 
-        distance = hitInfo.distance;
+    // Used to track relative offsets to the ray during restarts
+    float accumulatedDistance = 0.0f;
 
-        // TODO: Do we have to run the face index through the remapper table?
-        intersectCallback.primitiveIndex = hitInfo.faceIndex;
-        intersectCallback.cpuVertexArray = &m_cpuVertexArray;
-        return true;
-    } else {
-        return false;
+    while (true) {
+        PxRaycastHit hitInfo;
+        const PxU32 hitCount = PxGeometryQuery::raycast(toPxVec3(ray.origin()), toPxVec3(ray.direction()), *const_cast<TriTree*>(this)->m_geometry, PxTransform(PxVec3(0, 0, 0)), distance, hitFlags, maxHits, &hitInfo, exitOnAnyHit);
+        if (hitCount > 0) {
+            const int triIndex = m_geometry->triangleMesh->getTrianglesRemap()[hitInfo.faceIndex];
+
+            const Tri& tri = m_triArray[hitInfo.faceIndex];
+            if (intersectCallback(ray, m_cpuVertexArray, tri, twoSided, distance)) {
+                distance = hitInfo.distance + accumulatedDistance;
+                intersectCallback.primitiveIndex = triIndex;
+                intersectCallback.cpuVertexArray = &m_cpuVertexArray;
+                return true;
+            } else if (hitInfo.distance >= distance - bump) {
+                // Reached the end of the ray with no hit
+                return false;
+            } else {
+                accumulatedDistance += hitInfo.distance + bump;
+                // Bump and continue the ray; we failed the fine intersector. Mutate the ray
+                // rather than making a recursive call so that we don't abuse the program stack
+                // when tracing heavy alpha-mapped foliage
+                ray = Ray::fromOriginAndDirection(ray.origin() + ray.direction() * (hitInfo.distance + bump), ray.direction());
+            }
+        } else {
+            return false;
+        }
     }
 }
 
