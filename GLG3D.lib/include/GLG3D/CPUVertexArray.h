@@ -123,6 +123,20 @@ public:
         return vertex.size();
     }
 
+    void clear() {
+        hasTexCoord0    = true;
+        hasTexCoord1    = false;
+        hasTangent      = true;
+        hasBones        = false;
+        hasVertexColors = false;
+        prevPosition.clear();
+        boneWeights.clear();
+        vertex.clear();
+        texCoord1.clear();
+        vertexColors.clear();
+        boneIndices.clear();
+    }
+
     void copyFrom(const CPUVertexArray& other);
 
     /** \param texCoord1 This is not interleaved with the other data in GPU memory.
