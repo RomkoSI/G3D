@@ -305,19 +305,52 @@ void App::onInit() {
     // developerWindow->videoRecordDialog->setCaptureGui(false);
     developerWindow->cameraControlWindow->moveTo(Point2(developerWindow->cameraControlWindow->rect().x0(), 0));
     loadScene(
-         //"G3D Sponza"
-        "G3D Cornell Box" // Load something simple
+        "G3D Sponza"
+        //"G3D Cornell Box" // Load something simple
         //developerWindow->sceneEditorWindow->selectedSceneName()  // Load the first scene encountered 
         );
 
     {
         Array<shared_ptr<Surface>> surfaceArray;
         scene()->onPose(surfaceArray);
+
+        // Trigger material copy
+        m_g3dTriTree.setContents(surfaceArray);
+        m_g3dTriTree.clear();
+
+
         Stopwatch watch;
         watch.tick();
         m_physXTriTree->setContents(surfaceArray);
         watch.tock();
         debugPrintf("PhysX tree construction: %f ms\n", watch.elapsedTime() / units::milliseconds());
+
+        watch.tick();
+        m_g3dTriTree.setContents(surfaceArray);
+        watch.tock();
+        debugPrintf("G3D   tree construction: %f ms\n", watch.elapsedTime() / units::milliseconds());
+
+
+        const int N = 10000000;
+
+        watch.tick();
+        for (int i = 0; i < N; ++i) {
+            float distance = finf();
+            Ray ray = Ray::fromOriginAndDirection(Point3(0, 4, 0), Vector3(1, 0, 0));
+            m_physXTriTree->intersectRay(ray, distance);
+        }
+        watch.tock();
+        debugPrintf("PhysX trace time: %f ms\n", watch.elapsedTime() / units::milliseconds());
+
+        watch.tick();
+        for (int i = 0; i < N; ++i) {
+            float distance = finf();
+            Ray ray = Ray::fromOriginAndDirection(Point3(0, 4, 0), Vector3(1, 0, 0));
+            m_g3dTriTree.intersectRay(ray, distance);
+        }
+        watch.tock();
+        debugPrintf("G3D   trace time: %f ms\n", watch.elapsedTime() / units::milliseconds());
+
     }
 }
 

@@ -72,6 +72,7 @@ public:
     
     shared_ptr<PhysXWorld> m_physXWorld;
     shared_ptr<PhysXWorld::TriTree> m_physXTriTree;
+    TriTree m_g3dTriTree;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
