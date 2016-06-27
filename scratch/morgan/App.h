@@ -18,7 +18,16 @@ public:
     PxScene*                scene;
     PxCpuDispatcher*        cpuDispatcher;
 
+protected:
+
     PhysXWorld();
+
+public:
+
+    static shared_ptr<PhysXWorld> create() {
+        return shared_ptr<PhysXWorld>(new PhysXWorld());
+    }
+
     virtual ~PhysXWorld();
 
     PxTriangleMesh* cookTriangleMesh(const Array<Vector3>& vertices, const Array<int>& indices);
