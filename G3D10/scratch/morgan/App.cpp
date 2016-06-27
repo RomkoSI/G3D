@@ -185,8 +185,19 @@ PhysXWorld::PhysXWorld() {
 
 
 PhysXWorld::~PhysXWorld() {
+    scene->release();
+    scene = nullptr;
+
     physics->release();
-    foundation->release();
+    physics = nullptr;
+
+    profileZoneManager->release();
+    profileZoneManager = nullptr;
+
+    // TODO: Some module is still referencing the foundation!
+    // foundation->release();
+    foundation = nullptr;
+    cpuDispatcher = nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -245,7 +256,7 @@ void App::onInit() {
     GApp::onInit();
     setFrameDuration(1.0f / 120.0f);
 
-    m_physXWorld = shared_ptr<PhysXWorld>(new PhysXWorld());
+    m_physXWorld = PhysXWorld::create();
 
     // Call setScene(shared_ptr<Scene>()) or setScene(MyScene::create()) to replace
     // the default scene here.
