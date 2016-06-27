@@ -1,6 +1,163 @@
 /** \file App.cpp */
 #include "App.h"
 
+void PhysXWorld::TriTree::setContents
+(const Array<shared_ptr<Surface>>&  surfaceArray, 
+ ImageStorage                       newStorage) {
+
+    clear();
+
+    const bool computePrevPosition = false;
+    Surface::getTris(surfaceArray, m_cpuVertexArray, m_triArray, computePrevPosition);
+    alwaysAssertM(m_cpuVertexArray.vertex.size() == m_cpuVertexArray.vertex.capacity(), 
+                  "Allocated too much memory for the vertex array");
+   
+    if (newStorage != IMAGE_STORAGE_CURRENT) {
+        for (int i = 0; i < m_triArray.size(); ++i) {
+            const Tri& tri = m_triArray[i];
+            const shared_ptr<Material>& material = tri.material();
+            material->setStorage(newStorage);
+        }
+    }
+
+    if (m_cpuVertexArray.size() == 0) {
+        return;
+    }
+
+    PxTriangleMeshDesc meshDesc;
+    meshDesc.points.count           = m_cpuVertexArray.size();
+    meshDesc.points.stride          = sizeof(CPUVertexArray::Vertex);
+    meshDesc.points.data            = &m_cpuVertexArray.vertex[0].position;
+
+    // Triangle indices are not packed with uniform stride in the m_triArray, so 
+    // we must copy them here.
+    meshDesc.triangles.count        = m_triArray.size();
+    meshDesc.triangles.stride       = sizeof(int);
+    {
+        int* indexPtr = new int[m_triArray.size() * 3];
+        meshDesc.triangles.data = indexPtr;
+        for (int t = 0; t < m_triArray.size(); ++t) {
+            const Tri& tri = m_triArray[t];
+            for (int i = 0; i < 3; ++i, ++indexPtr) {
+                *indexPtr = tri.index[i];
+            }
+        }
+    }
+
+    PxDefaultMemoryOutputStream writeBuffer;
+    const bool status = m_world->cooking->cookTriangleMesh(meshDesc, writeBuffer);
+    if (! status) {
+        throw "Unable to cook triangle mesh";
+    }
+
+    PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+    PxTriangleMesh* mesh = m_world->physics->createTriangleMesh(readBuffer);
+
+    // Free the copied indices used for construction
+    delete[] meshDesc.triangles.data;
+    meshDesc.triangles.data = nullptr;
+
+    m_geometry = new PxTriangleMeshGeometry(mesh);
+}
+
+
+void PhysXWorld::TriTree::clear() {
+    m_triArray.fastClear();
+    m_cpuVertexArray.clear();
+
+    if (notNull(m_geometry)) {
+        m_geometry->triangleMesh->release();
+        delete m_geometry;
+        m_geometry = nullptr;
+    }
+}
+
+
+PhysXWorld::TriTree::~TriTree() {
+    clear();
+}
+
+
+PxTriangleMesh* PhysXWorld::cookTriangleMesh(const Array<Vector3>& vertices, const Array<int>& indices) {
+    // http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Geometry.html
+    PxTriangleMeshDesc meshDesc;
+    meshDesc.points.count           = vertices.size();
+    meshDesc.points.stride          = sizeof(Vector3);
+    meshDesc.points.data            = vertices.getCArray();
+
+    meshDesc.triangles.count        = indices.size() / 3;
+    meshDesc.triangles.stride       = 3 * sizeof(int);
+    meshDesc.triangles.data         = indices.getCArray();
+
+    debugPrintf("vertices.size() = %d\n", vertices.size());
+    debugPrintf("indices.size() = %d\n",  indices.size());
+
+    PxDefaultMemoryOutputStream writeBuffer;
+    const bool status = cooking->cookTriangleMesh(meshDesc, writeBuffer);
+    if (! status) {
+        alwaysAssertM(false, "Unable to cook triangle mesh");
+        return nullptr;
+    }
+
+    PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+    return physics->createTriangleMesh(readBuffer);
+}
+
+
+PhysXWorld::PhysXWorld() {
+    static PxDefaultErrorCallback gDefaultErrorCallback;
+    static PxDefaultAllocator gDefaultAllocatorCallback;
+
+    foundation = PxCreateFoundation(PX_PHYSICS_VERSION, gDefaultAllocatorCallback, gDefaultErrorCallback);
+
+    alwaysAssertM(notNull(foundation), "PxCreateFoundation failed!");
+
+    profileZoneManager = &PxProfileZoneManager::createProfileZoneManager(foundation);
+    alwaysAssertM(notNull(profileZoneManager), "PxProfileZoneManager::createProfileZoneManager failed!");
+
+    PxTolerancesScale scale;
+    scale.length = 1.0f;        // typical length of an object
+    scale.speed  = 9.81f;       // typical speed of an object, gravity*1s is a reasonable choice
+
+    const bool recordMemoryAllocations = false;
+    physics = PxCreateBasePhysics(PX_PHYSICS_VERSION, *foundation, scale, recordMemoryAllocations, profileZoneManager);
+    alwaysAssertM(notNull(physics), "PxCreatePhysics failed!");
+
+    cooking = PxCreateCooking(PX_PHYSICS_VERSION, *foundation, PxCookingParams(scale));
+    alwaysAssertM(notNull(cooking), "PxCreateCooking failed!");
+
+    PxSceneDesc sceneDesc(physics->getTolerancesScale());
+    sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+    //customizeSceneDesc(sceneDesc);
+
+    const int threadCount =
+#       ifdef G3D_DEBUG
+            1;
+#       else
+            max(2, GThread::numCores());
+#       endif
+
+    if (! sceneDesc.cpuDispatcher) {
+        cpuDispatcher = PxDefaultCpuDispatcherCreate(threadCount);
+        alwaysAssertM(notNull(cpuDispatcher),"PxDefaultCpuDispatcherCreate failed!");
+        sceneDesc.cpuDispatcher    = cpuDispatcher;
+    }
+
+    if (! sceneDesc.filterShader) {
+        sceneDesc.filterShader    = PxDefaultSimulationFilterShader;
+    }
+
+    scene = physics->createScene(sceneDesc);
+    alwaysAssertM(notNull(scene), "createScene failed!");
+    defaultMaterial = physics->createMaterial(0.5f, 0.5f, 0.6f);
+}
+
+
+PhysXWorld::~PhysXWorld() {
+    physics->release();
+    foundation->release();
+}
+
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
 G3D_START_AT_MAIN();
 
@@ -48,82 +205,14 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 }
 
 
-PxTriangleMesh* App::cookModelIntoTriangleMesh(const Array<Vector3>& vertices, const Array<int>& indices) {
-    PxTriangleMeshDesc meshDesc;
-    meshDesc.points.count           = vertices.size();
-    meshDesc.points.stride          = sizeof(PxVec3);
-    meshDesc.points.data            = vertices.getCArray();
-
-    meshDesc.triangles.count        = indices.size()/3;
-    meshDesc.triangles.stride       = 3*sizeof(PxU32);
-    meshDesc.triangles.data         = indices.getCArray();
-
-
-    debugPrintf("vertices.size() = %d\n", vertices.size());
-    debugPrintf("indices.size() = %d\n", indices.size());
-
-    PxDefaultMemoryOutputStream writeBuffer;
-    bool status = m_physxWorld.cooking->cookTriangleMesh(meshDesc, writeBuffer);
-    if(!status) {
-        alwaysAssertM(false, "Unable to cook triangle mesh");
-        return NULL;
-    }
-
-    PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-    return m_physxWorld.physics->createTriangleMesh(readBuffer);
-}
-
-
-void App::initPhysX() {
-    static PxDefaultErrorCallback gDefaultErrorCallback;
-    static PxDefaultAllocator gDefaultAllocatorCallback;
-
-    m_physxWorld.foundation = PxCreateFoundation(PX_PHYSICS_VERSION, gDefaultAllocatorCallback, gDefaultErrorCallback);
-
-    alwaysAssertM(notNull(m_physxWorld.foundation), "PxCreateFoundation failed!");
-
-
-    m_physxWorld.profileZoneManager = &PxProfileZoneManager::createProfileZoneManager(m_physxWorld.foundation);
-    alwaysAssertM(notNull(m_physxWorld.profileZoneManager), "PxProfileZoneManager::createProfileZoneManager failed!");
-
-    PxTolerancesScale scale;
-    scale.length = 1;        // typical length of an object
-    scale.speed = 9.81;         // typical speed of an object, gravity*1s is a reasonable choice
-
-    bool recordMemoryAllocations = true;
-    m_physxWorld.physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_physxWorld.foundation,
-            scale, recordMemoryAllocations, m_physxWorld.profileZoneManager );
-    alwaysAssertM(notNull(m_physxWorld.physics), "PxCreatePhysics failed!");
-
-    m_physxWorld.cooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_physxWorld.foundation, PxCookingParams(scale));
-    alwaysAssertM(notNull(m_physxWorld.cooking), "PxCreateCooking failed!");
-
-    PxSceneDesc sceneDesc(m_physxWorld.physics->getTolerancesScale());
-    sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-    //customizeSceneDesc(sceneDesc);
-
-    int threadCount = 1;
-    if (! sceneDesc.cpuDispatcher) {
-        m_physxWorld.cpuDispatcher = PxDefaultCpuDispatcherCreate(threadCount);
-        alwaysAssertM(notNull(m_physxWorld.cpuDispatcher),"PxDefaultCpuDispatcherCreate failed!");
-        sceneDesc.cpuDispatcher    = m_physxWorld.cpuDispatcher;
-    }
-    if (! sceneDesc.filterShader) {
-        sceneDesc.filterShader    = PxDefaultSimulationFilterShader;
-    }
-
-    m_physxWorld.scene = m_physxWorld.physics->createScene(sceneDesc);
-    alwaysAssertM(notNull(m_physxWorld.scene), "createScene failed!");
-    m_physxWorld.defaultMaterial = m_physxWorld.physics->createMaterial(0.5f, 0.5f, 0.6f);
-}
-
-
 // Called before the application loop begins.  Load data here and
 // not in the constructor so that common exceptions will be
 // automatically caught.
 void App::onInit() {
     GApp::onInit();
     setFrameDuration(1.0f / 120.0f);
+
+    m_physXWorld = shared_ptr<PhysXWorld>(new PhysXWorld());
 
     // Call setScene(shared_ptr<Scene>()) or setScene(MyScene::create()) to replace
     // the default scene here.

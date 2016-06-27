@@ -8,6 +8,42 @@
 #define App_h
 #include <physx/GLG3DPhysXAll.h>
 
+class PhysXWorld : public ReferenceCountedObject {
+public:
+    PxFoundation*           foundation;
+    PxProfileZoneManager*   profileZoneManager;
+    PxPhysics*              physics;
+    PxMaterial*             defaultMaterial;
+    PxCooking*              cooking;
+    PxScene*                scene;
+    PxCpuDispatcher*        cpuDispatcher;
+
+    PhysXWorld();
+    virtual ~PhysXWorld();
+
+    PxTriangleMesh* cookTriangleMesh(const Array<Vector3>& vertices, const Array<int>& indices);
+
+    /** Designed to mirror G3D::TriTree */
+    class TriTree : public ReferenceCountedObject {
+    private:
+        Array<Tri>              m_triArray;
+        CPUVertexArray          m_cpuVertexArray;
+        PhysXWorld*             m_world;
+        PxTriangleMeshGeometry* m_geometry;
+
+    public:
+
+        TriTree(PhysXWorld* world) : m_world(world), m_geometry(nullptr) {}
+
+        ~TriTree();
+
+        void clear();
+
+        void setContents(const Array<shared_ptr<Surface>>& surfaceArray, ImageStorage newStorage = COPY_TO_CPU); 
+
+    };
+};
+
 
 /** Application framework. */
 class App : public GApp {
@@ -17,28 +53,8 @@ protected:
     void makeGUI();
 
 public:
-
     
-    struct PhysXWorld {
-        PxFoundation* foundation;
-
-        PxProfileZoneManager* profileZoneManager;
-
-        PxPhysics* physics;
-
-        PxMaterial* defaultMaterial;
-
-        PxCooking* cooking;
-
-        PxScene* scene;
-
-        PxCpuDispatcher* cpuDispatcher;
-    };
-
-    PhysXWorld m_physxWorld;
-
-    void initPhysX();
-    PxTriangleMesh* cookModelIntoTriangleMesh(const Array<Vector3>& vertices, const Array<int>& indices);
+    shared_ptr<PhysXWorld> m_physXWorld;
 
     App(const GApp::Settings& settings = GApp::Settings());
 

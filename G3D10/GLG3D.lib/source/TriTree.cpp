@@ -706,6 +706,7 @@ void TriTree::clear() {
         m_memoryManager->free(m_root);
         m_root = NULL;
         m_triArray.fastClear();
+        m_cpuVertexArray.clear();
         m_memoryManager.reset();
     }
 }

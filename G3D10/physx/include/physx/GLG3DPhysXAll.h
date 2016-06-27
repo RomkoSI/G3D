@@ -24,7 +24,7 @@
 
 #else
 
-#define PHYSX_CHECKED
+//#define PHYSX_CHECKED
 
 #ifdef PHYSX_CHECKED
 
