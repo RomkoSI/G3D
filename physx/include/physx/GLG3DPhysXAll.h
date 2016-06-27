@@ -1,6 +1,10 @@
 #pragma once
 #include <G3D/G3DAll.h>
 
+#if ! defined(NDEBUG) && ! defined(G3D_DEBUG)
+#   define NDEBUG 1
+#endif
+
 #include <physx/PxPhysicsAPI.h>
 #include <physx/extensions/PxDefaultSimulationFilterShader.h>
 
