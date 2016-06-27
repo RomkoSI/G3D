@@ -279,7 +279,6 @@ public:
 
           If an intersection is found that is closer than \a distance,
           updates distance and stores the result in \a this.  
-
           
           (This corresponds to an "AnyHit program" in the NVIDIA OptiX
           API.)
@@ -288,9 +287,13 @@ public:
             the normal will automatically be flipped in getResult().  If the triangle itself is marked as two-sided,
             the twoSided test will occur regardless of this variable's value.
 
+          \param assumeGeometricHit If true, assume that the ray hits within the geometric bounds of the triangle and only run alpha, sided, etc. tests.
+           Default is false. This is useful when connecting a Tri::Intersector to some other API that has already performed the basic ray-triangle intersection.
+           This is not currently used for performance, although it is used to avoid cracks at triangle edges.
+
           \return true if there was an intersection between the ray and triangle
           */
-        bool operator()(const Ray& ray,  const CPUVertexArray& vertexArray, const Tri& tri, bool forceTwoSidedTest, float& distance);
+        bool operator()(const Ray& ray, const CPUVertexArray& vertexArray, const Tri& tri, bool forceTwoSidedTest, float& distance, bool assumeGeometricHit = false);
 
         /** Computes information about the intersection from an
             established Intersector.  The normal will have unit

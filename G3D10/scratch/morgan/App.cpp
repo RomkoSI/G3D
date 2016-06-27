@@ -60,6 +60,36 @@ void PhysXWorld::TriTree::setContents
     m_geometry = new PxTriangleMeshGeometry(mesh);
 }
 
+shared_ptr<Surfel> PhysXWorld::TriTree::intersectRay(const Ray& ray, float& distance, bool exitOnAnyHit, bool twoSided) const {
+    Tri::Intersector intersector;
+    if (intersectRay(ray, intersector, distance, exitOnAnyHit, twoSided)) {
+        return intersector.tri->material()->sample(intersector);
+    } else {
+        return shared_ptr<Surfel>();
+    }
+}
+
+
+bool PhysXWorld::TriTree::intersectRay(const Ray &ray, Tri::Intersector& intersectCallback, float& distance, bool exitOnAnyHit, bool twoSided) const {
+    PxRaycastHit hitInfo;
+    const PxU32 maxHits = 1;
+    const PxHitFlags hitFlags = PxHitFlag::eDISTANCE | (exitOnAnyHit ? PxHitFlag::eMESH_ANY : PxHitFlag::Enum(0));
+    const PxU32 hitCount = PxGeometryQuery::raycast(toPxVec3(ray.origin()), toPxVec3(ray.direction()), *const_cast<TriTree*>(this)->m_geometry, PxTransform(PxVec3(0, 0, 0)), distance, hitFlags, maxHits, &hitInfo, exitOnAnyHit);
+    if (hitCount > 0) {
+        // TODO: run the intersector
+        // TODO: if the intersector reports no intersection and hitInfo.distance < distance, continue the ray
+
+        distance = hitInfo.distance;
+
+        // TODO: Do we have to run the face index through the remapper table?
+        intersectCallback.primitiveIndex = hitInfo.faceIndex;
+        intersectCallback.cpuVertexArray = &m_cpuVertexArray;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 
 void PhysXWorld::TriTree::clear() {
     m_triArray.fastClear();
@@ -77,6 +107,7 @@ PhysXWorld::TriTree::~TriTree() {
     clear();
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PxTriangleMesh* PhysXWorld::cookTriangleMesh(const Array<Vector3>& vertices, const Array<int>& indices) {
     // http://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Geometry.html
@@ -157,6 +188,8 @@ PhysXWorld::~PhysXWorld() {
     physics->release();
     foundation->release();
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
 G3D_START_AT_MAIN();
