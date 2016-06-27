@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-05-25
-  \edited  2016-02-10
+  \edited  2016-06-26
  */ 
 #include "GLG3D/Tri.h"
 #include "G3D/Ray.h"
@@ -67,7 +67,7 @@ shared_ptr<Material> Tri::material() const {
 #endif
 
 bool Tri::Intersector::operator()(const Ray& ray, const CPUVertexArray& vertexArray, const Tri& tri, 
-                                  bool twoSidedTest, float& distance) {
+                                  bool twoSidedTest, float& distance, bool assumeGeometricHit) {
     // See RTR3 p.746 (RTR2 ch. 13.7) for the basic algorithm.
     static const float EPS = 1e-12f;
 
@@ -102,12 +102,12 @@ bool Tri::Intersector::operator()(const Ray& ray, const CPUVertexArray& vertexAr
     const float f = 1.0f / a;
     const float c = conservative * f;
 
-    const Vector3& s = (ray.origin() - v0)*f;
+    const Vector3& s = (ray.origin() - v0) * f;
     const float u = s.dot(p);
 
     // Note: (ua > a) == (u > 1). Delaying the division by a until
     // after all u-v tests have passed gives a 6% speedup.
-    if ((u < -c) || (u > 1 + c)) {
+    if (! assumeGeometricHit && ((u < -c) || (u > 1 + c))) {
         // We hit the plane of the triangle, but outside the triangle
         return false;
     }
@@ -115,7 +115,7 @@ bool Tri::Intersector::operator()(const Ray& ray, const CPUVertexArray& vertexAr
     const Vector3& q = s.cross(e1);
     const float v = ray.direction().dot(q);
 
-    if ((v < -c) || ((u + v) > 1 + c)) {
+    if (! assumeGeometricHit && ((v < -c) || ((u + v) > 1 + c))) {
         // We hit the plane of the triangle, but outside the triangle.
         return false;
     }
@@ -125,11 +125,10 @@ bool Tri::Intersector::operator()(const Ray& ray, const CPUVertexArray& vertexAr
         // down here because this case happens really infrequently.
         return false;
     }
-
     
     const float t = e2.dot(q);
 
-    if ((t > 0.0f) && (t < distance)) {
+    if (assumeGeometricHit || ((t > 0.0f) && (t < distance))) {
         // Alpha masking
  
         if (alphaTest) {
