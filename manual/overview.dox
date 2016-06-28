@@ -104,33 +104,8 @@ implicitly documented by the G3D::GuiTheme class source code and will
 be explicitly documented in a future release (the format is currently
 under development).
 
-Download the %G3D data module for over 100 MB of models and other 3D data supported by %G3D.
+Download the %G3D data module for over 10 GB of models and other 3D data supported by %G3D.
 
-@section team Team
-The library contains code, documentation, and demos from over 30 
-\link contributors contributors \endlink.  The team leads are:
-
-<B>Dr. Morgan McGuire</B> has been the %G3D project manager and
-Windows team lead since 2000.  He is an assistant professor of
-computer science at Williams College and 3D software consultant.  He
-holds a Masters degree in electrical engineering from MIT and a PhD in
-computer graphics from Brown University.  Morgan has been a senior
-architect at several companies in the graphics industry, worked on
-several commercial games including IronLore's <I>Titan Quest</I> and
-Activision's <i>Marvel Ultimate Alliance 2</i>, and published
-award-winning research papers.
-
-<B>Corey Taylor</b> has been the %G3D assistant project manager and
-Linux team lead since 2004.  He is a software developer at Electronic
-Arts, where he has worked on several games including <i>Superman
-Returns</i>.
-  
-<B>Dr. Casey O'Donnell</B> is the %G3D OS X advisor.
-Casey a professor at the University of Georgia. His work
-looks at the politics and economics of the video game industry, and in particular the console game industry. Though
-his methods are largely anthropological, he still spends a significant amount of his time playing with code.
-Casey's undergraduate degree was from Drake University in Des Moines, Iowa, where he recieved was a computer science
-and mathematics major (and a sociology minor and women's studies concentration).
 
 %G3D is supported by donations from users
 (http://sourceforge.net/project/project_donations.php?group_id=76879),
