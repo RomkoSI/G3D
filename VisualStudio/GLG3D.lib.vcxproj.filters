@@ -1380,5 +1380,8 @@
     <None Include="..\..\data10\research\scene\sponzaStatue.Scene.Any">
       <Filter>Scene Files</Filter>
     </None>
+    <None Include="..\..\data10\research\scene\triangle.Scene.Any">
+      <Filter>Scene Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
