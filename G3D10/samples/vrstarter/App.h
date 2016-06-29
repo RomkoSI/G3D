@@ -6,10 +6,17 @@
 #include <G3D/G3DAll.h>
 #include <GLG3DVR/VRApp.h>
 
+
+typedef 
+    VRApp 
+    //GApp
+    AppBase; 
+
 /** Application framework. */
-class App : public VRApp {
+class App : public AppBase {
 protected:
-    
+    typedef AppBase super;
+
     /** Called from onInit */
     void makeGUI();
 

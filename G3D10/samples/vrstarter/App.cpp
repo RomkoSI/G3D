@@ -48,7 +48,7 @@ int main(int argc, const char* argv[]) {
 }
 
 
-App::App(const GApp::Settings& settings) : VRApp(settings) {
+App::App(const GApp::Settings& settings) : super(settings) {
 }
 
 
@@ -56,7 +56,7 @@ App::App(const GApp::Settings& settings) : VRApp(settings) {
 // not in the constructor so that common exceptions will be
 // automatically caught.
 void App::onInit() {
-    VRApp::onInit();
+    super::onInit();
     // Call setScene(shared_ptr<Scene>()) or setScene(MyScene::create()) to replace
     // the default scene here.
     
@@ -94,7 +94,7 @@ void App::makeGUI() {
 
 void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfaces) {
     // Write your onGraphics3D here!
-    GApp::onGraphics3D(rd, allSurfaces);
+    super::onGraphics3D(rd, allSurfaces);
 }
 
 
@@ -105,7 +105,7 @@ void App::onAfterLoadScene(const Any &any, const String &sceneName) {
 
 bool App::onEvent(const GEvent& event) {
     // Handle super-class events
-    if (VRApp::onEvent(event)) { return true; }
+    if (super::onEvent(event)) { return true; }
 
     /*
     // For debugging effect levels:
