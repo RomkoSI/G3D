@@ -134,13 +134,6 @@
   <ItemGroup>
     <ClCompile Include="..\samples\vrstarter\App.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="Text.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\samples\vrstarter\data-files\shader\unprojectWSPosition.pix" />
-    <None Include="..\samples\vrstarter\data-files\shader\unprojectWSPositionDiff.pix" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
