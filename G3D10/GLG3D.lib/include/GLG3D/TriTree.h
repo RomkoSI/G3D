@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-06-10
-  \edited  2012-10-04
+  \edited  2016-10-04
 */
 #ifndef G3D_TriTree_h
 #define G3D_TriTree_h
@@ -492,7 +492,14 @@ public:
     int size() const {
         return m_triArray.size();
     }
-
+    
+    /** Returns the surfel hit, or NULL if none */
+    shared_ptr<Surfel> intersectRay
+    (const Ray& ray,
+     float& distance,
+     bool exitOnAnyHit = false,
+     bool twoSided = false) const;
+    
     /** Returns true if there was an intersection.
 
         Example:
@@ -520,10 +527,11 @@ public:
      bool exitOnAnyHit = false,
      bool twoSided = false) const;
 
-    /** Returns the surfel hit, or NULL if none */
-    shared_ptr<Surfel> intersectRay
-    (const Ray& ray,
-     float& distance,
+    /** Cast many rays, potentially using multiple threads. When the function returns, there is one element in results for each input ray. */
+    void intersectRays
+    (const Array<Ray>& rays,
+     Array<float>& distances,
+     Array<shared_ptr<Surfel>>& results,
      bool exitOnAnyHit = false,
      bool twoSided = false) const;
 
