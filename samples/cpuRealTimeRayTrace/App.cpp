@@ -130,120 +130,116 @@ Radiance3 App::rayTrace(const Ray& ray, World* world, Random& rng, int bounce) {
             }
         }
 
-            // Indirect illumination
-            // Ambient
-            radiance += surfel->reflectivity(rng) * world->ambient;
+        // Indirect illumination
+        // Ambient
+        radiance += surfel->reflectivity(rng) * world->ambient;
 
-            // Specular
-            if (bounce < m_maxBounces) {
-                // Perfect reflection and refraction
-                Surfel::ImpulseArray impulseArray;
-                surfel->getImpulses(PathDirection::EYE_TO_SOURCE, -ray.direction(), impulseArray);
+        // Specular
+        if (bounce < m_maxBounces) {
+            // Perfect reflection and refraction
+            Surfel::ImpulseArray impulseArray;
+            surfel->getImpulses(PathDirection::EYE_TO_SOURCE, -ray.direction(), impulseArray);
 
-                for (int i = 0; i < impulseArray.size(); ++i) {
-                    const Surfel::Impulse& impulse = impulseArray[i];
-                    // Bump along normal *in the outgoing ray direction*. 
-                    const Vector3& offset = surfel->geometricNormal * sign(impulse.direction.dot(surfel->geometricNormal)) * BUMP_DISTANCE;
-                    const Ray& secondaryRay = Ray::fromOriginAndDirection(surfel->location + offset, impulse.direction);
-                    debugAssert(secondaryRay.direction().isFinite());
-                    radiance += rayTrace(secondaryRay, world, rng, bounce + 1) * impulse.magnitude;
-                    debugAssert(radiance.isFinite());
-                }
+            for (int i = 0; i < impulseArray.size(); ++i) {
+                const Surfel::Impulse& impulse = impulseArray[i];
+                // Bump along normal *in the outgoing ray direction*. 
+                const Vector3& offset = surfel->geometricNormal * sign(impulse.direction.dot(surfel->geometricNormal)) * BUMP_DISTANCE;
+                const Ray& secondaryRay = Ray::fromOriginAndDirection(surfel->location + offset, impulse.direction);
+                debugAssert(secondaryRay.direction().isFinite());
+                radiance += rayTrace(secondaryRay, world, rng, bounce + 1) * impulse.magnitude;
+                debugAssert(radiance.isFinite());
             }
         }
-    else {
+    } else {
         // Hit the sky
         radiance = world->ambient;
     }
 
     return radiance;
+}
+
+
+void App::message(const String& msg) const {
+    renderDevice->clear();
+    renderDevice->push2D();
+    debugFont->draw2D(renderDevice, msg, renderDevice->viewport().center(), 12,
+        Color3::white(), Color4::clear(), GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
+    renderDevice->pop2D();
+
+    // Force update so that we can see the message
+    renderDevice->swapBuffers();
+}
+
+
+void App::onRender() {
+    // Show message
+    message("Rendering...");
+
+    Stopwatch timer;
+    rayTraceImage(1.0f, m_raysPerPixel);
+    timer.after("Trace");
+    debugPrintf("%f s\n", timer.elapsedTime());
+    //    m_result->toImage3uint8()->save("result.png");
+}
+
+
+void App::trace(int x, int y, int threadID) {
+    Color3 sum = Color3::black();
+
+    Random& rng = m_rng[threadID];
+    if (m_currentRays == 1) {
+        sum = rayTrace(m_debugCamera->worldRay(x + 0.5f, y + 0.5f, m_currentImage->rect2DBounds()), m_world, rng);
     }
-
-
-    void App::message(const String& msg) const {
-        renderDevice->clear();
-        renderDevice->push2D();
-        debugFont->draw2D(renderDevice, msg, renderDevice->viewport().center(), 12,
-            Color3::white(), Color4::clear(), GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
-        renderDevice->pop2D();
-
-        // Force update so that we can see the message
-        renderDevice->swapBuffers();
-    }
-
-
-    void App::onRender() {
-        // Show message
-        message("Rendering...");
-
-        Stopwatch timer;
-        rayTraceImage(1.0f, m_raysPerPixel);
-        timer.after("Trace");
-        debugPrintf("%f s\n", timer.elapsedTime());
-        //    m_result->toImage3uint8()->save("result.png");
-    }
-
-
-    void App::trace(int x, int y, int threadID) {
-        Color3 sum = Color3::black();
-
-        Random& rng = m_rng[threadID];
-        if (m_currentRays == 1) {
-            sum = rayTrace(m_debugCamera->worldRay(x + 0.5f, y + 0.5f, m_currentImage->rect2DBounds()), m_world, rng);
+    else {
+        // Random jitter for antialiasing
+        for (int i = 0; i < m_currentRays; ++i) {
+            sum += rayTrace(m_debugCamera->worldRay(x + rng.uniform(), y + rng.uniform(), m_currentImage->rect2DBounds()), m_world, rng);
         }
-        else {
-            // Random jitter for antialiasing
-            for (int i = 0; i < m_currentRays; ++i) {
-                sum += rayTrace(m_debugCamera->worldRay(x + rng.uniform(), y + rng.uniform(), m_currentImage->rect2DBounds()), m_world, rng);
-            }
+    }
+    m_currentImage->set(x, y, sum / (float)m_currentRays);
+}
+
+
+void App::rayTraceImage(float scale, int numRays) {
+    int width = int(window()->width()  * scale);
+    int height = int(window()->height() * scale);
+
+    if (isNull(m_currentImage) || (m_currentImage->width() != width) || (m_currentImage->height() != height)) {
+        m_currentImage = Image3::createEmpty(width, height);
+    }
+    m_currentRays = numRays;
+    GThread::runConcurrently2D(Point2int32(0, 0), Point2int32(width, height), this, &App::trace);
+
+    // Post-process
+    shared_ptr<Texture> src = Texture::fromImage("Source", m_currentImage);
+    if (m_result) {
+        m_result->resize(width, height);
+    }
+    m_film->exposeAndRender(renderDevice, m_debugCamera->filmSettings(), src, settings().hdrFramebuffer.colorGuardBandThickness.x/* + settings().hdrFramebuffer.depthGuardBandThickness.x*/, settings().hdrFramebuffer.depthGuardBandThickness.x, m_result);
+}
+
+
+void App::onAfterLoadScene(const Any& any, const String& sceneName) {
+    GApp::onAfterLoadScene(any, sceneName);
+
+    m_world->clearScene();
+    m_world->begin();
+
+    Array<shared_ptr<VisibleEntity>> entityArray;
+    scene()->getTypedEntityArray<VisibleEntity>(entityArray);
+
+    for (int i = 0; i < entityArray.length(); ++i) {
+        Array<shared_ptr<Surface>> surfaceArray;
+        entityArray[i]->onPose(surfaceArray);
+        for (int j = 0; j < surfaceArray.length(); ++j) {
+            m_world->insert(surfaceArray[j]);
         }
-        m_currentImage->set(x, y, sum / (float)m_currentRays);
     }
 
+    Array<shared_ptr<Light>> lightArray;
+    scene()->getTypedEntityArray<Light>(lightArray);
+    m_world->lightArray = lightArray;
+    m_world->end();
 
-    void App::rayTraceImage(float scale, int numRays) {
-
-        int width = int(window()->width()  * scale);
-        int height = int(window()->height() * scale);
-
-        if (isNull(m_currentImage) || (m_currentImage->width() != width) || (m_currentImage->height() != height)) {
-            m_currentImage = Image3::createEmpty(width, height);
-        }
-        m_currentRays = numRays;
-        GThread::runConcurrently2D(Point2int32(0, 0), Point2int32(width, height), this, &App::trace);
-
-        // Post-process
-        shared_ptr<Texture> src = Texture::fromImage("Source", m_currentImage);
-        if (m_result) {
-            m_result->resize(width, height);
-        }
-        m_film->exposeAndRender(renderDevice, m_debugCamera->filmSettings(), src, settings().hdrFramebuffer.colorGuardBandThickness.x/* + settings().hdrFramebuffer.depthGuardBandThickness.x*/, settings().hdrFramebuffer.depthGuardBandThickness.x, m_result);
-
-    }
-
-    void App::onAfterLoadScene(const Any& any, const String& sceneName) {
-        GApp::onAfterLoadScene(any, sceneName);
-
-        m_world->clearScene();
-        m_world->begin();
-
-        Array<shared_ptr<VisibleEntity>> entityArray;
-        scene()->getTypedEntityArray<VisibleEntity>(entityArray);
-
-        for (int i = 0; i < entityArray.length(); ++i) {
-            Array<shared_ptr<Surface>> surfaceArray;
-            entityArray[i]->onPose(surfaceArray);
-            for (int j = 0; j < surfaceArray.length(); ++j) {
-                m_world->insert(surfaceArray[j]);
-            }
-        }
-
-        Array<shared_ptr<Light>> lightArray;
-        scene()->getTypedEntityArray<Light>(lightArray);
-        m_world->lightArray = lightArray;
-        m_world->end();
-
-        m_forceRender = true;
-
-
-    }
+    m_forceRender = true;
+}
