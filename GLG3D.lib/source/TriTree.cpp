@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-06-10
-  \edited  2012-09-02
+  \edited  2016-09-02
 */
 
 #include "G3D/AreaMemoryManager.h"
@@ -31,7 +31,6 @@ void TriTree::intersectSphere
         Set<Tri*> alreadyAdded;
         m_root->intersectSphere(sphere, m_cpuVertexArray, triArray, alreadyAdded);
     }
-
 }
 
 
@@ -42,9 +41,24 @@ void TriTree::intersectBox
         Set<Tri*> alreadyAdded;
         m_root->intersectBox(box, m_cpuVertexArray, triArray, alreadyAdded);
     }
-
 }
 
+/** Cast many rays, potentially using multiple threads. When the function returns, there is one element in results for each input ray. */
+void TriTree::intersectRays
+   (const Array<Ray>& rays,
+    Array<float>& distances,
+    Array<shared_ptr<Surfel>>& results,
+    bool exitOnAnyHit,
+    bool twoSided) const {
+
+    alwaysAssertM(rays.length() == distances.length(), "ray and distance buffers must have the same length");
+    results.resize(rays.size());
+
+    GThread::runConcurrently(0, rays.size(), 
+        [&](int i, int threadID) {
+            results[i] = intersectRay(rays[i], distances[i], exitOnAnyHit, twoSided);
+        });
+}
 
 
 void TriTree::setContents
