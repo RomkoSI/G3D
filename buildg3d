@@ -296,7 +296,7 @@ def buildNativeFFmpeg():
     tarObject = tarfile.open(tarname)
     ffmpegName = tarObject.next().name
 
-    if doClean:
+    if True:
         print('\nExtracting tarfile')
         os.chdir(sourceDir)
         retVal = ice.utils.run('tar', ['-xvf', pathConcat('../../..', tarname)], False)
