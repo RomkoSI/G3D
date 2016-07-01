@@ -21,7 +21,7 @@
 
 #ifdef G3D_WINDOWS
 #   include "GL/wglew.h"
-#elif defined(G3D_OSX) || defined(G3D_FREEBSD) || defined(G3D_LINUX)
+#elif defined(G3D_FREEBSD) || defined(G3D_LINUX)
 #   include "GL/glxew.h"
 #endif
 
