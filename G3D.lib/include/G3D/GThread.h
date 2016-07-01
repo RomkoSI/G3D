@@ -232,7 +232,7 @@ public:
      const Vector2int32& upTo, 
      const std::function<void (int, int, int)>& callback,
      int                 maxThreads = NUM_CORES) {
-        runConcurrently(Vector3int32(start, 0), Vector3int32(upTo, 1), [callback](int x, int y, int z, int threadID) { callback(x, y, threadID); });
+        runConcurrently(Vector3int32(start, 0), Vector3int32(upTo, 1), [callback](int x, int y, int z, int threadID) { callback(x, y, threadID); }, maxThreads);
     }
 
     static void runConcurrently
@@ -241,7 +241,7 @@ public:
      const std::function<void (int, int)>& callback,
      int                 maxThreads = NUM_CORES) {
         // Process blocks in y, so use y as the 1D index
-        runConcurrently(Vector3int32(0, start, 0), Vector3int32(1, upTo, 1), [callback](int x, int y, int z, int threadID) { callback(y, threadID); });
+        runConcurrently(Vector3int32(start, 0, 0), Vector3int32(upTo, 1, 1), [callback](int x, int y, int z, int threadID) { callback(x, threadID); }, maxThreads);
     }
 };
 
