@@ -236,7 +236,7 @@ public:
         for (int z = start.z; z < upTo.z; z += stride.z) {
             for (int y = start.y; y < upTo.y; y += stride.y) {
                 for (int x = start.x; x < upTo.x; x += stride.x) {
-                        callback(x, y, z, threadID);
+                    callback(x, y, z, threadID);
                 }
             }
         }
@@ -255,12 +255,30 @@ void GThread::runConcurrently
         maxThreads = GThread::numCores();
     }
 
-    const int numRows = upTo.y - start.y;
-    const int numThreads = min(maxThreads, numRows);
-    const Vector3int32 stride(1, numThreads, 1);
     ThreadSet threadSet;
-    for (int t = 0; t < numThreads; ++t) {
-        threadSet.insert(shared_ptr<_internalGThreadWorkerNew >(new _internalGThreadWorkerNew(t, start + Vector3int32(0, t, 0), upTo, callback, stride)));
+    if ((upTo.y - start.y == 1) && (upTo.z - start.z == 1)) {
+        // 1D iteration
+        const int numElements = upTo.x - start.x;
+        const int numThreads = min(maxThreads, numElements);
+        const Vector3int32 stride(1, 1, 1);
+        const int runLength = numElements / numThreads;
+        for (int t = 0; t < numThreads; ++t) {
+            Vector3int32 A = start + Vector3int32(t * runLength, 0, 0);
+            Vector3int32 B(min(upTo.x, A.x + runLength), upTo.y, upTo.z);
+            if (t == numThreads - 1) {
+                // On the last iteration, run all of the way to the end even if we rounded down in the division
+                B.x = upTo.x;
+            }
+            threadSet.insert(shared_ptr<_internalGThreadWorkerNew >(new _internalGThreadWorkerNew(t, A, B, callback, stride)));
+        }
+    } else {
+        // 2D or 3D iteration
+        const int numRows = upTo.y - start.y;
+        const int numThreads = min(maxThreads, numRows);
+        const Vector3int32 stride(1, numThreads, 1);
+        for (int t = 0; t < numThreads; ++t) {
+            threadSet.insert(shared_ptr<_internalGThreadWorkerNew >(new _internalGThreadWorkerNew(t, start + Vector3int32(0, t, 0), upTo, callback, stride)));
+        }
     }
 
     // Run the threads, reusing the current thread and blocking until
