@@ -24,7 +24,7 @@
 namespace G3D {
 
 shared_ptr<Surfel> UniversalMaterial::sample(const Tri::Intersector& intersector) const {
-    return shared_ptr<UniversalSurfel>(new UniversalSurfel(intersector));
+    return UniversalSurfel::create(intersector);
 }
 
 
