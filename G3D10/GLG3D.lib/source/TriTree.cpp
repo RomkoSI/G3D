@@ -774,7 +774,7 @@ shared_ptr<Surfel> TriTree::intersectRay
     if (intersectRay(ray, intersector, distance, exitOnAnyHit, twoSided)) {
         return intersector.tri->material()->sample(intersector);
     } else {
-        return shared_ptr<Surfel>();
+        return nullptr;
     }
 }
 

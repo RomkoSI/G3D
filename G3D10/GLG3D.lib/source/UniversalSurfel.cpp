@@ -4,15 +4,21 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2012-08-01
-  \edited  2012-09-02
+  \edited  2016-07-02
 
-  Copyright 2001-2012, Morgan McGuire
+  Copyright 2001-2016, Morgan McGuire
  */
 #include "GLG3D/UniversalSurfel.h"
 #include "GLG3D/UniversalBSDF.h"
 #include "GLG3D/UniversalMaterial.h"
+#include <memory>
 
 namespace G3D {
+
+shared_ptr<UniversalSurfel> UniversalSurfel::create(const Tri::Intersector& intersector) {
+    return std::make_shared<UniversalSurfel>(intersector);
+}
+
 
 UniversalSurfel::UniversalSurfel(const Tri::Intersector& intersector) {
     debugAssert(intersector.tri != NULL);

@@ -105,6 +105,8 @@ public:
 
     UniversalSurfel(const Tri::Intersector& intersector);
 
+    static shared_ptr<UniversalSurfel> create(const Tri::Intersector& intersector);
+
     virtual Radiance3 emittedRadiance(const Vector3& wo) const override;
     
     virtual bool transmissive() const override;
