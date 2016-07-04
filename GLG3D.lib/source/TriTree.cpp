@@ -160,9 +160,7 @@ void TriTree::Node::split(Array<Poly>& original, const Settings& settings, const
     
     // Make the preference order the extent ranking order
     if (extent[preferredAxis[2]] > extent[preferredAxis[1]]) {
-        Vector3::Axis temp = preferredAxis[2];
-        preferredAxis[2] = preferredAxis[1];
-        preferredAxis[1] = temp;
+        std::swap(preferredAxis[1], preferredAxis[2]);
     }
     
     Array<Poly> lowArray, highArray, spanArray;
@@ -184,17 +182,18 @@ void TriTree::Node::split(Array<Poly>& original, const Settings& settings, const
         
         if (badSplit(original.size(), lowArray.size(), highArray.size())) {
             if (i == 2) {
-                // No split effectively reduced the number
-                // of triangles, so make this node a leaf
+                // We're on the final axis and no split effectively reduced the number
+                // of triangles, so make this node a leaf and dump the triangles into it.
                 setValueArray(original, mm);
             }
         } else {
             // This was a good split
             setValueArray(spanArray, mm);
             
-            // Create child nodes
+            // Create child nodes adjacent in memory
             Node* ptr = (Node*) mm->alloc(sizeof(Node) * 2);
             
+            // Pack the split axis and children pointers into a single pointer value
             alwaysAssertM((uintptr_t(ptr) & 3) == 0, 
                           format("Pointer is not a multiple of four bytes: %d", (int)(intptr_t)ptr));
             packedChildAxis = reinterpret_cast<uintptr_t>(ptr) | static_cast<uintptr_t>(axis);
@@ -730,15 +729,13 @@ void TriTree::setContents(const Array<Tri>& triArray, const CPUVertexArray& vert
     static const float epsilon = 0.000001f;
     clear();
     
+    // TODO: Thread these copies?
     Array<Poly> source;
-    // Copy the source data 
-
     // Copy the vertex array
     m_cpuVertexArray.copyFrom(vertexArray);
     
     // Copy the tri array
     m_triArray.copyFrom(triArray);
-
     
     for (int i = 0; i < triArray.size(); ++i) {
         if (triArray[i].area() > epsilon) {
