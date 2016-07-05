@@ -16,6 +16,80 @@
 
 namespace G3D {
 
+bool TriTreeBase::alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Vector3& rayOrigin, const Vector3& rayDir) {
+    // TODO:
+    return true;
+}
+    
+
+void TriTreeBase::clear() {
+    // TODO
+}
+
+
+TriTreeBase::~TriTreeBase() {
+    clear();
+}
+
+
+void TriTreeBase::setContents
+   (const Array<shared_ptr<Surface>>&  surfaceArray, 
+    ImageStorage                       newImageStorage) {
+    // TODO
+}
+
+
+void TriTreeBase::intersectRays
+   (const Array<Ray>&      rays,
+    const Array<float>&    maxDistances,
+    Array<Hit>&            results,
+    IntersectRayOptions    options,
+    FilterFunction         filterFunction) const {
+
+    alwaysAssertM(rays.length() == maxDistances.length(), "ray and maxDistance buffers must have the same length");
+    results.resize(rays.size());
+
+    GThread::runConcurrently(0, rays.size(), 
+        [&](int i, int threadID) {
+            intersectRay(rays[i], maxDistances[i], results[i], options, filterFunction);
+        });
+}
+
+
+shared_ptr<Surfel> TriTreeBase::intersectRay
+   (const Ray&             ray, 
+    float&                 distance, 
+    IntersectRayOptions    options,
+    FilterFunction         filterFunction,
+    const Vector3&         directiondX,
+    const Vector3&         directiondY) const {
+ 
+    Hit hit;
+    if (intersectRay(ray, distance, hit, options, filterFunction)) {
+        return m_triArray[hit.triIndex].sample(hit.u, hit.v, hit.triIndex, m_vertexArray, hit.backface);
+    } else {
+        return nullptr;
+    }
+}
+
+
+void TriTreeBase::intersectBox
+   (const AABox&           box,
+    Array<Tri>&            results) const {
+
+    results.fastClear();
+    for (int t = 0; t < m_triArray.size(); ++t) {
+        const Tri& tri = m_triArray[t];
+        if ((tri.area() > 0) &&
+            CollisionDetection::fixedSolidBoxIntersectsFixedTriangle(box, Triangle(tri.position(m_vertexArray, 0), 
+                                                                                   tri.position(m_vertexArray, 1), 
+                                                                                   tri.position(m_vertexArray, 2)))) {
+            results.append(tri);
+        }
+    }
+}
+
+/////////////////////////////////////////////
 
 const char* TriTree::algorithmName(SplitAlgorithm s) {
     const char* n[] = {"Mean extent", "Median area", "Median count", "SAH"};

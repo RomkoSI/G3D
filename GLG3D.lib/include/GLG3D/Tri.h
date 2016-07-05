@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2008-08-10
-  \edited  2012-03-16
+  \edited  2016-07-05
 */
 #ifndef GLG3D_Tri_h
 #define GLG3D_Tri_h
@@ -21,7 +21,6 @@
 #include "G3D/Triangle.h"
 #include "G3D/lazy_ptr.h"
 #include "GLG3D/CPUVertexArray.h"
-
 
 namespace G3D {
 class Ray;
@@ -202,6 +201,8 @@ public:
     }
     
     Triangle toTriangle(const CPUVertexArray& vertexArray) const;
+
+    shared_ptr<Surfel> sample(float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backface) const;
 
     /** \brief Performs intersection testing against Tri.  
 

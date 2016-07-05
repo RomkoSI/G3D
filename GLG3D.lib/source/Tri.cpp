@@ -257,6 +257,12 @@ shared_ptr<Surfel> Tri::Intersector::surfel() const {
     }
 }
 
+
+shared_ptr<Surfel> Tri::sample(float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backface) const {
+    return material()->sample(*this, u, v, triIndex, vertexArray, backface);
+}
+
+
 #ifdef _MSC_VER
 // Turn off fast floating-point optimizations
 #pragma float_control( pop )

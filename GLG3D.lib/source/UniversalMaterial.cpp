@@ -21,7 +21,12 @@
 #   undef OPTIONAL
 #endif
 
-namespace G3D {
+namespace G3D {    
+
+shared_ptr<Surfel> UniversalMaterial::sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) const {
+    return std::make_shared<UniversalSurfel>(tri, u, v, triIndex, vertexArray, backside);
+}
+
 
 shared_ptr<Surfel> UniversalMaterial::sample(const Tri::Intersector& intersector) const {
     return UniversalSurfel::create(intersector);

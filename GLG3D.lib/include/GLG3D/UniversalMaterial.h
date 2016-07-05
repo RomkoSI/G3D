@@ -2,7 +2,7 @@
  \file   GLG3D/UniversalMaterial.h
  \author Morgan McGuire, http://graphics.cs.williams.edu
  \date   2008-08-10
- \edited 2016-03-15
+ \edited 2016-07-05
  
  G3D Innovation Engine
  Copyright 2000-2016, Morgan McGuire.
@@ -12,6 +12,7 @@
 #define GLG3D_UniversalMaterial_h
 
 #include "G3D/platform.h"
+#include "G3D/enumclass.h"
 #include "G3D/lazy_ptr.h"
 #include "G3D/HashTrait.h"
 #include "G3D/constants.h"
@@ -21,8 +22,7 @@
 #include "GLG3D/BumpMap.h"
 #include "GLG3D/Material.h"
 #include "GLG3D/Sampler.h"
-#include "G3D/enumclass.h"
-
+#include "GLG3D/Surfel.h"
 
 namespace G3D {
 class SpeedLoadIdentifier;
@@ -459,7 +459,7 @@ public:
      const Component3&                   emissive           = Component3(),
      const shared_ptr<BumpMap>&          bump               = shared_ptr<BumpMap>(),
      const Array<Component3>&            lightMaps          = Array<Component3>(),
-     const shared_ptr<MapComponent<Image4> >&    customMap   = shared_ptr<MapComponent<Image4> >(),
+     const shared_ptr<MapComponent<Image4>>& customMap      = shared_ptr<MapComponent<Image4>>(),
      const Color4&                       customConstant     = Color4::inf(),
      const String&                       customShaderPrefix = "",
      const AlphaHint                     alphaHint          = AlphaHint::DETECT);
@@ -666,6 +666,7 @@ public:
 
     virtual shared_ptr<Surfel> sample(const Tri::Intersector& intersector) const override;
 
+    virtual shared_ptr<Surfel> sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) const override;
 };
 
 }
