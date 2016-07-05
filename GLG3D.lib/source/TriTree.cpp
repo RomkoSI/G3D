@@ -51,6 +51,31 @@ void TriTreeBase::setContents
     static const float epsilon = 0.000001f;
     clear();
     Surface::getTris(surfaceArray, m_vertexArray, m_triArray, computePrevPosition);
+
+    if (newStorage != IMAGE_STORAGE_CURRENT) {
+        for (int i = 0; i < m_triArray.size(); ++i) {
+            const Tri& tri = m_triArray[i];
+            const shared_ptr<Material>& material = tri.material();
+            if (notNull(material)) {
+                material->setStorage(newStorage);
+            }
+        }
+    }
+}
+
+
+
+void TriTreeBase::setContents
+   (const Array<Tri>&                  triArray, 
+    const CPUVertexArray&              vertexArray,
+    ImageStorage                       newStorage) {
+
+    const bool computePrevPosition = false;
+    static const float epsilon = 0.000001f;
+    clear();
+
+    m_triArray = triArray;
+    m_vertexArray.copyFrom(vertexArray);
    
     if (newStorage != IMAGE_STORAGE_CURRENT) {
         for (int i = 0; i < m_triArray.size(); ++i) {
@@ -128,7 +153,7 @@ void TriTree::intersectSphere
 
     if (m_root) {
         Set<Tri*> alreadyAdded;
-        m_root->intersectSphere(sphere, m_cpuVertexArray, triArray, alreadyAdded);
+        m_root->intersectSphere(sphere, m_vertexArray, triArray, alreadyAdded);
     }
 }
 
@@ -138,7 +163,7 @@ void TriTree::intersectBox
  Array<Tri>&   triArray) const {
     if (m_root) {
         Set<Tri*> alreadyAdded;
-        m_root->intersectBox(box, m_cpuVertexArray, triArray, alreadyAdded);
+        m_root->intersectBox(box, m_vertexArray, triArray, alreadyAdded);
     }
 }
 
@@ -162,26 +187,17 @@ void TriTree::intersectRays
 
 void TriTree::setContents
 (const Array<shared_ptr<Surface> >& surfaceArray, 
- ImageStorage                       newStorage, 
- const Settings&                    settings,
- bool                               computePrevPosition) {
+ ImageStorage                       newStorage) {
+    TriTreeBase::setContents(surfaceArray, newStorage);
+
+    Settings settings;
     static const float epsilon = 0.000001f;
-    clear();
-    Surface::getTris(surfaceArray, m_cpuVertexArray, m_triArray, computePrevPosition);
-   
-    if (newStorage != IMAGE_STORAGE_CURRENT) {
-        for (int i = 0; i < m_triArray.size(); ++i) {
-            const Tri& tri = m_triArray[i];
-            shared_ptr<Material> material = tri.material();
-            material->setStorage(newStorage);
-        }
-    }
 
     Array<Poly> source;
     // Don't add 0 area triangles to source
     for (int i = 0; i < m_triArray.size(); ++i) {
         if (m_triArray[i].area() > epsilon) {
-            source.append(Poly(m_cpuVertexArray, &m_triArray[i]));
+            source.append(Poly(m_vertexArray, &m_triArray[i]));
         }
     }
     
@@ -191,9 +207,38 @@ void TriTree::setContents
     }
 
     //alwaysAssertM(m_triArray.size() == m_triArray.capacity(), "Allocated too much memory for the Tri Array");
-    alwaysAssertM(m_cpuVertexArray.vertex.size() == m_cpuVertexArray.vertex.capacity(), 
+    alwaysAssertM(m_vertexArray.vertex.size() == m_vertexArray.vertex.capacity(), 
                   "Allocated too much memory for the vertex array");
 }
+
+
+void TriTree::setContents
+   (const Array<Tri>&                   triArray, 
+    const CPUVertexArray&               vertexArray,
+    ImageStorage                        newStorage) {
+    TriTreeBase::setContents(triArray, vertexArray, newStorage);
+
+    Settings settings;
+    static const float epsilon = 0.000001f;
+
+    Array<Poly> source;
+    // Don't add 0 area triangles to source
+    for (int i = 0; i < m_triArray.size(); ++i) {
+        if (m_triArray[i].area() > epsilon) {
+            source.append(Poly(m_vertexArray, &m_triArray[i]));
+        }
+    }
+    
+    if (source.size() > 0) {
+        m_memoryManager = AreaMemoryManager::create();
+        m_root = new (m_memoryManager->alloc(sizeof(Node))) Node(source, settings, m_memoryManager);
+    }
+
+    //alwaysAssertM(m_triArray.size() == m_triArray.capacity(), "Allocated too much memory for the Tri Array");
+    alwaysAssertM(m_vertexArray.vertex.size() == m_vertexArray.vertex.capacity(), 
+                  "Allocated too much memory for the vertex array");
+}
+
 
 /** Returns true if \a ray hits \a box.
 
@@ -574,14 +619,14 @@ bool __fastcall TriTree::Node::intersectRay
 
         // Test for intersection against every object at this node.
         for (int v = 0; v < valueArray->size; ++v) { 
-            bool justHit = intersectCallback(ray, triTree.m_cpuVertexArray, *(valueArray->data[v]), twoSided, distance);
+            bool justHit = intersectCallback(ray, triTree.m_vertexArray, *(valueArray->data[v]), twoSided, distance);
             
             if (justHit) {
                 hit = true;
                 // Pointer arithmetic to find what index in the tri tree array this triangle was.
                 // The data array is a set of pointers into the triArray.
                 intersectCallback.primitiveIndex = int(valueArray->data[v] - triTree.m_triArray.getCArray());
-                intersectCallback.cpuVertexArray = &triTree.m_cpuVertexArray;
+                intersectCallback.cpuVertexArray = &triTree.m_vertexArray;
                 if (exitOnAnyHit) {
                     return true;
                 }
@@ -813,49 +858,20 @@ TriTree::Stats TriTree::stats(int valuesPerNode) const {
 
 
 void TriTree::clear() {
+    TriTreeBase::clear();
     if (m_root) {
         m_root->destroy(m_memoryManager);
         m_memoryManager->free(m_root);
         m_root = NULL;
-        m_triArray.fastClear();
-        m_cpuVertexArray.clear();
         m_memoryManager.reset();
     }
-}
-
-
-void TriTree::setContents(const Array<Tri>& triArray, const CPUVertexArray& vertexArray, const Settings& settings) {
-    static const float epsilon = 0.000001f;
-    clear();
-    
-    // TODO: Thread these copies?
-    Array<Poly> source;
-    // Copy the vertex array
-    m_cpuVertexArray.copyFrom(vertexArray);
-    
-    // Copy the tri array
-    m_triArray.copyFrom(triArray);
-    
-    for (int i = 0; i < triArray.size(); ++i) {
-        if (triArray[i].area() > epsilon) {
-            source.append(Poly(m_cpuVertexArray, &m_triArray[i]));
-        }
-    }
-    
-    if (source.size() > 0) {
-        m_memoryManager = AreaMemoryManager::create();
-        m_root = new (m_memoryManager->alloc(sizeof(Node))) Node(source, settings, m_memoryManager);
-    }
-
-    alwaysAssertM(m_triArray.size() == m_triArray.capacity(), "Allocated too much memory for the Tri Array");
-    alwaysAssertM(m_cpuVertexArray.vertex.size() == m_cpuVertexArray.vertex.capacity(), "Allocated too much memory for the vertex array");
 }
 
 
 void TriTree::draw(RenderDevice* rd, int level, bool showBoxes, int minNodeSize) {
     if (m_root) {
         rd->setCullFace(CullFace::NONE);
-        m_root->draw(rd, m_cpuVertexArray, level, showBoxes, minNodeSize);
+        m_root->draw(rd, m_vertexArray, level, showBoxes, minNodeSize);
     }
 }
 
@@ -887,6 +903,26 @@ bool TriTree::intersectRay
         hit = m_root->intersectRay(*this, ray, intersectCallback, distance, exitOnAnyHit, twoSided);
     }
     return hit;
+}
+
+
+bool TriTree::intersectRay
+   (Ray                                ray, 
+    float                              maxDistance,
+    Hit&                               hit,
+    IntersectRayOptions                options,
+    FilterFunction                     filterFunction) const {
+
+    return false;
+
+    /*
+    TODO:
+    bool hit = false;
+    if (m_root != NULL) {
+        hit = m_root->intersectRay(*this, ray, intersectCallback, distance, exitOnAnyHit, twoSided);
+    }
+    return hit;
+    */
 }
 
 }

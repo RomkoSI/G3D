@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-06-10
-  \edited  2016-10-04
+  \edited  2016-07-05
 */
 #ifndef G3D_TriTree_h
 #define G3D_TriTree_h
@@ -75,11 +75,6 @@ public:
 
     virtual void clear();
 
-    /** Base class implementation populates m_triArray and m_vertexArray and applies the image storage option. */
-    virtual void setContents
-        (const Array<shared_ptr<Surface>>&  surfaceArray, 
-         ImageStorage                       newImageStorage = ImageStorage::COPY_TO_CPU);
-
     const Array<Tri>& triArray() const {
         return m_triArray;
     }
@@ -87,6 +82,16 @@ public:
     const CPUVertexArray& vertexArray() const {
         return m_vertexArray;
     }
+
+    /** Base class implementation populates m_triArray and m_vertexArray and applies the image storage option. */
+    virtual void setContents
+        (const Array<shared_ptr<Surface>>&  surfaceArray, 
+         ImageStorage                       newImageStorage = ImageStorage::COPY_TO_CPU);
+
+    virtual void setContents
+       (const Array<Tri>&                  triArray, 
+        const CPUVertexArray&              vertexArray,
+        ImageStorage                       newStorage = ImageStorage::COPY_TO_CPU);
 
     /** Intersect a single ray. Return value is `hit.triIndex != Hit::NONE` for convenience. 
         \param filterFunction Set to nullptr to accept any geometric ray-triangle instersection.
@@ -151,7 +156,7 @@ public:
  @cite Watcher and Keller, Instant Ray Tracing: The Bounding Interval Hierarchy, EGSR 2006
  http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.87.4612
 */
-class TriTree {
+class TriTree : public TriTreeBase {
 public:
     enum SplitAlgorithm {
         /** Produce nodes with approximately equal shape by splitting
@@ -176,6 +181,14 @@ public:
 
     class Settings {
     public:
+        /*
+        \param computePrevPosition If true, compute the
+        CPUVertexArray::prevPosition array that is then used to
+        compute Surfel::prevPosition.  This requires more space in
+        memory but allows the reconstruction of motion vectors for
+        post-processed motion blur.  Note that TriTree::intersect only
+        traces against the current time, however. */
+        bool               computePrevPosition;
 
         SplitAlgorithm     algorithm;
 
@@ -539,18 +552,7 @@ private:
 
     /** Allocated with m_memoryManager */
     Node*                m_root;
-
-    /** All Tris in the tree.  These are stored here to reduce the
-        memory footprint of duplicated Tris throughout the tree. There
-        appears to be no significant performance overhead from the
-        pointer jump of not storing Tris directly in the nodes. */
-    Array<Tri>           m_triArray;
-
-
-
-    /** All vertices referenced by the Tris in the TriTree */
-    CPUVertexArray       m_cpuVertexArray;
-
+    
 public:
 
     TriTree();
@@ -563,37 +565,19 @@ public:
         return m_triArray[i];
     }
 
-    void clear();
+    virtual void clear() override;
 
     /** Walk the entire tree, computing statistics */
     Stats stats(int valuesPerNode) const;
-
-    /** The arrays will be copied, the underlying Array<Tri> is guaranteed to be in the same order as the parameter Tri Array.
-        Zero area triangles are retained in the array, but will never be collided with. */
-    void setContents(const Array<Tri>& triArray, const CPUVertexArray& vertexArray, const Settings& settings = Settings());
     
-    /** Uses Surface::getTris to extract the triangles from each
-        surface and then is identical to the other setContents,
-        without the extra Tri copying.
-
-        \param computePrevPosition If true, compute the
-        CPUVertexArray::prevPosition array that is then used to
-        compute Surfel::prevPosition.  This requires more space in
-        memory but allows the reconstruction of motion vectors for
-        post-processed motion blur.  Note that TriTree::intersect only
-        traces against the current time, however.
-    */
-    void setContents
-    (const Array<shared_ptr<Surface> >& surfaceArray,
-     ImageStorage newStorage = COPY_TO_CPU, 
-     const Settings& settings = Settings(),
-     bool computePrevPosition = false);
-
     int size() const {
         return m_triArray.size();
     }
     
-    /** Returns the surfel hit, or NULL if none */
+    /** Returns the surfel hit, or NULL if none.
+    
+     \deprecated
+    */
     shared_ptr<Surfel> intersectRay
     (const Ray& ray,
      float& distance,
@@ -619,6 +603,8 @@ public:
         the normal will not automatically be flipped when passed to the Intersector (note that 
         the default implementation of Tri::Intersector::getResult will flip the normal; don't call that or 
         check backface if you need to know which side was hit.)
+
+        \deprecated
      */
     bool intersectRay
     (const Ray& ray,
@@ -627,7 +613,10 @@ public:
      bool exitOnAnyHit = false,
      bool twoSided = false) const;
 
-    /** Cast many rays, potentially using multiple threads. When the function returns, there is one element in results for each input ray. */
+    /** Cast many rays, potentially using multiple threads. When the function returns, there is one element in results for each input ray. 
+    
+        \deprecated
+    */
     void intersectRays
     (const Array<Ray>& rays,
      Array<float>& distances,
@@ -636,16 +625,37 @@ public:
      bool twoSided = false) const;
 
     /** Returns all triangles that intersect or are contained within
-        the sphere (technically, this is a ball intersection). */
+        the sphere (technically, this is a ball intersection). 
+        
+        \deprecated
+     */
     void intersectSphere
     (const Sphere& sphere,
      Array<Tri>&   triArray) const;
 
-    /** Returns all triangles that intersect or are contained within
-        the box. */
-    void intersectBox
-    (const AABox&  box,
-     Array<Tri>&   triArray) const;
+
+
+    /////////////////////////////////////////////////////////////////////
+
+    virtual void setContents
+        (const Array<shared_ptr<Surface>>&  surfaceArray, 
+         ImageStorage                       newImageStorage = ImageStorage::COPY_TO_CPU) override;
+
+    virtual void setContents
+       (const Array<Tri>&                   triArray, 
+        const CPUVertexArray&               vertexArray,
+        ImageStorage                        newStorage      = ImageStorage::COPY_TO_CPU) override;
+
+    virtual bool intersectRay
+        (Ray                                ray, 
+         float                              maxDistance,
+         Hit&                               hit,
+         IntersectRayOptions                options         = IntersectRayOptions(0),
+         FilterFunction                     filterFunction  = alphaTest) const override;
+
+    virtual void intersectBox
+        (const AABox&                       box,
+         Array<Tri>&                        results) const override;
 
     /** Render the tree for debugging and visualization purposes. 
         Inefficent.
@@ -660,15 +670,6 @@ public:
     */
     void draw(RenderDevice* rd, int level, bool showBoxes = true, int minNodeSize = 0);
 
-
-    /** \deprecated */
-    const CPUVertexArray& getCPUVertexArray() const {
-        return m_cpuVertexArray;
-    }
-
-    const CPUVertexArray& cpuVertexArray() const {
-        return m_cpuVertexArray;
-    }
 };
 
 }
