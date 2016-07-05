@@ -9,6 +9,7 @@
 #ifndef G3D_TriTree_h
 #define G3D_TriTree_h
 
+#include <functional>
 #include "G3D/platform.h"
 #include "G3D/Vector3.h"
 #include "G3D/Color3.h"
@@ -31,7 +32,106 @@ class Surface;
 class Surfel;
 class Material;
 
-/** 
+/** Base class for ray-casting data structures. */
+class TriTreeBase : public ReferenceCountedObject {
+protected:
+
+    Array<Tri>              m_triArray;
+    CPUVertexArray          m_vertexArray;
+
+public:
+
+    /** Options for intersectRays. Default is closest-hit, single-sided triangles. */
+    enum IntersectRayOptions {
+        /** Perform an any-hit intersection (useful for shadow rays and testing line of sight) */
+        RETURN_ANY_HIT      = 1,
+
+        /** Treat triangles as two-sided (disable backface culling) */
+        TWO_SIDED_TRIANGLES = 2
+    };
+
+    /** Returns true if this geometric intersection with the triangle should
+        count as a ray hit. Frequently used for alpha testing. */
+    typedef std::function<bool (const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Vector3& rayOrigin, const Vector3& rayDir)> FilterFunction;
+
+    /** Performs alpha testing against triangles
+        with UniversalMaterial%s on them. Default FilterFunction for the intersect methods. */
+    static bool alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Vector3& rayOrigin, const Vector3& rayDir);
+    
+    class Hit {
+    public:
+        enum { NONE = -1 };
+        /** NONE if no hit */
+        int         triIndex;
+        float       u;
+        float       v;
+        float       distance;
+        bool        backface;
+
+        Hit() : triIndex(NONE), u(0), v(0), distance(0), backface(false) {}
+    };
+
+    virtual ~TriTreeBase();
+
+    virtual void clear();
+
+    /** Base class implementation populates m_triArray and m_vertexArray and applies the image storage option. */
+    virtual void setContents
+        (const Array<shared_ptr<Surface>>&  surfaceArray, 
+         ImageStorage                       newImageStorage = ImageStorage::COPY_TO_CPU);
+
+    const Array<Tri>& triArray() const {
+        return m_triArray;
+    }
+
+    const CPUVertexArray& vertexArray() const {
+        return m_vertexArray;
+    }
+
+    /** Intersect a single ray. Return value is `hit.triIndex != Hit::NONE` for convenience. 
+        \param filterFunction Set to nullptr to accept any geometric ray-triangle instersection.
+      */
+    virtual bool intersectRay
+        (Ray                    ray, 
+         float                  maxDistance,
+         Hit&                   hit,
+         IntersectRayOptions    options         = IntersectRayOptions(0),
+         FilterFunction         filterFunction  = alphaTest) const = 0;
+
+    /** Batch ray casting. The default implementation calls the single-ray version using
+        GThread::runConcurrently. */
+    virtual void intersectRays
+        (const Array<Ray>&      rays,
+         const Array<float>&    maxDistances,
+         Array<Hit>&            results,
+         IntersectRayOptions    options         = IntersectRayOptions(0),
+         FilterFunction         filterFunction  = alphaTest) const;
+
+    /** Helper function that samples materials. The default implementation calls the intersectRay
+        override that takes a Hit and then samples from it.
+
+        \param distance Call with this set to the maximum trace distance. If there is a hit, this is
+              the distance to the intersection
+              
+        \param directiondX Reserved
+        \param directiondY Reserved
+     */
+    virtual shared_ptr<Surfel> intersectRay
+        (const Ray&             ray, 
+         float&                 distance, 
+         IntersectRayOptions    options         = IntersectRayOptions(0),
+         FilterFunction         filterFunction  = alphaTest,
+         const Vector3&         directiondX     = Vector3::zero(),
+         const Vector3&         directiondY     = Vector3::zero()) const;
+
+    /** Returns all triangles that lie within the box. Default implementation
+        tests each triangle in turn. */
+    virtual void intersectBox
+        (const AABox&           box,
+         Array<Tri>&            results) const;
+};
+
+/**
  \brief Static bounding interval hierarchy for Ray-Tri intersections.
 
  The BIH is a tree in which each node is an axis-aligned box

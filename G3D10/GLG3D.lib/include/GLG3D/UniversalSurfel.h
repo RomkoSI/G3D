@@ -14,9 +14,10 @@
 #include "G3D/platform.h"
 #include "GLG3D/Surfel.h"
 #include "GLG3D/Tri.h"
-#include "GLG3D/UniversalBSDF.h"
 
 namespace G3D {
+
+class Tri;
 
 /** 
  \brief A Surfel for a surface patch described by a UniversalMaterial.
@@ -71,14 +72,9 @@ public:
 
       \sa blinnPhongExponent
     */
-    float smoothness() const {
-        return UniversalBSDF::packGlossyExponent(glossyReflectionExponent);
-    }
+    float smoothness() const;
 
-    void setSmoothness(float a) {
-        debugAssert(a >= 0 && a <= 1.0);
-        glossyReflectionExponent = UniversalBSDF::unpackGlossyExponent(a);
-    }
+    void setSmoothness(float a);
 
     /** The glossy exponent in the Blinn-Phong BSDF.
 
@@ -104,6 +100,8 @@ public:
     UniversalSurfel() {}
 
     UniversalSurfel(const Tri::Intersector& intersector);
+
+    UniversalSurfel(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside);
 
     static shared_ptr<UniversalSurfel> create(const Tri::Intersector& intersector);
 

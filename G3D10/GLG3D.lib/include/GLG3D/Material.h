@@ -6,10 +6,11 @@
 #include "G3D/lazy_ptr.h"
 #include "GLG3D/Component.h"
 #include "GLG3D/Tri.h"
+#include "GLG3D/Surfel.h"
 
 namespace G3D {
 
-class Surfel;
+class Surface;
 
 /** 
     Base class for materials in G3D, mostly useful as an interface for
@@ -38,6 +39,7 @@ public:
     virtual void setStorage(ImageStorage s) const = 0;
     virtual const String& name() const = 0;
     virtual shared_ptr<Surfel> sample(const Tri::Intersector& intersector) const = 0;
+    virtual shared_ptr<Surfel> sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) const = 0;
 };
 
 } // namespace G3D
