@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-06-10
-  \edited  2016-09-02
+  \edited  2016-07-05
 */
 
 #include "G3D/AreaMemoryManager.h"
@@ -17,13 +17,24 @@
 namespace G3D {
 
 bool TriTreeBase::alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Vector3& rayOrigin, const Vector3& rayDir) {
-    // TODO:
-    return true;
+    const CPUVertexArray::Vertex& vertex0 = tri.vertex(vertexArray, 0);
+    const CPUVertexArray::Vertex& vertex1 = tri.vertex(vertexArray, 1);
+    const CPUVertexArray::Vertex& vertex2 = tri.vertex(vertexArray, 2);
+
+    const float w = 1.0f - u - v;
+    const Point2& texCoord = 
+        w * vertex0.texCoord0 + 
+        u * vertex1.texCoord0 +
+        v * vertex2.texCoord0;
+
+    const shared_ptr<Material>& material = tri.material();
+    return isNull(material) || ! material->coverageLessThan(0.5f, texCoord);
 }
     
 
 void TriTreeBase::clear() {
-    // TODO
+    m_triArray.fastClear();
+    m_vertexArray.clear();
 }
 
 
@@ -33,9 +44,23 @@ TriTreeBase::~TriTreeBase() {
 
 
 void TriTreeBase::setContents
-   (const Array<shared_ptr<Surface>>&  surfaceArray, 
-    ImageStorage                       newImageStorage) {
-    // TODO
+(const Array<shared_ptr<Surface> >& surfaceArray, 
+ ImageStorage                       newStorage) {
+
+    const bool computePrevPosition = false;
+    static const float epsilon = 0.000001f;
+    clear();
+    Surface::getTris(surfaceArray, m_vertexArray, m_triArray, computePrevPosition);
+   
+    if (newStorage != IMAGE_STORAGE_CURRENT) {
+        for (int i = 0; i < m_triArray.size(); ++i) {
+            const Tri& tri = m_triArray[i];
+            const shared_ptr<Material>& material = tri.material();
+            if (notNull(material)) {
+                material->setStorage(newStorage);
+            }
+        }
+    }
 }
 
 
