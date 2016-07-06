@@ -25,9 +25,7 @@
 #include "GLG3D/Widget.h"
 #include "GLG3D/GConsole.h"
 #include "GLG3D/DeveloperWindow.h"
-#include "GLG3D/Shape.h"
 #include "GLG3D/Film.h"
-#include "GLG3D/Shape.h"
 #include "GLG3D/Scene.h"
 #include "GLG3D/GBuffer.h"
 #include "GLG3D/ArticulatedModelSpecificationEditorDialog.h"
@@ -43,6 +41,7 @@ class Log;
 class Scene;
 class Renderer;
 class DebugTextWidget;
+class Shape;
 
 /** Used with debugDraw. */
 typedef int DebugID;

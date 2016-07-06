@@ -50,7 +50,7 @@ void App::onInit() {
     m_debugCamera->setFrame(CFrame::fromXYZYPRDegrees(24.3f, 0.4f, 2.5f, 68.7f, 1.2f, 0.0f));
     m_debugCamera->frame();
 
-    GApp::loadScene("G3D Real Time Ray Trace");
+    GApp::loadScene("G3D Cornell Box");// "G3D Real Time Ray Trace");
 
     makeGUI();
 
@@ -112,12 +112,11 @@ Radiance3 App::rayTrace(const Ray& ray, World* world, Random& rng, int bounce) {
 
             if (light->producesDirectIllumination()) {
                 // Shadow rays
-                if ((!light->castsShadows()) || (world->lineOfSight(surfel->location + surfel->geometricNormal * BUMP_DISTANCE, light->position().xyz()))) {
+                if ((! light->castsShadows()) || world->lineOfSight(light->position().xyz(), surfel->location + surfel->geometricNormal * BUMP_DISTANCE)) {
                     Vector3 w_i = light->position().xyz() - surfel->location;
                     const float distance2 = w_i.squaredLength();
                     w_i /= sqrt(distance2);
 
-                    // Biradiance
                     const Biradiance3& B_i = light->biradiance(surfel->location);
 
                     radiance +=
@@ -184,19 +183,18 @@ void App::onRender() {
 
 
 void App::trace(int x, int y, int threadID) {
-    Color3 sum = Color3::black();
+    Radiance3 sum = Color3::black();
 
     Random& rng = m_rng[threadID];
     if (m_currentRays == 1) {
         sum = rayTrace(m_debugCamera->worldRay(x + 0.5f, y + 0.5f, m_currentImage->rect2DBounds()), m_world, rng);
-    }
-    else {
+    } else {
         // Random jitter for antialiasing
         for (int i = 0; i < m_currentRays; ++i) {
             sum += rayTrace(m_debugCamera->worldRay(x + rng.uniform(), y + rng.uniform(), m_currentImage->rect2DBounds()), m_world, rng);
         }
     }
-    m_currentImage->set(x, y, sum / (float)m_currentRays);
+    m_currentImage->set(x, y, sum / float(m_currentRays));
 }
 
 

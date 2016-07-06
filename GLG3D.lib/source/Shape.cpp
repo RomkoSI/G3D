@@ -242,13 +242,11 @@ Vector3 MeshShape::randomInteriorPoint(Random& rnd) const {
 
         Ray r(origin, direction);
 
-        float distance = finf();
-        Tri::Intersector intersector;
-
-        while (_bspTree.intersectRay(r, intersector, distance, false, true)) {
-            isInterior += intersector.backside ? 1 : -1;
-            r = r.bumpedRay(distance += BUMP_DISTANCE);
-            distance = finf();
+        TriTree::Hit hit;
+        // Compute crossings to infinity
+        while (_bspTree.intersectRay(r, finf(), hit, TriTree::TWO_SIDED_TRIANGLES)) {
+            isInterior += hit.backface ? 1 : -1;
+            r = r.bumpedRay(hit.distance += BUMP_DISTANCE);
         }
 
         if (isInterior > 0) {

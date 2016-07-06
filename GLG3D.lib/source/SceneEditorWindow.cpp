@@ -22,6 +22,7 @@
 #include "GLG3D/ThirdPersonManipulator.h"
 #include "GLG3D/Light.h"
 #include "GLG3D/Draw.h"
+#include "GLG3D/Shape.h"
 
 namespace G3D {
 

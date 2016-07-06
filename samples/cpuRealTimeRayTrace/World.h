@@ -26,7 +26,7 @@ public:
     /** Returns true if there is an unoccluded line of sight from v0
         to v1.  This is sometimes called the visibilty function in the
         literature.*/
-    bool lineOfSight(const Vector3& v0, const Vector3& v1) const;
+    bool lineOfSight(const Point3& v0, const Point3& v1) const;
 
     void begin();
     void insert(const shared_ptr<ArticulatedModel>& model, const CFrame& frame = CFrame());

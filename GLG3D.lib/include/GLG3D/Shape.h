@@ -269,7 +269,6 @@ public:
     }
 
     /** Not computed until the first call to bspTree, area, or getRandomSurfacePoint. */
-
     virtual const TriTree& bspTree() const {
         if (! _hasTree) {
             const_cast<MeshShape*>(this)->buildBSP();

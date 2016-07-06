@@ -42,21 +42,21 @@ protected:
 public:
 
     /** Options for intersectRays. Default is closest-hit, single-sided triangles. */
-    enum IntersectRayOptions {
-        /** Perform an any-hit intersection (useful for shadow rays and testing line of sight) */
-        RETURN_ANY_HIT      = 1,
+    typedef unsigned int IntersectRayOptions;
 
-        /** Treat triangles as two-sided (disable backface culling) */
-        TWO_SIDED_TRIANGLES = 2
-    };
+    /** Perform an any-hit intersection (useful for shadow rays and testing line of sight) */
+    static const IntersectRayOptions RETURN_ANY_HIT = 1;
+
+    /** Treat triangles as two-sided (disable backface culling) */
+    static const IntersectRayOptions TWO_SIDED_TRIANGLES = 2;
 
     /** Returns true if this geometric intersection with the triangle should
         count as a ray hit. Frequently used for alpha testing. */
-    typedef std::function<bool (const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Vector3& rayOrigin, const Vector3& rayDir)> FilterFunction;
+    typedef std::function<bool (const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Point3& rayOrigin, const Vector3& rayDir)> FilterFunction;
 
     /** Performs alpha testing against triangles
         with UniversalMaterial%s on them. Default FilterFunction for the intersect methods. */
-    static bool alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Vector3& rayOrigin, const Vector3& rayDir);
+    static bool alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Point3& rayOrigin, const Vector3& rayDir);
     
     class Hit {
     public:
@@ -83,34 +83,44 @@ public:
         return m_vertexArray;
     }
 
+    /** Array access to the stored Tris */
+    const Tri& operator[](int i) const {
+        debugAssert(i >= 0 && i < m_triArray.size());
+        return m_triArray[i];
+    }
+
+    int size() const {
+        return m_triArray.size();
+    }
+
     /** Base class implementation populates m_triArray and m_vertexArray and applies the image storage option. */
     virtual void setContents
         (const Array<shared_ptr<Surface>>&  surfaceArray, 
          ImageStorage                       newImageStorage = ImageStorage::COPY_TO_CPU);
 
     virtual void setContents
-       (const Array<Tri>&                  triArray, 
-        const CPUVertexArray&              vertexArray,
-        ImageStorage                       newStorage = ImageStorage::COPY_TO_CPU);
+       (const Array<Tri>&                   triArray, 
+        const CPUVertexArray&               vertexArray,
+        ImageStorage                        newStorage = ImageStorage::COPY_TO_CPU);
 
     /** Intersect a single ray. Return value is `hit.triIndex != Hit::NONE` for convenience. 
         \param filterFunction Set to nullptr to accept any geometric ray-triangle instersection.
       */
     virtual bool intersectRay
-        (Ray                    ray, 
-         float                  maxDistance,
-         Hit&                   hit,
-         IntersectRayOptions    options         = IntersectRayOptions(0),
-         FilterFunction         filterFunction  = alphaTest) const = 0;
+        (Ray                                ray,
+         float                              maxDistance,
+         Hit&                               hit,
+         IntersectRayOptions                options         = IntersectRayOptions(0),
+         FilterFunction                     filterFunction  = alphaTest) const = 0;
 
     /** Batch ray casting. The default implementation calls the single-ray version using
         GThread::runConcurrently. */
     virtual void intersectRays
-        (const Array<Ray>&      rays,
-         const Array<float>&    maxDistances,
-         Array<Hit>&            results,
-         IntersectRayOptions    options         = IntersectRayOptions(0),
-         FilterFunction         filterFunction  = alphaTest) const;
+        (const Array<Ray>&                  rays,
+         const Array<float>&                maxDistances,
+         Array<Hit>&                        results,
+         IntersectRayOptions                options         = IntersectRayOptions(0),
+         FilterFunction                     filterFunction  = alphaTest) const;
 
     /** Helper function that samples materials. The default implementation calls the intersectRay
         override that takes a Hit and then samples from it.
@@ -122,18 +132,18 @@ public:
         \param directiondY Reserved
      */
     virtual shared_ptr<Surfel> intersectRay
-        (const Ray&             ray, 
-         float&                 distance, 
-         IntersectRayOptions    options         = IntersectRayOptions(0),
-         FilterFunction         filterFunction  = alphaTest,
-         const Vector3&         directiondX     = Vector3::zero(),
-         const Vector3&         directiondY     = Vector3::zero()) const;
+        (const Ray&                         ray, 
+         float&                             distance, 
+         IntersectRayOptions                options         = IntersectRayOptions(0),
+         FilterFunction                     filterFunction  = alphaTest,
+         const Vector3&                     directiondX     = Vector3::zero(),
+         const Vector3&                     directiondY     = Vector3::zero()) const;
 
     /** Returns all triangles that lie within the box. Default implementation
         tests each triangle in turn. */
     virtual void intersectBox
-        (const AABox&           box,
-         Array<Tri>&            results) const;
+        (const AABox&                       box,
+         Array<Tri>&                        results) const;
 };
 
 /**
@@ -559,70 +569,19 @@ public:
 
     ~TriTree();
 
-    /** Array access to the stored Tris */
-    inline const Tri& operator[](int i) const {
-        debugAssert(i >= 0 && i < m_triArray.size());
-        return m_triArray[i];
-    }
-
     virtual void clear() override;
 
     /** Walk the entire tree, computing statistics */
     Stats stats(int valuesPerNode) const;
-    
-    int size() const {
-        return m_triArray.size();
-    }
-    
-    /** Returns the surfel hit, or NULL if none.
-    
-     \deprecated
-    */
-    shared_ptr<Surfel> intersectRay
-    (const Ray& ray,
-     float& distance,
-     bool exitOnAnyHit = false,
-     bool twoSided = false) const;
-    
-    /** Returns true if there was an intersection.
-
-        Example:
-        <pre>
-           Tri::Intersector intersector;
-           float distance = inf();
-           if (tree.intersectRay(ray, intersector, distance)) {
-               Vector3 position, normal;
-               Vector2 texCoord;
-               intersector.getResult(position, normal, texCoord);
-               ...
-           }
-        </pre>
-
-        \param exitOnAnyHit If true, return any intersection, not the first (faster for shadow rays)
-        \param twoSided If true, both sides of triangles are tested for intersections. If a back face is hit,
-        the normal will not automatically be flipped when passed to the Intersector (note that 
-        the default implementation of Tri::Intersector::getResult will flip the normal; don't call that or 
-        check backface if you need to know which side was hit.)
-
-        \deprecated
-     */
+        
+protected:
     bool intersectRay
     (const Ray& ray,
      Tri::Intersector& intersectCallback, 
      float& distance,
      bool exitOnAnyHit = false,
      bool twoSided = false) const;
-
-    /** Cast many rays, potentially using multiple threads. When the function returns, there is one element in results for each input ray. 
-    
-        \deprecated
-    */
-    void intersectRays
-    (const Array<Ray>& rays,
-     Array<float>& distances,
-     Array<shared_ptr<Surfel>>& results,
-     bool exitOnAnyHit = false,
-     bool twoSided = false) const;
+public:
 
     /** Returns all triangles that intersect or are contained within
         the sphere (technically, this is a ball intersection). 
