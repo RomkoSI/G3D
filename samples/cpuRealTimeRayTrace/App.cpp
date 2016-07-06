@@ -208,10 +208,12 @@ void App::rayTraceImage(float scale, int numRays) {
         m_currentImage = Image3::createEmpty(width, height);
     }
     m_currentRays = numRays;
-    GThread::runConcurrently2D(Point2int32(0, 0), Point2int32(width, height), this, &App::trace);
+    GThread::runConcurrently(Point2int32(0, 0), Point2int32(width, height), [&](int x, int y, int threadID) {
+        trace(x, y, threadID);
+    });
 
     // Post-process
-    shared_ptr<Texture> src = Texture::fromImage("Source", m_currentImage);
+    const shared_ptr<Texture>& src = Texture::fromImage("Source", m_currentImage);
     if (m_result) {
         m_result->resize(width, height);
     }
