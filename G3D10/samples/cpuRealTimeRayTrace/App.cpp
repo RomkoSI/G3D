@@ -103,7 +103,7 @@ void App::onCleanup() {
 
 Radiance3 App::rayTrace(const Ray& ray, World* world, Random& rng, int bounce) {
     Radiance3 radiance = Radiance3::zero();
-    const float BUMP_DISTANCE = 0.005f;
+    const float BUMP_DISTANCE = 0.0005f;
 
     float dist = (float)inf();
     const shared_ptr<Surfel>& surfel = world->intersect(ray, dist);
