@@ -560,6 +560,31 @@ float TriTree::Node::SAHCost(Vector3::Axis axis, float offset, const Array<Poly>
 
 
 bool __fastcall TriTree::Node::intersectRay
+   (const TriTree&                     triTree,
+    Ray                                ray,
+    float                              maxDistance,
+    Hit&                               hit,
+    IntersectRayOptions                options,
+    FilterFunction                     filterFunction) const {
+
+    // TODO: Make this routine native
+    float distance = maxDistance;
+    Tri::Intersector intersectCallback;    
+    if (intersectRay(triTree, ray, intersectCallback, distance, (options & RETURN_ANY_HIT) != 0, (options & TWO_SIDED_TRIANGLES) != 0)) {
+        hit.distance = distance;
+        hit.u = intersectCallback.u;
+        hit.v = intersectCallback.v;
+        hit.triIndex = intersectCallback.primitiveIndex;
+        hit.backface = intersectCallback.backside;
+        return true;
+    } else {
+        hit.triIndex = Hit::NONE;
+        return false;
+    }
+}
+
+
+bool __fastcall TriTree::Node::intersectRay
 (const TriTree&      triTree,
  const Ray&          ray,
  Tri::Intersector&   intersectCallback, 
@@ -882,20 +907,7 @@ bool TriTree::intersectRay
     IntersectRayOptions                options,
     FilterFunction                     filterFunction) const {
 
-    // TODO: Make this routine native
-    float distance = maxDistance;
-    Tri::Intersector intersectCallback;
-    if (notNull(m_root) && m_root->intersectRay(*this, ray, intersectCallback, distance, (options & RETURN_ANY_HIT) != 0, (options & TWO_SIDED_TRIANGLES) != 0)) {
-        hit.distance = distance;
-        hit.u = intersectCallback.u;
-        hit.v = intersectCallback.v;
-        hit.triIndex = intersectCallback.primitiveIndex;
-        hit.backface = intersectCallback.backside;
-        return true;
-    } else {
-        hit.triIndex = Hit::NONE;
-        return false;
-    }
+    return notNull(m_root) && m_root->intersectRay(*this, ray, maxDistance, hit, options, filterFunction);        
 }
 
 }
