@@ -886,21 +886,6 @@ void TriTree::draw(RenderDevice* rd, int level, bool showBoxes, int minNodeSize)
 
 
 bool TriTree::intersectRay
-(const Ray&            ray,
- Tri::Intersector&     intersectCallback, 
- float&                distance,
- bool                  exitOnAnyHit,
- bool                  twoSided) const {
-
-    bool hit = false;
-    if (m_root != NULL) {
-        hit = m_root->intersectRay(*this, ray, intersectCallback, distance, exitOnAnyHit, twoSided);
-    }
-    return hit;
-}
-
-
-bool TriTree::intersectRay
    (Ray                                ray, 
     float                              maxDistance,
     Hit&                               hit,
