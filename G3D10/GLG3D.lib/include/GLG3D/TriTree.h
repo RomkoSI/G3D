@@ -153,6 +153,8 @@ public:
     virtual void intersectSphere
         (const Sphere&                      sphere,
          Array<Tri>&                        triArray) const;
+
+    virtual shared_ptr<Surfel> sample(const Hit& hit) const;
 };
 
 /**
