@@ -17,10 +17,10 @@ int main(int argc, char** argv) {
 
 
 App::App(const GApp::Settings& settings) :
-GApp(settings),
-m_maxBounces(3),
-m_raysPerPixel(1),
-m_world(NULL) {
+    GApp(settings),
+    m_maxBounces(3),
+    m_raysPerPixel(1),
+    m_world(NULL) {
 
     catchCommonExceptions = false;
 }
@@ -50,7 +50,10 @@ void App::onInit() {
     m_debugCamera->setFrame(CFrame::fromXYZYPRDegrees(24.3f, 0.4f, 2.5f, 68.7f, 1.2f, 0.0f));
     m_debugCamera->frame();
 
-    GApp::loadScene("G3D Cornell Box");// "Real Time Ray Trace");
+    GApp::loadScene(
+        "G3D Transparency Test");
+        //"G3D Cornell Box");
+        // "Real Time Ray Trace");
 
     makeGUI();
 
@@ -100,7 +103,7 @@ void App::onCleanup() {
 
 Radiance3 App::rayTrace(const Ray& ray, World* world, Random& rng, int bounce) {
     Radiance3 radiance = Radiance3::zero();
-    const float BUMP_DISTANCE = 0.0001f;
+    const float BUMP_DISTANCE = 0.005f;
 
     float dist = (float)inf();
     const shared_ptr<Surfel>& surfel = world->intersect(ray, dist);
@@ -141,7 +144,7 @@ Radiance3 App::rayTrace(const Ray& ray, World* world, Random& rng, int bounce) {
 
             for (int i = 0; i < impulseArray.size(); ++i) {
                 const Surfel::Impulse& impulse = impulseArray[i];
-                // Bump along normal *in the outgoing ray direction*. 
+                // Bump along normal *in the outgoing ray direction*.
                 const Vector3& offset = surfel->geometricNormal * sign(impulse.direction.dot(surfel->geometricNormal)) * BUMP_DISTANCE;
                 const Ray& secondaryRay = Ray::fromOriginAndDirection(surfel->location + offset, impulse.direction);
                 debugAssert(secondaryRay.direction().isFinite());
