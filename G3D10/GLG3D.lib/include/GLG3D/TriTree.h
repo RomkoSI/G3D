@@ -112,7 +112,7 @@ public:
         \param directiondX Reserved
         \param directiondY Reserved
      */
-    virtual shared_ptr<Surfel> _intersectRay
+    virtual shared_ptr<Surfel> intersectRay
         (const Ray&                         ray, 
          float&                             distance,
          IntersectRayOptions                options         = IntersectRayOptions(0),
@@ -169,6 +169,8 @@ public:
 */
 class TriTree : public TriTreeBase {
 public:
+    using TriTreeBase::intersectRay;
+
     enum SplitAlgorithm {
         /** Produce nodes with approximately equal shape by splitting
             nodes half-way across the bounds of their contents
