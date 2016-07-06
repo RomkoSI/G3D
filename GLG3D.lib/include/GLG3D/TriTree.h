@@ -551,6 +551,7 @@ private:
 
         void getStats(Stats& s, int level, int valuesPerNode) const;
 
+        /// \deprecated tODO: remove
         bool __fastcall intersectRay
         (const TriTree&  triTree,
          const Ray&      ray,
@@ -558,6 +559,14 @@ private:
          float&          distance,
          bool            exitOnAnyHit,
          bool            twoSided) const;
+
+        bool __fastcall intersectRay
+        (const TriTree&                     triTree,
+         Ray                                ray,
+         float                              maxDistance,
+         Hit&                               hit,
+         IntersectRayOptions                options,
+         FilterFunction                     filterFunction) const;
     };
 
     /** Memory manager used to allocate Nodes and Tri arrays. */
