@@ -671,10 +671,10 @@ bool __fastcall TriTree::Node::intersectRay
     FilterFunction                     filterFunction) const {
 
     // TODO: Remove
-    {
-        Tri::Intersector   intersectCallback;
+    if (true) {
+        Tri::Intersector  intersectCallback;
 
-        if (intersectRay(triTree, ray, intersectCallback, maxDistance, options & RETURN_ANY_HIT, options & TWO_SIDED_TRIANGLES)) {
+        if (intersectRay(triTree, ray, intersectCallback, maxDistance, (options & RETURN_ANY_HIT) != 0, (options & TWO_SIDED_TRIANGLES) != 0)) {
             hitData.u = intersectCallback.u;
             hitData.v = intersectCallback.v;
             hitData.distance = maxDistance;
@@ -684,11 +684,8 @@ bool __fastcall TriTree::Node::intersectRay
         } else {
             return false;
         }
-
     }
     ///////////////////
-
-    bool hit = false;
     
     // Don't bother paying the bounding box intersection at
     // leaves, since we have to pay it again below.
@@ -700,13 +697,14 @@ bool __fastcall TriTree::Node::intersectRay
     
     enum {NONE = -1};
     
-    Vector3::Axis axis = splitAxis();
+    const Vector3::Axis axis = splitAxis();
 
     int firstChild = NONE, secondChild = NONE;
     if (! isLeaf()) {
         computeTraversalOrder(ray, firstChild, secondChild);
     }
     
+    bool hit = false;
     // Test on the side closer to the ray origin.
     if (firstChild != NONE) {
         hit = child(firstChild).intersectRay(triTree, ray, maxDistance, hitData, options, filterFunction) || hit;
@@ -734,6 +732,7 @@ bool __fastcall TriTree::Node::intersectRay
                 // Pointer arithmetic to find what index in the tri tree array this triangle was.
                 // The data array is a set of pointers into the triArray.
                 hitData.triIndex = int(valueArray->data[v] - triTree.m_triArray.getCArray());
+
                 if ((options & RETURN_ANY_HIT) != 0) {
                     return true;
                 } else {
