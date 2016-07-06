@@ -23,12 +23,12 @@ bool TriTreeBase::alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, f
 
     const float w = 1.0f - u - v;
     const Point2& texCoord = 
-        w * vertex0.texCoord0 + 
+        w * vertex0.texCoord0 +
         u * vertex1.texCoord0 +
         v * vertex2.texCoord0;
 
     const shared_ptr<Material>& material = tri.material();
-    return isNull(material) || ! material->coverageLessThan(0.5f, texCoord);
+    return isNull(material) || ! material->coverageLessThan(1.0f, texCoord);
 }
     
 
@@ -565,20 +565,7 @@ static bool __fastcall rayTriangleIntersection
     TriTreeBase::Hit&                  hitData,
     TriTreeBase::IntersectRayOptions   options,
     TriTreeBase::FilterFunction        filterFunction) {
-    if (true) {
-        // TODO: Remove
-        Tri::Intersector intersector;
-        if (intersector(ray, vertexArray, tri, true, distance, false)) {
-            hitData.distance = distance;
-            hitData.u = intersector.u;
-            hitData.v = intersector.v;
-            hitData.backface = intersector.backside;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
+    
     // See RTR3 p.746 (RTR2 ch. 13.7) for the basic algorithm used in this function.
 
     static const float EPS = 1e-12f;
@@ -638,8 +625,8 @@ static bool __fastcall rayTriangleIntersection
     const float t = e2.dot(q);
 
     if ((t > 0.0f) && (t < distance)) {
-        if ((filterFunction != nullptr) && ! filterFunction(tri, vertexArray, hitData.u, hitData.v, ray)) {
-            // Failed the filter (e.g., alpha masking)
+        if ((filterFunction != nullptr) && ! filterFunction(tri, vertexArray, u, v, ray)) {
+            // Failed the filter (e.g., alpha test)
             return false;
         } else {
 
