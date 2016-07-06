@@ -551,15 +551,6 @@ private:
 
         void getStats(Stats& s, int level, int valuesPerNode) const;
 
-        /// \deprecated tODO: remove
-        bool __fastcall intersectRay
-        (const TriTree&  triTree,
-         const Ray&      ray,
-         Tri::Intersector& intersectCallback, 
-         float&          distance,
-         bool            exitOnAnyHit,
-         bool            twoSided) const;
-
         bool __fastcall intersectRay
         (const TriTree&                     triTree,
          const Ray&                         ray,
