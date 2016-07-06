@@ -139,12 +139,20 @@ public:
          IntersectRayOptions                options         = IntersectRayOptions(0),
          FilterFunction                     filterFunction  = alphaTest) const;
 
-
     /** Returns all triangles that lie within the box. Default implementation
-        tests each triangle in turn. */
+        tests each triangle in turn (linear time). */
     virtual void intersectBox
         (const AABox&                       box,
          Array<Tri>&                        results) const;
+
+    /** Returns all triangles that intersect or are contained within
+        the sphere (technically, this is a ball intersection).
+
+        Default implementation calls intersectBox and then filters the results for the sphere.
+     */
+    virtual void intersectSphere
+        (const Sphere&                      sphere,
+         Array<Tri>&                        triArray) const;
 };
 
 /**
@@ -577,16 +585,9 @@ public:
     /** Walk the entire tree, computing statistics */
     Stats stats(int valuesPerNode) const;
         
-    /** Returns all triangles that intersect or are contained within
-        the sphere (technically, this is a ball intersection). 
-        
-        \deprecated
-     */
-    void intersectSphere
-    (const Sphere& sphere,
-     Array<Tri>&   triArray) const;
-
-    /////////////////////////////////////////////////////////////////////
+    virtual void intersectSphere
+        (const Sphere&                      sphere,
+         Array<Tri>&                        triArray) const override;
 
     virtual void setContents
         (const Array<shared_ptr<Surface>>&  surfaceArray, 
