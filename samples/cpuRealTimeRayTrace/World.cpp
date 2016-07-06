@@ -54,5 +54,5 @@ bool World::lineOfSight(const Point3& P0, const Point3& P1) const {
 
 shared_ptr<Surfel> World::intersect(const Ray& ray, float& distance) const {
     debugAssert(m_mode == TRACE);
-    return m_triTree._intersectRay(ray, distance);
+    return m_triTree.intersectRay(ray, distance);
 }
