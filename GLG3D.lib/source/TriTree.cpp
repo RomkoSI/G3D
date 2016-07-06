@@ -671,7 +671,7 @@ bool __fastcall TriTree::Node::intersectRay
     FilterFunction                     filterFunction) const {
 
     // TODO: Remove
-    if (true) {
+    if (false) {
         Tri::Intersector  intersectCallback;
 
         if (intersectRay(triTree, ray, intersectCallback, maxDistance, (options & RETURN_ANY_HIT) != 0, (options & TWO_SIDED_TRIANGLES) != 0)) {
@@ -738,7 +738,7 @@ bool __fastcall TriTree::Node::intersectRay
                 } else {
                     maxDistance = hitData.distance;
                 }
-            }        
+            }
         }        
     }
     
@@ -757,7 +757,8 @@ bool __fastcall TriTree::Node::intersectRay
                 // child.
                 return hit;
             } else {
-                maxDistance = distanceToSplittingPlane;
+                // TODO: Enable this optimization
+               // maxDistance = distanceToSplittingPlane;
             }
         }
         
@@ -775,8 +776,6 @@ bool __fastcall TriTree::Node::intersectRay
  float&              distance,
  bool                exitOnAnyHit,
  bool                twoSided) const {
-
-    bool hit = false;
     
     // Don't bother paying the bounding box intersection at
     // leaves, since we have to pay it again below.
@@ -788,13 +787,15 @@ bool __fastcall TriTree::Node::intersectRay
     
     enum {NONE = -1};
     
-    Vector3::Axis axis = splitAxis();
+    const Vector3::Axis axis = splitAxis();
 
     int firstChild = NONE, secondChild = NONE;
     if (! isLeaf()) {
         computeTraversalOrder(ray, firstChild, secondChild);
     }
     
+    bool hit = false;
+
     // Test on the side closer to the ray origin.
     if (firstChild != NONE) {
         hit = child(firstChild).intersectRay(triTree, ray, intersectCallback, distance, exitOnAnyHit, twoSided) || hit;
@@ -824,8 +825,7 @@ bool __fastcall TriTree::Node::intersectRay
                     return true;
                 }
             }
-            
-            
+                        
         }        
     }
     
