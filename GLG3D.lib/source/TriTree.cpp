@@ -565,7 +565,7 @@ static bool __fastcall rayTriangleIntersection
     TriTreeBase::Hit&                  hitData,
     TriTreeBase::IntersectRayOptions   options,
     TriTreeBase::FilterFunction        filterFunction) {
-    if (false) {
+    if (true) {
         // TODO: Remove
         Tri::Intersector intersector;
         if (intersector(ray, vertexArray, tri, true, distance, false)) {
