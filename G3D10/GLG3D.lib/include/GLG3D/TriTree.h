@@ -103,6 +103,23 @@ public:
         const CPUVertexArray&               vertexArray,
         ImageStorage                        newStorage = ImageStorage::COPY_TO_CPU);
 
+    /** Helper function that samples materials. The default implementation calls the intersectRay
+        override that takes a Hit and then samples from it.
+
+        \param distance Call with this set to the maximum trace distance. If there is a hit, this is
+              the distance to the intersection
+              
+        \param directiondX Reserved
+        \param directiondY Reserved
+     */
+    virtual shared_ptr<Surfel> _intersectRay
+        (const Ray&                         ray, 
+         float&                             distance,
+         IntersectRayOptions                options         = IntersectRayOptions(0),
+         FilterFunction                     filterFunction  = alphaTest,
+         const Vector3&                     directiondX     = Vector3::zero(),
+         const Vector3&                     directiondY     = Vector3::zero()) const;
+
     /** Intersect a single ray. Return value is `hit.triIndex != Hit::NONE` for convenience. 
         \param filterFunction Set to nullptr to accept any geometric ray-triangle instersection.
       */
@@ -122,22 +139,6 @@ public:
          IntersectRayOptions                options         = IntersectRayOptions(0),
          FilterFunction                     filterFunction  = alphaTest) const;
 
-    /** Helper function that samples materials. The default implementation calls the intersectRay
-        override that takes a Hit and then samples from it.
-
-        \param distance Call with this set to the maximum trace distance. If there is a hit, this is
-              the distance to the intersection
-              
-        \param directiondX Reserved
-        \param directiondY Reserved
-     */
-    virtual shared_ptr<Surfel> intersectRay
-        (const Ray&                         ray, 
-         float&                             distance, 
-         IntersectRayOptions                options         = IntersectRayOptions(0),
-         FilterFunction                     filterFunction  = alphaTest,
-         const Vector3&                     directiondX     = Vector3::zero(),
-         const Vector3&                     directiondY     = Vector3::zero()) const;
 
     /** Returns all triangles that lie within the box. Default implementation
         tests each triangle in turn. */

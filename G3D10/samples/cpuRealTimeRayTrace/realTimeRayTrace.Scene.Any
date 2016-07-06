@@ -197,5 +197,5 @@
         
     }; 
     
-    name = "G3D Real Time Ray Trace"; 
+    name = "Real Time Ray Trace"; 
 } 

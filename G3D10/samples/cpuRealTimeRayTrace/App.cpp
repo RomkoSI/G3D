@@ -50,7 +50,7 @@ void App::onInit() {
     m_debugCamera->setFrame(CFrame::fromXYZYPRDegrees(24.3f, 0.4f, 2.5f, 68.7f, 1.2f, 0.0f));
     m_debugCamera->frame();
 
-    GApp::loadScene("G3D Cornell Box");// "G3D Real Time Ray Trace");
+    GApp::loadScene("G3D Cornell Box");// "Real Time Ray Trace");
 
     makeGUI();
 
