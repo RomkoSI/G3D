@@ -48,11 +48,11 @@ bool World::lineOfSight(const Point3& P0, const Point3& P1) const {
     const Ray& ray = Ray::fromOriginAndDirection(P0, delta / distance);
 
     TriTree::Hit ignore;
-    return ! m_triTree.intersectRay(ray, distance, ignore, TriTree::RETURN_ANY_HIT | TriTree::TWO_SIDED_TRIANGLES);
+    return ! m_triTree.intersectRay(ray, distance - 1e-3f, ignore, TriTree::RETURN_ANY_HIT | TriTree::TWO_SIDED_TRIANGLES);
 }
 
 
 shared_ptr<Surfel> World::intersect(const Ray& ray, float& distance) const {
     debugAssert(m_mode == TRACE);
-    return m_triTree.intersectRay(ray, distance, 0);
+    return m_triTree._intersectRay(ray, distance);
 }

@@ -106,7 +106,7 @@ void TriTreeBase::intersectRays
 }
 
 
-shared_ptr<Surfel> TriTreeBase::intersectRay
+shared_ptr<Surfel> TriTreeBase::_intersectRay
    (const Ray&             ray, 
     float&                 distance, 
     IntersectRayOptions    options,

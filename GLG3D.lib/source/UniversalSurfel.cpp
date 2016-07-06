@@ -49,8 +49,11 @@ UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex,
         v * vert2.texCoord0;
 
     const shared_ptr<UniversalMaterial>& uMaterial = dynamic_pointer_cast<UniversalMaterial>(tri.material());
+    debugAssertM(notNull(uMaterial), "Triangle does not have a UniversalMaterial on it");
+
     surface = tri.surface();
     const UniversalBSDF::Ref& bsdf = uMaterial->bsdf();
+    material = uMaterial;
 
     Vector3 geometricNormal = tri.normal(vertexArray);
 
@@ -71,7 +74,7 @@ UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex,
         kappaNeg = bsdf->extinctionTransmit();
     }    
 
-    name = material->name();
+    name = uMaterial->name();
 
     const shared_ptr<BumpMap>& bumpMap = uMaterial->bump();
 
