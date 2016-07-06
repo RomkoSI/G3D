@@ -139,6 +139,24 @@ void TriTreeBase::intersectBox
     }
 }
 
+
+void TriTreeBase::intersectSphere
+   (const Sphere&                      sphere,
+    Array<Tri>&                        triArray) const {
+
+    AABox box;
+    sphere.getBounds(box);
+    intersectBox(box, triArray);
+
+    // Iterate backwards because we're removing
+    for (int i = triArray.size() - 1; i >= 0; --i) {
+        const Tri& tri = triArray[i];
+        if (! CollisionDetection::fixedSolidSphereIntersectsFixedTriangle(sphere, Triangle(tri.position(m_vertexArray, 0), tri.position(m_vertexArray, 1), tri.position(m_vertexArray, 2)))) {
+            triArray.fastRemove(i);
+        }
+    }
+}
+
 /////////////////////////////////////////////
 
 const char* TriTree::algorithmName(SplitAlgorithm s) {
