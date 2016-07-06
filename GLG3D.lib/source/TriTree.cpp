@@ -16,7 +16,7 @@
 
 namespace G3D {
 
-bool TriTreeBase::alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Vector3& rayOrigin, const Vector3& rayDir) {
+bool TriTreeBase::alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Ray& ray) {
     const CPUVertexArray::Vertex& vertex0 = tri.vertex(vertexArray, 0);
     const CPUVertexArray::Vertex& vertex1 = tri.vertex(vertexArray, 1);
     const CPUVertexArray::Vertex& vertex2 = tri.vertex(vertexArray, 2);
@@ -559,28 +559,213 @@ float TriTree::Node::SAHCost(Vector3::Axis axis, float offset, const Array<Poly>
 }
 
 
+static bool __fastcall rayTriangleIntersection
+   (const Ray&                         ray,
+    float                              distance,
+    const Tri&                         tri,
+    const CPUVertexArray&              vertexArray,
+    TriTreeBase::Hit&                  hitData,
+    TriTreeBase::IntersectRayOptions   options,
+    TriTreeBase::FilterFunction        filterFunction) {
+
+    // TODO: Remove
+    Tri::Intersector intersector;
+    if (intersector(ray, vertexArray, tri, true, distance, false)) {
+        hitData.distance = distance;
+        hitData.u = intersector.u;
+        hitData.v = intersector.v;
+        hitData.backface = intersector.backside;
+        return true;
+    } else {
+        return false;
+    }
+
+    // See RTR3 p.746 (RTR2 ch. 13.7) for the basic algorithm used in this function.
+
+    static const float EPS = 1e-12f;
+
+    // How much to grow the edges of triangles by to allow for small roundoff.
+    static const float conservative = 1e-8f;
+
+    // Get all vertex attributes from these to avoid unneccessary pointer indirection
+    const CPUVertexArray::Vertex& vertex0 = tri.vertex(vertexArray, 0);
+    const CPUVertexArray::Vertex& vertex1 = tri.vertex(vertexArray, 1);
+    const CPUVertexArray::Vertex& vertex2 = tri.vertex(vertexArray, 2);
+    
+    const Vector3& v0 = vertex0.position;
+    const Vector3& e1 = vertex1.position - v0;
+    const Vector3& e2 = vertex2.position - v0;
+
+    // Test for backfaces first because this eliminates 50% of all triangles.
+    const bool twoSidedTest((options & TriTree::TWO_SIDED_TRIANGLES) != 0);
+
+    // This test is equivalent to n.dot(ray.direction()) >= -EPS
+    // Where n is the face unit normal, which we do not explicitly store
+    // The first two check whether we should treat the tri as double sided
+    if (! (twoSidedTest || tri.twoSided()) && (tri.area() >= 0) && (e1.cross(e2)).dot(ray.direction()) >= -EPS * 2.0f * tri.area()) {
+        // Backface or nearly parallel
+        return false;
+    }
+
+    const Vector3& p = ray.direction().cross(e2);
+
+    // Will be negative if we are coming from the back.
+    const float a = e1.dot(p);
+
+    // Divide by a
+    const float f = 1.0f / a;
+    const float c = conservative * f;
+
+    const Vector3& s = (ray.origin() - v0) * f;
+    const float u = s.dot(p);
+
+    // Note: (ua > a) == (u > 1). Delaying the division by a until
+    // after all u-v tests have passed gives a 6% speedup.
+    if ((u < -c) || (u > 1 + c)) {
+        // We hit the plane of the triangle, but outside the triangle
+        return false;
+    }
+
+    const Vector3& q = s.cross(e1);
+    const float v = ray.direction().dot(q);
+
+    if ((v < -c) || ((u + v) > 1.0f + c) || (abs(a) < EPS)) {
+        // We hit the plane of the triangle, but outside the triangle...
+        // OR        
+        // this ray was parallel, but passed the backface test. This case happens really infrequently.
+        return false;
+    }
+    
+    const float t = e2.dot(q);
+
+    if ((t > 0.0f) && (t < distance)) {
+        if ((filterFunction != nullptr) && ! filterFunction(tri, vertexArray, hitData.u, hitData.v, ray)) {
+            // Failed the filter (e.g., alpha masking)
+            return false;
+        } else {
+
+            // This is a new hit.  Save away the data about the hit
+            // location (including if we hit the backside), but don't bother computing barycentric w,
+            // the hit location or the normal until after we've checked
+            // against all triangles.
+            // The triangle index will be filled in by the caller
+            hitData.distance = t;
+            hitData.u = u;
+            hitData.v = v;
+            hitData.backface = (a < 0);
+            return true;
+        }
+    } else {
+        return false;
+    }
+
+}
+
+
 bool __fastcall TriTree::Node::intersectRay
    (const TriTree&                     triTree,
-    Ray                                ray,
+    const Ray&                         ray,
     float                              maxDistance,
-    Hit&                               hit,
+    Hit&                               hitData,
     IntersectRayOptions                options,
     FilterFunction                     filterFunction) const {
 
-    // TODO: Make this routine native
-    float distance = maxDistance;
-    Tri::Intersector intersectCallback;    
-    if (intersectRay(triTree, ray, intersectCallback, distance, (options & RETURN_ANY_HIT) != 0, (options & TWO_SIDED_TRIANGLES) != 0)) {
-        hit.distance = distance;
-        hit.u = intersectCallback.u;
-        hit.v = intersectCallback.v;
-        hit.triIndex = intersectCallback.primitiveIndex;
-        hit.backface = intersectCallback.backside;
-        return true;
-    } else {
-        hit.triIndex = Hit::NONE;
+    // TODO: Remove
+    {
+        Tri::Intersector   intersectCallback;
+
+        if (intersectRay(triTree, ray, intersectCallback, maxDistance, options & RETURN_ANY_HIT, options & TWO_SIDED_TRIANGLES)) {
+            hitData.u = intersectCallback.u;
+            hitData.v = intersectCallback.v;
+            hitData.distance = maxDistance;
+            hitData.triIndex = intersectCallback.primitiveIndex;
+            hitData.backface = intersectCallback.backside;
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+    ///////////////////
+
+    bool hit = false;
+    
+    // Don't bother paying the bounding box intersection at
+    // leaves, since we have to pay it again below.
+    if (! isLeaf() && ! intersect(ray, bounds, maxDistance)) {
+        // The ray doesn't hit this node, so it can't hit the
+        // children of the node either--stop searching.
         return false;
     }
+    
+    enum {NONE = -1};
+    
+    Vector3::Axis axis = splitAxis();
+
+    int firstChild = NONE, secondChild = NONE;
+    if (! isLeaf()) {
+        computeTraversalOrder(ray, firstChild, secondChild);
+    }
+    
+    // Test on the side closer to the ray origin.
+    if (firstChild != NONE) {
+        hit = child(firstChild).intersectRay(triTree, ray, maxDistance, hitData, options, filterFunction) || hit;
+        if (((options & RETURN_ANY_HIT) != 0) && hit) {
+            return true;
+        } else {
+            maxDistance = hitData.distance;
+        }
+    }
+    
+    // Test the contents of the node. If the value array is
+    // really small, don't waste time on the bounds
+    // intersection, just run the ray-triangle intersection.
+    if (valueArray &&
+        (valueArray->size > 0) && 
+        intersect(ray, valueArray->bounds, maxDistance)) {
+
+        // Test for intersection against every object at this node.
+        for (int v = 0; v < valueArray->size; ++v) { 
+            const Tri& tri = *(valueArray->data[v]);
+            const bool justHit = rayTriangleIntersection(ray, maxDistance, tri, triTree.m_vertexArray, hitData, options, filterFunction);
+            
+            if (justHit) {
+                hit = true;
+                // Pointer arithmetic to find what index in the tri tree array this triangle was.
+                // The data array is a set of pointers into the triArray.
+                hitData.triIndex = int(valueArray->data[v] - triTree.m_triArray.getCArray());
+                if ((options & RETURN_ANY_HIT) != 0) {
+                    return true;
+                } else {
+                    maxDistance = hitData.distance;
+                }
+            }        
+        }        
+    }
+    
+    // Test on the side farther from the ray origin.
+    if (secondChild != NONE) {
+        
+        if (ray.direction()[axis] != 0.0f) {
+            // See if there was an intersection before hitting the splitting plane.  
+            // If so, there is no need to look on the far side and recursion terminates. 
+            // This test makes about a factor of two improvement in performance.
+            const float distanceToSplittingPlane = (splitLocation - ray.origin()[axis]) * ray.invDirection()[axis];
+
+            if (distanceToSplittingPlane > maxDistance) {
+                // We aren't going to hit anything else before hitting the splitting plane,
+                // so don't bother looking on the far side of the splitting plane at the other
+                // child.
+                return hit;
+            } else {
+                maxDistance = distanceToSplittingPlane;
+            }
+        }
+        
+        hit = child(secondChild).intersectRay(triTree, ray, maxDistance, hitData, options, filterFunction) || hit;
+    }
+
+    return hit;
 }
 
 
@@ -886,7 +1071,7 @@ void TriTree::draw(RenderDevice* rd, int level, bool showBoxes, int minNodeSize)
 
 
 bool TriTree::intersectRay
-   (Ray                                ray, 
+   (const Ray&                         ray, 
     float                              maxDistance,
     Hit&                               hit,
     IntersectRayOptions                options,
