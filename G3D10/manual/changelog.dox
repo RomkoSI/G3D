@@ -124,7 +124,7 @@
 	   <li> Pointer can now return a Pointer::IndirectValue for a const Pointer (to a non-const value) </li>
 	   <li> Cleaned up GuiPane::addRadioButton template type safety </li>
 	   <li> G3D::GThreadd::runConcurrently </li>
-	   <li> G3D::TriTree::intersectRays </li>
+	   <li> Added G3D::TriTreeBase with an API designed for performance </li>
       </ul>
     </p>
 
