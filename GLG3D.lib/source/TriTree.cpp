@@ -157,6 +157,15 @@ void TriTreeBase::intersectSphere
     }
 }
 
+
+shared_ptr<Surfel> TriTreeBase::sample(const Hit& hit) const {
+    if (hit.triIndex != Hit::NONE) {
+        return m_triArray[hit.triIndex].sample(hit.u, hit.v, hit.triIndex, m_vertexArray, hit.backface);
+    } else {
+        return nullptr;
+    }
+}
+
 /////////////////////////////////////////////
 
 const char* TriTree::algorithmName(SplitAlgorithm s) {
