@@ -586,15 +586,6 @@ public:
     /** Walk the entire tree, computing statistics */
     Stats stats(int valuesPerNode) const;
         
-protected:
-    bool intersectRay
-    (const Ray& ray,
-     Tri::Intersector& intersectCallback, 
-     float& distance,
-     bool exitOnAnyHit = false,
-     bool twoSided = false) const;
-public:
-
     /** Returns all triangles that intersect or are contained within
         the sphere (technically, this is a ball intersection). 
         
