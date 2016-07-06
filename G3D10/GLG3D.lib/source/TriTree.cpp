@@ -189,9 +189,8 @@ void TriTree::setContents
         m_root = new (m_memoryManager->alloc(sizeof(Node))) Node(source, settings, m_memoryManager);
     }
 
-    //alwaysAssertM(m_triArray.size() == m_triArray.capacity(), "Allocated too much memory for the Tri Array");
-    alwaysAssertM(m_vertexArray.vertex.size() == m_vertexArray.vertex.capacity(), 
-                  "Allocated too much memory for the vertex array");
+    // alwaysAssertM(m_triArray.size() == m_triArray.capacity(), "Allocated too much memory for the Tri Array");
+    // alwaysAssertM(m_vertexArray.vertex.size() == m_vertexArray.vertex.capacity(), "Allocated too much memory for the vertex array");
 }
 
 
@@ -217,9 +216,8 @@ void TriTree::setContents
         m_root = new (m_memoryManager->alloc(sizeof(Node))) Node(source, settings, m_memoryManager);
     }
 
-    //alwaysAssertM(m_triArray.size() == m_triArray.capacity(), "Allocated too much memory for the Tri Array");
-    alwaysAssertM(m_vertexArray.vertex.size() == m_vertexArray.vertex.capacity(), 
-                  "Allocated too much memory for the vertex array");
+    // alwaysAssertM(m_triArray.size() == m_triArray.capacity(), "Allocated too much memory for the Tri Array");
+    // alwaysAssertM(m_vertexArray.vertex.size() == m_vertexArray.vertex.capacity(), "Allocated too much memory for the vertex array");
 }
 
 
@@ -567,17 +565,18 @@ static bool __fastcall rayTriangleIntersection
     TriTreeBase::Hit&                  hitData,
     TriTreeBase::IntersectRayOptions   options,
     TriTreeBase::FilterFunction        filterFunction) {
-
-    // TODO: Remove
-    Tri::Intersector intersector;
-    if (intersector(ray, vertexArray, tri, true, distance, false)) {
-        hitData.distance = distance;
-        hitData.u = intersector.u;
-        hitData.v = intersector.v;
-        hitData.backface = intersector.backside;
-        return true;
-    } else {
-        return false;
+    if (false) {
+        // TODO: Remove
+        Tri::Intersector intersector;
+        if (intersector(ray, vertexArray, tri, true, distance, false)) {
+            hitData.distance = distance;
+            hitData.u = intersector.u;
+            hitData.v = intersector.v;
+            hitData.backface = intersector.backside;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // See RTR3 p.746 (RTR2 ch. 13.7) for the basic algorithm used in this function.
@@ -669,24 +668,7 @@ bool __fastcall TriTree::Node::intersectRay
     Hit&                               hitData,
     IntersectRayOptions                options,
     FilterFunction                     filterFunction) const {
-
-    // TODO: Remove
-    if (false) {
-        Tri::Intersector  intersectCallback;
-
-        if (intersectRay(triTree, ray, intersectCallback, maxDistance, (options & RETURN_ANY_HIT) != 0, (options & TWO_SIDED_TRIANGLES) != 0)) {
-            hitData.u = intersectCallback.u;
-            hitData.v = intersectCallback.v;
-            hitData.distance = maxDistance;
-            hitData.triIndex = intersectCallback.primitiveIndex;
-            hitData.backface = intersectCallback.backside;
-            return true;
-        } else {
-            return false;
-        }
-    }
-    ///////////////////
-    
+        
     // Don't bother paying the bounding box intersection at
     // leaves, since we have to pay it again below.
     if (! isLeaf() && ! intersect(ray, bounds, maxDistance)) {
@@ -710,7 +692,7 @@ bool __fastcall TriTree::Node::intersectRay
         hit = child(firstChild).intersectRay(triTree, ray, maxDistance, hitData, options, filterFunction) || hit;
         if (((options & RETURN_ANY_HIT) != 0) && hit) {
             return true;
-        } else {
+        } else if (hit) {
             maxDistance = hitData.distance;
         }
     }
@@ -756,98 +738,10 @@ bool __fastcall TriTree::Node::intersectRay
                 // so don't bother looking on the far side of the splitting plane at the other
                 // child.
                 return hit;
-            } else {
-                // TODO: Enable this optimization
-               // maxDistance = distanceToSplittingPlane;
             }
         }
         
         hit = child(secondChild).intersectRay(triTree, ray, maxDistance, hitData, options, filterFunction) || hit;
-    }
-
-    return hit;
-}
-
-
-bool __fastcall TriTree::Node::intersectRay
-(const TriTree&      triTree,
- const Ray&          ray,
- Tri::Intersector&   intersectCallback, 
- float&              distance,
- bool                exitOnAnyHit,
- bool                twoSided) const {
-    
-    // Don't bother paying the bounding box intersection at
-    // leaves, since we have to pay it again below.
-    if (! isLeaf() && ! intersect(ray, bounds, distance)) {
-        // The ray doesn't hit this node, so it can't hit the
-        // children of the node either--stop searching.
-        return false;
-    }
-    
-    enum {NONE = -1};
-    
-    const Vector3::Axis axis = splitAxis();
-
-    int firstChild = NONE, secondChild = NONE;
-    if (! isLeaf()) {
-        computeTraversalOrder(ray, firstChild, secondChild);
-    }
-    
-    bool hit = false;
-
-    // Test on the side closer to the ray origin.
-    if (firstChild != NONE) {
-        hit = child(firstChild).intersectRay(triTree, ray, intersectCallback, distance, exitOnAnyHit, twoSided) || hit;
-        if (exitOnAnyHit && hit) {
-            return true;
-        }
-    }
-    
-    // Test the contents of the node. If the value array is
-    // really small, don't waste time on the bounds
-    // intersection, just run the ray-triangle intersection.
-    if (valueArray &&
-        (valueArray->size > 0) && 
-        intersect(ray, valueArray->bounds, distance)) {
-
-        // Test for intersection against every object at this node.
-        for (int v = 0; v < valueArray->size; ++v) { 
-            bool justHit = intersectCallback(ray, triTree.m_vertexArray, *(valueArray->data[v]), twoSided, distance);
-            
-            if (justHit) {
-                hit = true;
-                // Pointer arithmetic to find what index in the tri tree array this triangle was.
-                // The data array is a set of pointers into the triArray.
-                intersectCallback.primitiveIndex = int(valueArray->data[v] - triTree.m_triArray.getCArray());
-                intersectCallback.cpuVertexArray = &triTree.m_vertexArray;
-                if (exitOnAnyHit) {
-                    return true;
-                }
-            }
-                        
-        }        
-    }
-    
-    // Test on the side farther from the ray origin.
-    if (secondChild != NONE) {
-        
-        if (ray.direction()[axis] != 0.0f) {
-            // See if there was an intersection before hitting the splitting plane.  
-            // If so, there is no need to look on the far side and recursion terminates. 
-            // This test makes about a factor of two improvement in performance.
-            const float distanceToSplittingPlane =
-                (splitLocation - ray.origin()[axis]) * ray.invDirection()[axis];
-
-            if (distanceToSplittingPlane > distance) {
-                // We aren't going to hit anything else before hitting the splitting plane,
-                // so don't bother looking on the far side of the splitting plane at the other
-                // child.
-                return hit;
-            }
-        }
-        
-        hit = child(secondChild).intersectRay(triTree, ray, intersectCallback, distance, exitOnAnyHit, twoSided) || hit;
     }
 
     return hit;
