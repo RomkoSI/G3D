@@ -913,16 +913,20 @@ bool TriTree::intersectRay
     IntersectRayOptions                options,
     FilterFunction                     filterFunction) const {
 
-    return false;
-
-    /*
-    TODO:
-    bool hit = false;
-    if (m_root != NULL) {
-        hit = m_root->intersectRay(*this, ray, intersectCallback, distance, exitOnAnyHit, twoSided);
+    // TODO: Make this routine native
+    float distance = maxDistance;
+    Tri::Intersector intersectCallback;
+    if (notNull(m_root) && m_root->intersectRay(*this, ray, intersectCallback, distance, (options & RETURN_ANY_HIT) != 0,  (options & TWO_SIDED_TRIANGLES) != 0)) {
+        hit.distance = distance;
+        hit.u = intersectCallback.u;
+        hit.v = intersectCallback.v;
+        hit.triIndex = intersectCallback.primitiveIndex;
+        hit.backface = intersectCallback.backside;
+        return true;
+    } else {
+        hit.triIndex = Hit::NONE;
+        return false;
     }
-    return hit;
-    */
 }
 
 }

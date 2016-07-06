@@ -633,8 +633,6 @@ public:
     (const Sphere& sphere,
      Array<Tri>&   triArray) const;
 
-
-
     /////////////////////////////////////////////////////////////////////
 
     virtual void setContents
