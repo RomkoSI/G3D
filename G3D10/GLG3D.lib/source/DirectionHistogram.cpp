@@ -197,13 +197,12 @@ void DirectionHistogram::insert(const Array<Vector3>& vector, const Array<float>
 void DirectionHistogram::insert(const Vector3& vector, float weight) {
     // Find the quad hit
     float distance = (float)inf();
-    Tri::Intersector intersector;
-
-    if (m_tree.intersectRay(Ray(Vector3::zero(), vector.direction()), intersector, distance)) {
+    TriTree::Hit hit;
+    if (m_tree.intersectRay(Ray(Point3::zero(), vector.direction()), distance, hit, 0, nullptr)) {
         ++m_numSamples;
 
         // Hit
-        const int index = intersector.tri->data<VertexIndexIndex>()->index;
+        const int index = m_tree[hit.triIndex].data<VertexIndexIndex>()->index;
         
         // Increment all vertices surrounding the quad
         for (int j = 0; j < 4; ++j) {

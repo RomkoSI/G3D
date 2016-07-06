@@ -148,9 +148,8 @@ const char* TriTree::algorithmName(SplitAlgorithm s) {
 
 
 void TriTree::intersectSphere
-(const Sphere& sphere,
- Array<Tri>&   triArray) const {
-
+   (const Sphere& sphere,
+    Array<Tri>&   triArray) const {
     if (m_root) {
         Set<Tri*> alreadyAdded;
         m_root->intersectSphere(sphere, m_vertexArray, triArray, alreadyAdded);
@@ -159,35 +158,19 @@ void TriTree::intersectSphere
 
 
 void TriTree::intersectBox
-(const AABox&  box,
- Array<Tri>&   triArray) const {
+   (const AABox&  box,
+    Array<Tri>&   triArray) const {
     if (m_root) {
         Set<Tri*> alreadyAdded;
         m_root->intersectBox(box, m_vertexArray, triArray, alreadyAdded);
     }
 }
 
-/** Cast many rays, potentially using multiple threads. When the function returns, there is one element in results for each input ray. */
-void TriTree::intersectRays
-   (const Array<Ray>& rays,
-    Array<float>& distances,
-    Array<shared_ptr<Surfel>>& results,
-    bool exitOnAnyHit,
-    bool twoSided) const {
-
-    alwaysAssertM(rays.length() == distances.length(), "ray and distance buffers must have the same length");
-    results.resize(rays.size());
-
-    GThread::runConcurrently(0, rays.size(), 
-        [&](int i, int threadID) {
-            results[i] = intersectRay(rays[i], distances[i], exitOnAnyHit, twoSided);
-        });
-}
-
 
 void TriTree::setContents
-(const Array<shared_ptr<Surface> >& surfaceArray, 
- ImageStorage                       newStorage) {
+   (const Array<shared_ptr<Surface> >& surfaceArray, 
+    ImageStorage                       newStorage) {
+
     TriTreeBase::setContents(surfaceArray, newStorage);
 
     Settings settings;
@@ -249,7 +232,8 @@ inline static bool __fastcall intersect(const Ray& ray, const AABox& box, float 
     //    return Intersect::rayAABox(ray, box, t) && (t < maxTime);
     return Intersect::rayAABox(ray, box); 
 }
-    
+  
+
 void TriTree::Node::setValueArray(const Array<Poly>& src, const shared_ptr<MemoryManager>& mm) {
     if (src.size() == 0) {
         return;
@@ -876,21 +860,6 @@ void TriTree::draw(RenderDevice* rd, int level, bool showBoxes, int minNodeSize)
 }
 
 
-shared_ptr<Surfel> TriTree::intersectRay
-(const Ray&            ray,
- float&                distance,
- bool                  exitOnAnyHit,
- bool                  twoSided) const {
-
-    Tri::Intersector intersector;
-    if (intersectRay(ray, intersector, distance, exitOnAnyHit, twoSided)) {
-        return intersector.tri->material()->sample(intersector);
-    } else {
-        return nullptr;
-    }
-}
-
-
 bool TriTree::intersectRay
 (const Ray&            ray,
  Tri::Intersector&     intersectCallback, 
@@ -916,7 +885,7 @@ bool TriTree::intersectRay
     // TODO: Make this routine native
     float distance = maxDistance;
     Tri::Intersector intersectCallback;
-    if (notNull(m_root) && m_root->intersectRay(*this, ray, intersectCallback, distance, (options & RETURN_ANY_HIT) != 0,  (options & TWO_SIDED_TRIANGLES) != 0)) {
+    if (notNull(m_root) && m_root->intersectRay(*this, ray, intersectCallback, distance, (options & RETURN_ANY_HIT) != 0, (options & TWO_SIDED_TRIANGLES) != 0)) {
         hit.distance = distance;
         hit.u = intersectCallback.u;
         hit.v = intersectCallback.v;

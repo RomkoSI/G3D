@@ -4,16 +4,19 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2003-11-03
- \edited  2016-03-23
+ \edited  2016-07-05
  */
 
 #include "G3D/platform.h"
-
-#include "GLG3D/Camera.h"
 #include "G3D/fileutils.h"
 #include "G3D/Log.h"
+#include "G3D/PixelTransferBuffer.h"
+#include "G3D/CPUPixelTransferBuffer.h"
+#include "G3D/ParseError.h"
+#include "G3D/FileSystem.h"
 #include "G3D/units.h"
 #include "G3D/NetworkDevice.h"
+#include "GLG3D/Camera.h"
 #include "GLG3D/GLCaps.h"
 #include "GLG3D/GApp.h"
 #include "GLG3D/FirstPersonManipulator.h"
@@ -22,8 +25,6 @@
 #include "GLG3D/Draw.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/VideoRecordDialog.h"
-#include "G3D/ParseError.h"
-#include "G3D/FileSystem.h"
 #include "GLG3D/GuiTextureBox.h"
 #include "GLG3D/GuiPane.h"
 #include "GLG3D/Light.h"
@@ -35,10 +36,9 @@
 #include "GLG3D/UprightSplineManipulator.h"
 #include "GLG3D/CameraControlWindow.h"
 #include "GLG3D/GLPixelTransferBuffer.h"
-#include "G3D/PixelTransferBuffer.h"
-#include "G3D/CPUPixelTransferBuffer.h"
 #include "GLG3D/DefaultRenderer.h"
 #include "GLG3D/DebugTextWidget.h"
+#include "GLG3D/Shape.h"
 
 #include <time.h>
 
