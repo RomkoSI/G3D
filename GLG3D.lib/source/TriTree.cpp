@@ -16,7 +16,7 @@
 
 namespace G3D {
 
-bool TriTreeBase::alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Ray& ray) {
+bool TriTreeBase::alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Point3& rayOrigin, const Vector3& rayDirection) {
     const CPUVertexArray::Vertex& vertex0 = tri.vertex(vertexArray, 0);
     const CPUVertexArray::Vertex& vertex1 = tri.vertex(vertexArray, 1);
     const CPUVertexArray::Vertex& vertex2 = tri.vertex(vertexArray, 2);
@@ -652,7 +652,7 @@ static bool __fastcall rayTriangleIntersection
     const float t = e2.dot(q);
 
     if ((t > 0.0f) && (t < distance)) {
-        if ((filterFunction != nullptr) && ! filterFunction(tri, vertexArray, u, v, ray)) {
+        if ((filterFunction != nullptr) && ! filterFunction(tri, vertexArray, u, v, ray.origin(), ray.direction())) {
             // Failed the filter (e.g., alpha test)
             return false;
         } else {

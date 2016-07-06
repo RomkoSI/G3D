@@ -52,11 +52,11 @@ public:
 
     /** Returns true if this geometric intersection with the triangle should
         count as a ray hit. Frequently used for alpha testing. */
-    typedef std::function<bool (const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Ray& ray)> FilterFunction;
+    typedef std::function<bool (const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Point3& rayOrigin, const Vector3& rayDirection)> FilterFunction;
 
     /** Performs alpha testing against triangles
         with UniversalMaterial%s on them. Default FilterFunction for the intersect methods. */
-    static bool alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Ray& ray);
+    static bool alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Point3& rayOrigin, const Vector3& rayDirection);
     
     class Hit {
     public:
