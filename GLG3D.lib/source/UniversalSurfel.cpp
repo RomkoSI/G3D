@@ -55,7 +55,7 @@ UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex,
     const UniversalBSDF::Ref& bsdf = uMaterial->bsdf();
     material = uMaterial;
 
-    Vector3 geometricNormal = tri.normal(vertexArray);
+    geometricNormal = tri.normal(vertexArray);
 
     if (backside) {
         // Swap the normal direction here before we compute values relative to it
