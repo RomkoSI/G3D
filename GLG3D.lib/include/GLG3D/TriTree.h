@@ -50,6 +50,9 @@ public:
     /** Treat triangles as two-sided (disable backface culling) */
     static const IntersectRayOptions TWO_SIDED_TRIANGLES = 2;
 
+    /** Make optimizations appropriate for coherent rays (same origin) */
+    static const IntersectRayOptions COHERENT_RAY_HINT = 4;
+
     /** Returns true if this geometric intersection with the triangle should
         count as a ray hit. Frequently used for alpha testing. */
     typedef std::function<bool (const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Point3& rayOrigin, const Vector3& rayDirection)> FilterFunction;
