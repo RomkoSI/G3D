@@ -704,7 +704,7 @@ bool __fastcall TriTree::Node::intersectRay
     // Test on the side closer to the ray origin.
     if (firstChild != NONE) {
         hit = child(firstChild).intersectRay(triTree, ray, maxDistance, hitData, options, filterFunction) || hit;
-        if (((options & RETURN_ANY_HIT) != 0) && hit) {
+        if (((options & OCCLUSION_TEST_ONLY) != 0) && hit) {
             return true;
         } else if (hit) {
             maxDistance = hitData.distance;
@@ -729,7 +729,7 @@ bool __fastcall TriTree::Node::intersectRay
                 // The data array is a set of pointers into the triArray.
                 hitData.triIndex = int(valueArray->data[v] - triTree.m_triArray.getCArray());
 
-                if ((options & RETURN_ANY_HIT) != 0) {
+                if ((options & OCCLUSION_TEST_ONLY) != 0) {
                     return true;
                 } else {
                     maxDistance = hitData.distance;
