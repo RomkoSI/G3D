@@ -117,10 +117,16 @@ public:
         return vertexArray.vertex[index[i]];
     }
 
+     /** Face normal.  For degenerate triangles, this is zero.  For all other triangles
+        it has arbitrary length and is defined by counter-clockwise winding. Calculated every call.*/
+    Vector3 nonUnitNormal(const CPUVertexArray& vertexArray) const {
+        return e1(vertexArray).cross(e2(vertexArray));
+    }
+
     /** Face normal.  For degenerate triangles, this is zero.  For all other triangles
-    it has unit length and is defined by counter-clockwise winding. Calculate every call*/
+        it has unit length and is defined by counter-clockwise winding. Calculated every call.*/
     Vector3 normal(const CPUVertexArray& vertexArray) const {
-        return e1(vertexArray).cross(e2(vertexArray)).directionOrZero();
+        return nonUnitNormal(vertexArray).directionOrZero();
     }
 
     /** Vertex normal */

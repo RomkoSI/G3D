@@ -44,8 +44,9 @@ public:
     /** Options for intersectRays. Default is closest-hit, single-sided triangles. */
     typedef unsigned int IntersectRayOptions;
 
-    /** Perform an any-hit intersection (useful for shadow rays and testing line of sight) */
-    static const IntersectRayOptions RETURN_ANY_HIT = 1;
+    /** Test for occlusion and do not necessarily return valid triIndex, backfacing, etc. data
+        (useful for shadow rays and testing line of sight) */
+    static const IntersectRayOptions OCCLUSION_TEST_ONLY = 1;
 
     /** Treat triangles as two-sided (disable backface culling) */
     static const IntersectRayOptions TWO_SIDED_TRIANGLES = 2;
@@ -64,11 +65,13 @@ public:
     class Hit {
     public:
         enum { NONE = -1 };
-        /** NONE if no hit */
+        /** NONE if no hit. For occlusion ray casts, this will be an undefined value not equal to NONE. */
         int         triIndex;
         float       u;
         float       v;
         float       distance;
+
+        /** For occlusion ray casts, this will always be false. */
         bool        backface;
 
         Hit() : triIndex(NONE), u(0), v(0), distance(0), backface(false) {}
