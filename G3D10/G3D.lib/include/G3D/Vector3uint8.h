@@ -26,7 +26,7 @@ namespace G3D {
  A Vector2 that packs its fields into uint8.
  */
 G3D_BEGIN_PACKED_CLASS(1)
-Vector4uint8 {
+Vector3uint8 {
 private:
     // Hidden operators
     bool operator<(const Vector3uint8&) const;
@@ -109,11 +109,11 @@ public:
     }
 
     Vector3uint8 max(const Vector3uint8& v) const {
-        return Vector2uint32(iMax(x, v.x), iMax(y, v.y), iMax(z, v.z));
+        return Vector3uint8(iMax(x, v.x), iMax(y, v.y), iMax(z, v.z));
     }
 
     Vector3uint8 min(const Vector3uint8& v) const {
-        return Vector2uint32(iMin(x, v.x), iMin(y, v.y), iMin(y, v.z));
+        return Vector3uint8(iMin(x, v.x), iMin(y, v.y), iMin(y, v.z));
     }
 
 }
@@ -124,5 +124,5 @@ typedef Vector3uint8 Point3uint8;
 } // namespace G3D
 
 template<> struct HashTrait<G3D::Vector3uint8> {
-    static size_t hashCode(const G3D::Vector3uint8& key) { return static_cast<size_t>(size_t(key.x) | (size_t(key.y) << 8) | (size_t(key.z) << 16))); }
+    static size_t hashCode(const G3D::Vector3uint8& key) { return static_cast<size_t>(size_t(key.x) | (size_t(key.y) << 8) | (size_t(key.z) << 16)); }
 };
