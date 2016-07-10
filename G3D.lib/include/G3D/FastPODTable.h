@@ -5,6 +5,7 @@
 #include "G3D/platform.h"
 #include "G3D/HashTrait.h"
 #include "G3D/EqualsTrait.h"
+#include "G3D/MemoryManager.h"
 
 namespace G3D {
 

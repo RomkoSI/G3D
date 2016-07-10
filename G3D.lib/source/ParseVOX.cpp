@@ -61,7 +61,7 @@ void ParseVOX::parse(BinaryInput& bi) {
     const size_t mainChunkEnd = bi.getPosition() + mainChildrenSize;
 
     bool hadPalette = false;
-    while (bi.getPosition() < mainChunkEnd) {
+    while ((size_t)bi.getPosition() < mainChunkEnd) {
         const String& chunkID      = bi.readString(4);
         const size_t  contentsSize = bi.readInt32();
         const size_t  childrenSize = bi.readInt32();
