@@ -6,10 +6,13 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2001-10-23
-  \edited  2013-01-05
+  \edited  2016-07-09
+
+  G3D Innovation Engine
+  Copyright 2000-2016, Morgan McGuire.
+  All rights reserved.
 */
-#ifndef G3D_ReferenceCount_h
-#define G3D_ReferenceCount_h
+#pragma once
 
 #include "G3D/platform.h"
 #include "G3D/debug.h"
@@ -51,6 +54,4 @@ bool notNull(const T* ptr) {
 }
 
 } // namespace
-
-#endif
 
