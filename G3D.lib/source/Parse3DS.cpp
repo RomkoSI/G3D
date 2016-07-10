@@ -37,7 +37,7 @@ void Parse3DS::parse(BinaryInput& bi, const String& basePath) {
 
     bi.setEndian(oldEndian);
 
-    b = NULL;
+    b = nullptr;
 }
 
 

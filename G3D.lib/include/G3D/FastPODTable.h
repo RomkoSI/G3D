@@ -52,6 +52,10 @@ struct FastPODTable_Entry<Key, Value, true> {
     const Value& valueRef() const {
         return value;
     }
+
+    static StoredValueType newStoredValue() {
+        return Value();
+    }
 };
 
 
@@ -64,7 +68,7 @@ struct FastPODTable_Entry<Key, Value, false> {
     /**
        Pointers are used so that the m_slot array will be tightly
        packed in memory even if sizeof(Value) is large.  This is
-       NULL if the Entry is not currently being used.
+       nullptr if the Entry is not currently being used.
     */
     StoredValueType value;
     
@@ -82,6 +86,10 @@ struct FastPODTable_Entry<Key, Value, false> {
 
     const Value& valueRef() const {
         return *value;
+    }
+
+    static StoredValueType newStoredValue() {
+        return new Value();
     }
 };
 
@@ -150,7 +158,7 @@ protected:
 
     int                                 m_initialSlots;
 
-    /** A default "empty" value; NULL if Entry stores pointers */
+    /** A default "empty" value; nullptr if Entry stores pointers */
     typename Entry::StoredValueType     m_empty;
 
     shared_ptr<MemoryManager>           m_memoryManager;
@@ -186,7 +194,7 @@ protected:
         alwaysAssertM(isPow2(m_numSlots), "Number of slots must be a power of 2");
         
         m_slot = (Entry*)System::malloc(sizeof(Entry) * m_numSlots);
-        alwaysAssertM(m_slot != NULL, "out of memory");
+        alwaysAssertM(m_slot != nullptr, "out of memory");
         System::memset(m_slot, 0, sizeof(Entry) * m_numSlots);
         
         // getCreate during copy will re-create all elements
@@ -200,7 +208,7 @@ protected:
                 // This element is in use, so we should re-insert a copy of it
                 // and assign it to its current value.  This call should never
                 // trigger a call back to grow().
-                const int j = findSlot(e.key, true, e.value);
+                const int j = findSlot(e.key, true, e.value, true);
                 alwaysAssertM(j != NOT_FOUND, "Internal error during grow");
 
                 // e.value is now either a pointer that is now owned
@@ -220,11 +228,10 @@ protected:
        If key is not in the table and createIfNotFound is false, then
        this returns NOT_FOUND;
 
-       \param valueToUse if a spot is created and valueToUse is not
-       NULL, this is used as the value (allows the implementation of
+       \param valueToUse if a spot is created and useValue true, this is used as the value (allows the implementation of
        grow to re-insert existing values).
      */
-    int findSlot(const Key& key, bool createIfNotFound, const typename Entry::StoredValueType& valueToUse) {
+    int findSlot(const Key& key, bool createIfNotFound, const typename Entry::StoredValueType& valueToUse, bool useValue) {
 
         int i = hashCode(key) & (m_numSlots - 1);
         int probeDistance = 0;
@@ -240,10 +247,10 @@ protected:
                         ++m_usedSlots;
                         
                         e.key = key;
-                        if (notNull(valueToUse)) {
+                        if (useValue) {
                             e.value = valueToUse;
                         } else {
-                            e.value = new Value();
+                            e.value = Entry::newStoredValue();
                         }
                     
                         // Return a reference to the index
@@ -328,7 +335,7 @@ public:
         // Initial allocation
         m_numSlots = m_initialSlots;
         m_slot = (Entry*)System::malloc(sizeof(Entry) * m_numSlots);
-        alwaysAssertM(m_slot != NULL, "out of memory");
+        alwaysAssertM(m_slot != nullptr, "out of memory");
         System::memset(m_slot, 0, sizeof(Entry) * m_numSlots);
         
         debugAssert(SLOTS_PER_ENTRY > 2);
@@ -370,7 +377,7 @@ public:
         objects reference from Value%s by pointers). 
 
         \param valueSizeFunction A function that computes the size of a Value.
-        If NULL, sizeof(Value) is used.
+        If nullptr, sizeof(Value) is used.
 
 
         Example for a table of Arrays, where it is desirable to recurse
@@ -386,7 +393,7 @@ public:
         size_t s = table.sizeInMemory(&arraySize);
         \endcode
     */
-    size_t sizeInMemory(size_t (*valueSizeFunction)(const Value&) = NULL) const {
+    size_t sizeInMemory(size_t (*valueSizeFunction)(const Value&) = nullptr) const {
         size_t s = (sizeof(Entry) * (m_numSlots - m_usedSlots)) + sizeof(MyType);
         
         for (int i = 0; i < m_numSlots; ++i) {
@@ -426,20 +433,21 @@ public:
     */
     Value& operator[](const Key& key) {
         debugAssert(m_numSlots > 0);
-        const int i = findSlot(key, true, m_empty);
+        const int i = findSlot(key, true, m_empty, false);
         debugAssert(m_usedSlots > 0);
         return m_slot[i].valueRef();
     }
+
 
     /** Synonym for operator[] */
     Value& getCreate(const Key& key) {
         return (*this)[key];
     }    
 
-    /** Returns a pointer to the value for the specified key, or NULL
+    /** Returns a pointer to the value for the specified key, or nullptr
         if that key is empty.*/
     Value* getPointer(const Key& key) {
-        const int i = findSlot(key, false, m_empty);
+        const int i = findSlot(key, false, m_empty, false);
         if (i == NOT_FOUND) {
             return nullptr;
         } else {

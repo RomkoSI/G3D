@@ -95,7 +95,7 @@ private:
         }
 
         virtual bool isNull() const {
-            return value == NULL;
+            return value == nullptr;
         }
     };
 
@@ -185,7 +185,7 @@ private:
         }
 
         virtual bool isNull() const {
-            return object == NULL;
+            return object == nullptr;
         }
     };
 
@@ -230,39 +230,39 @@ private:
 
 public:
 
-    Pointer() : m_interface(NULL) {};
+    Pointer() : m_interface(nullptr) {};
 
     /** Allows implicit cast from real pointer */
     Pointer(ValueType* v) : m_interface(new Memory(v)) {}
 
     inline bool isNull() const {
-        return (m_interface == NULL) || m_interface->isNull();
+        return (m_interface == nullptr) || m_interface->isNull();
     }
 
     // Assignment
     inline Pointer& operator=(const Pointer& r) {
         delete m_interface;
-        if (r.m_interface != NULL) {
+        if (r.m_interface != nullptr) {
             m_interface = r.m_interface->clone();
         } else {
-            m_interface = NULL;
+            m_interface = nullptr;
         }
         return this[0];
     }
 
-    Pointer(const Pointer& p) : m_interface(NULL) {
+    Pointer(const Pointer& p) : m_interface(nullptr) {
         this[0] = p;
     }
 
 
-    /** \param setMethod May be NULL */
+    /** \param setMethod May be nullptr */
     template<class Class>
     Pointer(const shared_ptr<Class>& object,
             ValueType (Class::*getMethod)() const,
             void (Class::*setMethod)(ValueType)) : 
         m_interface(new SharedAccessor<Class, ValueType (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
 
-    /** \param setMethod May be NULL */
+    /** \param setMethod May be nullptr */
     template<class Class>
     Pointer(const shared_ptr<Class>& object,
             const ValueType& (Class::*getMethod)() const,
@@ -270,7 +270,7 @@ public:
         m_interface(new SharedAccessor<Class, const ValueType& (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
 
 
-    /** \param setMethod May be NULL */
+    /** \param setMethod May be nullptr */
     Pointer(ValueType (*getMethod)(),
             void (*setMethod)(ValueType)) : 
         m_interface(new FcnAccessor<ValueType (*)(), void (*)(ValueType)>(getMethod, setMethod)) {}
@@ -279,47 +279,47 @@ public:
         std::function<void(ValueType)> setMethod) :
         m_interface(new StdFcnAccessor(getMethod, setMethod)) {}
 
-    /** \param setMethod May be NULL */
+    /** \param setMethod May be nullptr */
     Pointer(const ValueType& (*getMethod)(),
             void (*setMethod)(ValueType)) : 
         m_interface(new FcnAccessor<const ValueType& (*)(), void (*)(ValueType)>(getMethod, setMethod)) {}
 
-    /** \param setMethod May be NULL */
+    /** \param setMethod May be nullptr */
     template<class Class>
     Pointer(const shared_ptr<Class>& object,
             ValueType (Class::*getMethod)() const,
             void (Class::*setMethod)(const ValueType&)) : 
         m_interface(new SharedAccessor<Class, ValueType (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
 
-    /** \param setMethod May be NULL */
+    /** \param setMethod May be nullptr */
     template<class Class>
     Pointer(const shared_ptr<Class>& object,
             const ValueType& (Class::*getMethod)() const,
             void (Class::*setMethod)(const ValueType&)) : 
         m_interface(new SharedAccessor<Class, const ValueType& (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
 
-    /** \param setMethod May be NULL */
+    /** \param setMethod May be nullptr */
     template<class Class>
     Pointer(Class* object,
             const ValueType& (Class::*getMethod)() const,
             void (Class::*setMethod)(const ValueType&)) : 
         m_interface(new Accessor<Class, const ValueType& (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
 
-    /** \param setMethod May be NULL */
+    /** \param setMethod May be nullptr */
     template<class Class>
     Pointer(Class* object,
             ValueType (Class::*getMethod)() const,
             void (Class::*setMethod)(const ValueType&)) : 
         m_interface(new Accessor<Class, ValueType (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
 
-    /** \param setMethod May be NULL */
+    /** \param setMethod May be nullptr */
     template<class Class>
     Pointer(Class* object,
             const ValueType& (Class::*getMethod)() const,
             void (Class::*setMethod)(ValueType)) : 
         m_interface(new Accessor<Class, const ValueType& (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
 
-    /** \param setMethod May be NULL */
+    /** \param setMethod May be nullptr */
     template<class Class>
     Pointer(Class* object,
             ValueType (Class::*getMethod)() const,
@@ -331,14 +331,14 @@ public:
     }
 
     inline const ValueType getValue() const {
-        debugAssert(m_interface != NULL);
+        debugAssert(m_interface != nullptr);
         return m_interface->get();
     }
 
     /** \brief Assign a value to the referenced element.
-        If this Pointer was initialized with a NULL setMethod, the call is ignored */
+        If this Pointer was initialized with a nullptr setMethod, the call is ignored */
     inline void setValue(const ValueType& v) const {
-        debugAssert(m_interface != NULL);
+        debugAssert(m_interface != nullptr);
         m_interface->set(v);
     }
 

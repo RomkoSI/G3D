@@ -15,8 +15,6 @@
 #pragma once
 
 #include "G3D/platform.h"
-#include "G3D/debug.h"
-#include "G3D/AtomicInt32.h"
 
 #define USE_SHARED_PTR
 
@@ -28,10 +26,6 @@ class ReferenceCountedObject : public enable_shared_from_this<ReferenceCountedOb
 public:
     virtual ~ReferenceCountedObject() {};
 };
-
-} // namespace
-
-namespace G3D {
 
 template<class T>
 bool isNull(const ReferenceCountedPointer<T>& ptr) {
@@ -45,12 +39,12 @@ bool notNull(const ReferenceCountedPointer<T>& ptr) {
 
 template<class T>
 bool isNull(const T* ptr) {
-    return ptr == NULL;
+    return ptr == nullptr;
 }
 
 template<class T>
 bool notNull(const T* ptr) {
-    return ptr != NULL;
+    return ptr != nullptr;
 }
 
 } // namespace
