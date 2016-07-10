@@ -1,11 +1,22 @@
-/* Copyright Morgan McGuire */
-#ifndef G3D_FastPODTable_h
-#define G3D_FastPODTable_h
+/**
+ \file G3D/FastPODTable.h
+
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
+
+ \created 2014-07-09
+ \edited  2016-07-09
+
+ G3D Innovation Engine
+ Copyright 2002-2016, Morgan McGuire.
+ All rights reserved.
+*/
+#pragma once
 
 #include "G3D/platform.h"
 #include "G3D/HashTrait.h"
 #include "G3D/EqualsTrait.h"
 #include "G3D/MemoryManager.h"
+#include "G3D/ReferenceCount.h"
 
 namespace G3D {
 
@@ -303,7 +314,7 @@ public:
     /** \param expectedSize Number of key-value pairs that are
         expected to be stored in this table. */
     FastPODTable(int expectedSize = 16) : 
-        m_slot(NULL),
+        m_slot(nullptr),
         m_numSlots(0), 
         m_usedSlots(0),
         m_initialSlots(ceilPow2(unsigned(expectedSize * SLOTS_PER_ENTRY))) {
@@ -341,7 +352,7 @@ public:
             System::free(m_slot);
             m_numSlots = m_initialSlots;
             m_slot = (Entry*)System::malloc(sizeof(Entry) * m_numSlots);
-            alwaysAssertM(m_slot != NULL, "out of memory");
+            alwaysAssertM(m_slot != nullptr, "out of memory");
         }
 
         System::memset(m_slot, 0, sizeof(Entry) * m_numSlots);
@@ -405,7 +416,7 @@ public:
     virtual ~FastPODTable() {
         fastClear();
         System::free(m_slot);
-        m_slot = NULL;
+        m_slot = nullptr;
     }
 
 
@@ -417,7 +428,7 @@ public:
         debugAssert(m_numSlots > 0);
         const int i = findSlot(key, true, m_empty);
         debugAssert(m_usedSlots > 0);
-        return *m_slot[i].value;
+        return m_slot[i].valueRef();
     }
 
     /** Synonym for operator[] */
@@ -430,7 +441,7 @@ public:
     Value* getPointer(const Key& key) {
         const int i = findSlot(key, false, m_empty);
         if (i == NOT_FOUND) {
-            return NULL;
+            return nullptr;
         } else {
             return m_slot[i].value;
         }
@@ -560,4 +571,3 @@ public:
 
 } // G3D
 
-#endif

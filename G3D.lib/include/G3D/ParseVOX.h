@@ -7,7 +7,7 @@
  \edited  2016-07-09
 
  G3D Innovation Engine
- Copyright 2002-2016, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 #pragma once
