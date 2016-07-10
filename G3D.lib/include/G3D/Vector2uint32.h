@@ -1,13 +1,15 @@
 /**
-  @file G3D/Vector2uint32.h
+  \file G3D/Vector2uint32.h
   
-  @maintainer Morgan McGuire, matrix@brown.edu
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2003-08-09
   @edited  2015-07-10
 
-  Copyright 2000-2015, Morgan McGuire.
-  All rights reserved.
+     G3D Innovation Engine
+     Copyright 2002-2016, Morgan McGuire.
+     All rights reserved.
+
  */
 
 #ifndef G3D_Vector2uint32_h
