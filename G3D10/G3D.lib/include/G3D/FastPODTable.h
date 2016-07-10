@@ -93,9 +93,8 @@ struct FastPODTable_Entry<Key, Value, false> {
     \param valueAssignmentIsFast Set to true only if Value is
     relatively small (e.g., 128 bytes or less), the assignment
     operator is efficient when applied to it (e.g., G3D::Array
-    assignment is slow), and that is a POD type.  The current
-    implementation assumes that it is always slow and allocates
-    pointers.
+    assignment is slow), and that is a POD type.  
+    Default is true.
 */
 template<typename Key, typename Value, class HashFunc = HashTrait<Key>, class EqualsFunc = EqualsTrait<Key>, bool valueIsSimplePOD = false>
 class FastPODTable {
