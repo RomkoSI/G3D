@@ -7,9 +7,9 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2001-08-25
- \edited  2015-08-29
+ \edited  2016-07-10
 
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 
@@ -174,6 +174,7 @@ template<class T> struct HashTrait< shared_ptr<T> > {
 #include "G3D/Parse3DS.h"
 #include "G3D/PathDirection.h"
 #include "G3D/FastPODTable.h"
+#include "G3D/ParseVOX.h"
 #include "G3D/FastPointHashGrid.h"
 #include "G3D/PixelTransferBuffer.h"
 #include "G3D/CPUPixelTransferBuffer.h"
