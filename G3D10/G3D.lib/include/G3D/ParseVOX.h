@@ -13,7 +13,6 @@
 #pragma once
 
 #include "G3D/platform.h"
-#include "G3D/FastPODTable.h"
 #include "G3D/Array.h"
 #include "G3D/Color4unorm8.h"
 #include "G3D/Vector3uint8.h"
@@ -27,12 +26,24 @@ class BinaryInput;
     http://ephtracy.github.io/index.html?page=mv_vox_format */
 class ParseVOX {
 public:
+
+    class Voxel {
+    public:
+        Point3uint8             position;
+
+        /** Index into palette */
+        uint8                   index;
+    };
+#if 0
     typedef FastPODTable<Point3uint8, uint8, HashTrait<Point3uint8>, EqualsTrait<Point3uint8>, true> VoxelTable;
 
     /** voxel[xyz] is an index into the palette. Non-zero voxels can be obtained by voxel.begin().
         Use voxel.getPointer(pos) to test whether a voxel is present without creating a new empty
         value at that location.*/
     VoxelTable                  voxel;
+#endif
+
+    Array<Voxel>                voxel;
 
     /** These are shifted from the file format, so that palette[0] 
         is always transparent black and palette[1] is the first value

@@ -75,14 +75,14 @@ void ParseVOX::parse(BinaryInput& bi) {
         } else if (chunkID == "XYZI") {
             // Parse voxel data
             const int numVoxels = bi.readInt32();
+            voxel.resize(numVoxels);
             for (int i = 0; i < numVoxels; ++i) {
-                Point3uint8 pos;
-                pos.x = bi.readUInt8();
-                pos.y = bi.readUInt8();
-                pos.z = bi.readUInt8();
+                Voxel& v = voxel[i];
+                v.position.x = bi.readUInt8();
+                v.position.y = bi.readUInt8();
+                v.position.z = bi.readUInt8();
 
-                const uint8 index = bi.readUInt8();
-                voxel[pos] = index;
+                v.index = bi.readUInt8();
             }
             bi.skip(childrenSize);
         } else if (chunkID == "RGBA") {
