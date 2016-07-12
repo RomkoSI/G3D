@@ -141,7 +141,7 @@ bool Tri::Intersector::operator()(const Ray& ray, const CPUVertexArray& vertexAr
                 u * vertex1.texCoord0 +
                 v * vertex2.texCoord0;
 
-            if (material && material->coverageLessThan(alphaThreshold, texCoord)) {
+            if (material && material->coverageLessThanEqual(alphaThreshold, texCoord)) {
                 // Alpha masked location--passed through this tri
                 return false;
             }
@@ -248,6 +248,13 @@ void Tri::Intersector::getResult
     }
 
 }
+
+
+bool Tri::hasPartialCoverage() const {
+    const shared_ptr<Material>& m = material();
+    return notNull(m) && m->hasPartialCoverage();
+}
+
 
 shared_ptr<Surfel> Tri::Intersector::surfel() const {
     if (tri) {

@@ -16,7 +16,13 @@
 
 namespace G3D {
 
-bool TriTreeBase::alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Point3& rayOrigin, const Vector3& rayDirection) {
+static bool alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, float threshold) {
+    const shared_ptr<Material>& material = tri.material();
+
+    if (isNull(material) || ! material->hasPartialCoverage()) {
+        return true;
+    }
+
     const CPUVertexArray::Vertex& vertex0 = tri.vertex(vertexArray, 0);
     const CPUVertexArray::Vertex& vertex1 = tri.vertex(vertexArray, 1);
     const CPUVertexArray::Vertex& vertex2 = tri.vertex(vertexArray, 2);
@@ -27,8 +33,7 @@ bool TriTreeBase::alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, f
         u * vertex1.texCoord0 +
         v * vertex2.texCoord0;
 
-    const shared_ptr<Material>& material = tri.material();
-    return isNull(material) || ! material->coverageLessThan(1.0f, texCoord);
+    return ! material->coverageLessThanEqual(threshold, texCoord);
 }
     
 
@@ -93,15 +98,14 @@ void TriTreeBase::intersectRays
    (const Array<Ray>&      rays,
     const Array<float>&    maxDistances,
     Array<Hit>&            results,
-    IntersectRayOptions    options,
-    FilterFunction         filterFunction) const {
+    IntersectRayOptions    options) const {
 
     alwaysAssertM(rays.length() == maxDistances.length(), "ray and maxDistance buffers must have the same length");
     results.resize(rays.size());
 
     GThread::runConcurrently(0, rays.size(), 
         [&](int i, int threadID) {
-            intersectRay(rays[i], maxDistances[i], results[i], options, filterFunction);
+            intersectRay(rays[i], maxDistances[i], results[i], options);
         });
 }
 
@@ -110,12 +114,11 @@ shared_ptr<Surfel> TriTreeBase::intersectRay
    (const Ray&             ray, 
     float&                 distance, 
     IntersectRayOptions    options,
-    FilterFunction         filterFunction,
     const Vector3&         directiondX,
     const Vector3&         directiondY) const {
  
     Hit hit;
-    if (intersectRay(ray, distance, hit, options, filterFunction)) {
+    if (intersectRay(ray, distance, hit, options)) {
         return m_triArray[hit.triIndex].sample(hit.u, hit.v, hit.triIndex, m_vertexArray, hit.backface);
     } else {
         return nullptr;
@@ -590,8 +593,7 @@ static bool __fastcall rayTriangleIntersection
     const Tri&                         tri,
     const CPUVertexArray&              vertexArray,
     TriTreeBase::Hit&                  hitData,
-    TriTreeBase::IntersectRayOptions   options,
-    TriTreeBase::FilterFunction        filterFunction) {
+    TriTreeBase::IntersectRayOptions   options) {
     
     // See RTR3 p.746 (RTR2 ch. 13.7) for the basic algorithm used in this function.
 
@@ -609,13 +611,12 @@ static bool __fastcall rayTriangleIntersection
     const Vector3& e1 = vertex1.position - v0;
     const Vector3& e2 = vertex2.position - v0;
 
-    // Test for backfaces first because this eliminates 50% of all triangles.
-    const bool twoSidedTest((options & TriTree::TWO_SIDED_TRIANGLES) != 0);
+    const bool noBackfaceTest = (options & TriTree::DO_NOT_CULL_BACKFACES) != 0;
 
     // This test is equivalent to n.dot(ray.direction()) >= -EPS
     // Where n is the face unit normal, which we do not explicitly store
     // The first two check whether we should treat the tri as double sided
-    if (! (twoSidedTest || tri.twoSided()) && (tri.area() >= 0) && (e1.cross(e2)).dot(ray.direction()) >= -EPS * 2.0f * tri.area()) {
+    if (! (noBackfaceTest || tri.twoSided()) && (tri.area() >= 0) && (e1.cross(e2)).dot(ray.direction()) >= -EPS * 2.0f * tri.area()) {
         // Backface or nearly parallel
         return false;
     }
@@ -652,7 +653,10 @@ static bool __fastcall rayTriangleIntersection
     const float t = e2.dot(q);
 
     if ((t > 0.0f) && (t < distance)) {
-        if ((filterFunction != nullptr) && ! filterFunction(tri, vertexArray, u, v, ray.origin(), ray.direction())) {
+        const bool alphaTest = ((options & TriTree::NO_PARTIAL_COVERAGE_TEST) == 0);
+        const float alphaThreshold = ((options & TriTree::PARTIAL_COVERAGE_THRESHOLD_ZERO) != 0) ? 1.0f : 0.5f;
+
+        if (alphaTest && ! G3D::alphaTest(tri, vertexArray, u, v, alphaThreshold)) {
             // Failed the filter (e.g., alpha test)
             return false;
         } else {
@@ -671,7 +675,6 @@ static bool __fastcall rayTriangleIntersection
     } else {
         return false;
     }
-
 }
 
 
@@ -680,8 +683,7 @@ bool __fastcall TriTree::Node::intersectRay
     const Ray&                         ray,
     float                              maxDistance,
     Hit&                               hitData,
-    IntersectRayOptions                options,
-    FilterFunction                     filterFunction) const {
+    IntersectRayOptions                options) const {
         
     // Don't bother paying the bounding box intersection at
     // leaves, since we have to pay it again below.
@@ -703,7 +705,7 @@ bool __fastcall TriTree::Node::intersectRay
     bool hit = false;
     // Test on the side closer to the ray origin.
     if (firstChild != NONE) {
-        hit = child(firstChild).intersectRay(triTree, ray, maxDistance, hitData, options, filterFunction) || hit;
+        hit = child(firstChild).intersectRay(triTree, ray, maxDistance, hitData, options) || hit;
         if (((options & OCCLUSION_TEST_ONLY) != 0) && hit) {
             return true;
         } else if (hit) {
@@ -721,7 +723,7 @@ bool __fastcall TriTree::Node::intersectRay
         // Test for intersection against every object at this node.
         for (int v = 0; v < valueArray->size; ++v) { 
             const Tri& tri = *(valueArray->data[v]);
-            const bool justHit = rayTriangleIntersection(ray, maxDistance, tri, triTree.m_vertexArray, hitData, options, filterFunction);
+            const bool justHit = rayTriangleIntersection(ray, maxDistance, tri, triTree.m_vertexArray, hitData, options);
             
             if (justHit) {
                 hit = true;
@@ -755,7 +757,7 @@ bool __fastcall TriTree::Node::intersectRay
             }
         }
         
-        hit = child(secondChild).intersectRay(triTree, ray, maxDistance, hitData, options, filterFunction) || hit;
+        hit = child(secondChild).intersectRay(triTree, ray, maxDistance, hitData, options) || hit;
     }
 
     return hit;
@@ -981,10 +983,9 @@ bool TriTree::intersectRay
    (const Ray&                         ray, 
     float                              maxDistance,
     Hit&                               hit,
-    IntersectRayOptions                options,
-    FilterFunction                     filterFunction) const {
+    IntersectRayOptions                options) const {
 
-    return notNull(m_root) && m_root->intersectRay(*this, ray, maxDistance, hit, options, filterFunction);        
+    return notNull(m_root) && m_root->intersectRay(*this, ray, maxDistance, hit, options);        
 }
 
 }

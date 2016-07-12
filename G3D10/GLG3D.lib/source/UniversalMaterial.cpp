@@ -409,12 +409,19 @@ void UniversalMaterial::computeDefines(String& defines) const {
     defines += m_customShaderPrefix;
 }
 
+
 Texture::Dimension UniversalMaterial::textureDimension() const {
     debugAssertM(validateTextureDimensions(), "Not all texture in material are the same dimension!");
     return m_bsdf->lambertian().texture()->dimension();
 }
 
-bool UniversalMaterial::coverageLessThan(const float alphaThreshold, const Point2& texCoord) const {
+
+bool UniversalMaterial::hasPartialCoverage() const {
+    return bsdf()->lambertian().min().a < 1.0f;
+}
+
+
+bool UniversalMaterial::coverageLessThanEqual(const float alphaThreshold, const Point2& texCoord) const {
     const Component4& lambertian = bsdf()->lambertian();
 
     if (lambertian.min().a > alphaThreshold) {

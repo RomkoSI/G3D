@@ -41,19 +41,27 @@ protected:
 
 public:
 
-    /** Options for intersectRays. Default is closest-hit, single-sided triangles. */
+    /** Options for intersectRays. Default is full intersection with no backface culling optimization and partial coverage (alpha) test passing for values over 0.5. */
     typedef unsigned int IntersectRayOptions;
 
     /** Test for occlusion and do not necessarily return valid triIndex, backfacing, etc. data
         (useful for shadow rays and testing line of sight) */
     static const IntersectRayOptions OCCLUSION_TEST_ONLY = 1;
 
-    /** Treat triangles as two-sided (disable backface culling) */
-    static const IntersectRayOptions TWO_SIDED_TRIANGLES = 2;
+    /** Do not allow the intersector to perform backface culling as an
+        optimization. Backface culling is not required in any case. */
+    static const IntersectRayOptions DO_NOT_CULL_BACKFACES = 2;
+
+    /** Only fail the partial coverage (alpha) test on zero coverage. */
+    static const IntersectRayOptions PARTIAL_COVERAGE_THRESHOLD_ZERO = 4;
+
+    /** Disable partial coverage (alpha) testing. */
+    static const IntersectRayOptions NO_PARTIAL_COVERAGE_TEST = 8;
 
     /** Make optimizations appropriate for coherent rays (same origin) */
-    static const IntersectRayOptions COHERENT_RAY_HINT = 4;
+    static const IntersectRayOptions COHERENT_RAY_HINT = 16;
 
+#if 0 // TODO: Remove
     /** Returns true if this geometric intersection with the triangle should
         count as a ray hit. Frequently used for alpha testing. */
     typedef std::function<bool (const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Point3& rayOrigin, const Vector3& rayDirection)> FilterFunction;
@@ -61,7 +69,8 @@ public:
     /** Performs alpha testing against triangles
         with UniversalMaterial%s on them. Default FilterFunction for the intersect methods. */
     static bool alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Point3& rayOrigin, const Vector3& rayDirection);
-    
+#endif
+
     class Hit {
     public:
         enum { NONE = -1 };
@@ -122,7 +131,6 @@ public:
         (const Ray&                         ray, 
          float&                             distance,
          IntersectRayOptions                options         = IntersectRayOptions(0),
-         FilterFunction                     filterFunction  = alphaTest,
          const Vector3&                     directiondX     = Vector3::zero(),
          const Vector3&                     directiondY     = Vector3::zero()) const;
 
@@ -133,8 +141,7 @@ public:
         (const Ray&                         ray,
          float                              maxDistance,
          Hit&                               hit,
-         IntersectRayOptions                options         = IntersectRayOptions(0),
-         FilterFunction                     filterFunction  = alphaTest) const = 0;
+         IntersectRayOptions                options         = IntersectRayOptions(0)) const = 0;
 
     /** Batch ray casting. The default implementation calls the single-ray version using
         GThread::runConcurrently. */
@@ -142,8 +149,7 @@ public:
         (const Array<Ray>&                  rays,
          const Array<float>&                maxDistances,
          Array<Hit>&                        results,
-         IntersectRayOptions                options         = IntersectRayOptions(0),
-         FilterFunction                     filterFunction  = alphaTest) const;
+         IntersectRayOptions                options         = IntersectRayOptions(0)) const;
 
     /** Returns all triangles that lie within the box. Default implementation
         tests each triangle in turn (linear time). */
@@ -572,8 +578,7 @@ private:
          const Ray&                         ray,
          float                              maxDistance,
          Hit&                               hit,
-         IntersectRayOptions                options,
-         FilterFunction                     filterFunction) const;
+         IntersectRayOptions                options) const;
     };
 
     /** Memory manager used to allocate Nodes and Tri arrays. */
@@ -610,8 +615,7 @@ public:
         (const Ray&                         ray, 
          float                              maxDistance,
          Hit&                               hit,
-         IntersectRayOptions                options         = IntersectRayOptions(0),
-         FilterFunction                     filterFunction  = alphaTest) const override;
+         IntersectRayOptions                options         = IntersectRayOptions(0)) const override;
 
     virtual void intersectBox
         (const AABox&                       box,
