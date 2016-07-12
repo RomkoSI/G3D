@@ -14,6 +14,8 @@ All rights reserved.
 #ifndef G3D_BindlessHandle_h
 #define G3D_BindlessHandle_h
 
+#include "G3D/platform.h"
+#include "G3D/g3dmath.h"
 #include "G3D/ReferenceCount.h"
 
 namespace G3D {
