@@ -198,7 +198,7 @@ void DirectionHistogram::insert(const Vector3& vector, float weight) {
     // Find the quad hit
     float distance = (float)inf();
     TriTree::Hit hit;
-    if (m_tree.intersectRay(Ray(Point3::zero(), vector.direction()), distance, hit, 0, nullptr)) {
+    if (m_tree.intersectRay(Ray(Point3::zero(), vector.direction()), distance, hit, 0)) {
         ++m_numSamples;
 
         // Hit

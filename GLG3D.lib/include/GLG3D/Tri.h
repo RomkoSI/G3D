@@ -208,6 +208,8 @@ public:
     
     Triangle toTriangle(const CPUVertexArray& vertexArray) const;
 
+    bool hasPartialCoverage() const;
+
     shared_ptr<Surfel> sample(float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backface) const;
 
     /** \brief Performs intersection testing against Tri.  

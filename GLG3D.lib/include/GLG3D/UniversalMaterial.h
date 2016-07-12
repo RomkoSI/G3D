@@ -632,7 +632,8 @@ public:
 	/** \sa uniform_UniversalMaterial */
     void setShaderArgs(class UniformTable& a, const String& prefix = "") const;
 
-    virtual bool coverageLessThan(const float alphaThreshold, const Point2& texCoord) const override;
+    virtual bool coverageLessThanEqual(const float alphaThreshold, const Point2& texCoord) const override;
+    virtual bool hasPartialCoverage() const override;
 
     /** 
      To be identical, two materials must not only have the same images in their

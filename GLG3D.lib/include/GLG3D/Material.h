@@ -33,9 +33,11 @@ class Surface;
 class Material : public ReferenceCountedObject {
 public:
 
-    /** Returns true if this material has an alpha value less than \a alphaThreshold at texCoord. */
-    virtual bool coverageLessThan(const float alphaThreshold, const Point2& texCoord) const = 0;
+    /** Return true if coverageLessThanEqual(1) can ever return true. */
+    virtual bool hasPartialCoverage() const = 0;
 
+    /** Returns true if this material has an alpha value less than \a alphaThreshold at texCoord. */
+    virtual bool coverageLessThanEqual(const float alphaThreshold, const Point2& texCoord) const = 0;
     virtual void setStorage(ImageStorage s) const = 0;
     virtual const String& name() const = 0;
     virtual shared_ptr<Surfel> sample(const Tri::Intersector& intersector) const = 0;
