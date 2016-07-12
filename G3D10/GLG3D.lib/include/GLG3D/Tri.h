@@ -191,6 +191,8 @@ public:
         return (uint32)((index[0] << 20) + (index[1] << 10) + index[2]);
     }
 
+    /** Returns true if the alpha value at intersection coordinates (u, v) is less than or equal to the threshold */
+    bool intersectionAlphaTest(const CPUVertexArray& vertexArray, float u, float v, float threshold) const;
 
     bool operator==(const Tri& t) const {
         return 

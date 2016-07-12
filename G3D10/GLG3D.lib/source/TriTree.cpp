@@ -16,25 +16,6 @@
 
 namespace G3D {
 
-static bool alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, float threshold) {
-    const shared_ptr<Material>& material = tri.material();
-
-    if (isNull(material) || ! material->hasPartialCoverage()) {
-        return true;
-    }
-
-    const CPUVertexArray::Vertex& vertex0 = tri.vertex(vertexArray, 0);
-    const CPUVertexArray::Vertex& vertex1 = tri.vertex(vertexArray, 1);
-    const CPUVertexArray::Vertex& vertex2 = tri.vertex(vertexArray, 2);
-
-    const float w = 1.0f - u - v;
-    const Point2& texCoord = 
-        w * vertex0.texCoord0 +
-        u * vertex1.texCoord0 +
-        v * vertex2.texCoord0;
-
-    return ! material->coverageLessThanEqual(threshold, texCoord);
-}
     
 
 void TriTreeBase::clear() {
@@ -656,7 +637,7 @@ static bool __fastcall rayTriangleIntersection
         const bool alphaTest = ((options & TriTree::NO_PARTIAL_COVERAGE_TEST) == 0);
         const float alphaThreshold = ((options & TriTree::PARTIAL_COVERAGE_THRESHOLD_ZERO) != 0) ? 1.0f : 0.5f;
 
-        if (alphaTest && ! G3D::alphaTest(tri, vertexArray, u, v, alphaThreshold)) {
+        if (alphaTest && ! tri.intersectionAlphaTest(vertexArray, u, v, alphaThreshold)) {
             // Failed the filter (e.g., alpha test)
             return false;
         } else {

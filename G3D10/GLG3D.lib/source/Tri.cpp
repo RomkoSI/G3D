@@ -250,6 +250,27 @@ void Tri::Intersector::getResult
 }
 
 
+bool Tri::intersectionAlphaTest(const CPUVertexArray& vertexArray, float u, float v, float threshold) const {
+    const shared_ptr<Material>& material = this->material();
+
+    if (isNull(material) || ! material->hasPartialCoverage()) {
+        return true;
+    }
+
+    const CPUVertexArray::Vertex& vertex0 = vertex(vertexArray, 0);
+    const CPUVertexArray::Vertex& vertex1 = vertex(vertexArray, 1);
+    const CPUVertexArray::Vertex& vertex2 = vertex(vertexArray, 2);
+
+    const float w = 1.0f - u - v;
+    const Point2& texCoord =
+        w * vertex0.texCoord0 +
+        u * vertex1.texCoord0 +
+        v * vertex2.texCoord0;
+
+    return ! material->coverageLessThanEqual(threshold, texCoord);
+}
+
+
 bool Tri::hasPartialCoverage() const {
     const shared_ptr<Material>& m = material();
     return notNull(m) && m->hasPartialCoverage();
