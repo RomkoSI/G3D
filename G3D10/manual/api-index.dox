@@ -49,7 +49,6 @@ at the bottom.
     \link G3D::Model Model\endlink,
     \link G3D::Surface2D Surface2D\endlink,
     \link G3D::Tri Tri\endlink,
-    \link G3D::Tri::Intersector Tri::Intersector\endlink,
     \link G3D::TriTree TriTree\endlink,
 
   <li><b>Materials and Scattering</b>&nbsp;&nbsp;
