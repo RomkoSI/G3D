@@ -16,7 +16,14 @@
 
 namespace G3D {
 
-    
+#ifdef _MSC_VER
+// Turn on fast floating-point optimizations
+#pragma float_control( push )
+#pragma fp_contract( on )
+#pragma fenv_access( off )
+#pragma float_control( except, off )
+#pragma float_control( precise, off )
+#endif
 
 void TriTreeBase::clear() {
     m_triArray.fastClear();
@@ -34,7 +41,6 @@ void TriTreeBase::setContents
  ImageStorage                       newStorage) {
 
     const bool computePrevPosition = false;
-    static const float epsilon = 0.000001f;
     clear();
     Surface::getTris(surfaceArray, m_vertexArray, m_triArray, computePrevPosition);
 
@@ -50,14 +56,12 @@ void TriTreeBase::setContents
 }
 
 
-
 void TriTreeBase::setContents
    (const Array<Tri>&                  triArray, 
     const CPUVertexArray&              vertexArray,
     ImageStorage                       newStorage) {
 
-    const bool computePrevPosition = false;
-    static const float epsilon = 0.000001f;
+    //const bool computePrevPosition = false;
     clear();
 
     m_triArray = triArray;
@@ -968,5 +972,10 @@ bool TriTree::intersectRay
 
     return notNull(m_root) && m_root->intersectRay(*this, ray, maxDistance, hit, options);        
 }
+
+#ifdef _MSC_VER
+// Turn off fast floating-point optimizations
+#pragma float_control( pop )
+#endif
 
 }

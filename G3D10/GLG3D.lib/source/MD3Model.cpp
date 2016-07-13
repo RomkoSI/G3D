@@ -10,11 +10,12 @@
 #include "G3D/fileutils.h"
 #include "G3D/HashTrait.h"
 #include "G3D/TextInput.h"
-#include "GLG3D/MD3Model.h"
 #include "G3D/FileSystem.h"
 #include "G3D/Any.h"
-#include "GLG3D/UniversalSurface.h"
 #include "G3D/Ray.h"
+#include "GLG3D/CPUVertexArray.h"
+#include "GLG3D/UniversalSurface.h"
+#include "GLG3D/MD3Model.h"
 
 namespace G3D {
 

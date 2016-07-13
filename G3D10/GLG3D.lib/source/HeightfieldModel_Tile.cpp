@@ -3,6 +3,7 @@
 #include "GLG3D/Texture.h"
 #include "GLG3D/RenderDevice.h"
 #include "G3D/Projection.h"
+#include "G3D/AABox.h"
 #include "GLG3D/LightingEnvironment.h"
 
 namespace G3D {

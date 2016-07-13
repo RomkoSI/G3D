@@ -28,11 +28,6 @@ shared_ptr<Surfel> UniversalMaterial::sample(const Tri& tri, float u, float v, i
 }
 
 
-shared_ptr<Surfel> UniversalMaterial::sample(const Tri::Intersector& intersector) const {
-    return UniversalSurfel::create(intersector);
-}
-
-
 UniversalMaterial::UniversalMaterial() :
     m_numLightMapDirections(0),
     m_customConstant(Color4::inf()),

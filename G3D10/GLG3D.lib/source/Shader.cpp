@@ -1174,7 +1174,7 @@ void Shader::handleRecoverableError(RecoverableErrorType eType,  const Args& arg
         size_t begining = 0;
         size_t split = m.find("\n");
         const int MAX_LINES = 15;
-        const int LINE_WIDTH = 340;
+        //const int LINE_WIDTH = 340;
 
         int lines = 0;
         while (split != std::string::npos) {

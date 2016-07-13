@@ -11,14 +11,11 @@
 #include "GLG3D/UniversalSurfel.h"
 #include "GLG3D/UniversalBSDF.h"
 #include "GLG3D/UniversalMaterial.h"
+#include "GLG3D/CPUVertexArray.h"
+#include "GLG3D/Tri.h"
 #include <memory>
 
 namespace G3D {
-
-shared_ptr<UniversalSurfel> UniversalSurfel::create(const Tri::Intersector& intersector) {
-    return std::make_shared<UniversalSurfel>(intersector);
-}
-
 
 UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) {
     this->source = Source(triIndex, u, v);
@@ -139,143 +136,6 @@ UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex,
     coverage = lambertianSample.a;
 
     emission = uMaterial->emissive().sample(texCoord);
-
-    const Color4& packG = bsdf->glossy().sample(texCoord);
-    glossyReflectionCoefficient  = packG.rgb();
-    glossyReflectionExponent     = UniversalBSDF::unpackGlossyExponent(packG.a);
-    
-    transmissionCoefficient = bsdf->transmissive().sample(texCoord);
-
-    isTransmissive = transmissionCoefficient.nonZero() || (coverage < 1.0f);
-}
-
-
-UniversalSurfel::UniversalSurfel(const Tri::Intersector& intersector) {
-    debugAssert(intersector.tri != NULL);
-
-    const Tri&      tri	        = *intersector.tri;
-
-    const CPUVertexArray& vertexArray(*intersector.cpuVertexArray);
-
-    geometricNormal = tri.normal(vertexArray);
-
-    const float     u           = intersector.u;
-    const float     v           = intersector.v;
-    const float     w           = 1.0f - u - v;
-
-    const CPUVertexArray::Vertex& vert0 = tri.vertex(vertexArray, 0);
-    const CPUVertexArray::Vertex& vert1 = tri.vertex(vertexArray, 1);
-    const CPUVertexArray::Vertex& vert2 = tri.vertex(vertexArray, 2);    
-  
-    Vector3 interpolatedNormal =
-       (w * vert0.normal + 
-        u * vert1.normal +
-        v * vert2.normal).direction();
-
-    const Vector3& interpolatedTangent  =   
-       (w * tri.tangent(vertexArray, 0) +
-        u * tri.tangent(vertexArray, 1) +
-        v * tri.tangent(vertexArray, 2)).direction();
-
-    const Vector3& interpolatedTangent2  =	
-       (w * tri.tangent2(vertexArray, 0) +
-        u * tri.tangent2(vertexArray, 1) +
-        v * tri.tangent2(vertexArray, 2)).direction();
-
-    const Vector2& texCoord =
-        w * vert0.texCoord0 +
-        u * vert1.texCoord0 +
-        v * vert2.texCoord0;
-
-    surface = tri.surface();    
-    material = tri.material();
-    shared_ptr<UniversalMaterial> umat = dynamic_pointer_cast<UniversalMaterial>(material);
-    const UniversalBSDF::Ref& bsdf = umat->bsdf();
-
-    if (intersector.backside) {
-        // Swap the normal direction here before we compute values relative to it
-        interpolatedNormal = -interpolatedNormal;
-        geometricNormal = -geometricNormal;
-
-        // Swap sides
-        etaNeg   = bsdf->etaReflect();
-        etaPos   = bsdf->etaTransmit();
-        kappaPos = bsdf->extinctionTransmit();
-        kappaNeg = bsdf->extinctionReflect();
-    } else {
-        etaNeg   = bsdf->etaTransmit();
-        etaPos   = bsdf->etaReflect();
-        kappaPos = bsdf->extinctionReflect();
-        kappaNeg = bsdf->extinctionTransmit();
-    }    
-
-    name = umat->name();
-
-    const shared_ptr<BumpMap>& bumpMap = umat->bump();
-
-    // TODO: support other types of bump map besides normal
-    if (bumpMap && !interpolatedTangent.isNaN() && !interpolatedTangent2.isNaN()) {
-        const CFrame& tangentSpace = Matrix3::fromColumns(interpolatedTangent, interpolatedTangent2, interpolatedNormal);
-        Image4::Ref normalMap = bumpMap->normalBumpMap()->image();
-        Vector2int32 mappedTexCoords(texCoord * Vector2(float(normalMap->width()), float(normalMap->height())));
-
-        tangentSpaceNormal = Vector3(normalMap->get(mappedTexCoords.x, mappedTexCoords.y).rgb() * Color3(2.0f) + Color3(-1.0f));
-        shadingNormal = tangentSpace.normalToWorldSpace(tangentSpaceNormal).direction();
-
-        // "Shading tangents", or at least one tangent, is traditionally used in anisotropic
-        // BSDFs. To combine this with bump-mapping we use Graham-Schmidt orthonormalization
-        // to perturb the tangents by the bump map in a sensible way. 
-        // See: http://developer.amd.com/media/gpu_assets/shaderx_perpixelaniso.pdf 
-        // Note that if the bumped normal
-        // is parallel to a tangent vector, this will give nonsensical results.
-        // TODO: handle the parallel case elegantly
-        // TODO: Have G3D support anisotropic direction maps so we can apply this transformation
-        // to that instead of these tagents taken from texCoord directions
-        // TODO: implement
-        shadingTangent1 = interpolatedTangent;
-        shadingTangent2 = interpolatedTangent2;
-
-        /*
-        Vector3 tangentSpaceTangent1 = Vector3(1,0,0);
-        Vector3 tangentSpaceTangent2 = Vector3(0,1,0);
-        
-        Vector3& t1 = tangentSpaceTangent1;
-        Vector3& t2 = tangentSpaceTangent2;
-        const Vector3& n = tangentSpaceNormal;
-        t1 = (t1 - (n.dot(t1) * n)).direction();
-        t2 = (t2 - (n.dot(t2) * n)).direction();
-
-        shadingTangent1 = tangentSpace.normalToWorldSpace(tangentSpaceTangent1).direction();
-        shadingTangent2 = tangentSpace.normalToWorldSpace(tangentSpaceTangent2).direction();*/
-    } else {
-        tangentSpaceNormal = Vector3(0, 0, 1);
-        shadingNormal   = interpolatedNormal;
-        shadingTangent1 = interpolatedTangent;
-        shadingTangent2 = interpolatedTangent2;
-    } 
-
-    source = Source(intersector.primitiveIndex, intersector.u, intersector.v);
-
-    position = 
-       w * vert0.position + 
-       u * vert1.position +
-       v * vert2.position;
-    
-    if (vertexArray.hasPrevPosition()) {
-        prevPosition = 
-            w * vertexArray.prevPosition[tri.index[0]] + 
-            u * vertexArray.prevPosition[tri.index[1]] +
-            v * vertexArray.prevPosition[tri.index[2]];
-    } else {
-        prevPosition = position;
-    }
-
-    const Color4& lambertianSample = bsdf->lambertian().sample(texCoord);
-
-    lambertianReflectivity = lambertianSample.rgb();
-    coverage = lambertianSample.a;
-
-    emission = umat->emissive().sample(texCoord);
 
     const Color4& packG = bsdf->glossy().sample(texCoord);
     glossyReflectionCoefficient  = packG.rgb();

@@ -1,10 +1,10 @@
-#ifndef GLG3D_SVO_h
-#define GLG3D_SVO_h
+#pragma once
 
 #include "G3D/platform.h"
 #include "G3D/ReferenceCount.h"
 #include "G3D/ImageFormat.h"
 #include "G3D/Box.h"
+#include "G3D/CoordinateFrame.h"
 #include "GLG3D/GBuffer.h"
 #include "GLG3D/Framebuffer.h"
 #include "GLG3D/BufferTexture.h"
@@ -360,5 +360,3 @@ public:
 	void debugPrintRootIndexBuffer();
 };
 }
-
-#endif

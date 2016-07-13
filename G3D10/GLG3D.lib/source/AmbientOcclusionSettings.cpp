@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire,  http://graphics.cs.williams.edu
 
   \created 2012-08-02
-  \edited  2014-12-30
+  \edited  2016-07-30
 */
 
 #include "G3D/Any.h"
@@ -27,11 +27,11 @@ AmbientOcclusionSettings::AmbientOcclusionSettings() :
     useDepthPeelBuffer(false),
     useNormalBuffer(true),
     depthPeelSeparationHint(0.01f),
+    zStorage(ZStorage::HALF),
     highQualityBlur(true),
     packBlurKeys(false),
     temporalFilterSettings(TemporalFilter::Settings()),
     temporallyVarySamples(false),
-    zStorage(ZStorage::HALF),
     enabled(true) {
 
     temporalFilterSettings.hysteresis = 0.0f;

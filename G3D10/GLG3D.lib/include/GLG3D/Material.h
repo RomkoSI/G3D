@@ -1,16 +1,16 @@
-#ifndef GLG3D_Material_h
-#define GLG3D_Material_h
+#pragma once
 
 #include "G3D/platform.h"
 #include "G3D/ReferenceCount.h"
 #include "G3D/lazy_ptr.h"
 #include "GLG3D/Component.h"
-#include "GLG3D/Tri.h"
 #include "GLG3D/Surfel.h"
 
 namespace G3D {
 
 class Surface;
+class Tri;
+    class CPUVertexArray;
 
 /** 
     Base class for materials in G3D, mostly useful as an interface for
@@ -40,11 +40,7 @@ public:
     virtual bool coverageLessThanEqual(const float alphaThreshold, const Point2& texCoord) const = 0;
     virtual void setStorage(ImageStorage s) const = 0;
     virtual const String& name() const = 0;
-    virtual shared_ptr<Surfel> sample(const Tri::Intersector& intersector) const = 0;
     virtual shared_ptr<Surfel> sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) const = 0;
 };
 
 } // namespace G3D
-
-#endif
-
