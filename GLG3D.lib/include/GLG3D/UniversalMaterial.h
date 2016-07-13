@@ -665,8 +665,6 @@ public:
         return m_mirrorHint;
     }
 
-    virtual shared_ptr<Surfel> sample(const Tri::Intersector& intersector) const override;
-
     virtual shared_ptr<Surfel> sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) const override;
 };
 

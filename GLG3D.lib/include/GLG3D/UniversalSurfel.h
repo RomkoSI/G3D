@@ -2,22 +2,21 @@
     \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
     \created 2011-07-01
-    \edited  2014-10-16
+    \edited  2016-07-16
     
  G3D Innovation Engine
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
-#ifndef G3D_SuperSurfel_h
-#define G3D_SuperSurfel_h
+#pragma once
 
 #include "G3D/platform.h"
 #include "GLG3D/Surfel.h"
-#include "GLG3D/Tri.h"
 
 namespace G3D {
 
 class Tri;
+class CPUVertexArray;
 
 /** 
  \brief A Surfel for a surface patch described by a UniversalMaterial.
@@ -99,11 +98,7 @@ public:
 
     UniversalSurfel() {}
 
-    UniversalSurfel(const Tri::Intersector& intersector);
-
     UniversalSurfel(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside);
-
-    static shared_ptr<UniversalSurfel> create(const Tri::Intersector& intersector);
 
     virtual Radiance3 emittedRadiance(const Vector3& wo) const override;
     
@@ -138,5 +133,3 @@ public:
 };
 
 } // namespace G3D
-
-#endif

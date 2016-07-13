@@ -28,8 +28,8 @@ namespace G3D {
 SVO::SVO(const Specification& spec, const String& name, bool usebricks) :
     m_name(name),
     m_initOK(false),
-    m_useBricks(usebricks),
     m_octreePoolNumNodes(0),
+    m_useBricks(usebricks),
     m_curSvoId(-1),
     m_specification(spec) {
 

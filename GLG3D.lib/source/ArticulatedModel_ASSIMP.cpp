@@ -197,7 +197,7 @@ static void toMaterialSpecification(
     const String& emissiveFilename = getTextureFilename(aiTextureType_EMISSIVE, mat, basePath);
     aiColor3D aiEmissive = { 0.0f, 0.0f, 0.0f };
     ret = mat->Get(AI_MATKEY_COLOR_EMISSIVE, aiEmissive);
-    bool have_emissive = (ret == AI_SUCCESS);
+    //bool have_emissive = (ret == AI_SUCCESS);
     Color3 emissiveColor(aiEmissive.r, aiEmissive.g, aiEmissive.b);
     if (! emissiveFilename.empty()) {
         aiTextureOp operation = (aiTextureOp)-1;
