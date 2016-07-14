@@ -184,6 +184,7 @@ bool App::onEvent(const GEvent& event) {
     // For example,
     // if ((event.type == GEventType::GUI_ACTION) && (event.gui.control == m_button)) { ... return true; }
     // if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == GKey::TAB)) { ... return true; }
+    // if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == 'p')) { ... return true; }
 
     return false;
 }
