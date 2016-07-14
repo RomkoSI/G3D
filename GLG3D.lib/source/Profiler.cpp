@@ -3,9 +3,9 @@
  \author Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2009-01-01
- \edited  2013-07-21
+ \edited  2016-07-21
 
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 #include "G3D/stringutils.h"
@@ -18,7 +18,7 @@
 
 namespace G3D {
     
-__thread shared_ptr<Profiler::ThreadInfo>*  Profiler::s_threadInfo = NULL;
+__thread shared_ptr<Profiler::ThreadInfo>*  Profiler::s_threadInfo = nullptr;
 __thread int                                Profiler::s_level = 0;
 
 Array< shared_ptr<Profiler::ThreadInfo> >   Profiler::s_threadInfoArray;
@@ -35,6 +35,7 @@ void Profiler::set_LAUNCH_SHADER_timingEnabled(bool enabled) {
 bool Profiler::LAUNCH_SHADER_timingEnabled() {
     return s_timeShaderLaunches;
 }
+
 
 GLuint Profiler::ThreadInfo::newQueryID() {
     if (queryFreelist.length() == 0) {
@@ -54,7 +55,7 @@ Profiler::ThreadInfo::~ThreadInfo() {
 
 
 void Profiler::ThreadInfo::beginEvent(const String& name, const String& file, int line, const size_t baseHash, const String& hint) {
-    Event event; //eventTree.next();
+    Event event;
     event.m_hash = HashTrait<String>::hashCode(name) ^ HashTrait<String>::hashCode(file) ^ size_t(line) ^ HashTrait<String>::hashCode(hint);
     if (ancestorStack.length() == 0) {
         event.m_parentIndex = -1;
@@ -151,6 +152,7 @@ int Profiler::calculateUnaccountedTime(Array<Event>& eventTree, const int index,
     return childIndex;
 }
 
+
 void Profiler::threadShutdownHook() {
     GMutexLock lock(&s_profilerMutex);
     const int i = s_threadInfoArray.findIndex(*s_threadInfo);
@@ -158,7 +160,7 @@ void Profiler::threadShutdownHook() {
     s_threadInfoArray.remove(i);
 
     delete s_threadInfo;
-    s_threadInfo = NULL;
+    s_threadInfo = nullptr;
 }
 
 
