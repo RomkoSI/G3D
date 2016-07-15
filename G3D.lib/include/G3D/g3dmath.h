@@ -693,7 +693,7 @@ inline double aTan2 (double fY, double fX) {
 }
 
 //----------------------------------------------------------------------------
-inline double sign (double fValue) {
+inline double sign (double x) {
     return (x == 0.0) ? 0.0 : copysign(1.0, x);
 }
 
