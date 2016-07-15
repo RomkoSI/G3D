@@ -642,12 +642,12 @@ Vector3 cosPowHemiRandom(vec2 r, const float k) {
 }
 
 /** Returns the index of the largest element */
-int indexOfLargestComponent(vec3 v) { return (v.x > v.y) ? ((v.x > v.z) ? 0 : 2) : (v.z > v.y) ? 2 : 1; }
+int indexOfMaxComponent(vec3 v) { return (v.x > v.y) ? ((v.x > v.z) ? 0 : 2) : (v.z > v.y) ? 2 : 1; }
 
 /** Returns the index of the largest element */
-int indexOfLargestComponent(vec2 v) { return (v.x > v.y) ? 0 : 1; }
+int indexOfMaxComponent(vec2 v) { return (v.x > v.y) ? 0 : 1; }
 
 /** Returns zero */
-int indexOfLargestComponent(float v) { return 0; }
+int indexOfMaxComponent(float v) { return 0; }
 
 #endif

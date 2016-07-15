@@ -392,7 +392,7 @@ bool fuzzyLe(double a, double b);
 
 
 inline float sign(float x) {
-    return (x > 0.0f) ? 1.0f : ((x < 0.0f) ? -1.0f : 0.0f);
+    return (x == 0.0f) ? 0.0f : copysign(1.0f, x);
 }
 
 
@@ -694,15 +694,7 @@ inline double aTan2 (double fY, double fX) {
 
 //----------------------------------------------------------------------------
 inline double sign (double fValue) {
-    if (fValue > 0.0) {
-        return 1.0;
-    }
-
-    if (fValue < 0.0) {
-        return -1.0;
-    }
-
-    return 0.0;
+    return (x == 0.0) ? 0.0 : copysign(1.0, x);
 }
 
 
