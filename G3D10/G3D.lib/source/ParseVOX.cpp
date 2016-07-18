@@ -52,7 +52,7 @@ void ParseVOX::parse(BinaryInput& bi) {
 
     // Main chunk
     const String mainID = bi.readString(4);
-    if (mainID != "VOX ") { throw ParseError(bi.getFilename(), bi.getPosition() - 4, "Expected MAIN chunk"); }
+    if (mainID != "MAIN") { throw ParseError(bi.getFilename(), bi.getPosition() - 4, "Expected MAIN chunk"); }
 
     const size_t mainContentsSize = bi.readInt32();
     const size_t mainChildrenSize = bi.readInt32();
