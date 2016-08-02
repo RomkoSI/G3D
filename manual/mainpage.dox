@@ -15,6 +15,7 @@
 \endhtmlonly
 <ol>
   <li>  \link guideoverview %G3D Overview \endlink
+  <li>  \link devtools Developer Tools \endlink
   <li>  \link guideconcepts API Concepts \endlink
   <li>  \link samples Sample Programs\endlink
 </ol>
