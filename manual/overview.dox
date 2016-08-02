@@ -10,19 +10,18 @@ libraries like OpenGL and sockets easier to use without limiting functionality
 or performance.  %G3D gives you a rock-solid, highly optimized base from which
 to build your application.
 
+The documentation assumes that you are familiar with the basics of 3D graphics programming.
+If you are new to 3D graphics, then we recommend
+<a href="http://graphicscodex.com">The Graphics Codex</a> by the %G3D
+project manager, Morgan McGuire. It is a low cost book that is closely integrated
+with %G3D and will teach you how to use it effectively.
+
 %G3D contains only lightweight scene graphs and GUI routines.  Because
 of this, you have much more flexibility in how you structure your
 programs.  The tradeoff is that you have to know more about 3D
-programming.  %G3D is intended for users who are already familiar with
-C++ and DirectX or OpenGL.  We recommend using wxWidgets or another 
+programming. We recommend using wxWidgets or another 
 GUI library with %G3D if your project has extensive UI needs beyond the
 controls provided by G3D::GuiPane.
-
-This manual begins with a \link guidenewuser New User Guide \endlink that help
-programmers who know C++ but are either new to 3D or starting without
-a base of 3D code get up and running quickly.  The demos directory contains
-a <a href="../samples/starter">starter</a> project(it is how the %G3D development team usually
-start new projects in their own work).
 
 The library also provides lower-level interfaces that programmers who are
 already working with OpenGL and existing code may prefer.  See the
@@ -36,19 +35,16 @@ right for your project and introduce you to the major features.  The
 individual entry points are extensively documented and can be accessed
 through the links at the top of this page.  The source code for the
 entire library is available
-(http://cvs.sourceforge.net/viewcvs.py/g3d/G3D/) and can often
+(http://g3d.cs.williams.edu) and can often
 help resolve ambiguities.
 
 Post questions and feedback on the User Forum 
 (http://groups.google.com/group/g3d-users/topics) and consider subscribing to 
 it to receive all posts via e-mail.  Don't be afraid to post if you are a new or 
-inexperienced user-- the User Forum is our primary support path.  You can also read
-the Developers Google Group (http://groups.google.com/group/g3d-developers) to keep 
-abreast of changes coming in future releases and download Beta releases 
-from the G3D website to provide feedback.
+inexperienced user-- the User Forum is our primary support path.
 
 %G3D provides several demos with source that show different ways of structuring your 3D program 
-and how to use some of the most popular features in <A HREF="../demos">samples/</A>.
+and how to use some of the most popular features in \link samples samples\endlink.
 
 The official support team and community respond to most user posts within
 hours and patches for critical user-discovered bugs are given top priority.  
