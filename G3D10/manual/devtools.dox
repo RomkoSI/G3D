@@ -1,0 +1,28 @@
+/** 
+\page devtools Developer Tools
+
+\section documentation Documentation and Support 
+G3D Developer Tools
+===============================================================================
+
+- ESC
+- Camera control window
+  - (F2) Debug camera controls: WASD + right click
+- F4 screenshot
+- F6 video
+- F11 developer HUD
+- Profiler
+- Texture viewer
+- Scene editor
+  - Selector/Inspector
+  - ThirdPersonManipulator
+  - Spline editor
+  - Save
+  - Drag and drop
+- Debug window and pane
+- Debug draw
+- debugPrintf, screenPrintf, logPrintf
+- debugDraw
+- log.txt
+
+*/
