@@ -18,6 +18,7 @@
     <None Include="..\manual\changelog.dox" />
     <None Include="..\manual\contributors.dox" />
     <None Include="..\manual\data-index.dox" />
+    <None Include="..\manual\devtools.dox" />
     <None Include="..\manual\error.dox" />
     <None Include="..\manual\footer.html" />
     <None Include="..\manual\frequent.dox" />
