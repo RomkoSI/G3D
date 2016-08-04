@@ -1,12 +1,23 @@
 /** 
 \page devtools Developer Tools
 
+%G3D includes built-in tools within your application to support creating scenes and debugging
+and optimizing. Some of these tools have GUI interfaces and some are programmatic. Most are 
+provided under the G3D::GApp framework and require that class or something similar for support. 
 
-- ESC
+Press *ESC* within G3D::GApp to end the program. This allows quickly exiting
+during debugging sessions. To disable this functionality in a shipping product or 
+completed demo, set the G3D::GApp::escapeKeyAction.
+
+The *G3D::DeveloperWindow* (G3D::GApp::developerWindow) is the master control for the other
+GUI debugging controls.
+
+The *Rendering Statistics* bar shows the CPU time spent in the major event handlers and
+diagnostic information about draw calls and the GPU and build. 
+
 - G3D::CameraControlWindow
   - (F2) Debug camera controls: WASD + right click
 - F4 screenshot, F6 video G3D::VideoRecordDialog
-- F11 G3D::DeveloperWindow
 - G3D::Profiler
 - G3D::TextureViewer
 - G3D::SceneEditorWindow
