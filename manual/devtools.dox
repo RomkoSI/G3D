@@ -5,30 +5,73 @@
 and optimizing. Some of these tools have GUI interfaces and some are programmatic. Most are 
 provided under the G3D::GApp framework and require that class or something similar for support. 
 
-Press *ESC* within G3D::GApp to end the program. This allows quickly exiting
-during debugging sessions. To disable this functionality in a shipping product or 
-completed demo, set the G3D::GApp::escapeKeyAction.
+Press **ESC** within G3D::GApp to end the program. This allows quickly exiting during debugging
+sessions. To disable this functionality in a shipping product or completed demo, set the
+G3D::GApp::escapeKeyAction.
 
-The *G3D::DeveloperWindow* (G3D::GApp::developerWindow) is the master control for the other
-GUI debugging controls.
+The **log.txt** file produced by %G3D records information about startup, the system, major
+errors, and files accessed. If your program crashes unexpectedly, then this is the first place
+to look.
 
-The *Rendering Statistics* bar shows the CPU time spent in the major event handlers and
-diagnostic information about draw calls and the GPU and build. 
+The **G3D::DeveloperWindow** is the master control for the other GUI debugging controls. Press
+F11 to toggle its appearance within your program. Access it programmatically via
+G3D::GApp::developerWindow.
 
-- G3D::CameraControlWindow
-  - (F2) Debug camera controls: WASD + right click
-- F4 screenshot, F6 video G3D::VideoRecordDialog
-- G3D::Profiler
-- G3D::TextureViewer
-- G3D::SceneEditorWindow
+The **Rendering Statistics** bar shows the CPU time spent in the major event handlers and
+diagnostic information about draw calls and the GPU and build. It also shows a reminder
+of the special keys for the developer window. Toggle it from the developer window or
+programmatically via G3D::GApp::showRenderingStats.
+
+The **G3D::CameraControlWindow** shows information about the G3D::GApp::activeCamera (the current
+G3D::GCamera) as well as allowing you to fly the G3D::GApp::debugCamera. Press F2 to 
+toggle between the debug camera and another scene camera.
+
+When the **G3D::GApp::debugCamera** is active, you can fly it using standard first-person controls
+(because it runs a G3D::FirstPersonManipulator). These are W, A, S, and D keys for translation,
+and the mouse for rotation. Because you also need the mouse to click on GUI elements, to actually
+rotate the camera hold down the right mouse button (or ctrl + left button on a Mac).
+
+The **G3D::VideoRecordDialog** allows you to record screenshots and videos. Press F4 to record a
+screenshot and F6 to record video. The GUI presents several options for resolution and format.
+When an image is captured, you can either save it directly to disk or have the result archived
+in your development journal (`journal.md.html` or `journal.dox`). If saved to the development
+journal, you can add a caption and additional text. The filename will automatically encode
+the caption and, if you're using SVN for your project, include the SVN revision number and
+automatically add the image or video to SVN.
+
+The **G3D::Profiler** allows you to record a full profile tree of events on the CPU and GPU.  You
+can manually mark event boundaries in your code using \link BEGIN_PROFILER_EVENT
+BEGIN_PROFILER_EVENT\endlink and \link END_PROFILER_EVENT END_PROFILER_EVENT\endlink. All 
+\link LAUNCH_SHADER LAUNCH_SHADER\endlink calls are automatically marked.
+
+The **G3D::TextureBrowserWindow** is accessed from the developer window. It allows you to view any 
+G3D::Texture in memory, and create displays of them on screen for use in screenshots and
+videos.
+
+The **G3D::SceneEditorWindow** contains powerful controls for creating and modifying G3D::Scene%s. It begins
+in "locked" mode to prevent accidentally changing the scene.
   - Selector/Inspector
   - G3D::ThirdPersonManipulator
   - G3D::PhysicsFrameSplineEditor
   - Save
   - Drag and drop
-- GApp::debugWindow
-- G3D::debugPrintf, G3D::screenPrintf, G3D::logPrintf
-- G3D::debugDraw
-- log.txt
+
+**GApp::debugWindow** and GApp::debugPane are initialized by default for easily adding
+temporary controls to the GUI when debugging. Their visibility can be toggled from the
+developer window.
+
+Three functions provide formatted text output for debugging:
+
+- **G3D::debugPrintf** writes to stderr on OS X and Linux and to the Visual Studio output window on Windows
+- **G3D::screenPrintf** writes to the application window. It is useful for output that repeats
+    every frame that you want to watch change.  The visibility of the screenPrintf output can
+    be toggled from the developer window
+- **G3D::logPrintf** writes to `log.txt`. It is guaranteed to be committed to disk before the function returns.
+    All of the printf variations are slow, but this is _really_ slow because of the disk access
+
+It is often useful to temporarily render shapes into the 3D world. **G3D::debugDraw** provides
+a means to temporarily add geometric primitives to rendering without making them part of the
+scene.  It can display for a single frame (e.g., useful for visualizing values that change
+every frame) or for a fixed duration (e.g., useful for debugging collisions).
 
 */
