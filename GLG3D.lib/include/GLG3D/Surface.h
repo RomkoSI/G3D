@@ -443,7 +443,7 @@ public:
      Implementations must obey the semantics of the current stencil,
      viewport, clipping, and depth tests. 
      
-     \param lightingEnvironment World-space, screen-space, and light-space
+     \param environment World-space, screen-space, and light-space
      data needed for illumination.
 
      \param singlePassBlendedWritePixelDeclaration The contents of a macro that defines
