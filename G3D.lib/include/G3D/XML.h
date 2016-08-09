@@ -1,18 +1,16 @@
 /**
  @file XML.h
   
- @author Morgan McGuire
  @maintainer Morgan McGuire
   
  @created 2010-02-11
- @edited  2010-02-24
+ @edited  2016-08-09
 
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
 
-#ifndef G3D_XML_h
-#define G3D_XML_h
+#pragma once
 
 #include "G3D/platform.h"
 #include "G3D/Table.h"
@@ -42,23 +40,23 @@ Entity references (e.g., the ampersand codes for greater than and less
 than) are not automatically converted.
 
 Tags with names that begin with "!" or "?" are ignored. Comment tags must
-end with "-->" e.g.,
+end with "--&gt;" e.g.,
 
 <pre>
-  <?xml version="1.0" encoding="ISO-8859-1"?>
-  <!DOCTYPE note SYSTEM "Note.dtd">
-  <!-- a comment -->
+  &lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
+  &lt;!DOCTYPE note SYSTEM "Note.dtd"&gt;
+  &lt;!-- a comment --&gt;
 </pre>
 
 \sa G3D::Any, http://www.grinninglizard.com/tinyxml/
 
 \htmlonly
 <pre>
-<foo key0="value0" key1="value1">
+&lt;foo key0="value0" key1="value1"&gt;
   child0 ...
-  <child1>...</child1>
+  &lt;child1&gt;...</child1&gt;
   child2 ...
-</foo>
+&lt;/foo&gt;
 </pre>
 \endhtmlonly
 */
@@ -116,8 +114,8 @@ public:
     /** 
         If collapseEmptyTags, writes tags with no children as a single tag
     
-        For example: <name atr0="val0"></name>
-        Is instead: <name atr0="val0"/>
+        For example: <code>&lt;name atr0="val0"&gt;&lt;/name&gt;</code>
+        Is instead: <code>&lt;name atr0="val0"/&gt;</code>
     */
     void unparse(String& s, bool collapseEmptyTags = false) const;
 
@@ -205,8 +203,6 @@ public:
         return iRound(number());
     }
 
-};    // class XML
+}; // class XML
 
-}    // namespace G3D
-
-#endif
+} // namespace G3D
