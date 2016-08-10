@@ -46,7 +46,7 @@ protected:
     /**
      \brief Appends to \a sortedVisibleSurfaces and \a forwardSurfaces.
 
-     \para sortedVisibleSurfaces All surfaces visible to the GBuffer::camera(), sorted from back to front
+     \param sortedVisibleSurfaces All surfaces visible to the GBuffer::camera(), sorted from back to front
 
      \param forwardOpaqueSurfaces Surfaces for which Surface::canBeFullyRepresentedInGBuffer() returned false.
      These require a forward pass in a deferred shader.
@@ -104,11 +104,14 @@ public:
 
     /** 
       The active camera and time interval are taken from the GBuffer.
-      \param framebfufer Target color and depth framebuffer. Will be rendered in high dynamic range (HDR) linear radiance.
+
+      \param framebuffer Target color and depth framebuffer. Will be rendered in high dynamic range (HDR) linear radiance.
       \param gbuffer Must be allocated, sized, and prepared. Will be rendered according to its specification by this method.
       \param allSurfaces Surfaces not visible to the camera will automatically be culled
       \param depthPeelFramebuffer May be NULL
-      \param lightingEnvironment Shadow maps will be updated for any lights that require them. AO will be updated if the ambientOcclusion field is non-NULL. Screen-space color buffer will be updated with textures the next frame.*/
+      \param lightingEnvironment Shadow maps will be updated for any lights that require them. AO will be updated if the
+             ambientOcclusion field is non-NULL. Screen-space color buffer will be updated with textures the next frame.
+    */
     virtual void render
        (RenderDevice*                       rd, 
         const shared_ptr<Framebuffer>&      framebuffer,

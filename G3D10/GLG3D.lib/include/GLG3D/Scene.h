@@ -293,7 +293,7 @@ public:
     }
 
     /** Discontinuously change the current time.
-        Also invokes <code>onSimulation(time(), nan())</code> <i>twice<i> so that scene positions
+        Also invokes <code>onSimulation(time(), nan())</code> <i>twice</i> so that scene positions
         and previous positions are updated. */
     virtual void setTime(const SimTime t);
 

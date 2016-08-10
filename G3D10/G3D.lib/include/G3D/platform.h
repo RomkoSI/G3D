@@ -59,10 +59,10 @@ These control the version of Winsock used by G3D.
 #define __fastcall
 #endif
 
-/** \def G3D_WINDOWS*/
-/** \def G3D_FREEBSD2*/
-/** \def G3D_LINUX*/
-/** \def G3D_OSX */
+/** \def G3D_WINDOWS Defined on Windows platforms*/
+/** \def G3D_FREEBSD Defined on FreeBSD */
+/** \def G3D_LINUX Defined on Linux */
+/** \def G3D_OSX Defined on MacOS */
 
 #ifdef _MSC_VER
 #   define G3D_WINDOWS

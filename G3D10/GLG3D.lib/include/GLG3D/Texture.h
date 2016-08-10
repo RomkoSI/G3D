@@ -1248,21 +1248,21 @@ public:
     /**
         Binds the following uniforms:
 
-        - samplerX %prefix##buffer;
-        - vecY %prefix##size;
-        - vecY %prefix##invSize;
-        - vec4 %prefix##readMultiplyFirst;
-        - vec4 %prefix##readAddSecond;
+        - samplerX prefix\#\#buffer;
+        - vecY prefix\#\#size;
+        - vecY prefix\#\#invSize;
+        - vec4 prefix\#\#readMultiplyFirst;
+        - vec4 prefix\#\#readAddSecond;
 
         to \a args, with X and Y being chosen based on the texture dimension.
 
         If prefix contains no period (deprecated), then the macro is bound:
 
-        * #define %prefix##notNull 1
+        * \#define prefix\#\#notNull 1
 
         otherwise, 
 
-        * bool %prefix##notNull
+        * bool prefix\#\#notNull
 
         is set to true.
 
