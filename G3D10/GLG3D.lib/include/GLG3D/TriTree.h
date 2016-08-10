@@ -60,17 +60,7 @@ public:
 
     /** Make optimizations appropriate for coherent rays (same origin) */
     static const IntersectRayOptions COHERENT_RAY_HINT = 16;
-
-#if 0 // TODO: Remove
-    /** Returns true if this geometric intersection with the triangle should
-        count as a ray hit. Frequently used for alpha testing. */
-    typedef std::function<bool (const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Point3& rayOrigin, const Vector3& rayDirection)> FilterFunction;
-
-    /** Performs alpha testing against triangles
-        with UniversalMaterial%s on them. Default FilterFunction for the intersect methods. */
-    static bool alphaTest(const Tri& tri, const CPUVertexArray& vertexArray, float u, float v, const Point3& rayOrigin, const Vector3& rayDirection);
-#endif
-
+    
     class Hit {
     public:
         enum { NONE = -1 };
@@ -124,8 +114,8 @@ public:
         \param distance Call with this set to the maximum trace distance. If there is a hit, this is
               the distance to the intersection
               
-        \param directiondX Reserved
-        \param directiondY Reserved
+        \param directiondX Reserved for future use
+        \param directiondY Reserved for future use
      */
     virtual shared_ptr<Surfel> intersectRay
         (const Ray&                         ray, 

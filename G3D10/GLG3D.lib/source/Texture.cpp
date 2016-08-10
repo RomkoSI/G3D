@@ -423,7 +423,12 @@ static void glStatePop() {
 }
 
 
-shared_ptr<Texture> Texture::singleChannelDifference(RenderDevice* rd, shared_ptr<Texture> t0, shared_ptr<Texture> t1, int channel) {
+shared_ptr<Texture> Texture::singleChannelDifference
+   (RenderDevice* rd,
+    const shared_ptr<Texture>& t0,
+    const shared_ptr<Texture>& t1,
+    int channel) {
+
     debugAssertM(t0->width() == t1->width() && t0->height() == t1->height(), "singleChannelDifference requires the input textures to be of the same size");
     debugAssertM(channel >= 0 && channel < 4, "singleChannelDifference requires the input textures to be of the same size");
     shared_ptr<Framebuffer> fb = Framebuffer::create(Texture::createEmpty(t0->name() + "-" + t1->name(), t0->width(), t0->height(), ImageFormat::RG32F()));

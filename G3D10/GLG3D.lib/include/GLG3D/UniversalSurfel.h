@@ -87,7 +87,8 @@ public:
 
     /** Allocates with System::malloc to avoid the performance
         overhead of creating lots of small heap objects using
-        <code>::malloc</code>. */
+        the standard library %<code>malloc</code>. 
+     */
     static void* operator new(size_t size) {
         return System::malloc(size);
     }

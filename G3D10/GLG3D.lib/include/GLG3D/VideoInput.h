@@ -75,28 +75,31 @@ namespace G3D {
             int     numBuffers;
         };
 
-
         /** @return NULL if the file is not found or cannot be opened. */
         static shared_ptr<VideoInput> fromFile(const String& filename, const Settings& settings = Settings());
 
         ~VideoInput();
 
         /** Gets the frame at frame index and returns false if index is out of bounds.
-        use posToIndex to get the frame index from a real time
-        @param doNothingIfIsSameFrame : if set to true, we assume this is the last frame we decoded, so if the index is also unchanged, we change nothing.*/
+           use posToIndex to get the frame index from a real time.
+
+           \param doNothingIfSameFrame If set to true, we assume this is the last frame we decoded,
+                  so if the index is also unchanged, we change nothing.*/
         bool        readFromIndex(int index, shared_ptr<Texture>& frame, bool doNothingIfSameFrame = false);
+
         /** Gets the frame at frame index and returns false if index is out of bounds. */
         bool        readFromIndex(int index, shared_ptr<PixelTransferBuffer>& frame, bool doNothingIfSameFrame = false);
 
         /** Seek to playback position
-        @param pos Seek time, in seconds.*/
+            \param pos Seek time, in seconds.*/
         void        setTimePosition(RealTime pos);
+        
         /** Seek to playback position
-        @param index Seek frame index (zero based)*/
+            \param index Seek frame index (zero based)*/
         void        setIndex(int index);
 
         /** Seek ahead in playback position
-        @param length seek time in seconds. */
+            \param length seek time in seconds. */
         void        skipTime(RealTime length);
 
         /** Seek ahead @a length frames. */

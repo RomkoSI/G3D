@@ -451,13 +451,14 @@ public:
     }
 
     /** 
-        Returns an RG32F difference texture the same dimensions as \param t0 and \param t1 of (t0-t1) of the specified \param channel, 
+        Returns an RG32F difference texture the same dimensions as \a t0 and
+        \a t1 of (t0 - t1) of the specified \a channel, 
         with positive values in the red channel and negative values in the green.
+
         \beta Expect changes to this API as we use it more and make it more manageable
     */
-    static shared_ptr<Texture> singleChannelDifference(RenderDevice* rd, shared_ptr<Texture> t0, shared_ptr<Texture> t1, int channel = 0);
-
-
+    static shared_ptr<Texture> singleChannelDifference(RenderDevice* rd, const shared_ptr<Texture>& t0, const shared_ptr<Texture>& t1, int channel = 0);
+    
     class Preprocess {
     public:
 
@@ -1247,35 +1248,35 @@ public:
     /**
         Binds the following uniforms:
 
-        * samplerX prefix##buffer;
-        * vecY prefix##size;
-        * vecY prefix##invSize;
-        * vec4 prefix##readMultiplyFirst;
-        * vec4 prefix##readAddSecond;
+        - samplerX %prefix##buffer;
+        - vecY %prefix##size;
+        - vecY %prefix##invSize;
+        - vec4 %prefix##readMultiplyFirst;
+        - vec4 %prefix##readAddSecond;
 
         to \a args, with X and Y being chosen based on the texture dimension.
 
         If prefix contains no period (deprecated), then the macro is bound:
 
-        * #define prefix##notNull 1
+        * #define %prefix##notNull 1
 
         otherwise, 
 
-        * bool prefix##notNull
+        * bool %prefix##notNull
 
         is set to true.
 
         Inside a shader, these arguments can be automatically defined using the macro (deprecated)
         
         \code
-        #include <Texture/Texture.glsl> 
+        #include &lt;Texture/Texture.glsl&gt;
         uniform_Texture(samplerType, name_)
         \endcode
 
         or by using a struct 
 
         \code
-        #include <Texture/Texture.glsl> 
+        #include &lt;Texture/Texture.glsl&gt;
         uniform Texture2D name;
         \endcode
 
