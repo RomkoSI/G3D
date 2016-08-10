@@ -268,9 +268,9 @@ public:
            camera->frustum(viewport)->boundingBox(1000)
         \endcode
 
-      \param maxNodes Maximum number of nodes in the octree.  This is less than 1.25 * number of fine-resolution voxels.
+      \param maxTreeDepth
 
-      \param maxVoxelFragments Maximum number of fragments expected from Surface::renderIntoSVO. Proportional to the area of the scene. 
+      \param fragmentPoolSize Maximum number of fragments expected from Surface::renderIntoSVO. Proportional to the area of the scene. 
              There can be many fragments within a single voxel that will later be collapsed.
     */
     void prepare(RenderDevice* rd, const shared_ptr<Camera>& camera, const Box& wsBounds, float timeOffset, float velocityStartTimeOffset, size_t svoPoolSize, int maxTreeDepth, size_t fragmentPoolSize);

@@ -97,22 +97,22 @@ namespace G3D {
      Example:
 
       \code
-        #for (int j = 0; j < NUM_LIGHTS; ++j)
+        #for (int j = 0; j &lt; NUM_LIGHTS; ++j)
             uniform vec3 lightPos$(j);
         #endfor
       \endcode
 
    with <code>NUM_LIGHTS</code> a macro arg with value "4", this code expands to:
 
-      \code
-            uniform vec3 lightPos0;
-            uniform vec3 lightPos1;
-            uniform vec3 lightPos2;
-            uniform vec3 lightPos3;
-       \endcode
+   \code
+    uniform vec3 lightPos0;
+    uniform vec3 lightPos1;
+    uniform vec3 lightPos2;
+    uniform vec3 lightPos3;
+   \endcode
 
-   The expression inside the $(...) can also perform a single arithmetic expression 
-   of the form $(<identifier> <operator> <number>), where operator
+   The expression inside the <code>$(...)</code> can also perform a single arithmetic expression 
+   of the form <code>$(<i>identifier operator number</i>)</code>, where operator
    may be +, -, /, or *. If the number is an integer
    and the operator is /, then integer division is performed. Otherwise, the operation
    is performed at double precision.
@@ -282,23 +282,20 @@ public:
             the 5 stages of the shading pipeline.
             We parse each filename, and based on the extension, load it into the specification at the corresponding stage
             The valid extensions are as follows:
-            ------------------------------------------
+
             Shader Stage            |   Extension(s)
-            ------------------------------------------
+            ------------------------|-----------------
             Vertex                  |   .vrt or .vtx
-            ------------------------------------------
-            Tesselation Control     |
-            (Hull) Shader           |   .ctl or .hul
-            ------------------------------------------
-            Tesselation Evaluation  |
-            (Domain) Shader         |   .evl or .dom
-            ------------------------------------------
+            ------------------------|-----------------
+            Tesselation Control  (Hull) Shader   |.ctl or .hul
+            ------------------------|-----------------
+            Tesselation Evaluation (Domain) Shader   |  .evl or .dom
+            ------------------------|-----------------
             Geometry Shader         |       .geo
-            ------------------------------------------
+            ------------------------|-----------------
             Pixel (Fragment) Shader |   .pix or .frg     
-            ------------------------------------------
+            ------------------------|-----------------
             Compute Shader          |   .glc or .glsl
-            ------------------------------------------
 
             If any of the strings passed in is not the empty string or a filename with this extension, an error will be thrown.    
         */
