@@ -62,6 +62,76 @@ A good starting point for building your own G3D programs. (This is the program t
 
 <tr><td colspan=2 height=10> </td></tr>
 
+<tr><td colspan=2>Deep G-Buffer Radiosity (<a href="../samples/deepGbufferRadiosity">samples/deepGbufferRadiosity</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-radiosity.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> Screen space effects
+ <li> Complex GUI development
+ <li> G3D::GBuffer
+ <li> Splitscreen rendering
+</ul>
+</td>
+</tr>
+
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>Entity (<a href="../samples/entity">samples/entity</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-entity.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> G3D::VisibleEntity
+ <li> Interactive control
+ <li> G3D::AudioDevice
+ <li> Procedural scene creation
+</ul>
+</td>
+</tr>
+<tr><td colspan=2 height=10> </td></tr>
+
+
+
+<tr><td colspan=2>Minimal OpenGL (<a href="../samples/minimalOpenGL">samples/minimalOpenGL</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-opengl.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> Raw OpenGL initialization and implementation
+ <li> Raw OpenVR initialization and implementation
+ <li> Procedural texturing
+ <li> Direct use of uniform interface blocks
+ <li> Direct use of textures and framebuffers
+</ul>
+</td>
+</tr>
+<tr><td colspan=2 height=10> </td></tr>
+
+
+
+
+<tr><td colspan=2>Net Chat (<a href="../samples/netchat">samples/netchat</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-netchat.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> G3D::NetConnection
+ <li> G3D::GuiWindow
+</ul>
+</td>
+</tr>
+<tr><td colspan=2 height=10> </td></tr>
+
 <tr><td colspan=2>All Stages Shader (<a href="../samples/allStagesShader">samples/allStagesShader</a>)</td></tr>
 <tr valign=top>
 <td>
@@ -76,9 +146,72 @@ A good starting point for building your own G3D programs. (This is the program t
 </tr>
 
 
+
 <tr><td colspan=2 height=10> </td></tr>
 
-<tr><td colspan=2>Shader (<a href="../samples/pixelShader">samples/pixelShader</a>)</td></tr>
+<tr><td colspan=2>Real-Time Ray Marching (<a href="../samples/rayMarch">samples/rayMarch</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-raymarch.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> Extensive pixel shader and fractal geometry
+ <li> VR rendering
+</ul>
+</td>
+</tr>
+
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>VR Starter (<a href="../samples/vrstarter">samples/vrstarter</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-vr.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> G3D::VRApp
+</ul>
+</td>
+</tr>
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>Texture2DArray (<a href="../samples/rayMarch">samples/texture2DArray</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-texture2darray.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> G3D::Texture
+ <li> Animated texture
+</ul>
+</td>
+</tr>
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>Procedural Geometry (<a href="../samples/proceduralGeometry">samples/proceduralGeometry</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-procedural.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> G3D::ArticulatedModel::Part
+ <li> G3D::ArticulatedModel::Mesh
+ <li> G3D::ArticulatedModel::Geometry
+ <li> G3D::CPUVertexArray
+ <li> G3D::UniversalMaterial
+</ul>
+</td>
+</tr>
+
+<tr><td colspan=2 height=10> </td></tr>
+
+<tr><td colspan=2>Pixel Shader (<a href="../samples/pixelShader">samples/pixelShader</a>)</td></tr>
 <tr valign=top>
 <td>
 \htmlonly<IMG SRC="demo-shader.png" width=250 >\endhtmlonly
