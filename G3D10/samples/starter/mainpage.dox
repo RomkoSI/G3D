@@ -1,26 +1,24 @@
 /** \file mainpage.dox \mainpage
 
 This is the main page of documentation for your project.  Edit
-<code>mainpage.dox</code> to change it.  For example, you might want to list the major features:
+`mainpage.dox` to change it.  For example, you might want to list the major features:
 
-<ul>
-<li> Does something</li>
-<li> Does something else</li>
-</ul>
+- Does something
+- Does something else
 
 and explain the most important functions and major classes in a table
 (the full list of classes is generated automatically for the "Classes"
 tab).
 
-<table style="width:100%; border: 1px #CCC solid;">
-  <tr><td>App</td><td>\copybrief App</td></tr>
-</table>
+ Entry Point | Description
+ ------------|--------------------
+        App  | \copybrief App
 
 Doxygen will autotmatically extract documentation for your classes and methods and
 add them to these pages.
 
 This file and the comments in your may use any commands from the
-<a href="http://www.stack.nl/~dimitri/doxygen/commands.html">Doxygen manual</a>
+[Doxygen manual](http://www.stack.nl/~dimitri/doxygen/commands.html)
 and the custom commands:
 
 \verbatim
@@ -31,9 +29,9 @@ and the custom commands:
 \units units
 \thumbnail{imagefilename}
 \thumbnail{imagefilename,caption}
-\video{videofilename, caption}
+\video{videofilename,caption}
 \endverbatim
 
-See also your <a href="../../journal/journal.md.html">Development Journal</a>.  
+See also your [Development Journal](../../journal/journal.md.html).
 
 */
