@@ -34,6 +34,6 @@ and the custom commands:
 \video{videofilename, caption}
 \endverbatim
 
-See also your \link Journal Development Journal \endlink.  
+See also your <a href="../../journal/journal.md.html">Development Journal</a>.  
 
 */
