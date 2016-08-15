@@ -1,0 +1,117 @@
+/** 
+\page guidenewproject Creating a New Project
+
+
+Windows
+-------------------------------------------------------------------------
+
+The steps for creating a new project on Windows using Visual Studio
+are simple:
+
+1. Create a new directory for your project and copy all of the files from
+   `G3D10\samples\starter` into it. 
+2. Rename `starter.sln` to the name of your project. Do not rename `main.vcproj`.
+3. Open the newly-renamed solution (`.sln`) file in Visual Studio.
+4. Within Visual Studio, rename `starter` to the name of your project.
+5. Press F5 to compile and run the program under the debugger.
+6. Run a command prompt by typing `cmd` into the location box of an Explorer window.
+  1. Run `mkdir build` to make a directory named `build` for your documentation.
+  2. Run `doxygen` at the command line to generate API documentation.
+7. If you are using version control: 
+  1. Make it ignore the following:
+    - `x64`
+    - `build`
+    - `*.db`
+    - `*.opendb`
+    - `data-files\log.txt`
+    - `data-files\g3d-license.txt`
+  2. Add the remaining files.
+  3. Commit/push.
+
+The project begins in *Debug* mode.  To achieve higher performance,
+switch to *Release* mode using the build target dropdown box under the
+menu bar. Release mode programs can still be run under the debugger,
+but some of the symbols will not be visible because they have been
+optimized away.
+
+You can compile without launching the program using the F7
+key. Use ctrl+break to break execution for debugging and shift-F5 to
+kill a program that is running under the debugger.
+
+Be sure to read about the built-in [G3D developer
+tools](http://g3d.cs.williams.edu/g3d/G3D10/build/manual/devtools.html).
+
+
+Linux and OS X
+-------------------------------------------------------------------------
+
+### Using iCompile
+
+G3D provides an easy-to-use build system for Linux and OS X called
+[*iCompile*](icompile-manual.html). This is a standalone Python script in the `bin` directory
+of the G3D install. iCompile is an expert system that automatically detects your program's
+structure and builds it appropriately. This is what G3D itself is compiled with on these
+platforms.
+
+To start a new G3D project, just create an empty directory. Inside of that directory, run
+`icompile` with no arguments at the command line. It will prompt you to create a new
+project. Choose the "G3D Starter". iCompile will then compile this project for you. You can run
+it with `icompile --opt --run` and should see the default G3D program.
+
+The most frequently used commands are:
+
+
+ Command                | Action
+ -----------------------|-------------------------
+ `icompile`             | Compile the project
+ `icompile --run`       | Compile and run
+ `icompile --lldb`      | Compile and run under a debugger
+ `icompile --opt --run` | Compile and run an optimized build
+ `icompile --help`      | Display all command information
+ `icompile --doc`       | Build documentation for your program using Doxygen
+
+Then, run `icompile --doc` to generate documentation.
+
+Finally, if you are using version control,
+
+1. Make it ignore the following:
+    - `temp`
+    - `build`
+    - `data-files\log.txt`
+    - `data-files\g3d-license.txt`
+2. Add the remaining files.
+3. Commit/push.
+
+
+### Other Build Systems
+
+You can use G3D with Xcode or Makefiles if you prefer. Copy the
+contents of `G3D10/samples/starter` to a new directory and add all of
+the `.cpp` files to your build system's project. You may delete the 
+Visual Studio `.sln` and `.vcproj` files if you wish.
+
+Link your program to the G3D static library and its static and dynamic
+dependencies. The clang++ linker options are below:
+
+OS X Linker Options for clang++:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~none
+-std=c++1y -stdlib=libc++ -framework AGL -framework CoreVideo -lswscale.3 -lfmod
+-framework IOKit -lnfd -lGLG3D -lassimp -lglfw -lglew -lG3D -lenet -lfreeimage 
+-framework Cocoa -lzip -framework OpenGL -lpthread -lavformat.56 -lz -lavcodec.56
+-lavutil.54
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Linux linker options for clang++:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~none
+-std=c++1y -stdlib=libc++ -lX11 -lGL -lswscale.3 -lfmod
+-lnfd -lGLG3D -lassimp -lglfw -lglew -lG3D -lenet -lfreeimage -lzip 
+-lpthread -lavformat.56 -lz -lavcodec.56 -lavutil.54
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When launched, G3D programs expect the working directory to be the
+`data-files` subdirectory of your project.
+
+Be sure to read about the built-in [G3D developer tools](http://g3d.cs.williams.edu/g3d/G3D10/build/manual/devtools.html).
+
+*/

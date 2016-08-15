@@ -49,14 +49,18 @@ G3D::Texture in memory, and create displays of them on screen for use in screens
 videos.
 
 The **G3D::SceneEditorWindow** contains powerful controls for creating and modifying G3D::Scene%s. It begins
-in "locked" mode to prevent accidentally changing the scene.
-  - Selector/Inspector
-  - G3D::ThirdPersonManipulator
-  - G3D::PhysicsFrameSplineEditor
-  - Save
-  - Drag and drop
+in "locked" mode to prevent accidentally changing the scene. The scene editor window provides several features:
 
-**GApp::debugWindow** and GApp::debugPane are initialized by default for easily adding
+  - Loading (and saving) of `.Scene.Any` files
+  - Click on objects in the 3D view to select them. Information about selected objects is displayed in the Info pane.
+  - A G3D::ThirdPersonManipulator displays for the selected object so that it can be moved using the GUI
+  - The G3D::PhysicsFrameSplineEditor allows creating smooth, scripted motions for (see also the G3D::Entity::Track system for even more complex motion)
+  - Drag and drop any 3D file or `.ArticulatedModel.Any` from the file system into the 3D view to add it to the scene
+  - Drag and drop any `.Scene.Any` file to load it
+  - Edit the properties of all G3D::Entity%s in the scene, including lights and cameras
+  - Alter the G3D::AmbientOcclusion settings for the scene
+
+The **GApp::debugWindow** and GApp::debugPane are initialized by default for easily adding
 temporary controls to the GUI when debugging. Their visibility can be toggled from the
 developer window.
 
