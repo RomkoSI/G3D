@@ -17,7 +17,7 @@ and access the latest changes from subversion.
 
 Windows
 -------------------------------------------------------------------------
-### Install:
+### Install
 
 1. 64-bit Windows 7, 8.1, or 10
 2. [Python 3.4 or later](https://www.python.org/downloads/windows/)
@@ -25,7 +25,7 @@ Windows
    or the [free Community version](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
 4. A subversion client such as [TortoiseSVN](http://tortoisesvn.net/downloads.html)
 
-### Asset Packs (Optional):
+### Asset Packs (Optional)
 
 G3D includes common asset files for making games, demos, and research
 projects, as well as for its own sample programs and automated tests.
@@ -38,7 +38,7 @@ data10](http://g3d.cs.williams.edu/websvn/listing.php?repname=g3d&path=%2Fdata10
 that you need into `%g3d%\data10\`.
 
 
-### Configure & Build:
+### Configure & Build
 
 1. Create a directory for G3D, such as `c:\g3d`, and set a `%g3d%` **system** environment variable to its path. 
    - This is not required, but the instructions below are relative to this variable
@@ -66,7 +66,7 @@ incorrectly if you haven't run the full command-line build first. The
 G3D team **DOES NOT SUPPORT** direct use of the Visual Studio project
 files.  We only support the buildg3d script that calls them._
 
-### Advanced (Optional):
+### Advanced (Optional)
 
 The G3D development team uses the header files and data files directly
 from the source tree. We're continuously changing these and want to
@@ -84,7 +84,9 @@ Set your `G3D10DATA` environment variable to include a
 semicolon-separated list of your asset pack locations. If you use all
 asset packs, this is:
 
-    %g3d%\G3D10\data-files;%g3d%\data10\common;%g3d%\data10\research;%g3d%\data10\game
+~~~~~
+%g3d%\G3D10\data-files;%g3d%\data10\common;%g3d%\data10\research;%g3d%\data10\game
+~~~~~
 
 You can create your own private asset packs and add them to this
 variable, of course.
@@ -167,7 +169,9 @@ documentation, you'll need the following:
 
 
 -------------------------------------------------------------------------
-Run "`buildg3d help`" for more information about the build sytem.
+
+Run "`buildg3d help`" at the command line for more information
+about the build sytem.
 
 Post on g3d-users@googlegroups.com with questions about the build system.
 
