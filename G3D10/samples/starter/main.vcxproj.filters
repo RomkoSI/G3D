@@ -16,10 +16,10 @@
   <ItemGroup>
     <None Include="mainpage.dox" />
     <None Include="Doxyfile" />
-    <None Include="journal\journal.dox" />
     <None Include="data-files\test.Scene.Any">
       <Filter>Scene Files</Filter>
     </None>
+    <None Include="journal\journal.md.html" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
