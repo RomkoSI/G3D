@@ -14,9 +14,7 @@ are simple:
 3. Open the newly-renamed solution (`.sln`) file in Visual Studio.
 4. Within Visual Studio, rename `starter` to the name of your project.
 5. Press F5 to compile and run the program under the debugger.
-6. Run a command prompt by typing `cmd` into the location box of an Explorer window.
-  1. Run `mkdir build` to make a directory named `build` for your documentation.
-  2. Run `doxygen` at the command line to generate API documentation.
+6. Run a command prompt by typing `cmd` into the location box of an Explorer window, and run "builddoc" to generate API documentation for your project.
 7. If you are using version control: 
   1. Make it ignore the following:
     - `x64`
