@@ -24,6 +24,7 @@ Windows
 3. Visual Studio 2015 or later, either the Professional 
    or the [free Community version](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
 4. A subversion client such as [TortoiseSVN](http://tortoisesvn.net/downloads.html)
+5. Create a directory for G3D, such as `c:\g3d`, and set a `g3d` **system** environment variable to its path.
 
 ### Asset Packs (Optional)
 
@@ -37,18 +38,15 @@ Or, if you prefer, check out only the [subdirectories of
 data10](http://g3d.cs.williams.edu/websvn/listing.php?repname=g3d&path=%2Fdata10%2F&#a5b91a96ce30627431194980d9304afd2)
 that you need into `%g3d%\data10\`.
 
-
 ### Configure & Build
 
-1. Create a directory for G3D, such as `c:\g3d`, and set a `%g3d%` **system** environment variable to its path. 
-   - This is not required, but the instructions below are relative to this variable
-2. SVN check out `http://g3d.cs.williams.edu/g3d/G3D10` to `%g3d%\G3D10`
-3. Set the **user** environment variable `G3D10DATA=%g3d%\G3D10\build\data;%g3d%\data10\common;%g3d%\data10\game;%g3d%\data10\research`
-4. Add `%g3d%\G3D10\build\bin` to your `PATH` environment variable (so that Windows can find DLLs when launching your own programs)
-5. Set the system-wide VC Directories in `Microsoft.Cpp.Win64.user.props` explicitly, or through the Visual Studio IDE (View ==> Other Windows ==> Property Manager, G3D ==> starter ==> Release|x64->Microsoft.Cpp.x64.user ==> properties ==> VC++ Directories):
+1. SVN check out `http://g3d.cs.williams.edu/g3d/G3D10` to `%g3d%\G3D10`
+2. Set the **user** environment variable `G3D10DATA=%g3d%\G3D10\build\data;%g3d%\data10\common;%g3d%\data10\game;%g3d%\data10\research`
+3. Add `%g3d%\G3D10\build\bin` to your `PATH` environment variable (so that Windows can find DLLs when launching your own programs)
+4. Set the system-wide VC Directories in `Microsoft.Cpp.Win64.user.props` explicitly, or through the Visual Studio IDE (View ==> Other Windows ==> Property Manager, G3D ==> starter ==> Release|x64->Microsoft.Cpp.x64.user ==> properties ==> VC++ Directories):
    - Include: `$(g3d)\G3D10\build\include`
    - Library: `$(g3d)\G3D10\build\lib`
-6. At a command prompt in the `%g3d%\G3D10` directory, run `buildg3d lib data`
+5. At a command prompt in the `%g3d%\G3D10` directory, run `buildg3d lib data`
 
 We recommend copying the contents of
 `%g3d%\G3D10\build\samples\starter` to your own directory when
