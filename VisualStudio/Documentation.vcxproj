@@ -22,6 +22,7 @@
     <None Include="..\manual\error.dox" />
     <None Include="..\manual\footer.html" />
     <None Include="..\manual\frequent.dox" />
+    <None Include="..\manual\guide-newproject.dox" />
     <None Include="..\manual\samples.dox" />
     <None Include="..\manual\guide-macosx.dox" />
     <None Include="..\manual\guide-newunix.dox" />
