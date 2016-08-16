@@ -92,6 +92,8 @@ void App::makeGUI() {
     // debugPane->addTextBox("Name", &myName);
     // debugPane->addNumberBox("height", &height, "m", GuiTheme::LINEAR_SLIDER, 1.0f, 2.5f);
     // button = debugPane->addButton("Run Simulator");
+    // debugPane->addButton("Generate Heightfield", this, &App::generateHeightfield);
+    // debugPane->addButton("Generate Heightfield", [this](){ makeHeightfield(imageName, scale, "model/heightfield.off"); });
 
     debugWindow->pack();
     debugWindow->setRect(Rect2D::xywh(0, 0, (float)window()->width(), debugWindow->rect().height()));
