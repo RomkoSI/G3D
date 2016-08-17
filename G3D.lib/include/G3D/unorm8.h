@@ -109,7 +109,7 @@ public:
     }
 
     bool operator==(const unorm8 other) const {
-        return m_bits <= other.m_bits;
+        return m_bits == other.m_bits;
     }
 
     bool operator!=(const unorm8 other) const {
