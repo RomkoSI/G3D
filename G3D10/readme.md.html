@@ -16,8 +16,8 @@ and access the latest changes from subversion.
 
 
 Windows
--------------------------------------------------------------------------
-### Install
+==========================================================================
+## Install
 
 1. 64-bit Windows 7, 8.1, or 10
 2. [Python 3.4 or later](https://www.python.org/downloads/windows/)
@@ -26,7 +26,7 @@ Windows
 4. A subversion client such as [TortoiseSVN](http://tortoisesvn.net/downloads.html)
 5. Create a directory for G3D, such as `c:\g3d`, and set a `g3d` **system** environment variable to its path.
 
-### Asset Packs (Optional)
+## Asset Packs (Optional)
 
 G3D includes common asset files for making games, demos, and research
 projects, as well as for its own sample programs and automated tests.
@@ -38,7 +38,7 @@ Or, if you prefer, check out only the [subdirectories of
 data10](http://g3d.cs.williams.edu/websvn/listing.php?repname=g3d&path=%2Fdata10%2F&#a5b91a96ce30627431194980d9304afd2)
 that you need into `%g3d%\data10\`.
 
-### Configure & Build
+## Configure & Build
 
 1. SVN check out `http://g3d.cs.williams.edu/g3d/G3D10` to `%g3d%\G3D10`
 2. Set the **user** environment variable `G3D10DATA=%g3d%\G3D10\build\data;%g3d%\data10\common;%g3d%\data10\game;%g3d%\data10\research`
@@ -64,7 +64,7 @@ incorrectly if you haven't run the full command-line build first. The
 G3D team **DOES NOT SUPPORT** direct use of the Visual Studio project
 files.  We only support the buildg3d script that calls them._
 
-### Advanced (Optional)
+## Advanced (Optional)
 
 The G3D development team uses the header files and data files directly
 from the source tree. We're continuously changing these and want to
@@ -91,7 +91,7 @@ variable, of course.
 
 
 OS X
--------------------------------------------------------------------------
+=========================================================================
 Because OS X video drivers are produced by Apple as part of the
 operating system, they tend to lag the features on Windows by about 18 months.
 The G3D build on OS X uses legacy support to emulate these
@@ -116,7 +116,7 @@ The OSX and Linux builds will install an internal version of FFMPEG
 not to overwrite a previously installed version unintentionally.
 
 Linux
--------------------------------------------------------------------------
+=========================================================================
 The G3D Linux build is experimental and unsupported. We perform
 primary development on Windows and port monthly to OS X. The Linux
 build is updated about twice a year.
@@ -151,7 +151,7 @@ not to overwrite a previously installed version unintentionally.
 
 
 Documentation (Optional)
--------------------------------------------------------------------------
+=========================================================================
 The G3D documentation for the latest release and subversion top of
 tree are available online. If you wish to build a local copy of the
 documentation, you'll need the following:
