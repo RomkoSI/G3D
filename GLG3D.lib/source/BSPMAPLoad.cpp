@@ -195,12 +195,15 @@ MapRef Map::fromFile(const String& path, const String& fileName, float scale, St
             altLoad = System::findDataFile("mini-pak0.pk3", false);
         }
 #       ifdef G3D_WINDOWS
+        /*
+        // Causes problems with removable media
         for (int i = 0; ! FileSystem::exists(altLoad) && (i < FileSystem::drives().size()); ++i) {
             altLoad = FilePath::concat(FileSystem::drives()[i], "pak0.pk3");
         }
         for (int i = 0; ! FileSystem::exists(altLoad) && (i < FileSystem::drives().size()); ++i) {
             altLoad = FilePath::concat(FileSystem::drives()[i], "mini-pak0.pk3");
         }
+        */
 #       endif
     }
     Map* m = new Map();
