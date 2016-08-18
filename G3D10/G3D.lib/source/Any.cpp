@@ -658,6 +658,9 @@ Any& Any::next() {
 Any& Any::operator[](int i) {
     beforeRead();
     ensureMutable();
+    if (m_type == EMPTY_CONTAINER) {
+        become(ARRAY);
+    }
     verifyType(ARRAY);
     debugAssert(m_data != NULL);
     Array<Any>& array = *(m_data->value.a);
@@ -728,7 +731,16 @@ const Table<String, Any>& Any::table() const {
 const Any& Any::operator[](const String& x) const {
     beforeRead();
     verifyType(TABLE);
+
     debugAssert(m_data != NULL);
+    if (m_type == EMPTY_CONTAINER) {
+        // Must be an empty container
+        KeyNotFound e(m_data);
+        e.key = x;
+        e.message = "Key not found in operator[] lookup.";
+        throw e;
+    }
+
     const Table<String, Any>& table = *(m_data->value.t);
     Any* value = table.getPointer(x);
     if (value == NULL) {
@@ -744,6 +756,11 @@ const Any& Any::operator[](const String& x) const {
 Any& Any::operator[](const String& key) {
     beforeRead();
     ensureMutable();
+
+    if (type() == EMPTY_CONTAINER) {
+        become(TABLE);
+    }
+
     verifyType(TABLE);
 
     bool created = false;
@@ -768,7 +785,7 @@ void Any::_set(const String& k, const Any& v) {
     v.beforeRead();
     verifyType(TABLE);
     debugAssert(m_data != NULL);
-    if ( type() == EMPTY_CONTAINER) {
+    if (type() == EMPTY_CONTAINER) {
         become(TABLE);
     }
     Table<String, Any>& table = *(m_data->value.t);
