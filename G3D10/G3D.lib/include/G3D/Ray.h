@@ -25,16 +25,20 @@ class Ray {
 private:
     friend class Intersect;
 
+    // The order of the first four member variables is guaranteed and may not be changed
+
     Point3  m_origin;
+
+    float   m_minDistance;
 
     /** Unit length */
     Vector3 m_direction;
 
+    float   m_maxDistance;
+
     /** 1.0 / direction */
     Vector3 m_invDirection;
 
-    float   m_minDistance;
-    float   m_maxDistance;
     
     /** The following are for the "ray slope" optimization from
       "Fast Ray / Axis-Aligned Bounding Box Overlap Tests using Ray Slopes" 
