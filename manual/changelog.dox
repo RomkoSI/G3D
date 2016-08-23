@@ -125,6 +125,7 @@
 	   <li> Cleaned up GuiPane::addRadioButton template type safety </li>
 	   <li> G3D::GThreadd::runConcurrently </li>
 	   <li> Added G3D::TriTreeBase with an API designed for performance </li>
+	   <li> Added minDistance and maxDistance to G3D::Ray </li>
       </ul>
     </p>
 
