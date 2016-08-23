@@ -49,7 +49,7 @@ UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex,
     debugAssertM(notNull(uMaterial), "Triangle does not have a UniversalMaterial on it");
 
     surface = tri.surface();
-    const UniversalBSDF::Ref& bsdf = uMaterial->bsdf();
+    const shared_ptr<UniversalBSDF>& bsdf = uMaterial->bsdf();
     material = uMaterial;
 
     geometricNormal = tri.normal(vertexArray);
