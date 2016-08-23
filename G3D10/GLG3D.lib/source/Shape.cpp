@@ -244,7 +244,7 @@ Vector3 MeshShape::randomInteriorPoint(Random& rnd) const {
 
         TriTree::Hit hit;
         // Compute crossings to infinity
-        while (_bspTree.intersectRay(r, finf(), hit, TriTree::DO_NOT_CULL_BACKFACES)) {
+        while (_bspTree.intersectRay(r, hit, TriTree::DO_NOT_CULL_BACKFACES)) {
             isInterior += hit.backface ? 1 : -1;
             r = r.bumpedRay(hit.distance += BUMP_DISTANCE);
         }

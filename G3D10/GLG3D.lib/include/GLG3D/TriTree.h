@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-06-10
-  \edited  2016-07-05
+  \edited  2016-08-23
 */
 #ifndef G3D_TriTree_h
 #define G3D_TriTree_h
@@ -111,15 +111,11 @@ public:
     /** Helper function that samples materials. The default implementation calls the intersectRay
         override that takes a Hit and then samples from it.
 
-        \param distance Call with this set to the maximum trace distance. If there is a hit, this is
-              the distance to the intersection
-              
         \param directiondX Reserved for future use
         \param directiondY Reserved for future use
      */
     virtual shared_ptr<Surfel> intersectRay
         (const Ray&                         ray, 
-         float&                             distance,
          IntersectRayOptions                options         = IntersectRayOptions(0),
          const Vector3&                     directiondX     = Vector3::zero(),
          const Vector3&                     directiondY     = Vector3::zero()) const;
@@ -129,7 +125,6 @@ public:
       */
     virtual bool intersectRay
         (const Ray&                         ray,
-         float                              maxDistance,
          Hit&                               hit,
          IntersectRayOptions                options         = IntersectRayOptions(0)) const = 0;
 
@@ -137,7 +132,6 @@ public:
         GThread::runConcurrently. */
     virtual void intersectRays
         (const Array<Ray>&                  rays,
-         const Array<float>&                maxDistances,
          Array<Hit>&                        results,
          IntersectRayOptions                options         = IntersectRayOptions(0)) const;
 
@@ -603,7 +597,6 @@ public:
 
     virtual bool intersectRay
         (const Ray&                         ray, 
-         float                              maxDistance,
          Hit&                               hit,
          IntersectRayOptions                options         = IntersectRayOptions(0)) const override;
 
