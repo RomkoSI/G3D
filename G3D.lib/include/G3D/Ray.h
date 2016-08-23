@@ -96,8 +96,8 @@ public:
     /**
        Creates a Ray from a origin and a (nonzero) unit direction.
     */
-    static Ray fromOriginAndDirection(const Point3& point, const Vector3& direction) {
-        return Ray(point, direction);
+    static Ray fromOriginAndDirection(const Point3& point, const Vector3& direction, float minDistance = 0.0f, float maxDistance = finf()) {
+        return Ray(point, direction, minDistance, maxDistance);
     }
     
     /** Returns a new ray which has the same direction but an origin

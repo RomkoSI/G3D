@@ -44,11 +44,11 @@ bool World::lineOfSight(const Point3& P0, const Point3& P1) const {
     debugAssert(m_mode == TRACE);
     
     const Vector3& delta = P1 - P0;
-    float distance = delta.length();
-    const Ray& ray = Ray::fromOriginAndDirection(P0, delta / distance);
+    const float len = delta.length();
+    const Ray& ray = Ray::fromOriginAndDirection(P0, delta / len, 0.0f, len - 1e-3f);
 
     TriTree::Hit ignore;
-    return ! m_triTree.intersectRay(ray, distance - 1e-3f, ignore, TriTree::OCCLUSION_TEST_ONLY | TriTree::DO_NOT_CULL_BACKFACES);
+    return ! m_triTree.intersectRay(ray, ignore, TriTree::OCCLUSION_TEST_ONLY | TriTree::DO_NOT_CULL_BACKFACES);
 }
 
 

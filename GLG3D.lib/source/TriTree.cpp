@@ -81,29 +81,26 @@ void TriTreeBase::setContents
 
 void TriTreeBase::intersectRays
    (const Array<Ray>&      rays,
-    const Array<float>&    maxDistances,
     Array<Hit>&            results,
     IntersectRayOptions    options) const {
 
-    alwaysAssertM(rays.length() == maxDistances.length(), "ray and maxDistance buffers must have the same length");
     results.resize(rays.size());
 
     GThread::runConcurrently(0, rays.size(), 
         [&](int i, int threadID) {
-            intersectRay(rays[i], maxDistances[i], results[i], options);
+            intersectRay(rays[i], results[i], options);
         });
 }
 
 
 shared_ptr<Surfel> TriTreeBase::intersectRay
    (const Ray&             ray, 
-    float&                 distance, 
     IntersectRayOptions    options,
     const Vector3&         directiondX,
     const Vector3&         directiondY) const {
  
     Hit hit;
-    if (intersectRay(ray, distance, hit, options)) {
+    if (intersectRay(ray, hit, options)) {
         return m_triArray[hit.triIndex].sample(hit.u, hit.v, hit.triIndex, m_vertexArray, hit.backface);
     } else {
         return nullptr;
@@ -966,10 +963,10 @@ void TriTree::draw(RenderDevice* rd, int level, bool showBoxes, int minNodeSize)
 
 bool TriTree::intersectRay
    (const Ray&                         ray, 
-    float                              maxDistance,
     Hit&                               hit,
     IntersectRayOptions                options) const {
 
+    float maxDistance = ray.maxDistance();
     return notNull(m_root) && m_root->intersectRay(*this, ray, maxDistance, hit, options);        
 }
 
