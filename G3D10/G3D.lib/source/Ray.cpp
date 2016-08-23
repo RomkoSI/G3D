@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2002-07-12
- @edited  2004-03-19
+ @edited  2016-08-23
  */
 
 #include "G3D/platform.h"
@@ -12,10 +12,15 @@
 #include "G3D/Plane.h"
 #include "G3D/Sphere.h"
 #include "G3D/CollisionDetection.h"
+#include "G3D/BinaryInput.h"
+#include "G3D/BinaryOutput.h"
 
 namespace G3D {
 
-void Ray::set(const Vector3& origin, const Vector3& direction) {
+void Ray::set(const Vector3& origin, const Vector3& direction, float mn, float mx) {
+    debugAssert(mn >= 0.0 && mn < mx);
+    m_minDistance = mn;
+    m_maxDistance = mx;
     m_origin = origin;
     m_direction = direction;
     debugAssert(direction.isUnit());
@@ -38,7 +43,7 @@ void Ray::set(const Vector3& origin, const Vector3& direction) {
     c_zx = m_origin.x - ibyk * m_origin.z;
     c_zy = m_origin.y - jbyk * m_origin.z;    
     
-    //ray slope classification
+    // ray slope classification
     if (m_direction.x < 0) {
         if (m_direction.y < 0) {
             if (m_direction.z < 0) {
@@ -131,13 +136,17 @@ Ray::Ray(class BinaryInput& b) {
 void Ray::serialize(class BinaryOutput& b) const {
     m_origin.serialize(b);
     m_direction.serialize(b);
+    b.writeFloat32(m_minDistance);
+    b.writeFloat32(m_maxDistance);
 }
 
 
 void Ray::deserialize(class BinaryInput& b) {
     m_origin.deserialize(b);
     m_direction.deserialize(b);
-    set(m_origin, m_direction);
+    float mn = b.readFloat32();
+    float mx = b.readFloat32();
+    set(m_origin, m_direction, mn, mx);
 }
 
 
@@ -147,7 +156,7 @@ Ray Ray::refract(
     float           iInside,
     float           iOutside) const {
 
-    Vector3 D = m_direction.refractionDirection(normal, iInside, iOutside);
+    const Vector3 D = m_direction.refractionDirection(normal, iInside, iOutside);
     return Ray(newOrigin + (m_direction + normal * (float)sign(m_direction.dot(normal))) * 0.001f, D);
 }
 
@@ -171,6 +180,9 @@ Vector3 Ray::intersection(const Plane& plane) const {
         return Vector3::inf();
     } else {
         float t = -(d + m_origin.dot(normal)) / rate;
+        if (t < m_minDistance || t > m_maxDistance) {
+            return Vector3::inf();
+        }
         return m_origin + m_direction * t;
     }
 }
@@ -178,15 +190,25 @@ Vector3 Ray::intersection(const Plane& plane) const {
 
 float Ray::intersectionTime(const class Sphere& sphere, bool solid) const {
     Vector3 dummy;
-    return CollisionDetection::collisionTimeForMovingPointFixedSphere(
+    const float t = CollisionDetection::collisionTimeForMovingPointFixedSphere(
             m_origin, m_direction, sphere, dummy, dummy, solid);
+    if (t < m_minDistance || t > m_maxDistance) {
+        return finf();
+    } else {
+        return t;
+    }
 }
 
 
 float Ray::intersectionTime(const class Plane& plane) const {
     Vector3 dummy;
-    return CollisionDetection::collisionTimeForMovingPointFixedPlane(
+    const float t = CollisionDetection::collisionTimeForMovingPointFixedPlane(
             m_origin, m_direction, plane, dummy);
+    if (t < m_minDistance || t > m_maxDistance) {
+        return finf();
+    } else {
+        return t;
+    }
 }
 
 
@@ -197,6 +219,8 @@ float Ray::intersectionTime(const class Box& box) const {
 
     if ((time == finf()) && (box.contains(m_origin))) {
         return 0.0f;
+    } else if (time < m_minDistance || time > m_maxDistance) {
+        return finf();
     } else {
         return time;
     }
@@ -211,6 +235,8 @@ float Ray::intersectionTime(const class AABox& box) const {
 
     if ((time == finf()) && inside) {
         return 0.0f;
+    } else if (time < m_minDistance || time > m_maxDistance) {
+        return finf();
     } else {
         return time;
     }

@@ -1,12 +1,12 @@
 /**
- @file Ray.h
+ \file G3D/Ray.h
  
  Ray class
  
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2002-07-12
- @edited  2009-06-29
+ @edited  2016-08-23
  */
 
 #ifndef G3D_Ray_h
@@ -19,7 +19,7 @@
 namespace G3D {
 
 /**
- A 3D Ray.
+  A 3D Ray optimized for ray casting, optionally limited to a positive subsegment of the ray.
  */
 class Ray {
 private:
@@ -33,6 +33,8 @@ private:
     /** 1.0 / direction */
     Vector3 m_invDirection;
 
+    float   m_minDistance;
+    float   m_maxDistance;
     
     /** The following are for the "ray slope" optimization from
       "Fast Ray / Axis-Aligned Bounding Box Overlap Tests using Ray Slopes" 
@@ -50,8 +52,17 @@ private:
     float c_xy, c_xz, c_yx, c_yz, c_zx, c_zy;
 
 public:
+
     /** \param direction Assumed to have unit length */
-    void set(const Point3& origin, const Vector3& direction);
+    void set(const Point3& origin, const Vector3& direction, float minDistance = 0.0f, float maxDistance = finf());
+
+    float minDistance() const {
+        return m_minDistance;
+    }
+
+    float maxDistance() const {
+        return m_maxDistance;
+    }
 
     const Point3& origin() const {
         return m_origin;
@@ -72,13 +83,14 @@ public:
     }
 
     /** \param direction Assumed to have unit length */
-    Ray(const Point3& origin, const Vector3& direction) {
-        set(origin, direction);
+    Ray(const Point3& origin, const Vector3& direction, float minDistance = 0.0f, float maxDistance = finf()) {
+        set(origin, direction, minDistance, maxDistance);
     }
 
     Ray(class BinaryInput& b);
     
     void serialize(class BinaryOutput& b) const;
+
     void deserialize(class BinaryInput& b);
     
     /**
@@ -89,15 +101,20 @@ public:
     }
     
     /** Returns a new ray which has the same direction but an origin
-        advanced along direction by @a distance */
+        advanced along direction by @a distance
+        
+        
+        The min and max distance of the ray are unmodified. */
     Ray bumpedRay(float distance) const {
-        return Ray(m_origin + m_direction * distance, m_direction);
+        return Ray(m_origin + m_direction * distance, m_direction, m_minDistance, m_maxDistance);
     }
 
     /** Returns a new ray which has the same direction but an origin
-        advanced by \a distance * \a bumpDirection */
+        advanced by \a distance * \a bumpDirection.
+        
+        The min and max distance of the ray are unmodified. */
     Ray bumpedRay(float distance, const Vector3& bumpDirection) const {
-        return Ray(m_origin + bumpDirection * distance, m_direction);
+        return Ray(m_origin + bumpDirection * distance, m_direction, m_minDistance, m_maxDistance);
     }
 
     /**
@@ -105,8 +122,10 @@ public:
     */
     Point3 closestPoint(const Point3& point) const {
         float t = m_direction.dot(point - m_origin);
-        if (t < 0) {
-            return m_origin;
+        if (t < m_minDistance) {
+            return m_origin + m_direction * m_minDistance;
+        } else if (t > m_maxDistance) {
+            return m_origin + m_direction * m_maxDistance;
         } else {
             return m_origin + m_direction * t;
         }
@@ -214,7 +233,10 @@ public:
 
     /** Refracts about the normal
         using G3D::Vector3::refractionDirection
-        and bumps the ray slightly from the newOrigin. */
+        and bumps the ray slightly from the newOrigin. 
+        
+        Sets the min distance to zero and the max distance to infinity.
+        */
     Ray refract(
         const Vector3&  newOrigin,
         const Vector3&  normal,
@@ -224,7 +246,10 @@ public:
     /** Reflects about the normal
         using G3D::Vector3::reflectionDirection
         and bumps the ray slightly from
-        the newOrigin. */
+        the newOrigin. 
+        
+        Sets the min distance to zero and the max distance to infinity.
+        */
     Ray reflect(
         const Vector3&  newOrigin,
         const Vector3&  normal) const;
@@ -289,13 +314,17 @@ inline float Ray::intersectionTime(
         return finf();
     }
     
-
     // Case where we don't need correct (u, v):
-    const float t = DOT(edge2, qvec);
+    float t = DOT(edge2, qvec);
     
     if (t >= 0.0f) {
         // Note that det must be positive
-        return t / det;
+        t = t / det;
+        if (t < m_minDistance || t > m_maxDistance) {
+            return finf();
+        } else {
+            return t;
+        }
     } else {
         // We had to travel backwards in time to intersect
         return finf();
@@ -319,7 +348,8 @@ inline float Ray::intersectionTime
     // Barycenteric coords
     float u, v;
 
-    float tvec[3], pvec[3], qvec[3];
+    float
+        tvec[3], pvec[3], qvec[3];
 
     // begin calculating determinant - also used to calculate U parameter
     CROSS(pvec, m_direction, edge2);
@@ -356,9 +386,13 @@ inline float Ray::intersectionTime
     if (t >= 0) {
         const float inv_det = 1.0f / det;
         t *= inv_det;
+
+        if (t < m_minDistance || t > m_maxDistance) {
+            return finf();
+        }
+
         u *= inv_det;
         v *= inv_det;
-
         w0 = (1.0f - u - v);
         w1 = u;
         w2 = v;
