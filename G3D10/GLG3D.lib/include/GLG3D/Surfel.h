@@ -2,10 +2,10 @@
     \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
     \created 2011-07-01
-    \edited  2013-03-16
+    \edited  2016-03-16
     
-    Copyright 2012 Morgan McGuire
-
+    Copyright 2000-2016, Morgan McGuire.
+    All rights reserved.
     */
 #ifndef G3D_Surfel_h
 #define G3D_Surfel_h
@@ -200,7 +200,7 @@ public:
     typedef SmallArray<Impulse, 3> ImpulseArray;
 
     /** For debugging purposes only. */
-    String       name;
+    String            name;
     
     /** Point in world space at the geometric center of
         this surfel. */ 
@@ -208,7 +208,7 @@ public:
 
     /** Point in world space at the geometric center of
         this surfel in the previously rendered frame of animation.
-        Useful for computing velocity. */ 
+        Useful for computing velocity. */
     Point3            prevPosition;
 
     /** \deprecated Use position.*/
