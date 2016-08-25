@@ -41,6 +41,9 @@ protected:
 
 public:
 
+    /** CPU timing of API conversion overhead for the most recent call to intersectRays */
+    mutable RealTime debugConversionOverheadTime = 0;
+
     /** Options for intersectRays. Default is full intersection with no backface culling optimization and partial coverage (alpha) test passing for values over 0.5. */
     typedef unsigned int IntersectRayOptions;
 
