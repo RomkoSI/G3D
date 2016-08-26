@@ -145,7 +145,7 @@ Library('GLU',         maybeFwk,  'GLU',     'GLU',      None,       None,    ['
 Library('Cocoa',       FRAMEWORK,  None,      None,     'Cocoa',    'Cocoa',  ['Cocoa.h'],      ['DebugStr'],                                  [],           False),
 Library('Carbon',      FRAMEWORK,  None,      None,     'Carbon',   'Carbon', ['Carbon.h'],     ['ShowWindow'],                                [],           False),
 Library('AppleGL',     FRAMEWORK,  None,      None,     'AGL',      'AGL',    ['agl.h'],        ['_aglChoosePixelFormat'],                     [],           False),
-Library('G3D',         STATIC,    'G3D',     'G3Dd',     None,       None,    ['G3D.h', 'TextInput.h'], [],                                    ['zlib', 'freeimage', 'zip', 'Cocoa', 'pthread', 'enet'] + maybeG3DX11),
+Library('G3D',         STATIC,    'G3D',     'G3Dd',     None,       None,    ['G3D.h', 'TextInput.h'], [],                                    ['zlib', 'freeimage', 'zip', 'Cocoa', 'pthread', 'enet', 'tbb'] + maybeG3DX11),
 Library('GLG3D',       STATIC,    'GLG3D',   'GLG3Dd',   None,       None,    ['GLG3D.h', 'RenderDevice.h'],      [],                          GLG3DDepend),
 Library('pthread',     DYNAMIC,   'pthread', 'pthread',  None,       None,    ['pthread.h'],    [],                                            [],           False),
 Library('math',        DYNAMIC,   'm', 'm',  None,       None,       [],    [],                                            [],           False),
@@ -171,7 +171,9 @@ Library('mongoose',    STATIC,    'mongoose', 'mongoose', None,      None,    ['
 Library('civetweb',    STATIC,    'civetweb', 'civetweb', None,      None,    ['civetweb.h'],   [], []),
 Library('qrencode',    STATIC,    'qrencode', 'qrencode', None,      None,    ['qrencode.h'],   ['_QRcode_encodeData'], []),
 Library('irrKlang',    DYNAMIC,   'irrklang','irrklang', None,       None,    ['irrKlang.h'],   ['createIrrKlangDevice'],                                            []),
-Library('ply',         STATIC,   'ply','ply', None,       None,    ['ply.hpp'],   ['ply::ply_parser::parse'],                                            [])]:
+Library('ply',         STATIC,   'ply','ply', None,       None,    ['ply.hpp'],   ['ply::ply_parser::parse'],                                            []),
+Library('tbbmalloc',   DYNAMIC,   'tbbmalloc','tbbmalloc', None,       None,    ['tbb.h'],   [],                                            []),
+Library('tbb',         DYNAMIC,   'tbb','tbb', None,       None,    ['tbb.h'],   [],                                            ['tbb'])]:
 #Library('Box2D',       STATIC, 'box2d','box2d', None,       None,    ['Box2D.h'],   [],  [])]:
     defineLibrary(lib)
 

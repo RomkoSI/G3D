@@ -85,11 +85,7 @@ void TriTreeBase::intersectRays
     IntersectRayOptions    options) const {
 
     results.resize(rays.size());
-
-    GThread::runConcurrently(0, rays.size(), 
-        [&](int i, int threadID) {
-            intersectRay(rays[i], results[i], options);
-        });
+    GThread::runConcurrently(0, rays.size(), [&](int i) { intersectRay(rays[i], results[i], options); });
 }
 
 
@@ -113,15 +109,18 @@ void TriTreeBase::intersectBox
     Array<Tri>&            results) const {
 
     results.fastClear();
-    for (int t = 0; t < m_triArray.size(); ++t) {
+    Spinlock boxLock;
+    GThread::runConcurrently(0, m_triArray.size(), [&](int t) {
         const Tri& tri = m_triArray[t];
-        if ((tri.area() > 0) &&
+        if ((tri.area() > 0.0f) &&
             CollisionDetection::fixedSolidBoxIntersectsFixedTriangle(box, Triangle(tri.position(m_vertexArray, 0), 
                                                                                    tri.position(m_vertexArray, 1), 
                                                                                    tri.position(m_vertexArray, 2)))) {
+            boxLock.lock();
             results.append(tri);
+            boxLock.unlock();
         }
-    }
+    });
 }
 
 

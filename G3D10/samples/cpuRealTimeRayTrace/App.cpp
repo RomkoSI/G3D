@@ -33,12 +33,6 @@ void App::onInit() {
 
     m_world = new World();
 
-    // Create one random number generator per thread
-    m_rng.resize(GThread::numCores());
-    for (int i = 0; i < m_rng.size(); ++i) {
-        m_rng[i].reset(0xF018A4D2 ^ i, false);
-    }
-
     showRenderingStats = false;
     createDeveloperHUD();
     developerWindow->setVisible(true);
@@ -51,9 +45,9 @@ void App::onInit() {
     m_debugCamera->frame();
 
     GApp::loadScene(
-        "G3D Transparency Test");
+        //"G3D Transparency Test");
         //"G3D Cornell Box");
-        // "Real Time Ray Trace");
+        "Real Time Ray Trace");
 
     makeGUI();
 
@@ -105,8 +99,7 @@ Radiance3 App::rayTrace(const Ray& ray, World* world, Random& rng, int bounce) {
     Radiance3 radiance = Radiance3::zero();
     const float BUMP_DISTANCE = 0.0005f;
 
-    float dist = (float)inf();
-    const shared_ptr<Surfel>& surfel = world->intersect(ray, dist);
+    const shared_ptr<Surfel>& surfel = world->intersect(ray);
 
     if (notNull(surfel)) {
         // Shade this point (direct illumination)
@@ -185,10 +178,9 @@ void App::onRender() {
 }
 
 
-void App::trace(int x, int y, int threadID) {
+void App::trace(int x, int y, Random& rng) {
     Radiance3 sum = Color3::black();
 
-    Random& rng = m_rng[threadID];
     if (m_currentRays == 1) {
         sum = rayTrace(m_debugCamera->worldRay(x + 0.5f, y + 0.5f, m_currentImage->rect2DBounds()), m_world, rng);
     } else {
@@ -202,15 +194,16 @@ void App::trace(int x, int y, int threadID) {
 
 
 void App::rayTraceImage(float scale, int numRays) {
-    int width = int(window()->width()  * scale);
-    int height = int(window()->height() * scale);
+    const int width = int(window()->width()  * scale);
+    const int height = int(window()->height() * scale);
 
     if (isNull(m_currentImage) || (m_currentImage->width() != width) || (m_currentImage->height() != height)) {
         m_currentImage = Image3::createEmpty(width, height);
     }
+
     m_currentRays = numRays;
-    GThread::runConcurrently(Point2int32(0, 0), Point2int32(width, height), [&](int x, int y, int threadID) {
-        trace(x, y, threadID);
+    GThread::runConcurrently(Point2int32(0, 0), Point2int32(width, height), [&](Point2int32 coord) {
+        trace(coord.x, coord.y, Random::threadCommon());
     });
 
     // Post-process
@@ -218,6 +211,7 @@ void App::rayTraceImage(float scale, int numRays) {
     if (m_result) {
         m_result->resize(width, height);
     }
+
     m_film->exposeAndRender(renderDevice, m_debugCamera->filmSettings(), src, settings().hdrFramebuffer.colorGuardBandThickness.x/* + settings().hdrFramebuffer.depthGuardBandThickness.x*/, settings().hdrFramebuffer.depthGuardBandThickness.x, m_result);
 }
 

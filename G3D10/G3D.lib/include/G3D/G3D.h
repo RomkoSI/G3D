@@ -210,6 +210,7 @@ namespace G3D {
 #   pragma comment(lib, "advapi32")
 #   pragma comment(lib, "shell32")
 #   pragma comment(lib, "version")
+#   pragma comment(lib, "tbb.lib")
 #   ifdef G3D_64BIT
 #       pragma comment(lib, "zlib_x64")
 #       pragma comment(lib, "zip_x64")

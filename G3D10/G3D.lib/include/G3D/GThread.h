@@ -2,8 +2,10 @@
   @file GThread.h
  
   @created 2005-09-22
-  @edited  2016-06-30
+  @edited  2016-08-30
 
+  Copyright 2000-2016, Morgan McGuire.
+  All rights reserved.
  */
 
 #ifndef G3D_GThread_h
@@ -17,6 +19,7 @@
 #include "G3D/SpawnBehavior.h"
 #include "G3D/G3DString.h"
 #include <functional>
+#include <thread>
 
 #ifndef G3D_WINDOWS
 #   include <pthread.h>
@@ -25,10 +28,6 @@
 
 
 namespace G3D {
-        
-typedef shared_ptr<class GThread> GThreadRef;
-
-
 
 /**
  Platform independent thread implementation.  You can either subclass and 
@@ -67,7 +66,7 @@ private:
     pthread_t           m_handle;
 #endif //G3D_WINDOWS
 
-    String         m_name;
+    String              m_name;
 
 protected:
 
@@ -86,7 +85,7 @@ public:
     /** Constructs a basic GThread without requiring a subclass.
 
         @param proc The global or static function for the threadMain() */
-    static GThreadRef create(const String& name, void (*proc)(void*), void* param = NULL);
+    static shared_ptr<GThread> create(const String& name, void (*proc)(void*), void* param = NULL);
 
     /** Starts the thread and executes threadMain().  Returns false if
        the thread failed to start (either because it was already started
@@ -122,10 +121,12 @@ public:
         return m_name;
     }
 
+#if 0 // Old code
     /** For backwards compatibility to G3D 8.xx */
     static const SpawnBehavior USE_CURRENT_THREAD = G3D::USE_CURRENT_THREAD;
     /** For backwards compatibility to G3D 8.xx */
     static const SpawnBehavior USE_NEW_THREAD = G3D::USE_NEW_THREAD;
+
 
     enum {
         /** Tells GThread::runConcurrently() and GThread::runConcurrently2D() to
@@ -189,9 +190,10 @@ public:
      int                 maxThreads = NUM_CORES) {
         _internal_runConcurrently2DHelper(start, upTo, object, static_cast<void (Class::*)(int, int, int)>(nullptr), method, maxThreads);
     }
+#endif
 
 
-/** 
+    /** 
         \brief Iterates over a 3D region using multiple threads and
         blocks until all threads have completed. Has highest coherence
         per thread in x, and then in blocks of y.
@@ -202,9 +204,8 @@ public:
         Iteration is row major, so each thread can expect to see
         successive x values.  </p> 
 
-        \param maxThreads
-        Maximum number of threads to use.  By default at most one
-        thread per processor core will be used.
+        \param singleThread If true, force all computation to run on the
+        calling thread. Helpful when debugging
 
         Example:
 
@@ -216,33 +217,28 @@ public:
             }
 
             void traceAll() {
-               GThread::runConcurrently(Point2int32(0,0), Point2int32(w,h), [this](x, y, threadID) { trace(Vector2int32(x, y)); );
+               GThread::runConcurrently(Point2int32(0,0), Point2int32(w,h), [this](pixel) { trace(pixel); );
             }
         };
         \endcode
     */
     static void runConcurrently
-    (const Vector3int32& start, 
-     const Vector3int32& upTo, 
-     const std::function<void (int, int, int, int)>& callback,
-     int                 maxThreads = NUM_CORES);
+    (const Point3int32& start, 
+     const Point3int32& stopBefore, 
+     const std::function<void (Point3int32)>& callback,
+     bool singleThread = false);
 
     static void runConcurrently
-    (const Vector2int32& start, 
-     const Vector2int32& upTo, 
-     const std::function<void (int, int, int)>& callback,
-     int                 maxThreads = NUM_CORES) {
-        runConcurrently(Vector3int32(start, 0), Vector3int32(upTo, 1), [callback](int x, int y, int z, int threadID) { callback(x, y, threadID); }, maxThreads);
-    }
+    (const Point2int32& start,
+     const Point2int32& stopBefore, 
+     const std::function<void (Point2int32)>& callback,
+     bool singleThread = false);
 
     static void runConcurrently
     (const int& start, 
-     const int& upTo, 
-     const std::function<void (int, int)>& callback,
-     int                 maxThreads = NUM_CORES) {
-        // Process blocks in y, so use y as the 1D index
-        runConcurrently(Vector3int32(start, 0, 0), Vector3int32(upTo, 1, 1), [callback](int x, int y, int z, int threadID) { callback(x, threadID); }, maxThreads);
-    }
+     const int& stopBefore, 
+     const std::function<void (int)>& callback,
+     bool singleThread = false);
 };
 
 

@@ -470,7 +470,6 @@ GApp::GApp(const Settings& settings, OSWindow* window, RenderDevice* rd, bool cr
         debugAssertM(FileSystem::exists(m_settings.screenshotDirectory),
             "GApp::Settings.screenshotDirectory set to non-existent directory " + m_settings.screenshotDirectory);
     }
-
     
     showDebugText               = true;
     escapeKeyAction             = ACTION_QUIT;

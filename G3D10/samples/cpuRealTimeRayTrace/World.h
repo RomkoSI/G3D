@@ -39,12 +39,9 @@ public:
 
        \param ray In world space 
 
-       \param distance On input, the maximum distance to trace to.  On
-       output, the distance to the closest surface.
-
        \return The surfel hit, or NULL if none.
      */
-    shared_ptr<Surfel> intersect(const Ray& ray, float& distance) const;
+    shared_ptr<Surfel> intersect(const Ray& ray) const;
 };
 
 #endif

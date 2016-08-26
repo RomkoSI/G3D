@@ -378,16 +378,16 @@ void CoordinateFrame::lookAt(const Vector3 &target) {
 }
 
 
-void CoordinateFrame::lookAt(
-    const Vector3&  target,
+void CoordinateFrame::lookAt
+   (const Vector3&  target,
     Vector3         up) {
 
     up = up.direction();
 
-    Vector3 look = (target - translation).direction();
-    if (fabs(look.dot(up)) > .99f) {
+    const Vector3 look = (target - translation).direction();
+    if (fabs(look.dot(up)) > 0.99f) {
         up = Vector3::unitX();
-        if (fabs(look.dot(up)) > .99f) {
+        if (fabs(look.dot(up)) > 0.99f) {
             up = Vector3::unitY();
         }
     }
@@ -395,11 +395,11 @@ void CoordinateFrame::lookAt(
     up -= look * look.dot(up);
     up = up.direction();
 
-    Vector3 z = -look;
+    const Vector3 z = -look;
     Vector3 x = -z.cross(up);
     x = x.direction();
 
-    Vector3 y = z.cross(x);
+    const Vector3 y = z.cross(x);
 
     rotation.setColumn(0, x);
     rotation.setColumn(1, y);

@@ -930,7 +930,7 @@ shared_ptr<Texture> Texture::fromFile
         for (int i = 0; i < files.size(); ++i) {
             threadSet.insert(shared_ptr<ImageLoaderThread>(new ImageLoaderThread(files[i], images[i])));
         }
-        threadSet.start(GThread::USE_CURRENT_THREAD);
+        threadSet.start(SpawnBehavior::USE_CURRENT_THREAD);
         threadSet.waitForCompletion();
 
         return Texture::fromPixelTransferBuffer(FilePath::base(filename[0]), Image::arrayToPixelTransferBuffer(images), desiredEncoding.format, dimension);
@@ -986,7 +986,7 @@ shared_ptr<Texture> Texture::fromFile
                 threadSet.insert(shared_ptr<ImageLoaderThread>(new ImageLoaderThread(realFilename[f], image[f])));
             }
         }
-        threadSet.start(GThread::USE_CURRENT_THREAD);
+        threadSet.start(SpawnBehavior::USE_CURRENT_THREAD);
         threadSet.waitForCompletion();
     }
 

@@ -135,8 +135,8 @@ public:
     // assignment and comparison
     Vector3& __fastcall operator= (const Vector3& rkVector);
     Vector3& operator=(const Any& a);
-    bool operator== (const Vector3& rkVector) const;
-    bool operator!= (const Vector3& rkVector) const;
+    bool __fastcall operator== (const Vector3& rkVector) const;
+    bool __fastcall operator!= (const Vector3& rkVector) const;
     size_t hashCode() const;
     bool fuzzyEq(const Vector3& other) const;
     bool fuzzyNe(const Vector3& other) const;
@@ -232,7 +232,7 @@ public:
             \|'-
      </PRE>
      */
-    Vector3 reflectionDirection(const Vector3& normal) const;
+    Vector3 __fastcall reflectionDirection(const Vector3& normal) const;
     
 
     /**
@@ -277,7 +277,7 @@ public:
      V'<--
      </PRE>
      */
-    Vector3 refractionDirection(
+    Vector3 __fastcall refractionDirection(
         const Vector3&  normal,
         float           iInside,
         float           iOutside) const;
@@ -331,14 +331,14 @@ public:
 
     String toString() const;
 
-    inline Vector3 clamp(const Vector3& low, const Vector3& high) const {
+    inline Vector3 __fastcall clamp(const Vector3& low, const Vector3& high) const {
         return Vector3(
             G3D::clamp(x, low.x, high.x),
             G3D::clamp(y, low.y, high.y),
             G3D::clamp(z, low.z, high.z));
     }
 
-    inline Vector3 clamp(float low, float high) const {
+    inline Vector3 __fastcall clamp(float low, float high) const {
         return Vector3(
             G3D::clamp(x, low, high),
             G3D::clamp(y, low, high),
@@ -359,7 +359,7 @@ public:
     /**
      Linear interpolation
      */
-    inline Vector3 lerp(const Vector3& v, float alpha) const {
+    inline Vector3 __fastcall lerp(const Vector3& v, float alpha) const {
         return (*this) + (v - *this) * alpha; 
     }
 
@@ -386,9 +386,9 @@ public:
 
         @cite Henrik Wann Jensen, Realistic Image Synthesis using Photon Mapping eqn 2.24
     */
-    static Vector3 cosHemiRandom(const Vector3& n, Random& r = Random::common());
+    static Vector3 __fastcall cosHemiRandom(const Vector3& n, Random& r = Random::common());
 
-    static Vector3 cosSphereRandom(const Vector3& n, Random& r = Random::common());
+    static Vector3 __fastcall cosSphereRandom(const Vector3& n, Random& r = Random::common());
 
     /** \brief Random unit vector, distributed according to \f$\max(\cos^k \theta,0)\f$.
 
@@ -400,7 +400,7 @@ public:
 
         \cite Ashikhmin and Shirley, An anisotropic Phong BRDF model, Journal of Graphics Tools, 2002
     */
-    static Vector3 cosPowHemiRandom(const Vector3& n, const float k, Random& r = Random::common());
+    static Vector3 __fastcall cosPowHemiRandom(const Vector3& n, const float k, Random& r = Random::common());
 
     /**
      \brief Random vector distributed over the hemisphere about normal.
@@ -408,7 +408,7 @@ public:
      Distribution rendered by G3D::DirectionHistogram:
       \image html vector3-hemirandom.png
      */
-    static Vector3 hemiRandom(const Vector3& normal, Random& r = Random::common());
+    static Vector3 __fastcall hemiRandom(const Vector3& normal, Random& r = Random::common());
 
     inline float sum() const {
         return x + y + z;
@@ -436,7 +436,7 @@ public:
 
     /** Creates two orthonormal tangent vectors X and Y such that
         if Z = this, X x Y = Z.*/
-    inline void getTangents(Vector3& X, Vector3& Y) const {
+    inline void __fastcall getTangents(Vector3& X, Vector3& Y) const {
         debugAssertM(G3D::fuzzyEq(length(), 1.0f), 
                      "makeAxes requires Z to have unit length");
         
@@ -631,7 +631,7 @@ inline float& Vector3::operator[] (int i) {
 
 
 //----------------------------------------------------------------------------
-inline Vector3& Vector3::operator= (const Vector3& rkVector) {
+inline Vector3& __fastcall Vector3::operator= (const Vector3& rkVector) {
     x = rkVector.x;
     y = rkVector.y;
     z = rkVector.z;
@@ -657,36 +657,36 @@ inline bool Vector3::isFinite() const {
 }
 
 //----------------------------------------------------------------------------
-inline bool Vector3::operator== (const Vector3& rkVector) const {
+inline bool  __fastcall Vector3::operator==(const Vector3& rkVector) const {
     return ( x == rkVector.x && y == rkVector.y && z == rkVector.z );
 }
 
 //----------------------------------------------------------------------------
-inline bool Vector3::operator!= (const Vector3& rkVector) const {
+inline bool __fastcall Vector3::operator!= (const Vector3& rkVector) const {
     return ( x != rkVector.x || y != rkVector.y || z != rkVector.z );
 }
 
 //----------------------------------------------------------------------------
-inline Vector3 Vector3::operator+ (const Vector3& rkVector) const {
+inline Vector3 __fastcall Vector3::operator+ (const Vector3& rkVector) const {
     return Vector3(x + rkVector.x, y + rkVector.y, z + rkVector.z);
 }
 
 //----------------------------------------------------------------------------
-inline Vector3 Vector3::operator- (const Vector3& rkVector) const {
+inline Vector3 __fastcall Vector3::operator- (const Vector3& rkVector) const {
     return Vector3(x - rkVector.x, y - rkVector.y, z - rkVector.z);
 }
 
 //----------------------------------------------------------------------------
-inline Vector3 Vector3::operator* (const Vector3& rkVector) const {
+inline Vector3 __fastcall Vector3::operator* (const Vector3& rkVector) const {
     return Vector3(x * rkVector.x, y * rkVector.y, z * rkVector.z);
 }
 
-inline Vector3 Vector3::operator*(float f) const {
+inline Vector3 __fastcall Vector3::operator*(float f) const {
     return Vector3(x * f, y * f, z * f);
 }
 
 //----------------------------------------------------------------------------
-inline Vector3 Vector3::operator/ (const Vector3& rkVector) const {
+inline Vector3 __fastcall Vector3::operator/ (const Vector3& rkVector) const {
     return Vector3(x / rkVector.x, y / rkVector.y, z / rkVector.z);
 }
 
@@ -696,7 +696,7 @@ inline Vector3 Vector3::operator- () const {
 }
 
 //----------------------------------------------------------------------------
-inline Vector3& Vector3::operator+= (const Vector3& rkVector) {
+inline Vector3& __fastcall Vector3::operator+= (const Vector3& rkVector) {
     x += rkVector.x;
     y += rkVector.y;
     z += rkVector.z;
