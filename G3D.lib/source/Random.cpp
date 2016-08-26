@@ -10,8 +10,21 @@
  All rights reserved.
  */
 #include "G3D/Random.h"
+#include "G3D/Table.h"
 
 namespace G3D {
+
+Random& Random::threadCommon() {
+    static Table<std::thread::id, Random> table;
+    std::thread::id id = std::this_thread::get_id();
+    bool created = false;
+    Random& rng = table.getCreate(id, created);
+    if (created) {
+        rng.reset(0xF018A4D2 ^ uint32(std::hash<std::thread::id>()(id)), false);
+    }
+    return rng;
+}
+
 
 Random& Random::common() {
     static Random r;

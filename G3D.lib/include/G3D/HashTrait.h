@@ -3,9 +3,9 @@
 
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
   \created 2008-10-01
-  \edited  2011-06-09
+  \edited  2016-08-25
 
-  Copyright 2000-2015, Morgan McGuire.
+  Copyright 2000-2016, Morgan McGuire.
   All rights reserved.
  */
 
@@ -16,6 +16,8 @@
 #include "G3D/Crypto.h"
 #include "G3D/g3dmath.h"
 #include "G3D/uint128.h"
+#include <thread>
+#include <functional>
 #include <typeinfo>
 
 #include <stdint.h>
@@ -146,6 +148,7 @@ template <> struct HashTrait <G3D::uint64> {
     static size_t hashCode(G3D::uint64 k) { return static_cast<size_t>(k) ^ static_cast<size_t>(k >> 32); }
 };
 
+
 template <> struct HashTrait <G3D::int64> {
     static size_t hashCode(G3D::int64 k) { return HashTrait<G3D::uint64>::hashCode(G3D::uint64(k)); }
 };
@@ -157,6 +160,14 @@ template <> struct HashTrait <G3D::String> {
         //return static_cast<size_t>(G3D::Crypto::crc32(k.c_str(), k.size())); 
     }
 };
+
+
+template <> struct HashTrait <std::thread::id> {
+    static size_t hashCode(const std::thread::id& k) { 
+        return size_t(std::hash<std::thread::id>()(k));
+    }
+};
+
 
 template <> struct HashTrait<G3D::uint128> {
     static size_t hashCode(G3D::uint128 key) {

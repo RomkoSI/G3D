@@ -6,7 +6,7 @@
  \created 2009-01-02
  \edited  2012-07-20
 
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
 #ifndef G3D_Random_h
@@ -107,6 +107,14 @@ public:
     Random(uint32 seed = 0xF018A4D2, bool threadsafe = true);
 
     virtual ~Random();
+
+    /** Returns a non-threadsafe Random instance initialized with a thread-ID based seed for the current thread. 
+        This will always return the same instance for the same thread. Calling this repeatedly with too many threads
+        will consume resources.
+
+        Useful for efficiently and safely producing random numbers with GThread::runConcurrently.
+    */
+    static Random& threadCommon();
 
     virtual void reset(uint32 seed = 0xF018A4D2, bool threadsafe = true);
 

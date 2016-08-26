@@ -11,6 +11,7 @@
 
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
+#include <thread>
 
 class World;
 
@@ -21,9 +22,7 @@ private:
     int                 m_raysPerPixel;
 
     World*              m_world;
-
-    Array<Random>       m_rng;
-
+    
     /** Allocated by expose and render */
     shared_ptr<Texture> m_result;
 
@@ -51,7 +50,7 @@ private:
     void message(const String& msg) const;
 
     /** Trace one pixel of m_currentImage. Called on multiple threads. */
-    void trace(int x, int y, int threadID);
+    void trace(int x, int y, Random& rng);
 
 public:
 
