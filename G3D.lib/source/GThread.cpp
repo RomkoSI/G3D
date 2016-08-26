@@ -15,7 +15,7 @@
 #define TBB_IMPLEMENT_CPP0X 0
 #define __TBB_NO_IMPLICIT_LINKAGE 1
 #define __TBBMALLOC_NO_IMPLICIT_LINKAGE 1
-#include <tbb/tbb.h>
+#include "../../tbb/include/tbb/tbb.h"
 
 namespace G3D {
 
