@@ -40,7 +40,6 @@ App::App(const GApp::Settings& settings, const G3D::String& file) :
 void App::onInit() {
     GApp::onInit();
 
-
 	renderDevice->setSwapBuffersAutomatically(true);
     logPrintf("App::onInit()\n");
     createDeveloperHUD();
