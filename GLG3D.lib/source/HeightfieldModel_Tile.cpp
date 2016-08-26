@@ -19,6 +19,11 @@ HeightfieldModel::Tile::Tile(const HeightfieldModel* model, const Point2int32& t
 }
 
 
+void HeightfieldModel::Tile::setStorage(ImageStorage newStorage) {
+    m_model->m_material->setStorage(newStorage);
+}
+
+
 bool HeightfieldModel::Tile::hasTransmission() const {
     return ! m_model->m_material->bsdf()->transmissive().isBlack();
 }
