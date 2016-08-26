@@ -58,7 +58,9 @@ protected:
         ControlPointEditor* m_manipulator;
         
         ControlPointSurface(ControlPointEditor* m) : m_manipulator(m) {}
-        
+
+        virtual void setStorage(ImageStorage newStorage) override {}
+
         virtual void render
         (RenderDevice*                        rd, 
          const LightingEnvironment&           environment,

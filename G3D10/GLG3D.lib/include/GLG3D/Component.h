@@ -4,7 +4,7 @@
  \created 2009-02-19
  \edited  2012-09-04
  
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
 #ifndef G3D_Component_h
@@ -22,21 +22,21 @@
 namespace G3D {
 
 /** Used by Component */
-enum ImageStorage {
+enum ImageStorage { 
     /** Ensure that all image data is stored exclusively on the CPU. */
-    MOVE_TO_CPU, 
+    MOVE_TO_CPU = 0, 
 
     /** Ensure that all image data is stored exclusively on the GPU. */
-    MOVE_TO_GPU, 
+    MOVE_TO_GPU = 1, 
 
     /** Ensure that all image data is stored at least on the CPU. */
-    COPY_TO_CPU, 
+    COPY_TO_CPU = 2, 
 
     /** Ensure that all image data is stored at least on the GPU. */
-    COPY_TO_GPU,
+    COPY_TO_GPU = 3,
 
     /** Do not change image storage */
-    IMAGE_STORAGE_CURRENT
+    IMAGE_STORAGE_CURRENT = 4
 };
 
 

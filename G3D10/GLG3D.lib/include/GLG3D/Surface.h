@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2003-11-15
-  \edited  2015-08-12
+  \edited  2016-08-23
  */ 
 
 #ifndef GLG3D_Surface_h
@@ -18,6 +18,7 @@
 #include "G3D/CullFace.h"
 #include "G3D/lazy_ptr.h"
 #include "GLG3D/GBuffer.h"
+#include "GLG3D/Component.h"
 #include "GLG3D/LightingEnvironment.h"
 #include "GLG3D/SceneVisualizationSettings.h"
 
@@ -640,6 +641,11 @@ public:
       \param cullFace If CullFace::CURRENT, the Light::shadowCullFace is used for each light.*/
     static void renderShadowMaps(RenderDevice* rd, const Array<shared_ptr<class Light> >& lightArray, const Array<shared_ptr<Surface> >& allSurfaces, CullFace cullFace = CullFace::CURRENT);
 
+    /** Set the storage on all Materials in the array */
+    static void setStorage(const Array<shared_ptr<Surface>>& surfaceArray, ImageStorage newStorage);
+
+    virtual void setStorage(ImageStorage newStorage) = 0;
+
 protected:
 
     /**
@@ -656,12 +662,9 @@ protected:
 
 /////////////////////////////////////////////////////////////////
 
-typedef shared_ptr<class Surface2D> Surface2DRef;
-
 /** Primarily for use in GUI rendering. */
 class Surface2D : public ReferenceCountedObject {
 public:
-    typedef shared_ptr<Surface2D> Ref;
 
     /** Assumes that the RenderDevice is configured in in RenderDevice::push2D mode. */
     virtual void render(RenderDevice* rd) const = 0;
@@ -677,10 +680,10 @@ public:
     virtual float depth() const = 0;
 
     /** Sorts from farthest to nearest. */
-    static void sort(Array<Surface2DRef>& array);
+    static void sort(Array<shared_ptr<Surface2D>>& array);
 
     /** Calls sort, RenderDevice::push2D, and then render on all elements */
-    static void sortAndRender(RenderDevice* rd, Array<Surface2DRef>& array);
+    static void sortAndRender(RenderDevice* rd, Array<shared_ptr<Surface2D>>& array);
 };
 
 } // namespace G3D

@@ -129,6 +129,8 @@
 	   <li> Added default G3D::HashTrait for std::thread::id</li>
 	   <li> Added Intel Thread Building Blocks (tbb)</li>
 	   <li> Added G3D::Random::threadCommon </li>
+	   <li> G3D::Surface::setStorage </li>
+	   <li> G3D::Tri::setStorage </li>
       </ul>
     </p>
 

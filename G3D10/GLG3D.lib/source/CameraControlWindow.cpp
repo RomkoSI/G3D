@@ -436,7 +436,7 @@ CameraControlWindow::CameraControlWindow
 
 shared_ptr<CameraControlWindow> CameraControlWindow::create
 (const shared_ptr<FirstPersonManipulator>&      manualManipulator,
- const UprightSplineManipulatorRef&             trackManipulator,
+ const shared_ptr<UprightSplineManipulator>&    trackManipulator,
  const Pointer<shared_ptr<Manipulator> >&       cameraManipulator,
  const shared_ptr<Camera>&                      camera,
  const shared_ptr<Film>&                        film,

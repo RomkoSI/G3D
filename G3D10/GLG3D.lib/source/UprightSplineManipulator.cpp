@@ -35,6 +35,8 @@ private:
 
 public:
 
+    virtual void setStorage(ImageStorage newStorage) override {}
+
     UprightSplineSurface(UprightSpline* s, const Color3& c) : spline(s), color(c) {
         if (spline->control.size() > 1) {
             numVertices = spline->control.size() * 11 + 1;
@@ -222,7 +224,7 @@ UprightSplineManipulator::Mode UprightSplineManipulator::mode() const {
 
 void UprightSplineManipulator::onPose
 (Array< shared_ptr<Surface> >& posedArray, 
- Array< Surface2DRef >& posed2DArray) {
+ Array< shared_ptr<Surface2D>  >& posed2DArray) {
 
     (void)posed2DArray;
 

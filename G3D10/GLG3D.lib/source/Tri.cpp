@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-05-25
-  \edited  2016-06-26
+  \edited  2016-08-26
  */ 
 #include "GLG3D/Tri.h"
 #include "G3D/Ray.h"
@@ -15,6 +15,19 @@
 #include "GLG3D/CPUVertexArray.h"
 
 namespace G3D {
+
+void Tri::setStorage(const Array<Tri>& triArray, ImageStorage newStorage) {
+    if (newStorage != IMAGE_STORAGE_CURRENT) {
+        for (int i = 0; i < triArray.size(); ++i) {
+            const Tri& tri = triArray[i];
+            const shared_ptr<Material>& material = tri.material();
+            if (notNull(material)) {
+                material->setStorage(newStorage);
+            }
+        }
+    }
+}
+
 
 Tri::Tri(const int i0, const int i1, const int i2,
          const CPUVertexArray&       vertexArray,

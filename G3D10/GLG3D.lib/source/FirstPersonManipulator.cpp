@@ -185,7 +185,7 @@ void FirstPersonManipulator::setFrame(const CoordinateFrame& c) {
 }
 
 
-void FirstPersonManipulator::onPose(Array<shared_ptr<Surface> >& p3d, Array<Surface2DRef>& p2d) {
+void FirstPersonManipulator::onPose(Array<shared_ptr<Surface> >& p3d, Array<shared_ptr<Surface2D> >& p2d) {
 }
 
 

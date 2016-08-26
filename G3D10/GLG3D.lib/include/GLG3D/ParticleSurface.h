@@ -56,7 +56,10 @@ protected:
     static void setShaderArgs(Args & args, const Array<shared_ptr<Surface>>& surfaceArray, const bool sort, const Vector3& csz);
 
 public:
-    
+
+    /** ParticleSurface can't convert its special material to anything other than the GPU, so it just ignores this right now. */
+    virtual void setStorage(ImageStorage newStorage) override {}
+
     /** ParticleSystem is defined to act entirely transparently */
     virtual bool anyUnblended() const override {
         return false;

@@ -133,9 +133,7 @@ public:
             return notNull(boneTexture) && boneIndices.valid() && boneIndices.size() > 0 
                     && boneWeights.valid() && boneWeights.size() > 0;
         }
-
-
-
+        
         /** 
             Sets \param args index array, and the following vertex attributes:
             vec4 g3d_Vertex;
@@ -440,6 +438,9 @@ public:
      const Array<shared_ptr<Surface> >&     surfaceArray, 
      const Color4&                          color,
      bool                                   previous) const override;
+
+    virtual void setStorage(ImageStorage newStorage) override;
+
 };
 
 } // G3D

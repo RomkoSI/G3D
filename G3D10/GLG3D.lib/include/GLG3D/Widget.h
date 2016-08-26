@@ -341,7 +341,7 @@ public:
     /** Calls onPose on all children.*/
     virtual void onPose(
         Array<shared_ptr<Surface> >& posedArray, 
-        Array<Surface2DRef>& posed2DArray);
+        Array<shared_ptr<Surface2D> >& posed2DArray);
 
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
 

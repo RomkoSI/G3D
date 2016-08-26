@@ -140,7 +140,7 @@ public:
        - rgb = tangent-space normal
        - a   = bump height
      */
-    inline const MapComponent<Image4>::Ref& normalBumpMap() const {
+    inline const shared_ptr<MapComponent<Image4>>& normalBumpMap() const {
         return m_normalBump;
     }
 
