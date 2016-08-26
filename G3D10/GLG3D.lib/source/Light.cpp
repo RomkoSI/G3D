@@ -98,6 +98,7 @@ void Light::init(const String& name, AnyTableReader& propertyTable){
         tempAtt[1] = 0.0f;
         tempAtt[2] = 0.0f;
     }
+
     propertyTable.getIfPresent("attenuation",  tempAtt);
     for (int i = 0; i < 3; ++i) {
         attenuation[i] = tempAtt[i];

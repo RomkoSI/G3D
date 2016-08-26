@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2003-11-12
-  \edited  2016-02-22
+  \edited  2016-08-26
 
   G3D Innovation Engine
   Copyright 2000-2016, Morgan McGuire.
