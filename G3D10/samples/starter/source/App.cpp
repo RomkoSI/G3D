@@ -39,7 +39,6 @@ int main(int argc, const char* argv[]) {
     settings.renderer.deferredShading = true;
     settings.renderer.orderIndependentTransparency = true;
 
-
     return App(settings).run();
 }
 
