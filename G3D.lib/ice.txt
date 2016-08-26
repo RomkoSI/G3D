@@ -92,7 +92,7 @@
 
 compiler: %(defaultcompiler)s
 
-include: %(defaultinclude)s
+include: %(defaultinclude)s:../tbb/include
 
 library: %(defaultlibrary)s
 

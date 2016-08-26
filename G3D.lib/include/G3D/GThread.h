@@ -2,14 +2,13 @@
   @file GThread.h
  
   @created 2005-09-22
-  @edited  2016-08-30
+  @edited  2016-08-26
 
   Copyright 2000-2016, Morgan McGuire.
   All rights reserved.
  */
 
-#ifndef G3D_GThread_h
-#define G3D_GThread_h
+#pragma once
 
 #include "G3D/platform.h"
 #include "G3D/ReferenceCount.h"
@@ -291,7 +290,7 @@ public:
     }
 };
 
-
+#if 0
 template<class Class>
 void _internal_runConcurrently2DHelper
    (const Vector2int32& start, 
@@ -320,7 +319,7 @@ void _internal_runConcurrently2DHelper
     threadSet.waitForCompletion();
 }
 
+#endif
 
 } // namespace G3D
 
-#endif //G3D_GTHREAD_H
