@@ -22,6 +22,7 @@ protected:
 
 public:
 
+    virtual void setStorage(ImageStorage newStorage) override {}
     static shared_ptr<VisualizeCameraSurface> create(const shared_ptr<Camera>& c);
 
     virtual String name() const override;

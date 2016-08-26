@@ -30,6 +30,8 @@ protected:
 
 public:
 
+    virtual void setStorage(ImageStorage newStorage) override {}
+
     static shared_ptr<VisualizeLightSurface> create(const shared_ptr<Light>& c, bool showBounds = false);
 
     virtual bool hasTransmission() const override {

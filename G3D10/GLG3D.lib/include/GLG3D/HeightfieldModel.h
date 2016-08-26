@@ -105,6 +105,8 @@ public:
             return m_model;
         }
 
+        virtual void setStorage(ImageStorage newStorage) override;
+
         /** Allocates with System::malloc to avoid the performance
             overhead of creating lots of small heap objects using
             <code>::malloc</code>. */
