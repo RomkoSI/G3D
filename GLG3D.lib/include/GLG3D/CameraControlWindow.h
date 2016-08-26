@@ -124,18 +124,12 @@ protected:
 
     CameraControlWindow
     (const shared_ptr<FirstPersonManipulator>&    manualManipulator, 
-     const UprightSplineManipulatorRef&  trackManipulator, 
-     const Pointer<shared_ptr<Manipulator> >&    cameraManipulator,
+     const shared_ptr<UprightSplineManipulator>&  trackManipulator, 
+     const Pointer<shared_ptr<Manipulator> >&     cameraManipulator,
      const shared_ptr<Camera>&                    camera,
-     const shared_ptr<Film>&                    film,
+     const shared_ptr<Film>&                      film,
      const shared_ptr<GuiTheme>&                  theme);
-
-    /** Sets the controller for the cameraManipulator. */
-    //void setSource(Source s);
-
-    /** Control source that the Gui thinks should be in use */
-    //Source desiredSource() const;
-
+    
     void sync();
 
     void saveSpline(const String& filename);
@@ -163,11 +157,11 @@ public:
      */
     static shared_ptr<CameraControlWindow> create
        (const shared_ptr<FirstPersonManipulator>&    manualManipulator,
-        const UprightSplineManipulatorRef&  trackManipulator,
-        const Pointer<shared_ptr<Manipulator> >&   cameraManipulator,
-        const shared_ptr<Camera>&           camera,
-        const shared_ptr<Film>&             film,
-        const shared_ptr<GuiTheme>&         theme);
+        const shared_ptr<UprightSplineManipulator>&  trackManipulator,
+        const Pointer<shared_ptr<Manipulator> >&     cameraManipulator,
+        const shared_ptr<Camera>&                    camera,
+        const shared_ptr<Film>&                      film,
+        const shared_ptr<GuiTheme>&                  theme);
 
     virtual bool onEvent(const GEvent& event);
     virtual void onUserInput(UserInput*);

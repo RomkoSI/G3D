@@ -162,7 +162,7 @@ ClientRef Client::createNoGui
 }
 
 
-void Client::onPose(Array<shared_ptr<Surface> >& posedArray, Array<Surface2DRef>& posed2DArray) {
+void Client::onPose(Array<shared_ptr<Surface> >& posedArray, Array<shared_ptr<Surface2D> >& posed2DArray) {
     GuiWindow::onPose(posedArray, posed2DArray);
     if ((m_osWindow != NULL) && visible()) {
         posed2DArray.append(m_display);

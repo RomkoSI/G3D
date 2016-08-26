@@ -67,15 +67,7 @@ void TriTreeBase::setContents
     m_triArray = triArray;
     m_vertexArray.copyFrom(vertexArray);
    
-    if (newStorage != IMAGE_STORAGE_CURRENT) {
-        for (int i = 0; i < m_triArray.size(); ++i) {
-            const Tri& tri = m_triArray[i];
-            const shared_ptr<Material>& material = tri.material();
-            if (notNull(material)) {
-                material->setStorage(newStorage);
-            }
-        }
-    }
+    Tri::setStorage(m_triArray, newStorage);
 }
 
 
@@ -109,16 +101,16 @@ void TriTreeBase::intersectBox
     Array<Tri>&            results) const {
 
     results.fastClear();
-    Spinlock boxLock;
+    Spinlock resultLock;
     GThread::runConcurrently(0, m_triArray.size(), [&](int t) {
         const Tri& tri = m_triArray[t];
         if ((tri.area() > 0.0f) &&
             CollisionDetection::fixedSolidBoxIntersectsFixedTriangle(box, Triangle(tri.position(m_vertexArray, 0), 
                                                                                    tri.position(m_vertexArray, 1), 
                                                                                    tri.position(m_vertexArray, 2)))) {
-            boxLock.lock();
+            resultLock.lock();
             results.append(tri);
-            boxLock.unlock();
+            resultLock.unlock();
         }
     });
 }

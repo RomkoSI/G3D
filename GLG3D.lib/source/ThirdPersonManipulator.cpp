@@ -359,6 +359,8 @@ protected:
 
 public:
 
+    virtual void setStorage(ImageStorage newStorage) override {}
+
     virtual bool requiresBlending() const override {
         return true;
     }
@@ -645,7 +647,7 @@ CoordinateFrame ThirdPersonManipulator::frame() const {
 
 void ThirdPersonManipulator::onPose(
     Array<shared_ptr<Surface> >& posedArray, 
-    Array<Surface2DRef>& posed2DArray) {
+    Array<shared_ptr<Surface2D> >& posed2DArray) {
 
     if (m_enabled) {
         (void)posed2DArray;

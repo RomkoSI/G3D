@@ -4,9 +4,9 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2004-11-20
-  \edited  2015-09-10
+  \edited  2016-08-26
 
-  Copyright 2001-2015, Morgan McGuire
+  Copyright 2001-2016, Morgan McGuire
  */
 #include "G3D/Log.h"
 #include "G3D/constants.h"
@@ -23,7 +23,12 @@
 #include "GLG3D/LightingEnvironment.h"
 #include "GLG3D/SVO.h"
 #include "G3D/AreaMemoryManager.h"
+
 namespace G3D {
+
+void UniversalSurface::setStorage(ImageStorage newStorage) {
+    m_material->setStorage(newStorage);
+}
 
 
 bool UniversalSurface::canBeFullyRepresentedInGBuffer(const GBuffer::Specification& specification) const {

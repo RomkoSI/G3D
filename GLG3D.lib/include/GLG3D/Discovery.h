@@ -257,7 +257,7 @@ public:
     }
 
     virtual bool onEvent(const GEvent& event);
-    virtual void onPose(Array<shared_ptr<Surface> >& posedArray, Array<Surface2DRef>& posed2DArray);
+    virtual void onPose(Array<shared_ptr<Surface> >& posedArray, Array<shared_ptr<Surface2D> >& posed2DArray);
 };
 
 

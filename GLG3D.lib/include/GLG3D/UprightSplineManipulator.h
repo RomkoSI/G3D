@@ -22,17 +22,15 @@
 
 namespace G3D {
 
-typedef shared_ptr<class UprightSplineManipulator> UprightSplineManipulatorRef;
 
 /**
  Allows recording and playback of a G3D::UprightSpline based on a G3D::Camera.
  Used by G3D::CameraControlWindow.
 
- @sa G3D::UprightFrame, G3D::UprightSpline, G3D::FirstPersonManipulator
+ \sa G3D::UprightFrame, G3D::UprightSpline, G3D::FirstPersonManipulator
  */
 class UprightSplineManipulator : public Manipulator {
 public:
-    typedef shared_ptr<class UprightSplineManipulator> Ref;
     
     /**
        RECORD_INTERVAL_MODE: Automatically add one frame per
@@ -78,7 +76,7 @@ protected:
     UprightSplineManipulator& operator=(const UprightSplineManipulator&);
 public:
     
-    static Ref create(const shared_ptr<class Camera>& c = shared_ptr<Camera>());
+    static shared_ptr<UprightSplineManipulator> create(const shared_ptr<class Camera>& c = shared_ptr<Camera>());
     
     virtual void onNetwork() {}
     virtual void onAI() {}
@@ -167,10 +165,11 @@ public:
 
     virtual CoordinateFrame frame() const;
     virtual void getFrame(CoordinateFrame &c) const;
-    virtual void onPose(Array< shared_ptr<Surface> > &posedArray, Array< Surface2DRef > &posed2DArray);
+    virtual void onPose(Array< shared_ptr<Surface> > &posedArray, Array< shared_ptr<Surface2D> >& posed2DArray);
     virtual bool onEvent (const GEvent &event);
     virtual void onSimulation (RealTime rdt, SimTime sdt, SimTime idt);
     virtual void onUserInput (UserInput *ui);
+
     
 };
 

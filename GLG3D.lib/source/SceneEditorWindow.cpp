@@ -45,6 +45,8 @@ public:
         Draw::physicsFrameSpline(m_editor->spline(), rd);
     }
 
+    virtual void setStorage(ImageStorage newStorage) override {}
+
     virtual bool anyUnblended() const override {
         return true;
     }

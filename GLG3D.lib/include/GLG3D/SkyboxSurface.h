@@ -42,6 +42,9 @@ public:
         If the textures are Texture::DIM_2D, then they are passed as spherical-coordinate maps. Otherwise they are assumed to be cube maps. */
     static shared_ptr<SkyboxSurface> create(const shared_ptr<Texture>& texture0, const shared_ptr<Texture>& texture1 = shared_ptr<Texture>(), float alpha = 0.0f);
 
+    /** SkyboxSurface uses raw textures instead of materials, so they can't be converted to non-GPU formats and this is just ignored. */
+    virtual void setStorage(ImageStorage newStorage) override {}
+
     static void setShaderGeometryArgs(RenderDevice* rd, Args& args);
 
     virtual bool requiresBlending() const override {

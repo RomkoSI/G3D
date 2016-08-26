@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2003-11-15
-  \edited  2015-09-15
+  \edited  2016-08-26
  */ 
 
 #include "G3D/Sphere.h"
@@ -52,6 +52,12 @@ Any Surface::ExpressiveLightScatteringProperties::toAny() const {
 
 
 bool ignoreBool;
+
+void Surface::setStorage(const Array<shared_ptr<Surface>>& surfaceArray, ImageStorage newStorage) {
+    for (int i = 0; i < surfaceArray.size(); ++i) {
+        surfaceArray[i]->setStorage(newStorage);
+    }
+}
 
 
 RealTime Surface::lastChangeTime() const {

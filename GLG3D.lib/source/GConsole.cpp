@@ -105,7 +105,7 @@ void GConsole::setActive(bool a) {
 }
 
 
-void GConsole::onPose(Array<shared_ptr<Surface> >& posedArray, Array<Surface2DRef>& posed2DArray) {
+void GConsole::onPose(Array<shared_ptr<Surface> >& posedArray, Array<shared_ptr<Surface2D> >& posed2DArray) {
     if (m_active) {
         posed2DArray.append(dynamic_pointer_cast<Surface2D>(shared_from_this()));
     }

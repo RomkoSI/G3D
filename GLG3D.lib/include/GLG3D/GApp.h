@@ -847,7 +847,7 @@ protected:
     RealTime               m_now, m_lastTime;
 
     Array<shared_ptr<Surface> >   m_posed3D;
-    Array<Surface2DRef>           m_posed2D;
+    Array<shared_ptr<Surface2D> > m_posed2D;
 
 protected:
 

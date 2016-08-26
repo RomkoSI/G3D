@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2008-08-10
-  \edited  2016-07-05
+  \edited  2016-08-26
 */
 #ifndef GLG3D_Tri_h
 #define GLG3D_Tri_h
@@ -20,6 +20,7 @@
 #include "G3D/ReferenceCount.h"
 #include "G3D/Triangle.h"
 #include "G3D/lazy_ptr.h"
+#include "GLG3D/Component.h"
 #include "GLG3D/CPUVertexArray.h"
 
 namespace G3D {
@@ -27,6 +28,7 @@ class Ray;
 class Material;
 class Surfel;
 class Surface;
+
 
 /**
  \brief Triangle implementation optimized for ray-triangle intersection.  
@@ -210,6 +212,9 @@ public:
     bool hasPartialCoverage() const;
 
     shared_ptr<Surfel> sample(float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backface) const;
+
+    /** Set the storage on all Materials in the array */
+    static void setStorage(const Array<Tri>& triArray, ImageStorage newStorage);
 
 };// G3D_END_PACKED_CLASS(4)
 } // namespace G3D
