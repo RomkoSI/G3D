@@ -75,7 +75,8 @@ def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True, actuall
     
     if source == dest:
         # Copying in place
-        print('copyIfNewer: Copying in place...nothing to do')
+        #print('copyIfNewer: Copying in place...nothing to do')
+        1 # some statement
 
     elif ('*' in source) or ('?' in source):
         # expand wildcards
