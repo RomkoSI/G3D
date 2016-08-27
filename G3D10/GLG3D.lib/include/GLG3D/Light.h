@@ -54,6 +54,7 @@ typedef Spline<Power3> Power3Spline;
         varianceShadowSettings = ShadowMap::VSMSettings;
         enabled      = bool;
         spotSquare   = bool;
+        spotHardness = float; // 0 = cosine falloff, 1 (default) = step function falloff
         attenuation  = [number number number];
         bulbPower    = Power3; (for a spot or omni light)
         bulbPowerTrack = Power3Spline { ... };
@@ -139,6 +140,24 @@ protected:
         when used with a G3D::ShadowMap.  for an unshadowed light this
         has no effect.*/
     bool                m_spotSquare;
+
+    /** 1 = hard cutoff (default). 0 = cosine falloff within cone (like photoshop's brush hardness)
+       
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       float t = dir.dot(lightDir) - cosHalfAngle;       
+       t  /= 1 - cosHalfAngle; // On [0, 1]
+       float softness = (1 - hardness);
+
+       // Avoid Nan from 0/0
+       float brightness = clamp(t / (softness + eps), 0, 1);
+
+       //////////////////////////////////////////
+       // Using precomputed values:
+       const float lightSoftnessConstant = 1.0 / ((1 - hardness + eps) * (1 - cosHalfAngle));
+       float brightness = clamp((dir.dot(lightDir) - cosHalfAngle) * lightSoftnessConstant, 0, 1);
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      */
+    float               m_spotHardness;
 
     bool                m_castsShadows;
 
@@ -242,6 +261,15 @@ public:
 
     bool enabled() const {
         return m_enabled;
+    }
+
+    /** Like Photoshop brush hardness. 1.0 = abrupt cutoff at the half angle (default), 0.0 = gradual falloff within the cone.*/
+    float spotHardness() const {
+        return m_spotHardness;
+    }
+
+    void setSpotHardness(float f) {
+        m_spotHardness = clamp(f, 0.0f, 1.0f);
     }
 
     /** For a SPOT or OMNI light, the power of the bulb.  A SPOT light also has "barn doors" that

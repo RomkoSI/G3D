@@ -108,13 +108,17 @@ L_in *= 0.2; // TODO: remove. This temporarily turns off environment light
 
 #   for (int I = 0; I < NUM_LIGHTS; ++I)
     {
-        float brightness = 1.0;
-
         Vector3 w_i = light$(I)_position.xyz - wsPosition;
         float  lightDistance = length(w_i);
         w_i /= lightDistance;
 
-        if (inLightFieldOfView(w_i, light$(I)_direction, light$(I)_right, light$(I)_up, light$(I)_rectangular, light$(I)_attenuation.w)) {
+        float brightness = light$(I)_position.w * spotLightFalloff(w_i, light$(I)_direction, light$(I)_right, light$(I)_up, 
+            light$(I)_rectangular, light$(I)_attenuation.w, light$(I)_softnessConstant);
+
+        // Directional light has no falloff
+        // attenuation += 1.0 - lightPosition.w;
+
+        if (brightness > 0.0) {
             brightness /= (4.0 * pi * dot(float3(1.0, lightDistance, lightDistance * lightDistance), light$(I)_attenuation.xyz));
 
             // Heavily-biased wrap shading to create some directional variation

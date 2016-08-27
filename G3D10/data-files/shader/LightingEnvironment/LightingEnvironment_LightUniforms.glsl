@@ -26,6 +26,8 @@
     /** w element is the spotlight cutoff angle.*/
     uniform vec4        light$(I)_attenuation;
 
+    uniform float       light$(I)_softnessConstant;
+
     /** Is this spotlight's field of view rectangular (instead of round)? */
     uniform bool        light$(I)_rectangular;
 
@@ -58,6 +60,7 @@
 
   light$(I)_position
   light$(I)_attenuation
+  light$(I)_softnessConstant 
   light$(I)_direction
   light$(I)_up
   light$(I)_right
@@ -85,7 +88,7 @@ void computeDirectLighting(Vector3 n, Vector3 glossyN, Vector3 w_o, Vector3 n_fa
         lightSpaceZ = -dot(light$(I)_direction.xyz, adjustedWSPos - light$(I)_position.xyz);
 
         addVarianceShadowedLightContribution(n, glossyN, w_o, wsPosition, glossyExponent,
-            light$(I)_position, light$(I)_attenuation, light$(I)_direction, light$(I)_up, light$(I)_right, light$(I)_rectangular, light$(I)_radius, light$(I)_color,
+            light$(I)_position, light$(I)_attenuation, light$(I)_softnessConstant, light$(I)_direction, light$(I)_up, light$(I)_right, light$(I)_rectangular, light$(I)_radius, light$(I)_color,
             shadowCoord, lightSpaceZ, light$(I)_shadowMap_variance_lightBleedReduction, light$(I)_shadowMap_variance_buffer, light$(I)_shadowMap_variance_invSize.xy,
             n_face, backside,
             E_lambertian, E_glossy, w_i);
@@ -98,13 +101,13 @@ void computeDirectLighting(Vector3 n, Vector3 glossyN, Vector3 w_o, Vector3 n_fa
                 // glancing angles are ok.
                 vec4 shadowCoord = light$(I)_shadowMap_MVP * vec4(wsPosition + w_o * (1.5 * light$(I)_shadowMap_bias) + n_face * (backside * 0.5 * light$(I)_shadowMap_bias), 1.0);
                 addShadowedLightContribution(n, glossyN, w_o, wsPosition, glossyExponent,
-                    light$(I)_position, light$(I)_attenuation, light$(I)_direction, light$(I)_up, light$(I)_right, light$(I)_rectangular, light$(I)_radius, light$(I)_color, 
+                    light$(I)_position, light$(I)_attenuation, light$(I)_softnessConstant, light$(I)_direction, light$(I)_up, light$(I)_right, light$(I)_rectangular, light$(I)_radius, light$(I)_color, 
                     light$(I)_stochasticShadows, shadowCoord, light$(I)_shadowMap_buffer, light$(I)_shadowMap_invSize.xy,
                     n_face, backside,
                     E_lambertian, E_glossy, w_i);
 #           else
             addLightContribution(n, glossyN, w_o, wsPosition, glossyExponent,
-                light$(I)_position, light$(I)_attenuation, light$(I)_direction, light$(I)_up, light$(I)_right, light$(I)_rectangular, light$(I)_radius, light$(I)_color, 
+                light$(I)_position, light$(I)_attenuation, light$(I)_softnessConstant, light$(I)_direction, light$(I)_up, light$(I)_right, light$(I)_rectangular, light$(I)_radius, light$(I)_color, 
                 n_face, backside, E_lambertian, E_glossy, w_i);
 #           endif
 #       endif
