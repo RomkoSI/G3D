@@ -406,21 +406,17 @@ def libTarget():
         x = VisualStudio('VisualStudio/G3D.sln', ['External Libraries\\freeimage.lib', 'External Libraries\\zlib.lib', 'External Libraries\\zip.lib', 'External Libraries\\civetweb.lib', 'External Libraries\\qrencode.lib', 'G3D.lib', 'GLG3D.lib', 'GLG3DVR.lib', 'External Libraries\\enet.lib', 'External Libraries\\glfw.lib', 'External Libraries\\glew.lib']);
 
     else:
-
+        if not os.path.exists('build') : os.mkdir('build')
+        os.chdir('build')
+        if not os.path.exists('bin') : os.mkdir('bin')
+        if not os.path.exists('lib') : os.mkdir('lib')
+        os.chdir('..')
+        
         if (x == 0) and osx:
-          if not os.path.exists('build') : os.mkdir('build')
-          os.chdir('build')
-          if not os.path.exists('bin') : os.mkdir('bin')
-          if not os.path.exists('lib') : os.mkdir('lib')
-          os.chdir('..')
-          copyIfNewer('fmod/bin-osx/libfmod.dylib', 'build/bin/libfmod.dylib')
-          copyIfNewer('fmod/bin-osx/libfmod.dylib', 'build/lib/libfmod.dylib')
-
-          # TBB libraries are precompiled binaries
+          copyIfNewer('fmod/bin-osx/libfmod.dylib', 'build/bin/')
           copyIfNewer('tbb/osx/bin/*', 'build/bin/')
 
         if linux:
-          # TBB libraries are precompiled binaries
           copyIfNewer('tbb/linux/bin/*', 'build/bin/')
 
         if osx or linux:
