@@ -382,30 +382,31 @@ def buildNativeFFmpeg():
 def libTarget():
     x = 0
 
+    copyIfNewer('tbb/include/*', 'build/include/')
+
     if windows:
         copyIfNewer('ffmpeg/windows/bin64/*', 'build/bin/')
         copyIfNewer('fmod/lib-windows/fmod*_vc.lib', 'build/lib/')
         copyIfNewer('fmod/bin-windows/fmod64.dll', 'build/bin/')
 
-		# PhysX libraries are precompiled binaries
+        # PhysX libraries are precompiled binaries
         copyIfNewer('physx/include/*', 'build/include/')
         copyIfNewer('physx/win64/lib/*', 'build/lib/')
         copyIfNewer('physx/win64/bin/*', 'build/bin/')
 
-		# OpenVR libraries are precompiled binaries
+        # OpenVR libraries are precompiled binaries
         copyIfNewer('openvr/include/*', 'build/include/')
         copyIfNewer('openvr/win64/lib/*', 'build/lib/')
         copyIfNewer('openvr/win64/bin/*', 'build/bin/')
 
-		# TBB libraries are precompiled binaries
-        copyIfNewer('tbb/include/*', 'build/include/')
+        # TBB libraries are precompiled binaries
         copyIfNewer('tbb/win64/lib/*', 'build/lib/')
         copyIfNewer('tbb/win64/bin/*', 'build/bin/')
 
         x = VisualStudio('VisualStudio/G3D.sln', ['External Libraries\\freeimage.lib', 'External Libraries\\zlib.lib', 'External Libraries\\zip.lib', 'External Libraries\\civetweb.lib', 'External Libraries\\qrencode.lib', 'G3D.lib', 'GLG3D.lib', 'GLG3DVR.lib', 'External Libraries\\enet.lib', 'External Libraries\\glfw.lib', 'External Libraries\\glew.lib']);
 
     else:
-        copyIfNewer('tbb/include/*', 'build/include/')
+
         if (x == 0) and osx:
           if not os.path.exists('build') : os.mkdir('build')
           os.chdir('build')

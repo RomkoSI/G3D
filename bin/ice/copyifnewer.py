@@ -3,7 +3,7 @@
 #
 from __future__ import print_function
 
-import re, string
+import re, string, glob
 from .utils import *
 
 _excludeDirPatterns = \
@@ -79,35 +79,43 @@ def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True, actuall
     
     if source == dest:
         # Copying in place
-        #print 'Copying in place: nothing to do'
+        print('copyIfNewer: Copying in place..nothing to do')
         return []
 
-    dest = removeTrailingSlash(dest)
+    elif ('*' in source) or ('?' in source):
+        # expand wildcards
+        r = []
+        for s in glob.glob(source):
+            r += copyIfNewer(s, dest, echoCommands, echoFilenames, actuallyCopy)
+        _copyIfNewerCopiedAnything = r
 
-    if (not os.path.exists(source)):
-        # Source does not exist
-        #print 'Source does not exist: nothing to do'
-        return []
-
-    if (not os.path.isdir(source) and newer(source, dest)):
-        if echoCommands: 
-            colorPrint('cp ' + source + ' ' + dest, COMMAND_COLOR)
-        elif echoFilenames:
-            print(source)
-        
-        if actuallyCopy:
-            shutil.copyfile(source, dest)
-                
-        _copyIfNewerCopiedAnything += [source]
-        
     else:
-        # Walk is a special iterator that visits all of the
-        # children and executes the 2nd argument on them.  
-        for dirpath, subdirs, filenames in os.walk(source):
-              _copyIfNewerVisit([len(source), dest, echoCommands, echoFilenames, actuallyCopy], dirpath, filenames, subdirs)
+        dest = removeTrailingSlash(dest)
 
-    if len(_copyIfNewerCopiedAnything) == 0 and echoCommands:
-        print(dest + ' is up to date with ' + source)
+        if not os.path.exists(source):
+            # Source does not exist
+            print('copyIfNewer: Source (' + source + ') does not exist. Nothing to do')
+            return []
+
+            if (not os.path.isdir(source) and newer(source, dest)):
+                if echoCommands: 
+                    colorPrint('cp ' + source + ' ' + dest, COMMAND_COLOR)
+                elif echoFilenames:
+                    print(source)
+        
+            if actuallyCopy:
+                shutil.copyfile(source, dest)
+                
+            _copyIfNewerCopiedAnything += [source]
+        
+        else:
+            # Walk is a special iterator that visits all of the
+            # children and executes the 2nd argument on them.  
+            for dirpath, subdirs, filenames in os.walk(source):
+                _copyIfNewerVisit([len(source), dest, echoCommands, echoFilenames, actuallyCopy], dirpath, filenames, subdirs)
+
+        if len(_copyIfNewerCopiedAnything) == 0 and echoCommands:
+            print(dest + ' is up to date with ' + source)
         
     return _copyIfNewerCopiedAnything
     
