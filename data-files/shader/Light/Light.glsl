@@ -99,6 +99,7 @@ float varianceShadowMapVisibility(vec4 shadowCoord, float lightSpaceZ, sampler2D
 /** Below this value, attenuation is treated as zero. This is non-zero only to avoid numerical imprecision. */
 const float attenuationThreshold = 2e-17;
 
+#if 0 // TODO: Delete
 /** Returns true if the vector w_i (which points at the light's center) is within the field of view of this light source. */
 bool inLightFieldOfView
    (vec3                w_i, 
@@ -123,16 +124,46 @@ bool inLightFieldOfView
         return dot(lightLookVector, w_i) <= -cosFOV + 1e-5;
     }
 }
+#endif
+
+/** Returns a number between 0 and 1 for how the light falls off due to the spot light's cone*/
+float spotLightFalloff
+   (vec3                w_i, 
+    vec3                lightLookVector, 
+    vec3                lightRightVector, 
+    vec3                lightUpVector,
+    bool                rectangular,
+    float               cosHalfAngle,
+    float               lightSoftnessConstant) {
+
+    // When the light field of view is very small, we need to be very careful with precision 
+    // on the computation below, so there are epsilon values in the comparisons.
+    if (rectangular) {
+        // Project wi onto the light's xz-plane and then normalize
+        vec3 w_horizontal = normalize(w_i - dot(w_i, lightRightVector) * lightRightVector);
+        vec3 w_vertical   = normalize(w_i - dot(w_i, lightUpVector)    * lightUpVector);
+
+        // Now test against the view cone in each of the planes 
+        return
+            float(dot(w_horizontal, lightLookVector) <= -cosHalfAngle + 1e-5) *
+            float(dot(w_vertical,   lightLookVector) <= -cosHalfAngle + 1e-5);
+    } else {
+        return clamp((-dot(lightLookVector, w_i) - cosHalfAngle) * lightSoftnessConstant, 0.0, 1.0);
+            
+//            dot(lightLookVector, w_i) <= -cosFOV + 1e-5;
+    }
+}
 
 
 /** Computes attenuation due to backface or radial falloff.
-    \return vec2(subsurface/diffuse, surface/glossy)  
+    \return vec2(subsurfacediffuse, surfaceglossy)  
 */
 vec2 computeAttenuation
   (in vec3              n, 
    in vec3              glossyN,
    in vec4              lightPosition, 
    in vec4              lightAttenuation, 
+   in float             lightSoftnessConstant,
    in vec3              wsPosition, 
    in vec3              lightLook, 
    in vec3              lightUpVector, 
@@ -147,6 +178,14 @@ vec2 computeAttenuation
     float lightDistance = max(lightRadius, length(w_i));
     w_i = normalize(w_i);
 
+    float attenuation = lightPosition.w * spotLightFalloff(w_i, lightLook, lightRightVector, lightUpVector, lightRectangular, lightAttenuation.w, lightSoftnessConstant);
+    attenuation /= 4.0 * pi * dot(vec3(1.0, lightDistance, lightDistance * lightDistance), lightAttenuation.xyz);
+
+    // Directional light has no falloff
+    attenuation += 1.0 - lightPosition.w;
+
+    /*
+    TODO: Delete
     float attenuation =
         lightPosition.w *
 
@@ -156,7 +195,11 @@ vec2 computeAttenuation
          (1.0 / (4.0 * pi * dot( vec3(1.0, lightDistance, lightDistance * lightDistance), lightAttenuation.xyz) )) : 
          
          // Outside spotlight cone
-         0.0) + (1.0 - lightPosition.w);
+         0.0) + 
+        
+        // Directional light has no falloff
+        (1.0 - lightPosition.w);
+        */
 
 #   ifdef HAS_NORMAL_BUMP_MAP
         // For a bump mapped surface, do not allow illumination on the back side even if the
@@ -205,6 +248,7 @@ void addLightContribution
     in float            glossyExponent, 
     in vec4             lightPosition, 
     in vec4             lightAttenuation,
+    in float            lightSoftnessConstant,
     in vec3             lightLook, 
     in vec3             lightUpVector, 
     in vec3             lightRightVector, 
@@ -218,7 +262,7 @@ void addLightContribution
     out vec3            w_i) {
 
     // vec2(subsurface/diffuse, surface/glossy)  
-    vec2 attenuation = computeAttenuation(n, glossyN, lightPosition, lightAttenuation, wsPosition, lightLook, lightUpVector, lightRightVector, lightRectangular, lightRadius, tan_Z, backside, w_i);
+    vec2 attenuation = computeAttenuation(n, glossyN, lightPosition, lightAttenuation, lightSoftnessConstant, wsPosition, lightLook, lightUpVector, lightRightVector, lightRectangular, lightRadius, tan_Z, backside, w_i);
 
     if (max(attenuation.x, attenuation.y) >= attenuationThreshold) {
         computeShading(n, glossyN, wsE, attenuation, glossyExponent, lightColor, I_lambertian, I_glossy, w_i);
@@ -234,6 +278,7 @@ void addShadowedLightContribution
     in float            glossyExponent,
     in vec4             lightPosition,
     in vec4             lightAttenuation,
+    in float            lightSoftnessConstant,
     in vec3             lightLook,
     in vec3             lightUpVector, 
     in vec3             lightRightVector, 
@@ -250,7 +295,7 @@ void addShadowedLightContribution
     inout vec3          I_glossy, 
     out vec3            w_i) {
 
-    vec2 attenuation = computeAttenuation(n, glossyN, lightPosition, lightAttenuation, wsPosition, lightLook, lightUpVector, lightRightVector, lightRectangular, lightRadius, tan_Z, backside, w_i);
+    vec2 attenuation = computeAttenuation(n, glossyN, lightPosition, lightAttenuation, lightSoftnessConstant, wsPosition, lightLook, lightUpVector, lightRightVector, lightRectangular, lightRadius, tan_Z, backside, w_i);
 
     if (max(attenuation.x, attenuation.y) >= attenuationThreshold) {
         // The following call assumes that attenuation is non-zero
@@ -275,6 +320,7 @@ void addVarianceShadowedLightContribution
     in float            glossyExponent,
     in vec4             lightPosition,
     in vec4             lightAttenuation,
+    in float            lightSoftnessConstant,
     in vec3             lightLook,
     in vec3             lightUpVector,
     in vec3             lightRightVector,
@@ -292,7 +338,7 @@ void addVarianceShadowedLightContribution
     inout vec3          I_glossy,
     out vec3            w_i) {
 
-    vec2 attenuation = computeAttenuation(n, glossyN, lightPosition, lightAttenuation, wsPosition, lightLook, lightUpVector, lightRightVector, lightRectangular, lightRadius, tan_Z, backside, w_i);
+    vec2 attenuation = computeAttenuation(n, glossyN, lightPosition, lightAttenuation, lightSoftnessConstant, wsPosition, lightLook, lightUpVector, lightRightVector, lightRectangular, lightRadius, tan_Z, backside, w_i);
 
     if (max(attenuation.x, attenuation.y) >= attenuationThreshold) {
         // The following call assumes that attenuation is non-zero

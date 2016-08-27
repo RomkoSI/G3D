@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2003-11-12
-  \edited  2016-02-22
+  \edited  2016-08-26
 */
 #include "G3D/Sphere.h"
 #include "G3D/CoordinateFrame.h"
@@ -68,12 +68,13 @@ void Light::init(const String& name, AnyTableReader& propertyTable){
         }
     }
 
+    propertyTable.getIfPresent("spotHardness", m_spotHardness);
     propertyTable.getIfPresent("producesIndirectIllumination", m_producesIndirectIllumination);
     propertyTable.getIfPresent("producesDirectIllumination", m_producesDirectIllumination);
 
     propertyTable.getIfPresent("enabled",       m_enabled);
     
-    float spotHalfAngleDegrees = 180;
+    float spotHalfAngleDegrees = 180.0f;
     propertyTable.getIfPresent("spotHalfAngleDegrees", spotHalfAngleDegrees);
     m_spotHalfAngle = toRadians(spotHalfAngleDegrees);
 
@@ -286,10 +287,16 @@ Any Light::toAny(const bool forceAll) const {
         a["attenuation"] = tempAtt; 
     }
 
-    float spotHalfAngleDegrees;
+    float spotHalfAngleDegrees = 180.0f;
     oldValues.getIfPresent("spotHalfAngleDegrees", spotHalfAngleDegrees);
-    if ( m_spotHalfAngle != toRadians(spotHalfAngleDegrees) ) {
+    if (m_spotHalfAngle != toRadians(spotHalfAngleDegrees) ) {
         a["spotHalfAngleDegrees"] = toDegrees(m_spotHalfAngle);
+    }
+
+    float spotHardness = 1.0f;
+    oldValues.getIfPresent("spotHardness", spotHardness);
+    if (m_spotHardness != spotHardness) {
+        a["spotHardness"] = m_spotHardness;
     }
 
     bool castsShadows = false;
@@ -310,20 +317,19 @@ Any Light::toAny(const bool forceAll) const {
         a["varianceShadowSettings"] = vsmSettings;
     }
 
-
-    bool enabled;
+    bool enabled = true;
     oldValues.getIfPresent("enabled", enabled); 
-    if ( m_enabled != enabled ) {
+    if (m_enabled != enabled) {
         a["enabled"] = m_enabled;
     }
 
-    bool producesIndirect;
+    bool producesIndirect = true;
     oldValues.getIfPresent("producesIndirectIllumination", producesIndirect);
     if ( m_producesIndirectIllumination != producesIndirect ) {
         a["producesIndirectIllumination"] = m_producesIndirectIllumination;
     }
 
-    bool producesDirect;
+    bool producesDirect  = true;
     oldValues.getIfPresent("producesDirectIllumination", producesDirect);
     if ( m_producesDirectIllumination != producesDirect ) {
         a["producesDirectIllumination"] = m_producesDirectIllumination;
@@ -337,6 +343,7 @@ Light::Light() :
     m_type(Type::DIRECTIONAL),
     m_spotHalfAngle(pif()),
     m_spotSquare(false),
+    m_spotHardness(1.0f),
     m_castsShadows(true),
     m_stochasticShadows(false),
     m_varianceShadowSettings(),
@@ -356,7 +363,7 @@ Light::Light() :
 }
 
 
-void Light::setFrame(const CFrame& c) {
+void Light::setFrame(const CoordinateFrame& c) {
     Entity::setFrame(c);
     if (m_type == Type::DIRECTIONAL) {
         const Vector3& v = -m_frame.lookVector();
@@ -529,19 +536,24 @@ void Light::setShaderArgs(UniformTable& args, const String& prefix) const {
     args.setUniform(prefix + "up",          frame().upVector());
     args.setUniform(prefix + "right",       frame().rightVector());
     
-    float cosThresh = -1;
+    float cosHalfAngle = -1;
 
     if (spotHalfAngle() < pif()) {
         // Spot light
         const float angle = spotHalfAngle();
-        cosThresh = cos(angle);
+        cosHalfAngle = cos(angle);
     }
 
-    args.setUniform(prefix + "attenuation", 
-        Vector4(attenuation[0], 
-                attenuation[1], 
-                attenuation[2], 
-                cosThresh));
+    const float epsilon = 1e-10f;
+    const float lightSoftnessConstant = 1.0 / ((1.0 - m_spotHardness + epsilon) * (1 - cosHalfAngle));
+
+    args.setUniform(prefix + "attenuation",
+        Vector4(attenuation[0],
+            attenuation[1],
+            attenuation[2],
+            cosHalfAngle));
+
+    args.setUniform(prefix + "softnessConstant", lightSoftnessConstant);
 
     const float lightRadius = m_extent.length() / 2.0f;
     args.setUniform(prefix + "radius", lightRadius);
