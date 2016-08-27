@@ -415,6 +415,8 @@ def libTarget():
         if (x == 0) and osx:
           copyIfNewer('fmod/bin-osx/libfmod.dylib', 'build/bin/')
           copyIfNewer('tbb/osx/bin/*', 'build/bin/')
+          copyIfNewer('fmod/bin-osx/libfmod.dylib', 'build/lib/')
+          copyIfNewer('tbb/osx/bin/*', 'build/lib/')
 
         if linux:
           copyIfNewer('tbb/linux/bin/*', 'build/bin/')
