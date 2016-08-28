@@ -4,10 +4,6 @@
 #define LightingEnvironment_environmentMapUniforms_glsl
 #extension GL_ARB_texture_query_lod : enable
 
-#if defined(GL_ARB_texture_query_lod) && (__VERSION__ < 400)
-#    define textureQueryLod textureQueryLOD
-#endif
-
 #include <g3dmath.glsl>
 
 #expect NUM_ENVIRONMENT_MAPS "integer for number of environment maps to be blended"
@@ -62,7 +58,7 @@ Color3 computeGlossyEnvironmentMapLighting(Vector3 wsR, bool isMirror, float glo
 #   for (int e = 0; e < NUM_ENVIRONMENT_MAPS; ++e)
     {
         float MIPlevel = isMirror ? 0.0 : (environmentMap$(e)_glossyMIPConstant + MIPshift);
-#       if (__VERSION__ >= 400) || (defined(GL_ARB_texture_query_lod) && ! defined(G3D_OSX))
+#       if ((__VERSION__ >= 400) || defined(GL_ARB_texture_query_lod)) && (G3D_SHADER_STAGE == G3D_FRAGMENT_SHADER)
             MIPlevel = max(MIPlevel, textureQueryLod(environmentMap$(e)_buffer, wsR).y);
 #       endif
         E_glossyAmbient += 

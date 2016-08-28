@@ -6,11 +6,11 @@
  support for some HLSL types and functions.
  */      
 #if __VERSION__ < 400
-    #define textureQueryLod textureQueryLOD
+#    define textureQueryLod textureQueryLOD
 #endif
 
 #if __VERSION__ < 410
-#extension GL_ARB_separate_shader_objects : enable
+#    extension GL_ARB_separate_shader_objects : enable
 #endif
 
 /*
