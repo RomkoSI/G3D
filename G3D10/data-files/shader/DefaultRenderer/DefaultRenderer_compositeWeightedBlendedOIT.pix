@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 410
 
 /** This shader corresponds to listing 2 of:
 

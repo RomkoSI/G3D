@@ -1,4 +1,4 @@
-#version 330 // -*- c++ -*-
+#version 410 // -*- c++ -*-
 /** \file DefaultRenderer_deferredShade.pix */
 #extension GL_ARB_texture_query_lod : enable
 #include <compatibility.glsl>
