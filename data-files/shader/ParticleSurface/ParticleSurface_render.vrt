@@ -1,4 +1,4 @@
-#version 330 // -*- c++ -*-
+#version 410 // -*- c++ -*-
 #include <g3dmath.glsl>
 
 /** x,y,z, angle */

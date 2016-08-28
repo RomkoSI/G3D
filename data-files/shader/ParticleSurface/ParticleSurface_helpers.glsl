@@ -1,5 +1,6 @@
 #ifndef ParticleSurface_helpers_glsl
 #define ParticleSurface_helpers_glsl
+
 #include <compatibility.glsl>
 #include <g3dmath.glsl>
 

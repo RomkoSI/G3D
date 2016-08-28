@@ -1,4 +1,4 @@
-#version 330 // -*- c++ -*-
+#version 410 // -*- c++ -*-
 
 #include <compatibility.glsl>
 #include <g3dmath.glsl>
