@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 410
 /**
  \file DefaultRenderer_downsampleNormal.pix
 

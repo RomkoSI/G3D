@@ -11,7 +11,6 @@
   available at http://g3d.cs.williams.edu.
  */
 
-
 /** (Ar, Ag, Ab, Aa) */
 layout(location = 0) out float4 _accum;
 
