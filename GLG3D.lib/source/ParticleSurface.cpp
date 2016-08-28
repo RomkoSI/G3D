@@ -19,13 +19,13 @@
 
 namespace G3D {
 
-void ParticleSurface::getObjectSpaceBoundingBox(AABox & box, bool previous) const {
+void ParticleSurface::getObjectSpaceBoundingBox(AABox& box, bool previous) const {
     alwaysAssertM(! previous, "Previous bounding box not implemented for ParticleSurface");
     box = m_objectSpaceBoxBounds;
 }
 
 
-void ParticleSurface::getObjectSpaceBoundingSphere(Sphere & sphere, bool previous) const {
+void ParticleSurface::getObjectSpaceBoundingSphere(Sphere& sphere, bool previous) const {
     alwaysAssertM(! previous, "Previous bounding sphere not implemented for ParticleSurface");
     sphere = m_objectSpaceSphereBounds;
 }

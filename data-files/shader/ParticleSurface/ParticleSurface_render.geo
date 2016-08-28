@@ -13,6 +13,7 @@ layout(points) in;
 
 #define HAS_LAMBERTIAN_TERM 1
 #define HAS_GLOSSY_TERM 1
+
 #include <LightingEnvironment/LightingEnvironment_uniforms.glsl>
 #include <Light/Light.glsl>
 

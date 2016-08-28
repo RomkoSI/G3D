@@ -19,7 +19,7 @@ uniform float3    clipInfo;
 in RenderGeometryOutputs geoOutputs;
 
 uniform float backgroundZ;
-uniform float backSizeMeters;
+uniform vec2 backSizeMeters;
 
 #ifdef DECLARE_writePixel
     DECLARE_writePixel
