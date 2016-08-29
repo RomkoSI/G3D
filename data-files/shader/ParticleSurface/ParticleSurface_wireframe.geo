@@ -34,8 +34,8 @@ void emit(float x, float y) {
 
 
 void main() {
-    float radius      = shapeVertexOutput[0].x;
-    float csZ   = gl_in[0].gl_Position.z;
+    float radius = shapeVertexOutput[0].x;
+    float csZ    = gl_in[0].gl_Position.z;
     if (csZ >= nearPlaneZ) return; // culled by near plane
 
     float angle = angleVertexOutput[0];
