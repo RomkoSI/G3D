@@ -545,7 +545,7 @@ void Light::setShaderArgs(UniformTable& args, const String& prefix) const {
     }
 
     const float epsilon = 1e-10f;
-    const float lightSoftnessConstant = 1.0 / ((1.0 - m_spotHardness + epsilon) * (1 - cosHalfAngle));
+    const float lightSoftnessConstant = 1.0f / ((1.0f - m_spotHardness + epsilon) * (1.0f - cosHalfAngle));
 
     args.setUniform(prefix + "attenuation",
         Vector4(attenuation[0],
@@ -559,7 +559,7 @@ void Light::setShaderArgs(UniformTable& args, const String& prefix) const {
     args.setUniform(prefix + "radius", lightRadius);
 
     if (castsShadows()) {
-        shadowMap()->setShaderArgsRead(args, prefix + "shadowMap_");
+        shadowMap()->setShaderArgsRead(args, prefix + "shadowMap" + prefix[prefix.length() - 1]);
     }
 }
 
