@@ -104,7 +104,7 @@ void writePixel
     /* Intermediate terms to be cubed */
     float tmp = 1.0 - gl_FragCoord.z * 0.99;
 
-    /* tmp *= tmp * tmp; */ /*Enable if you want more discrimination between lots of transparent surfaces, e.g., for CAD. Risks underflow on individual surfaces in the general case. */
+    /* tmp *= tmp * tmp;  */ /*Enable if you want more discrimination between lots of transparent surfaces, e.g., for CAD. Risks underflow on individual surfaces in the general case. */
     
     /* If a lot of the scene is close to the far plane (e.g., you know that you have a really close far plane for CAD 
        or a scene with distant mountains and glass castles in fog), then gl_FragCoord.z does not
@@ -117,15 +117,15 @@ void writePixel
 
     /*
       If you're running out of compositing range and overflowing to inf, multiply the upper bound (3e2) by a small
-      constant. Note that R11G11B10F has no "inf" and maps all floating point specials to NaN, so you won't actuall
+      constant. Note that R11G11B10F has no "inf" and maps all floating point specials to NaN, so you won't actually
       see inf in the frame buffer.
       */
 
     /* Weight function tuned for the general case. Used for all images in the paper */
-    float w = clamp(coverage * tmp * tmp * tmp * 1e3, 1e-2, 3e2 * 0.1); 
-
+    float w = clamp(coverage * tmp * tmp * tmp * 1e3, 1e-2, 3e2 * 0.2);
+    
     /* Alternative weighting that gives better discrimination for lots of partial-coverage edges (e.g., foliage) */
-    /* float w = clamp(tmp * 1e3, 1e-2, 3e2 * 0.1); */
+    /* float w = clamp(tmp * 1e3, 1e-2, 3e2 * 0.1);*/
 
     _accum = vec4(premultipliedReflectionAndEmission, coverage) * w;
     float backgroundZ = csPosition.z - 4;
@@ -149,7 +149,7 @@ void writePixel
 
     /* Prevent underflow in 8-bit color channels: */
     if (_modulate.a > 0) {
-        _modulate.a = max(_modulate.a, 1 / 256.0);
+        _modulate.a = max(_modulate.a, 1.0 / 256.0);
     }
 
     /* We tried this stochastic rounding scheme to avoid banding for very low coverage surfaces, but

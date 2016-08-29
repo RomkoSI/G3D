@@ -22,51 +22,17 @@
 
 namespace G3D {
 
+#define HIGH_PRECISION_OIT_FORMAT ImageFormat::RGBA16F()
+#define HIGH_PRECISION_OIT_FORMAT_RG ImageFormat::RG16F()
+
 DefaultRenderer::DefaultRenderer() :
     m_deferredShading(false),
     m_orderIndependentTransparency(false),
     m_oitLowResDownsampleFactor(4), 
     m_oitUpsampleFilterRadius(2), 
-    m_oitHighPrecision(false) {
+    m_oitHighPrecision(true) {
 
     reloadWriteDeclaration();
-
-#if 0 // TODO: Remove
-    // The following string must not contain newlines because it is a giant macro definition
-    m_oitWriteDeclaration = STR(
-        layout(location = 0) out float4 _accum;
-        layout(location = 1) out float  _revealage;
-        layout(location = 2) out float3 _modulate;
-
-        void writePixel(Radiance3 premultipliedReflectionAndEmission, float coverage, Color3 transmissionCoefficient, float collimation, float etaRatio, Point3 csPosition, Vector3 csNormal) { 
-            /* Perform this operation before modifying the coverage to account for transmission */
-            _modulate = coverage * (vec3(1.0) - transmissionCoefficient);
-
-            /* Modulate the net coverage for composition by the transmission. This does not affect the color channels of the
-                transparent surface because the caller's BSDF model should have already taken into account if transmission modulates
-                reflection. See 
-
-                    McGuire and Enderton, Colored Stochastic Shadow Maps, ACM I3D, February 2011
-                    http://graphics.cs.williams.edu/papers/CSSM/
-
-                for a full explanation and derivation.*/
-            coverage *= 1.0 - (transmissionCoefficient.r + transmissionCoefficient.g + transmissionCoefficient.b) * (1.0 / 3.0);
-
-            // Intermediate terms to be cubed
-            float tmp = (coverage * 8.0 + 0.01) *
-                        (-gl_FragCoord.z * 0.95 + 1.0);
-
-            /* If a lot of the scene is close to the far plane, then gl_FragCoord.z does not 
-                provide enough discrimination. Add this term to compensate:
-
-                tmp /= sqrt(abs(csZ)); */
-
-            float w    = clamp(tmp * tmp * tmp * 1e3, 1e-2, 3e2);
-            _accum     = vec4(premultipliedReflectionAndEmission, coverage) * w;
-            _revealage = coverage;
-        });
-
-#endif
 }
 
 
@@ -88,7 +54,7 @@ void DefaultRenderer::allocateAllOITBuffers
     allocateOITFramebufferAttachments(rd, m_oitFramebuffer, rd->width(), rd->height(), highPrecision);
     m_oitLowResFramebuffer = Framebuffer::create("DefaultRenderer::m_oitLowResFramebuffer");
 
-    allocateOITFramebufferAttachments(rd, m_oitLowResFramebuffer, lowResWidth, lowResHeight, highPrecision);
+    allocateOITFramebufferAttachments(rd, m_oitLowResFramebuffer, lowResWidth, lowResHeight, false);
 
     const ImageFormat* depthFormat = rd->drawFramebuffer()->texture(Framebuffer::DEPTH)->format();
     shared_ptr<Texture> lowResDepthBuffer = Texture::createEmpty("DefaultRenderer::lowResDepth", lowResWidth, lowResHeight, depthFormat);
@@ -118,16 +84,16 @@ void DefaultRenderer::allocateOITFramebufferAttachments
     int                             h,
     bool                            highPrecision) {
     
-    oitFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty(oitFramebuffer->name() + "/RT0 (A)", w, h, highPrecision ? ImageFormat::RGBA32F() : ImageFormat::RGBA16F()));
+    oitFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty(oitFramebuffer->name() + "/RT0 (A)", w, h, highPrecision ? HIGH_PRECISION_OIT_FORMAT : ImageFormat::RGBA16F()));
     oitFramebuffer->setClearValue(Framebuffer::COLOR0, Color4::zero());
     {
-        const shared_ptr<Texture>& texture = Texture::createEmpty(oitFramebuffer->name() + "/RT1 (Brgb, D)", w, h, highPrecision ? ImageFormat::RGBA32F() : ImageFormat::RGBA8());
+        const shared_ptr<Texture>& texture = Texture::createEmpty(oitFramebuffer->name() + "/RT1 (Brgb, D)", w, h, highPrecision ? HIGH_PRECISION_OIT_FORMAT : ImageFormat::RGBA8());
         texture->visualization.channels = Texture::Visualization::RGB;
         oitFramebuffer->set(Framebuffer::COLOR1, texture);
         oitFramebuffer->setClearValue(Framebuffer::COLOR1, Color4(1, 1, 1, 0));
     }
     {
-        const shared_ptr<Texture>& texture = Texture::createEmpty(oitFramebuffer->name() + "/RT2 (delta)", w, h, highPrecision ? ImageFormat::RG32F() : ImageFormat::RG8_SNORM());
+        const shared_ptr<Texture>& texture = Texture::createEmpty(oitFramebuffer->name() + "/RT2 (delta)", w, h, highPrecision ? HIGH_PRECISION_OIT_FORMAT_RG : ImageFormat::RG8_SNORM());
         oitFramebuffer->set(Framebuffer::COLOR2, texture);
         oitFramebuffer->setClearValue(Framebuffer::COLOR2, Color4::zero());
     }
@@ -362,8 +328,7 @@ void DefaultRenderer::renderOrderIndependentBlendedSamples
         // Test whether we need to allocate the OIT buffers 
         // (i.e., are they non-existent or at the wrong precision)
         if (isNull(m_oitFramebuffer) || 
-            ((m_oitFramebuffer->texture(0)->format() == ImageFormat::RGBA32F()) 
-                != m_oitHighPrecision)) {
+            ((m_oitFramebuffer->texture(0)->format() == HIGH_PRECISION_OIT_FORMAT) != m_oitHighPrecision)) {
             allocateAllOITBuffers(rd, m_oitHighPrecision);
         }
 
