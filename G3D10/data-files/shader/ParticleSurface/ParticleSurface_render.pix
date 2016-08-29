@@ -41,13 +41,12 @@ void main() {
     float coverage = 1.0;
     {
         vec4 temp = sampleTexture(material.lambertian, offsetTexCoord);
-
         lambertianColor = temp.rgb * invPi;
         coverage = temp.a;
     }
 
-    // Fade out by the missing precision in an 8-bit value, moving towards zero. TODO: more efficient hash
-    float rnd = 0.0;//random(geoOutputs.csPosition) / 256.0;
+    // Fade out by the missing precision in an 8-bit value, moving towards zero. 
+    float rnd = random(geoOutputs.csPosition) / 256.0;
 
     // Screen door effect, but less temporal flicker:
     // float rnd = random(gl_FragCoord.xyy) / 256.0;

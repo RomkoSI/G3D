@@ -68,6 +68,7 @@ float shadowMapVisibility(vec3 lightDirection, vec4 lightPosition, vec4 lightAtt
 
 }
 
+
 float linstep(float minV, float maxV, float v) {
     return clamp((v-minV) / (maxV - minV), 0.0, 1.0);
 }
@@ -99,32 +100,6 @@ float varianceShadowMapVisibility(vec4 shadowCoord, float lightSpaceZ, sampler2D
 /** Below this value, attenuation is treated as zero. This is non-zero only to avoid numerical imprecision. */
 const float attenuationThreshold = 2e-17;
 
-#if 0 // TODO: Delete
-/** Returns true if the vector w_i (which points at the light's center) is within the field of view of this light source. */
-bool inLightFieldOfView
-   (vec3                w_i, 
-    vec3                lightLookVector, 
-    vec3                lightRightVector, 
-    vec3                lightUpVector,
-    bool                rectangular, 
-    float               cosFOV) {
-
-    // When the light field of view is very small, we need to be very careful with precision 
-    // on the computation below, so there are epsilon values in the comparisons.
-    if (rectangular) {
-        // Project wi onto the light's xz-plane and then normalize
-        vec3 w_horizontal = normalize(w_i - dot(w_i, lightRightVector) * lightRightVector);
-        vec3 w_vertical   = normalize(w_i - dot(w_i, lightUpVector)    * lightUpVector);
-
-        // Now test against the view cone in each of the planes 
-        return
-            (dot(w_horizontal, lightLookVector) <= -cosFOV + 1e-5) &&
-            (dot(w_vertical,   lightLookVector) <= -cosFOV + 1e-5);
-    } else {
-        return dot(lightLookVector, w_i) <= -cosFOV + 1e-5;
-    }
-}
-#endif
 
 /** Returns a number between 0 and 1 for how the light falls off due to the spot light's cone*/
 float spotLightFalloff
@@ -183,23 +158,6 @@ vec2 computeAttenuation
 
     // Directional light has no falloff
     attenuation += 1.0 - lightPosition.w;
-
-    /*
-    TODO: Delete
-    float attenuation =
-        lightPosition.w *
-
-       (inLightFieldOfView(w_i, lightLook, lightRightVector, lightUpVector, lightRectangular, lightAttenuation.w) ? 
-         
-         // Within spotlight cone
-         (1.0 / (4.0 * pi * dot( vec3(1.0, lightDistance, lightDistance * lightDistance), lightAttenuation.xyz) )) : 
-         
-         // Outside spotlight cone
-         0.0) + 
-        
-        // Directional light has no falloff
-        (1.0 - lightPosition.w);
-        */
 
 #   ifdef HAS_NORMAL_BUMP_MAP
         // For a bump mapped surface, do not allow illumination on the back side even if the
