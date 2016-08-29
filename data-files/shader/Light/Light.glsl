@@ -13,6 +13,52 @@
 //#define HIGH_QUALITY_SHADOW_FILTERING 1
 
 #include <g3dmath.glsl>
+#include <Texture/Texture.glsl>
+
+struct ShadowMap {
+    /** Modelview projection matrix used for the light's shadow map */
+    mat4                MVP;
+    float               bias;
+
+    Texture2DShadow     texture;
+    Texture2DShadow     vsmTexture;
+
+    float               vsmLightBleedReduction;
+};
+
+struct Light {
+    /** World space light position */
+    vec4                position;
+
+    /** Power of the light */
+    vec3                color;
+
+    bool                stochasticShadows;
+
+    /** Spot light facing direction (unit length). Object space -z axis. */
+    vec3                direction;
+
+    /** w element is the spotlight cutoff angle.*/
+    vec4                attenuation;
+
+    float               softnessConstant;
+
+    /** Is this spotlight's field of view rectangular (instead of round)? */
+    bool                rectangular;
+
+    /** Object-space Y axis of the light */
+    vec3                up;
+
+    /** Object-space X axis of the light */
+    vec3                right;
+
+    /** Radius of the light bulb itself; no relation to the light's effect sphere */
+    float               radius;
+
+    ShadowMap           shadowMap;
+};
+
+
 
 float shadowFetch(sampler2DShadow shadowMap, vec3 coord, vec2 invSize) {
     return texture(shadowMap, vec3(clamp(coord.xy, invSize, vec2(1) - invSize), coord.z));
