@@ -130,7 +130,8 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
                 if (receivesShadows) {
 
                     // Compute projected shadow coord.
-                    vec3 projShadowCoord = project(light$(I)_shadowMap_MVP * vec4(wsCenterVertexOutput[0] // wsPosition  TODO: morgan switched temporarily to the center to stabilize stochastic shadowing
+                    vec3 projShadowCoord = project(light$(I)_shadowMap_MVP * vec4(wsPosition 
+                        // wsCenterVertexOutput[0] // TODO: morgan switched temporarily to the center to stabilize stochastic shadowing
                         + w_i * bias, 1.0));
 
                     // From external shadows.  Could use fewer samples for more distant smoke or
@@ -141,13 +142,13 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
                          texture(light$(I)_shadowMap_buffer, projShadowCoord + vec3(vec2(-1.0, -1.0) * light$(I)_shadowMap_invSize.xy, 0.0)) +
                          texture(light$(I)_shadowMap_buffer, projShadowCoord + vec3(vec2(-1.0, -1.0) * light$(I)_shadowMap_invSize.xy, 0.0))) / 4;
                 
-                    // Boost the opacity of unshadowed particles
-                    // alphaBoost = max(alphaBoost, directAlphaBoost * visibility);
-
                     // Cubing visibility increases the self-shadowing effect (and the impact of 
                     // stochastic transparent shadows on particles) to generally improve the 
                     // appearance of particle systems.
                     visibility *= visibility * visibility;
+
+                    // Boost the opacity of lit particles
+                    alphaBoost = max(alphaBoost, directAlphaBoost * visibility);
 
                     brightness *= visibility;
                 }
@@ -156,8 +157,9 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
 //            brightness *= directValueBoost;
 
             // faux specular highlight at "bright" areas
-            float satBoost = lerp(directSaturationBoost, min(directSaturationBoost, 0.75), clamp(pow(brightness * 0.2, 20.0), 0.0, 1.0));
-            L_in += brightness * boostSaturation(light$(I)_color, satBoost);
+            //float satBoost = lerp(directSaturationBoost, min(directSaturationBoost, 0.75), clamp(pow(brightness * 0.2, 20.0), 0.0, 1.0));
+            // L_in += brightness * boostSaturation(light$(I)_color, satBoost);
+            L_in += brightness * light$(I)_color;
         }
 
     }
