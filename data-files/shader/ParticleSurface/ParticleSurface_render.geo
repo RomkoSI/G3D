@@ -29,7 +29,7 @@ uniform UniversalMaterial2DArray material;
 const float WRAP_SHADING_AMOUNT = 8.0;
 const float ENVIRONMENT_SCALE   = max(0.0, 1.0 - WRAP_SHADING_AMOUNT / 20.0);
 
-const int  RECEIVES_SHADOWS = 2;
+const int  RECEIVES_SHADOWS_MASK = 2;
 
 // Allow direct lights to go above their normal intensity--helps bring out volumetric shadows
 uniform float   directAlphaBoost;
@@ -54,10 +54,6 @@ layout(location = 3) in float        angleVertexOutput[];
 #include "ParticleSurface_helpers.glsl"
 out RenderGeometryOutputs geoOutputs;
 
-float3 wsRight, wsUp;
-float2 csRight, csUp;
-Point3 wsPosition;
-
 // Shadow map bias...must be relatively high for particles because
 // adjacent particles (and this one!) will be oriented differently in the
 // shadow map and can easily self-shadow
@@ -81,30 +77,25 @@ float3 boostSaturation(float3 color, float boost) {
     return color;
 }
 
-bool receivesShadows = false;
-
 // Compute average lighting around each vertex
-Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost, Vector3 wsEyeVector) {
+Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost, Vector3 wsLookVector, bool receivesShadows) {
     float3 L_in = float3(0);
 
     // Environment
 #   for (int i = 0; i < NUM_ENVIRONMENT_MAPS; ++i)
     {
-        // Sample the highest MIP-level to approximate Lambertian integration over the hemisphere
-        // (note that with a seamless texture extension we can perform this with a single texture fetch!)
-
         // Uniform evt component
-        float3 ambientEvt = (textureLod(environmentMap$(i)_buffer, float3(0,1,0), 20).rgb + 
-                             textureLod(environmentMap$(i)_buffer, float3(0,-1,0), 20).rgb) * 0.5;
+        // Sample the highest MIP-level to approximate Lambertian integration over the hemisphere
+        float3 ambientEvt = (textureLod(environmentMap$(i)_buffer, float3(1,1,1), 20).rgb + 
+                             textureLod(environmentMap$(i)_buffer, float3(-1,-1,-1), 20).rgb) * 0.5;
 
-        // directional evt component
+        // Directional evt component
         float3 directionalEvt = textureLod(environmentMap$(i)_buffer, normal, 20).rgb;
-        L_in += boostSaturation((ambientEvt + directionalEvt) * 0.5, environmentSaturationBoost) * (environmentMap$(i)_readMultiplyFirst.rgb * pi);
+        L_in += boostSaturation((ambientEvt + directionalEvt) * 0.5, environmentSaturationBoost) * environmentMap$(i)_readMultiplyFirst.rgb;
     }
 #   endfor
 
-    L_in *= ENVIRONMENT_SCALE;
-L_in *= 0.2; // TODO: remove. This temporarily turns off environment light
+//    L_in *= ENVIRONMENT_SCALE;
     alphaBoost = 1.0;
 
 #   for (int I = 0; I < NUM_LIGHTS; ++I)
@@ -113,14 +104,16 @@ L_in *= 0.2; // TODO: remove. This temporarily turns off environment light
         float  lightDistance = length(w_i);
         w_i /= lightDistance;
 
-        float brightness = light$(I)_position.w * spotLightFalloff(w_i, light$(I)_direction, light$(I)_right, light$(I)_up, 
-            light$(I)_rectangular, light$(I)_attenuation.w, light$(I)_softnessConstant);
+        // Spot light falloff
+        float brightness = light$(I)_position.w * spotLightFalloff(w_i, light$(I)_direction, light$(I)_right, light$(I)_up, light$(I)_rectangular, light$(I)_attenuation.w, light$(I)_softnessConstant);
 
         // Directional light has no falloff
-        // attenuation += 1.0 - lightPosition.w;
+        brightness += 1.0 - light$(I)_position.w;
 
         if (brightness > 0.0) {
             brightness /= (4.0 * pi * dot(float3(1.0, lightDistance, lightDistance * lightDistance), light$(I)_attenuation.xyz));
+
+            // The light is the same as for any surface up to this point. Now add particle-specific effects
 
             // Heavily-biased wrap shading to create some directional variation
             float wrapShading = (dot(light$(I)_direction, normalize(normal * 1.1 + light$(I)_direction)) + WRAP_SHADING_AMOUNT) / (1.0 + WRAP_SHADING_AMOUNT);
@@ -128,12 +121,17 @@ L_in *= 0.2; // TODO: remove. This temporarily turns off environment light
             // Boost brightness when backlit
             float backlit = pow(max(0.0, -dot(light$(I)_direction, w_o)), 50.0) * 1.5;
 
-            brightness *= (wrapShading + backlit);
+            //brightness *= (wrapShading + backlit);
+
 #           if defined(light$(I)_shadowMap_notNull)
                 if (receivesShadows) {
+
+// void computeDirectLighting(Vector3 n, Vector3 glossyN, Vector3 w_o, Vector3 n_face, float backside, Point3 wsPosition, float glossyExponent, inout Color3 E_lambertian, inout Color3 E_glossy) {
+
+
                     // Compute projected shadow coord.
                     vec3 projShadowCoord = project(light$(I)_shadowMap_MVP * vec4(wsCenterVertexOutput[0] // wsPosition  TODO: morgan switched temporarily to the center to stabilize stochastic shadowing
-                        + wsEyeVector * bias, 1.0));
+                        + wsLookVector * bias, 1.0));
 
                     // From external shadows.  Could use fewer samples for more distant smoke or
                     // average the value at the center
@@ -143,19 +141,19 @@ L_in *= 0.2; // TODO: remove. This temporarily turns off environment light
                          texture(light$(I)_shadowMap_buffer, projShadowCoord + vec3(vec2(-1.0, -1.0) * light$(I)_shadowMap_invSize.xy, 0.0)) +
                          texture(light$(I)_shadowMap_buffer, projShadowCoord + vec3(vec2(-1.0, -1.0) * light$(I)_shadowMap_invSize.xy, 0.0))) / 4;
                 
-
-                    alphaBoost = max(alphaBoost, directAlphaBoost * visibility);
-
-                    // visibility = saturate(sqrt(visibility) * 1.5);
+                    // Boost the opacity of unshadowed particles
+                    // alphaBoost = max(alphaBoost, directAlphaBoost * visibility);
 
                     // Cubing visibility increases the self-shadowing effect (and the impact of 
                     // stochastic transparent shadows on particles) to generally improve the 
                     // appearance of particle systems.
-                    brightness *= visibility * visibility * visibility;
+                    visibility *= visibility * visibility;
+
+                    brightness *= visibility;
                 }
 #           endif
 
-            brightness *= directValueBoost;
+//            brightness *= directValueBoost;
 
             // faux specular highlight at "bright" areas
             float satBoost = lerp(directSaturationBoost, min(directSaturationBoost, 0.75), clamp(pow(brightness * 0.2, 20.0), 0.0, 1.0));
@@ -170,41 +168,22 @@ L_in *= 0.2; // TODO: remove. This temporarily turns off environment light
 
 float alpha = 0.0;
 
-/** Produce a vertex.  Note that x and y are compile-time constants, so
-most of this arithmetic compiles out. */
-void constructOutputs(float x, float y, Vector3 normal, Vector3 wsEyeVector, out Vector4 outPosition, out RenderGeometryOutputs attributes) {
 
-    attributes.csPosition = Vector3(gl_in[0].gl_Position.xy + csRight * x + csUp * y, gl_in[0].gl_Position.z);
-
-    outPosition = g3d_ProjectionMatrix * float4(attributes.csPosition, 1.0);
-    wsPosition = wsCenterVertexOutput[0] + wsRight * x + wsUp * y;
+/** Produce a vertex.  Note that x and y are compile-time constants, so most of this arithmetic compiles out. */
+void emit(float x, float y, Vector3 normal, Vector3 wsLook, bool receivesShadows, Vector2 csRight, Vector2 csUp, Vector3 wsRight, Vector3 wsUp) {
+    Point3 wsPosition = wsCenterVertexOutput[0] + wsRight * x + wsUp * y;
 
     float alphaBoost;
-    attributes.color.rgb = computeLight(wsPosition, normal, alphaBoost, wsEyeVector);
-    // Debugging code
-    //    colorGeometryOut.rgb = -wsEyeVector * 0.5 + 0.5;    alphaBoost = 1.0;
-    attributes.color.a = min(1.0, alpha * alphaBoost);
-
+    geoOutputs.color.rgb = computeLight(wsPosition, normal, alphaBoost, wsLook, receivesShadows);
+    geoOutputs.color.a   = min(1.0, alpha * alphaBoost);
+    
     int texelWidth = materialPropertiesVertexOutput[0].y;
-    attributes.texCoord.xy = ((Point2(x, y) * 0.5) + Vector2(0.5, 0.5)) * float(texelWidth) * material.lambertian.invSize.xy;
-    attributes.texCoord.z = materialPropertiesVertexOutput[0].x;
-}
-
-void emit(RenderGeometryOutputs attributes, Vector4 position) {
-    geoOutputs = attributes;
-    gl_Position = position;
+    geoOutputs.texCoord.xy = ((Point2(x, y) * 0.5) + Vector2(0.5, 0.5)) * float(texelWidth) * material.lambertian.invSize.xy;
+    geoOutputs.texCoord.z  = materialPropertiesVertexOutput[0].x;
+    geoOutputs.csPosition = Vector3(gl_in[0].gl_Position.xy + csRight * x + csUp * y, gl_in[0].gl_Position.z);
+    gl_Position           = g3d_ProjectionMatrix * Vector4(geoOutputs.csPosition, 1.0);
     EmitVertex();
 }
-
-
-void emit(float x, float y, Vector3 normal, Vector3 wsEyeVector) {
-    RenderGeometryOutputs attributes;
-    Vector4 outPos;
-    constructOutputs(x, y, normal, wsEyeVector, outPos, attributes);
-    emit(attributes, outPos);
-}
-
-
 
 
 void main() {
@@ -214,51 +193,52 @@ void main() {
         return;
     }
 
-    receivesShadows = bool(materialPropertiesVertexOutput[0].z & RECEIVES_SHADOWS);
+    bool receivesShadows = bool(materialPropertiesVertexOutput[0].z & RECEIVES_SHADOWS_MASK);
 
-    Vector3 wsEyeVector = float3(g3d_CameraToWorldMatrix[2][0], g3d_CameraToWorldMatrix[2][1], g3d_CameraToWorldMatrix[2][2]);
-    Vector3 normal = wsEyeVector;
+    // Used for shadow map bias
+    Vector3 wsLook = g3d_CameraToWorldMatrix[2].xyz;
+
+    // TODO: Bend normal for each vertex
+    Vector3 normal = normalize(g3d_CameraToWorldMatrix[3].xyz - wsCenterVertexOutput[0]);
 
     float angle  = angleVertexOutput[0];
     // Fade out alpha as the billboard approaches the near plane
-    float fadeRadius = 3.0;
-    alpha = min(1.0, shapeVertexOutput[0].y * saturate((nearPlaneZ - csZ) / fadeRadius));
+    const float softParticleFadeRadius = 3.0;
+    alpha = min(1.0, shapeVertexOutput[0].y * saturate((nearPlaneZ - csZ) / softParticleFadeRadius));
 
     // Rotate the particle
     float radius = shapeVertexOutput[0].x;
-    csRight = Vector2(cos(angle), sin(angle)) * radius;
-    csUp    = Vector2(-csRight.y, csRight.x);
+    Vector2 csRight = Vector2(cos(angle), sin(angle)) * radius;
+    Vector2 csUp    = Vector2(-csRight.y, csRight.x);
 
-    wsRight = g3d_CameraToWorldMatrix[0].xyz * csRight.x + g3d_CameraToWorldMatrix[1].xyz * csRight.y;
-    wsUp    = g3d_CameraToWorldMatrix[0].xyz * csUp.x    + g3d_CameraToWorldMatrix[1].xyz * csUp.y;
+    Vector3 wsRight = g3d_CameraToWorldMatrix[0].xyz * csRight.x + g3d_CameraToWorldMatrix[1].xyz * csRight.y;
+    Vector3 wsUp    = g3d_CameraToWorldMatrix[0].xyz * csUp.x    + g3d_CameraToWorldMatrix[1].xyz * csUp.y;
 
-// 
-//   C-------D    C-------D
-//   | \     |    | \   / |
-//   |   \   |    |   E   |
-//   |     \ |    | /   \ |
-//   A-------B    A-------B
-//
-//     ABCD       ABEDC AEC
-#if CONSTRUCT_CENTER_VERTEX
-    emit(-1, -1, normal, wsEyeVector); // A
-    emit(+1, -1, normal, wsEyeVector); // B
-    emit( 0,  0, normal, wsEyeVector); // E
-    emit(+1, +1, normal, wsEyeVector); // D
-    emit(-1, +1, normal, wsEyeVector); // C
-    EndPrimitive();
+    // 
+    //   C-------D    C-------D
+    //   | \     |    | \   / |
+    //   |   \   |    |   E   |
+    //   |     \ |    | /   \ |
+    //   A-------B    A-------B
+    //
+    //     ABCD       ABEDC AEC
+#   if CONSTRUCT_CENTER_VERTEX
+        emit(-1, -1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // A
+        emit(+1, -1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // B
+        emit( 0,  0, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // E
+        emit(+1, +1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // D
+        emit(-1, +1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // C
+        EndPrimitive();
 
-    emit(-1, -1, normal, wsEyeVector); // A
-    emit( 0, 0, normal, wsEyeVector); // E
-    emit(-1, +1, normal, wsEyeVector); // C
-    EndPrimitive();
-#else
-    emit(-1, -1, normal, wsEyeVector); // A
-    emit(+1, -1, normal, wsEyeVector); // B
-    emit(-1, +1, normal, wsEyeVector); // C
-    emit(+1, +1, normal, wsEyeVector); // D
-    EndPrimitive();
-#endif
-  
-    
+        emit(-1, -1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // A
+        emit( 0, 0,  normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // E
+        emit(-1, +1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // C
+        EndPrimitive();
+#   else
+        emit(-1, -1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // A
+        emit(+1, -1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // B
+        emit(-1, +1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // C
+        emit(+1, +1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // D
+        EndPrimitive();
+#   endif
 }

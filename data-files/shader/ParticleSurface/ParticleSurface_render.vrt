@@ -15,7 +15,9 @@ layout(location = 0) out Point3  wsCenterVertexOutput;
 
 /** Radius of the bounding shape */
 layout(location = 1) out float3  shapeVertexOutput;
+
 layout(location = 2) out int4    materialPropertiesVertexOutput;
+
 layout(location = 3) out float   angleVertexOutput;
 
 void main() {

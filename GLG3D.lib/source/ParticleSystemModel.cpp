@@ -195,7 +195,7 @@ Any ParticleSystemModel::Emitter::Specification::toAny() const {
     a["velocityDirectionMean"] = velocityDirectionMean;
     a["velocityConeAngleDegrees"] = velocityConeAngleDegrees;
     a["velocityMagnitudeMean"] = velocityMagnitudeMean;
-    a[" velocityMagnitudeVariance"] = velocityMagnitudeVariance;
+    a["velocityMagnitudeVariance"] = velocityMagnitudeVariance;
     return a;
 }
 

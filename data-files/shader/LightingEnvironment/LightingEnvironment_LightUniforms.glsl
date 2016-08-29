@@ -79,20 +79,18 @@ void computeDirectLighting(Vector3 n, Vector3 glossyN, Vector3 w_o, Vector3 n_fa
     vec3 w_i;
 #   for (int I = 0; I < NUM_LIGHTS; ++I)
     {
-
 #       if defined(light$(I)_shadowMap_variance_notNull)
-        vec3 adjustedWSPos = wsPosition+w_o * (1.5 * light$(I)_shadowMap_bias) + n_face * (backside * 0.5 * light$(I)_shadowMap_bias);
-        vec4 shadowCoord = light$(I)_shadowMap_MVP * vec4(adjustedWSPos, 1.0);
-        vec4 cFrameZRow = vec4(light$(I)_direction.xyz, -light$(I)_position.z);
-        float lightSpaceZ = dot(cFrameZRow, vec4(adjustedWSPos, 1.0));
-        lightSpaceZ = -dot(light$(I)_direction.xyz, adjustedWSPos - light$(I)_position.xyz);
+            vec3 adjustedWSPos = wsPosition+w_o * (1.5 * light$(I)_shadowMap_bias) + n_face * (backside * 0.5 * light$(I)_shadowMap_bias);
+            vec4 shadowCoord = light$(I)_shadowMap_MVP * vec4(adjustedWSPos, 1.0);
+            vec4 cFrameZRow = vec4(light$(I)_direction.xyz, -light$(I)_position.z);
+            float lightSpaceZ = dot(cFrameZRow, vec4(adjustedWSPos, 1.0));
+            lightSpaceZ = -dot(light$(I)_direction.xyz, adjustedWSPos - light$(I)_position.xyz);
 
-        addVarianceShadowedLightContribution(n, glossyN, w_o, wsPosition, glossyExponent,
-            light$(I)_position, light$(I)_attenuation, light$(I)_softnessConstant, light$(I)_direction, light$(I)_up, light$(I)_right, light$(I)_rectangular, light$(I)_radius, light$(I)_color,
-            shadowCoord, lightSpaceZ, light$(I)_shadowMap_variance_lightBleedReduction, light$(I)_shadowMap_variance_buffer, light$(I)_shadowMap_variance_invSize.xy,
-            n_face, backside,
-            E_lambertian, E_glossy, w_i);
-
+            addVarianceShadowedLightContribution(n, glossyN, w_o, wsPosition, glossyExponent,
+                light$(I)_position, light$(I)_attenuation, light$(I)_softnessConstant, light$(I)_direction, light$(I)_up, light$(I)_right, light$(I)_rectangular, light$(I)_radius, light$(I)_color,
+                shadowCoord, lightSpaceZ, light$(I)_shadowMap_variance_lightBleedReduction, light$(I)_shadowMap_variance_buffer, light$(I)_shadowMap_variance_invSize.xy,
+                n_face, backside,
+                E_lambertian, E_glossy, w_i);
 
 #       else
 #           if defined(light$(I)_shadowMap_notNull)
@@ -106,9 +104,9 @@ void computeDirectLighting(Vector3 n, Vector3 glossyN, Vector3 w_o, Vector3 n_fa
                     n_face, backside,
                     E_lambertian, E_glossy, w_i);
 #           else
-            addLightContribution(n, glossyN, w_o, wsPosition, glossyExponent,
-                light$(I)_position, light$(I)_attenuation, light$(I)_softnessConstant, light$(I)_direction, light$(I)_up, light$(I)_right, light$(I)_rectangular, light$(I)_radius, light$(I)_color, 
-                n_face, backside, E_lambertian, E_glossy, w_i);
+                addLightContribution(n, glossyN, w_o, wsPosition, glossyExponent,
+                    light$(I)_position, light$(I)_attenuation, light$(I)_softnessConstant, light$(I)_direction, light$(I)_up, light$(I)_right, light$(I)_rectangular, light$(I)_radius, light$(I)_color, 
+                    n_face, backside, E_lambertian, E_glossy, w_i);
 #           endif
 #       endif
     }

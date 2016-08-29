@@ -24,7 +24,7 @@ layout(location = 3) in float   angleVertexOutput[];
 /** Produce a vertex.  Note that x and y are compile-time constants, so 
     most of this arithmetic compiles out. */
 void emit(float x, float y, Vector2 csRight, Vector2 csUp, Vector3 wsRight, Vector3 wsUp) {
-    gl_Position = g3d_ProjectionMatrix * float4(gl_in[0].gl_Position.xy + csRight * x + csUp * y,  gl_in[0].gl_Position.z, 1.0);
+    gl_Position = g3d_ProjectionMatrix * float4(gl_in[0].gl_Position.xy + csRight * x + csUp * y, gl_in[0].gl_Position.z, 1.0);
     EmitVertex();
 }
 
