@@ -16,10 +16,10 @@ layout(line_strip, max_vertices = 5) out;
 uniform float   nearPlaneZ;
 
 // These arrays have a single element because they are GL_POINTS
-in layout(location = 0) vec3    wsCenterVertexOutput[];
-in layout(location = 1) vec3    shapeVertexOutput[];
-in layout(location = 2) int4    materialIndexVertexOutput[];
-in layout(location = 3) float   angleVertexOutput[];
+layout(location = 0) in vec3    wsCenterVertexOutput[];
+layout(location = 1) in vec3    shapeVertexOutput[];
+layout(location = 2) in int4    materialIndexVertexOutput[];
+layout(location = 3) in float   angleVertexOutput[];
 
 float3 wsRight, wsUp;
 float2 csRight, csUp;
@@ -47,7 +47,6 @@ void main() {
     wsRight = g3d_CameraToWorldMatrix[0].xyz * csRight.x + g3d_CameraToWorldMatrix[1].xyz * csRight.y;
     wsUp    = g3d_CameraToWorldMatrix[0].xyz * csUp.x    + g3d_CameraToWorldMatrix[1].xyz * csUp.y;
     
-
     // 
     //   C-------D    C-------D
     //   |       |    | \   / |
