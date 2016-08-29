@@ -123,15 +123,15 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
 
             //brightness *= (wrapShading + backlit);
 
+            // Choose the normal for shading purposes to be towards the light
+            //computeDirectLighting(w_i, w_i, w_o, w_i, 1.0, wsCenterVertexOutput[0] + w_i * bias, float glossyExponent, inout Color3 E_lambertian, inout Color3 E_glossy) {
+
 #           if defined(light$(I)_shadowMap_notNull)
                 if (receivesShadows) {
 
-// void computeDirectLighting(Vector3 n, Vector3 glossyN, Vector3 w_o, Vector3 n_face, float backside, Point3 wsPosition, float glossyExponent, inout Color3 E_lambertian, inout Color3 E_glossy) {
-
-
                     // Compute projected shadow coord.
                     vec3 projShadowCoord = project(light$(I)_shadowMap_MVP * vec4(wsCenterVertexOutput[0] // wsPosition  TODO: morgan switched temporarily to the center to stabilize stochastic shadowing
-                        + wsLookVector * bias, 1.0));
+                        + w_i * bias, 1.0));
 
                     // From external shadows.  Could use fewer samples for more distant smoke or
                     // average the value at the center
