@@ -21,13 +21,9 @@ layout(location = 1) in vec3    shapeVertexOutput[];
 layout(location = 2) in int4    materialIndexVertexOutput[];
 layout(location = 3) in float   angleVertexOutput[];
 
-float3 wsRight, wsUp;
-float2 csRight, csUp;
-
-
 /** Produce a vertex.  Note that x and y are compile-time constants, so 
     most of this arithmetic compiles out. */
-void emit(float x, float y) {
+void emit(float x, float y, Vector2 csRight, Vector2 csUp, Vector3 wsRight, Vector3 wsUp) {
     gl_Position = g3d_ProjectionMatrix * float4(gl_in[0].gl_Position.xy + csRight * x + csUp * y,  gl_in[0].gl_Position.z, 1.0);
     EmitVertex();
 }
@@ -41,11 +37,11 @@ void main() {
     float angle = angleVertexOutput[0];
 
     // Rotate the particle
-    csRight = float2(cos(angle), sin(angle)) * radius;
-    csUp    = float2(-csRight.y, csRight.x);
+    Vector2 csRight = float2(cos(angle), sin(angle)) * radius;
+    Vector2 csUp    = float2(-csRight.y, csRight.x);
 
-    wsRight = g3d_CameraToWorldMatrix[0].xyz * csRight.x + g3d_CameraToWorldMatrix[1].xyz * csRight.y;
-    wsUp    = g3d_CameraToWorldMatrix[0].xyz * csUp.x    + g3d_CameraToWorldMatrix[1].xyz * csUp.y;
+    Vector3 wsRight = g3d_CameraToWorldMatrix[0].xyz * csRight.x + g3d_CameraToWorldMatrix[1].xyz * csRight.y;
+    Vector3 wsUp    = g3d_CameraToWorldMatrix[0].xyz * csUp.x    + g3d_CameraToWorldMatrix[1].xyz * csUp.y;
     
     // 
     //   C-------D    C-------D
@@ -56,18 +52,18 @@ void main() {
     //
     //     ABDCA       ABDCAEC DEB
 
-    emit(-1, -1); // A
-    emit(-1, +1); // B
-    emit(+1, +1); // D
-    emit(+1, -1); // C
-    emit(-1, -1); // A
-#if SHOW_CENTER_VERTEX
-    emit( 0,  0); // E
-    emit(+1, -1); // C
-    EndPrimitive();
-    emit(+1, +1); // D
-    emit( 0,  0); // E
-    emit(-1, +1); // B
-#endif
+    emit(-1, -1, csRight, csUp, wsRight, wsUp); // A
+    emit(-1, +1, csRight, csUp, wsRight, wsUp); // B
+    emit(+1, +1, csRight, csUp, wsRight, wsUp); // D
+    emit(+1, -1, csRight, csUp, wsRight, wsUp); // C
+    emit(-1, -1, csRight, csUp, wsRight, wsUp); // A
+#   if SHOW_CENTER_VERTEX
+        emit( 0,  0, csRight, csUp, wsRight, wsUp); // E
+        emit(+1, -1, csRight, csUp, wsRight, wsUp); // C
+        EndPrimitive();
+        emit(+1, +1, csRight, csUp, wsRight, wsUp); // D
+        emit( 0,  0, csRight, csUp, wsRight, wsUp); // E
+        emit(-1, +1, csRight, csUp, wsRight, wsUp); // B
+#   endif
     EndPrimitive();
 }
