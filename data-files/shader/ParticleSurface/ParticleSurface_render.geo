@@ -63,10 +63,6 @@ Point3 project(Vector4 v) {
     return v.xyz * (1.0 / v.w);
 }
 
-// Vector to the eye
-Vector3 w_o    = normalize(wsCenterVertexOutput[0] - Point3(g3d_CameraToWorldMatrix[3][0],
-                                                            g3d_CameraToWorldMatrix[3][1],
-                                                            g3d_CameraToWorldMatrix[3][2]));
 
 float3 boostSaturation(float3 color, float boost) {
     if (boost != 1.0) {
@@ -81,6 +77,12 @@ float3 boostSaturation(float3 color, float boost) {
 Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost, Vector3 wsLookVector, bool receivesShadows) {
     float3 L_in = float3(0);
 
+    // Forward-scattering approximation. (lambertian) 0 <= k <= 1 (forward)
+    const float forwardScatterStrength = 0.75;
+
+    // TODO: Could compute only from center vertex to reduce computation if desired
+    Vector3 w_o    = normalize(g3d_CameraToWorldMatrix[3].xyz - wsPosition);
+
     // Environment
 #   for (int i = 0; i < NUM_ENVIRONMENT_MAPS; ++i)
     {
@@ -89,8 +91,8 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
         float3 ambientEvt = (textureLod(environmentMap$(i)_buffer, float3(1,1,1), 20).rgb + 
                              textureLod(environmentMap$(i)_buffer, float3(-1,-1,-1), 20).rgb) * 0.5;
 
-        // Directional evt component
-        float3 directionalEvt = textureLod(environmentMap$(i)_buffer, normal, 20).rgb;
+        // Directional evt component from front
+        float3 directionalEvt = textureLod(environmentMap$(i)_buffer, normal, 10).rgb;
         L_in += boostSaturation((ambientEvt + directionalEvt) * 0.5, environmentSaturationBoost) * environmentMap$(i)_readMultiplyFirst.rgb;
     }
 #   endfor
@@ -116,10 +118,10 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
             // The light is the same as for any surface up to this point. Now add particle-specific effects
 
             // Heavily-biased wrap shading to create some directional variation
-            float wrapShading = (dot(light$(I)_direction, normalize(normal * 1.1 + light$(I)_direction)) + WRAP_SHADING_AMOUNT) / (1.0 + WRAP_SHADING_AMOUNT);
+            //float wrapShading = (dot(light$(I)_direction, normalize(normal * 1.1 + light$(I)_direction)) + WRAP_SHADING_AMOUNT) / (1.0 + WRAP_SHADING_AMOUNT);
 
             // Boost brightness when backlit
-            float backlit = pow(max(0.0, -dot(light$(I)_direction, w_o)), 50.0) * 1.5;
+            //float backlit = pow(max(0.0, -dot(light$(I)_direction, w_o)), 50.0) * 1.5;
 
             //brightness *= (wrapShading + backlit);
 
@@ -130,9 +132,7 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
                 if (receivesShadows) {
 
                     // Compute projected shadow coord.
-                    vec3 projShadowCoord = project(light$(I)_shadowMap_MVP * vec4(wsPosition 
-                        // wsCenterVertexOutput[0] // TODO: morgan switched temporarily to the center to stabilize stochastic shadowing
-                        + w_i * bias, 1.0));
+                    vec3 projShadowCoord = project(light$(I)_shadowMap_MVP * vec4(wsPosition + w_i * bias, 1.0));
 
                     // From external shadows.  Could use fewer samples for more distant smoke or
                     // average the value at the center
@@ -148,11 +148,16 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
                     visibility *= visibility * visibility;
 
                     // Boost the opacity of lit particles
-                    alphaBoost = max(alphaBoost, directAlphaBoost * visibility);
+                    //alphaBoost = max(alphaBoost, directAlphaBoost * visibility);
 
                     brightness *= visibility;
-                }
+                } // receives shadows
 #           endif
+
+            float brdf = mix(1.0, pow(max(-dot(w_i, w_o), 0.0), forwardScatterStrength * 60.0) * (forwardScatterStrength * 60.0 + 1.0) / 4.0, forwardScatterStrength); 
+
+            // TODO: Maybe need to divide by pi?
+            brightness *= brdf;
 
 //            brightness *= directValueBoost;
 
@@ -160,9 +165,9 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
             //float satBoost = lerp(directSaturationBoost, min(directSaturationBoost, 0.75), clamp(pow(brightness * 0.2, 20.0), 0.0, 1.0));
             // L_in += brightness * boostSaturation(light$(I)_color, satBoost);
             L_in += brightness * light$(I)_color;
-        }
+        } // in spotlight
 
-    }
+    } // for
 #   endfor
 
     return L_in;
@@ -195,7 +200,11 @@ void main() {
         return;
     }
 
-    bool receivesShadows = bool(materialPropertiesVertexOutput[0].z & RECEIVES_SHADOWS_MASK);
+    // Read the particle properties
+    bool  receivesShadows = bool(materialPropertiesVertexOutput[0].z & RECEIVES_SHADOWS_MASK);
+    float radius          = shapeVertexOutput[0].x;
+    float angle           = angleVertexOutput[0];
+    float coverage        = shapeVertexOutput[0].y;
 
     // Used for shadow map bias
     Vector3 wsLook = g3d_CameraToWorldMatrix[2].xyz;
@@ -203,13 +212,11 @@ void main() {
     // TODO: Bend normal for each vertex
     Vector3 normal = normalize(g3d_CameraToWorldMatrix[3].xyz - wsCenterVertexOutput[0]);
 
-    float angle  = angleVertexOutput[0];
     // Fade out alpha as the billboard approaches the near plane
-    const float softParticleFadeRadius = 3.0;
-    alpha = min(1.0, shapeVertexOutput[0].y * saturate((nearPlaneZ - csZ) / softParticleFadeRadius));
+    float softParticleFadeRadius = radius * 3.0;
+    alpha = min(1.0, coverage * saturate((nearPlaneZ - csZ) / softParticleFadeRadius));
 
     // Rotate the particle
-    float radius = shapeVertexOutput[0].x;
     Vector2 csRight = Vector2(cos(angle), sin(angle)) * radius;
     Vector2 csUp    = Vector2(-csRight.y, csRight.x);
 
