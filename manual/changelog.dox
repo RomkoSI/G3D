@@ -132,6 +132,7 @@
 	   <li> G3D::Surface::setStorage </li>
 	   <li> G3D::Tri::setStorage </li>
 	   <li> G3D::Light::spotHardness </li>
+	   <li> G3D::ReferenceCountedObject::createShared </li>
       </ul>
     </p>
 
