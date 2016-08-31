@@ -3,14 +3,22 @@
 { 
     entities = { 
         building = 
-        /* Each entity has a name and is an instance of a model.  The instantiation syntax accepts        two (optional) arguments: a position spline (which can be a single position), and a        pose spline (which can be a single pose). */
+        /* Each entity has a name and is an instance of a model.  The instantiation syntax accepts
+        two (optional) arguments: a position spline (which can be a single position), and a
+        pose spline (which can be a single pose). */
         VisibleEntity { 
             model = "buildingModel"; 
             visible = true; 
         }; 
         
         camera = 
-        /* fillLight = Light {                        type = "DIRECTIONAL";                        frame = CFrame::fromXYZYPRDegrees(inf, inf, inf, 15, 85, 15);                        biradiance = Biradiance3::fromARGB(0x1e324d);                        producesIndirectIllumination = false;                        castsShadows = false;                        }; */
+        /* fillLight = Light {
+                        type = "DIRECTIONAL";
+                        frame = CFrame::fromXYZYPRDegrees(inf, inf, inf, 15, 85, 15);
+                        biradiance = Biradiance3::fromARGB(0x1e324d);
+                        producesIndirectIllumination = false;
+                        castsShadows = false;
+                        }; */
         Camera { 
             depthOfFieldSettings = DepthOfFieldSettings { 
                 enabled = true; 

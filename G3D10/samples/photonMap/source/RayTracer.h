@@ -91,17 +91,17 @@ protected:
 
     class ThreadData {
     public:
-        shared_ptr<Random>  rnd;
-        Array<Tri>          localTri;
+        shared_ptr<Random>   rnd;
+        Array<Tri>           localTri;
     };
 
     /** Array of data so that each threadID may
         have its own and avoid needed locks. */
-    Array< ThreadData >     m_threadData;
+    Array< ThreadData >      m_threadData;
 
     // The following are only valid during a call to render()
     shared_ptr<Image>        m_image;
-    LightingEnvironment m_lighting;
+    LightingEnvironment		 m_lighting;
     shared_ptr<Camera>       m_camera;
     Settings                 m_settings;
 

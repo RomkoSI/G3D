@@ -462,7 +462,7 @@ bool RayTracer::visible(const Point3& Y, const Point3& X, bool shadowRay) const 
     
     distance -= BUMP_EPSILON * 2;
 
-    shared_ptr<Surfel> surfel = castRay(Y + w * BUMP_EPSILON, w, distance, true);
+    const shared_ptr<Surfel>& surfel = castRay(Y + w * BUMP_EPSILON, w, distance, true);
 
     if (isNull(surfel)) {
         return true;
