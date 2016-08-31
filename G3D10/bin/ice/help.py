@@ -119,8 +119,9 @@ For convenience, if run from the source or data-files directory, iCompile
 will automatically step up to the parent directory before compilation.
 
 Edit ice.txt and ~/.icompile if your project has specific configuration needs.
-See manual.html or http://ice.sf.net for full information. iCompile was created
-by Morgan McGuire with additional programming by Robert Hunter and Corey Taylor.
+See icompile.html at http://g3d.cs.williams.edu for full information. iCompile
+was created by Morgan McGuire with additional programming by Robert Hunter, 
+Mike Mara, Sam Donow, and Corey Taylor.
 """))
     sys.exit(0)
 

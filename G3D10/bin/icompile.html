@@ -9,9 +9,13 @@
       body {
       color: black;
       background-color: white;
-      font-family: "Times New Roman", Times, serif;
+      font-family: Palatino, Georgia, "Times New Roman", Times, serif;
+      line-height: 140%;
       padding-left: 3em;
       padding-right: 3em;
+      margin-left: auto;
+      margin-right: auto;
+      max-width:700px;
       }
 
       a:link {
@@ -41,7 +45,26 @@
       }
 
       pre {
-      line-height: 80%;
+         line-height:110%;
+      }
+
+      span.line {
+         display: inline-block;
+         transform:scale(1,1.3); /* W3C */
+      }
+
+      div.grayfolder {
+         display: inline-block;
+         width:16x;
+         height:13px;
+         background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAANCAAAAACF0LH4AAAAAnRSTlMAAHaTzTgAAAA1SURBVHgBvcg3AQAwDAMwEw4g8wkSM8jbp3sSqE4BYGPYmCKkM/SBXYs45NZC28/wSwvYAwUON4hDxHfW/AAAAABJRU5ErkJggg==);
+      }
+
+      div.folder {
+         display: inline-block;
+         width:16x;
+         height:13px;
+         background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAANCAYAAACgu+4kAAAAY0lEQVQoz62SwQkAIQwEt1fb2pq2HZ97n0A4UQnBwJCX4zwCxJDwCgCjMiQ857StgLZZk5CwNI7sykKcgvy5Ai2NLEsBa6gj0H/3CtQp0IsCdQp02UeBao+3gtshnVgv1E3wAa66Cug8NNljAAAAAElFTkSuQmCC);
       }
     </style>
 
@@ -51,14 +74,14 @@
       // See http://www.alanwood.net/demos/wgl4.html for HTML Unicode codes
       function dirTree(src) {
          var dst = src;
-         dst = dst.replace('|--', '&#9500;&#9472;&#9472;');
-         dst = dst.replace('`--', '&#9492;&#9472;&#9472;');
-         dst = dst.replace('|', '&#9474;');
-         dst = dst.replace('`', '&#9492;');
+         dst = dst.replace('|--', '<span class="line">&#9500;&#9472;&#9472;</span>');
+         dst = dst.replace('`--', '<span class="line">&#9492;&#9472;&#9472;</span>');
+         dst = dst.replace('|', '<span class="line">&#9474;</span>');
+         dst = dst.replace('`', '<span class="line">&#9492;</span>');
          if (isGray) {
-            dst = dst.replace('[]', '<img src="http://ice.sf.net/grayfolder.png"/>');
+            dst = dst.replace('[]', '<div class="grayfolder">  </div>');
          } else {
-            dst = dst.replace('[]', '<img src="http://ice.sf.net/folder.png"/>');
+            dst = dst.replace('[]', '<div class="folder">  </div>');
          }
          document.write(dst + '\n');
       }
@@ -70,7 +93,7 @@
     <br/>
     <TABLE WIDTH=100% CELLSPACING=0>
       <TR valign=top>
-        <TD><A HREF="http://ice.sf.net">http://ice.sf.net</A></TD>
+        <TD><A HREF="https://g3d.cs.williams.edu" style="font-family:Georgia; font-size:60%">https://g3d.cs.williams.edu</A></TD>
 
         <TD VALIGN=TOP>
           <CENTER>
@@ -82,8 +105,8 @@
 
         <TD VALIGN=BOTTOM ALIGN=RIGHT>
           <FONT SIZE=2>
-            <I>Version 0.5.16
-              <BR>2011-03-22
+            <I>Version 0.5.22
+              <BR>2016-08-31
           </FONT>
         </TD>
     </TR>
@@ -171,18 +194,14 @@
     <A NAME="installation"/>
     <H1>Installation</H1>
     <p>
-      Download the latest version of iCompile
-      from <A HREF="http://ice.sf.net">http://ice.sf.net</A> and put
-      it in a directory (such as <CODE>/usr/bin</CODE>) that is listed in
-      your <CODE>PATH</CODE> environment variable.
+      iCompile is currently distributed with the <a href="https://g3d.cs.williams.edu">G3D Innovation Engine</a>
+      as <code>bin/icompile</code> and <code>bin/ice/*</code>.
     </P>
     <P>
       iCompile is a Python script and requires at least 
-      <A HREF="http://www.python.org/">Python&nbsp;2.6</a> to
-      run.  You can check the version of your Python version using the
-      command "<CODE>python -V</CODE>".  If you are running an old
-      version of Python, iCompile will print the error "<CODE>Illegal
-      syntax</CODE>" for the "<CODE>-=</CODE>" operator.
+      <A HREF="http://www.python.org/">Python&nbsp;3</a> to
+      run. You can check the version of your Python version using the
+      command "<CODE>python -V</CODE>" or "<code>python3 -V</code>".
     </p>
     <p>
       If you use any libraries that are <I>not</I> installed in
@@ -453,8 +472,8 @@ For convenience, if run from the source or data-files directory, iCompile
 will automatically step up to the parent directory before compilation.
 
 Edit ice.txt and ~/.icompile if your project has specific configuration needs.
-See manual.html or http://ice.sf.net for full information. iCompile was created
-by Morgan McGuire with additional programming by Robert Hunter and Corey Taylor.
+iCompile was created by Morgan McGuire with additional programming by
+Robert Hunter and Corey Taylor.
        </pre>
                   
 
@@ -587,13 +606,12 @@ similar to iCompile, but written in C++ for DOS/Windows. iCompile offers more fe
 <hr noshade/>
 
 <i>
-<BR>Manual Copyright 2003-2011, Morgan McGuire
+<BR>Manual Copyright 2003-2016, Morgan McGuire
 <BR>All rights reserved.
-<BR>Original iCompile concept by Morgan McGuire and Rob Hunter
-<BR>iCompile by Morgan McGuire, Corey Taylor, and Rob Hunter
+<BR>iCompile maintained by Morgan McGuire as open source.
+<BR>Code by Morgan McGuire, Rob Hunter, Mike Mara, Sam Donow, and Corey Taylor.
 </i>
 </body>
 </html>
-
 
 
