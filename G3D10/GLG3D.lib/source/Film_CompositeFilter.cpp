@@ -103,6 +103,8 @@ void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings
         m_temp     = Texture::createEmpty("G3D::Film::CompositeFilter::m_temp",     w, h / 4,     m_intermediateFormat, Texture::DIM_2D, generateMipMaps);
         m_blurry   = Texture::createEmpty("G3D::Film::CompositeFilter::m_blurry",   w / 4, h / 4, m_intermediateFormat, Texture::DIM_2D, generateMipMaps);
 
+        const bool w = rd->depthWrite();
+        rd->setDepthWrite(false);
         // Clear the newly created textures
         m_preBloom->clear(CubeFace::POS_X, 0, rd);
         m_temp->clear(CubeFace::POS_X, 0, rd);
@@ -111,6 +113,8 @@ void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings
         m_framebuffer->set(Framebuffer::COLOR0, m_preBloom);
         m_tempFramebuffer->set(Framebuffer::COLOR0, m_temp);
         m_blurryFramebuffer->set(Framebuffer::COLOR0, m_blurry);
+
+        rd->setDepthWrite(w);
     }
 
     // Bloom
