@@ -562,7 +562,8 @@ float TriTree::Node::SAHCost(Vector3::Axis axis, float offset, const Array<Poly>
 
 static bool __fastcall rayTriangleIntersection
    (const Ray&                         ray,
-    float                              distance,
+    float                              minDistance,
+    float                              maxDistance,
     const Tri&                         tri,
     const CPUVertexArray&              vertexArray,
     TriTreeBase::Hit&                  hitData,
@@ -625,7 +626,7 @@ static bool __fastcall rayTriangleIntersection
     
     const float t = e2.dot(q);
 
-    if ((t > 0.0f) && (t < distance)) {
+    if ((t > minDistance) && (t < maxDistance)) {
         const bool alphaTest = ((options & TriTree::NO_PARTIAL_COVERAGE_TEST) == 0);
         const float alphaThreshold = ((options & TriTree::PARTIAL_COVERAGE_THRESHOLD_ZERO) != 0) ? 1.0f : 0.5f;
 
@@ -696,7 +697,7 @@ bool __fastcall TriTree::Node::intersectRay
         // Test for intersection against every object at this node.
         for (int v = 0; v < valueArray->size; ++v) { 
             const Tri& tri = *(valueArray->data[v]);
-            const bool justHit = rayTriangleIntersection(ray, maxDistance, tri, triTree.m_vertexArray, hitData, options);
+            const bool justHit = rayTriangleIntersection(ray, ray.minDistance(), maxDistance, tri, triTree.m_vertexArray, hitData, options);
             
             if (justHit) {
                 hit = true;
