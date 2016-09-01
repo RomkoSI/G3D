@@ -11,10 +11,13 @@
  */
 #include "G3D/Random.h"
 #include "G3D/Table.h"
+#include "G3D/GMutex.h"
 
 namespace G3D {
 
 Random& Random::threadCommon() {
+    Spinlock lock;
+    lock.lock();
     static Table<std::thread::id, Random> table;
     std::thread::id id = std::this_thread::get_id();
     bool created = false;
@@ -22,6 +25,7 @@ Random& Random::threadCommon() {
     if (created) {
         rng.reset(0xF018A4D2 ^ uint32(std::hash<std::thread::id>()(id)), false);
     }
+    lock.unlock();
     return rng;
 }
 

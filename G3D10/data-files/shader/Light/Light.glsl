@@ -147,7 +147,7 @@ float varianceShadowMapVisibility(vec4 shadowCoord, float lightSpaceZ, sampler2D
 const float attenuationThreshold = 2e-17;
 
 
-/** Returns a number between 0 and 1 for how the light falls off due to the spot light's cone*/
+/** Returns a number between 0 and 1 for how the light falls off due to the spot light's cone. */
 float spotLightFalloff
    (vec3                w_i, 
     vec3                lightLookVector, 
@@ -170,8 +170,6 @@ float spotLightFalloff
             float(dot(w_vertical,   lightLookVector) <= -cosHalfAngle + 1e-5);
     } else {
         return clamp((-dot(lightLookVector, w_i) - cosHalfAngle) * lightSoftnessConstant, 0.0, 1.0);
-            
-//            dot(lightLookVector, w_i) <= -cosFOV + 1e-5;
     }
 }
 

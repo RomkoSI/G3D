@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2003-11-12
-  \edited  2016-08-26
+  \edited  2016-09-01
 
   G3D Innovation Engine
   Copyright 2000-2016, Morgan McGuire.
@@ -186,6 +186,8 @@ protected:
     float               m_nearPlaneZLimit;
     float               m_farPlaneZLimit;
 
+    void getSpotConstants(float& cosHalfAngle, float& softnessConstant) const;
+
 public:
 
     /** The attenuation observed by an omni or spot light is 
@@ -271,6 +273,9 @@ public:
     void setSpotHardness(float f) {
         m_spotHardness = clamp(f, 0.0f, 1.0f);
     }
+
+    /** Returns a number between 0 and 1 for how the light falls off due to the spot light's cone. */
+    float spotLightFalloff(const Vector3& w_i) const;
 
     /** For a SPOT or OMNI light, the power of the bulb.  A SPOT light also has "barn doors" that
         absorb the light leaving in most directions, so their emittedPower() is less. 
