@@ -97,7 +97,7 @@ public:
         System::free(p);
     }
 
-    UniversalSurfel() {}
+    UniversalSurfel() : glossyReflectionExponent(0.0f), coverage(1.0f), isTransmissive(false) {}
 
     UniversalSurfel(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside);
 
