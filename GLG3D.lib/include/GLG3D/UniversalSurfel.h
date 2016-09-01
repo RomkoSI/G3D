@@ -99,6 +99,10 @@ public:
 
     UniversalSurfel() : glossyReflectionExponent(0.0f), coverage(1.0f), isTransmissive(false) {}
 
+    static shared_ptr<UniversalSurfel> create() {
+        return std::make_shared<UniversalSurfel>();
+    }
+
     UniversalSurfel(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside);
 
     virtual Radiance3 emittedRadiance(const Vector3& wo) const override;
