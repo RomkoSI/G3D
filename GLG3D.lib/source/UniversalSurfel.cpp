@@ -139,7 +139,7 @@ UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex,
 
     const Color4& packG = bsdf->glossy().sample(texCoord);
     glossyReflectionCoefficient  = packG.rgb();
-    glossyReflectionExponent     = UniversalBSDF::unpackGlossyExponent(packG.a);
+    smoothness     = packG.a;
     
     transmissionCoefficient = bsdf->transmissive().sample(texCoord);
 
@@ -147,14 +147,8 @@ UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex,
 }
 
 
-float UniversalSurfel::smoothness() const {
-    return UniversalBSDF::packGlossyExponent(glossyReflectionExponent);
-}
-
-
-void UniversalSurfel::setSmoothness(float a) {
-    debugAssert(a >= 0 && a <= 1.0);
-    glossyReflectionExponent = UniversalBSDF::unpackGlossyExponent(a);
+float UniversalSurfel::blinnPhongExponent() const {
+    return UniversalBSDF::packGlossyExponent(smoothness);
 }
 
 
@@ -200,16 +194,16 @@ Color3 UniversalSurfel::finiteScatteringDensity
 
     Color3 S(Color3::zero());
     Color3 F(Color3::zero());
-    if ((glossyReflectionExponent != 0) && (glossyReflectionCoefficient.nonZero())) {
+    if ((smoothness != 0.0f) && (glossyReflectionCoefficient.nonZero())) {
         // Glossy
 
         // Half-vector
         const Vector3& w_h = (wi + wo).direction();
         const float cos_h = max(0.0f, w_h.dot(n));
         
-        const float s = min(glossyReflectionExponent, maxShininess);
+        const float s = min(blinnPhongExponent(), maxShininess);
         
-        F = schlickFresnel(glossyReflectionCoefficient, cos_i, UniversalBSDF::packGlossyExponent(s));
+        F = schlickFresnel(glossyReflectionCoefficient, cos_i, smoothness);
         if (s == finf()) {
             S = Color3::zero();
         } else {
@@ -243,7 +237,7 @@ void UniversalSurfel::getImpulses
     ////////////////////////////////////////////////////////////////////////////////
 
     // If there is mirror reflection
-    if (glossyReflectionCoefficient.nonZero() && (glossyReflectionExponent == inf())) {
+    if (glossyReflectionCoefficient.nonZero() && (smoothness == 1.0f)) {
         // Cosine of the angle of incidence, for computing F
         const float cos_i = max(0.001f, wi.dot(n));
         F = schlickFresnel(glossyReflectionCoefficient, cos_i, 1.0f);
@@ -307,8 +301,11 @@ Color3 UniversalSurfel::reflectivity(Random& rng,
 }
 
 
-Color3 UniversalSurfel::probabilityOfScattering(PathDirection pathDirection, const Vector3& w, Random& rng,
- const ExpressiveParameters& expressiveParameters) const {
+Color3 UniversalSurfel::probabilityOfScattering
+   (PathDirection   pathDirection,
+    const Vector3&  w,
+    Random&         rng,
+    const ExpressiveParameters& expressiveParameters) const {
 
     if (glossyReflectionCoefficient.isZero() && transmissionCoefficient.isZero()) {
         // No Fresnel term, so trivial to compute
@@ -321,6 +318,5 @@ Color3 UniversalSurfel::probabilityOfScattering(PathDirection pathDirection, con
         return Surfel::probabilityOfScattering(pathDirection, w, rng, expressiveParameters);
     }
 }
-
 
 } // namespace

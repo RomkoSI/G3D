@@ -2,7 +2,7 @@
     \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
     \created 2011-07-01
-    \edited  2016-07-16
+    \edited  2016-09-01
     
  G3D Innovation Engine
  Copyright 2000-2016, Morgan McGuire.
@@ -33,10 +33,7 @@ public:
     Color3          lambertianReflectivity;
 
     Color3          glossyReflectionCoefficient;
-    
-    /** \deprecated Use smoothness */
-    float           glossyReflectionExponent;
-    
+        
     Color3          transmissionCoefficient;
 
     /* 
@@ -64,16 +61,10 @@ public:
       the \f$\alpha\f$ parameter of the Generalized Trowbridge-Reitz
       microfacet BSDF (GTR/GGX).
 
-
-      \beta
-      G3D 10.0 release version will move this method to a member variable
-      that will replace
-
       \sa blinnPhongExponent
     */
-    float smoothness() const;
+    float           smoothness;
 
-    void setSmoothness(float a);
 
     /** The glossy exponent in the Blinn-Phong BSDF.
 
@@ -81,9 +72,7 @@ public:
         become approximate in the future when UniversalSurfel
         moves to the GTR2/GGX microfacet model.
      */
-    float blinnPhongExponent() const {
-        return glossyReflectionExponent;
-    }
+    float blinnPhongExponent() const;
 
     /** Allocates with System::malloc to avoid the performance
         overhead of creating lots of small heap objects using
@@ -97,7 +86,7 @@ public:
         System::free(p);
     }
 
-    UniversalSurfel() : glossyReflectionExponent(0.0f), coverage(1.0f), isTransmissive(false) {}
+    UniversalSurfel() : smoothness(0.0f), coverage(1.0f), isTransmissive(false) {}
 
     static shared_ptr<UniversalSurfel> create() {
         return std::make_shared<UniversalSurfel>();
@@ -124,8 +113,7 @@ public:
      const ExpressiveParameters& expressiveParameters = ExpressiveParameters()) const override;
 
     virtual bool nonZeroFiniteScattering() const override {
-        return (isFinite(glossyReflectionExponent) && glossyReflectionCoefficient.nonZero()) 
-            || lambertianReflectivity.nonZero();
+        return ((smoothness < 1.0f) && glossyReflectionCoefficient.nonZero()) || lambertianReflectivity.nonZero();
     }
 
     /** 
