@@ -181,7 +181,7 @@ private:
     }
 
     /** Number of elements in the table.*/
-    size_t              m_size;
+    size_t                      m_size;
 
     /**
      Array of Node*. 
@@ -189,14 +189,14 @@ private:
      We don't use Array<Node*> because Table is lower-level than Array.
      Some elements may be NULL.
      */
-    Node**              m_bucket;
+    Node**                      m_bucket;
     
     /**
      Length of the m_bucket array.
      */
-    size_t              m_numBuckets;
+    size_t                      m_numBuckets;
 
-    shared_ptr<MemoryManager>  m_memoryManager;
+    shared_ptr<MemoryManager>   m_memoryManager;
 
     void* alloc(size_t s) const {
         return m_memoryManager->alloc(s);
@@ -210,13 +210,13 @@ private:
      Re-hashes for a larger m_bucket size.
      */
     void resize(size_t newSize) {
-
+        alwaysAssertM((m_bucket != nullptr) || (m_numBuckets == 0), "Internal pointer is null even though buckets have been allocated.");
         // Hang onto the old m_bucket array
         Node** oldBucket = m_bucket;
 
         // Allocate a new m_bucket array with the new size
         m_bucket = (Node**)alloc(sizeof(Node*) * newSize);
-        alwaysAssertM(m_bucket != NULL, "MemoryManager::alloc returned NULL. Out of memory.");
+        alwaysAssertM(m_bucket != nullptr, "MemoryManager::alloc returned nullptr. Out of memory.");
         // Set all pointers to NULL
         System::memset(m_bucket, 0, newSize * sizeof(Node*));
         // Move each node to its new hash location
@@ -224,7 +224,7 @@ private:
             Node* node = oldBucket[b];
          
             // There is a linked list of nodes at this m_bucket
-            while (node != NULL) {
+            while (node != nullptr) {
                 // Hang onto the old next pointer
                 Node* nextNode = node->next;
         
@@ -238,12 +238,13 @@ private:
             }
 
             // Drop the old pointer for cleanliness when debugging
-            oldBucket[b] = NULL;
+            oldBucket[b] = nullptr;
         }
 
         // Delete the old storage
         free(oldBucket);
-        this->m_numBuckets = newSize;
+        m_numBuckets = newSize;
+        alwaysAssertM(m_bucket != nullptr, "Buckets were null after allocation");
 
         checkIntegrity();
     }
@@ -254,17 +255,17 @@ private:
             return;
         }
 
-        debugAssert(m_bucket == NULL);
+        debugAssert(m_bucket == nullptr);
         m_size = h.m_size;
         m_numBuckets = h.m_numBuckets;
         m_bucket = (Node**)alloc(sizeof(Node*) * m_numBuckets);
         // No need to NULL elements since we're about to overwrite them
 
         for (size_t b = 0; b < m_numBuckets; ++b) {
-            if (h.m_bucket[b] != NULL) {
+            if (h.m_bucket[b] != nullptr) {
                 m_bucket[b] = h.m_bucket[b]->clone(m_memoryManager);
             } else {
-                m_bucket[b] = NULL;
+                m_bucket[b] = nullptr;
             }
         }
 

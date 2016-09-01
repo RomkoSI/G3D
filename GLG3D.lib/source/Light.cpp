@@ -199,12 +199,41 @@ Biradiance3 Light::biradiance(const Point3& X) const {
     const float d = wi.length();
     wi /= d;
 
-    if (inFieldOfView(wi)) {
-        return bulbPower() / (4 * pif() * (attenuation[0] + attenuation[1] * d + attenuation[2] * square(d)));
+    const Biradiance3& b = bulbPower() / (4 * pif() * (attenuation[0] + attenuation[1] * d + attenuation[2] * square(d)));
+
+    if (m_type == Type::SPOT) {
+        return b * spotLightFalloff(wi);
     } else {
-        return Biradiance3::zero();
+        return b;
     }
 }
+
+
+float Light::spotLightFalloff(const Vector3& w_i)  const {
+
+    float cosHalfAngle, softnessConstant;
+    getSpotConstants(cosHalfAngle, softnessConstant);
+
+    const Vector3& look  = frame().lookVector();
+    const Vector3& up    = frame().upVector();
+    const Vector3& right = frame().rightVector();
+
+    // When the light field of view is very small, we need to be very careful with precision 
+    // on the computation below, so there are epsilon values in the comparisons.
+    if (m_spotSquare) {
+        // Project wi onto the light's xz-plane and then normalize
+        Vector3 w_horizontal = normalize(w_i - w_i.dot(right) * right);
+        Vector3 w_vertical   = normalize(w_i - w_i.dot(up)    * up);
+
+        // Now test against the view cone in each of the planes 
+        return
+            float(w_horizontal.dot(look) <= -cosHalfAngle + 1e-5f) *
+            float(w_vertical.dot(look) <= -cosHalfAngle + 1e-5f);
+    } else {
+        return clamp((-look.dot(w_i) - cosHalfAngle) * softnessConstant, 0.0f, 1.0f);
+    }
+}
+
 
 
 Vector3 Light::randomEmissionDirection(Random& rng) const {
@@ -527,6 +556,20 @@ void Light::computeFrame(const Vector3& spotDirection, const Vector3& rightDirec
 }
 
 
+void Light::getSpotConstants(float& cosHalfAngle, float& softnessConstant) const {
+    cosHalfAngle = -1.0f;
+
+    if (spotHalfAngle() < pif()) {
+        // Spot light
+        const float angle = spotHalfAngle();
+        cosHalfAngle = cos(angle);
+    }
+
+    const float epsilon = 1e-10f;
+    softnessConstant = 1.0f / ((1.0f - m_spotHardness + epsilon) * (1.0f - cosHalfAngle));
+}
+
+
 void Light::setShaderArgs(UniformTable& args, const String& prefix) const {
     args.setUniform(prefix + "stochasticShadows", m_stochasticShadows);
     args.setUniform(prefix + "position",    position());
@@ -536,24 +579,16 @@ void Light::setShaderArgs(UniformTable& args, const String& prefix) const {
     args.setUniform(prefix + "up",          frame().upVector());
     args.setUniform(prefix + "right",       frame().rightVector());
     
-    float cosHalfAngle = -1;
-
-    if (spotHalfAngle() < pif()) {
-        // Spot light
-        const float angle = spotHalfAngle();
-        cosHalfAngle = cos(angle);
-    }
-
-    const float epsilon = 1e-10f;
-    const float lightSoftnessConstant = 1.0f / ((1.0f - m_spotHardness + epsilon) * (1.0f - cosHalfAngle));
-
+    float cosHalfAngle, softnessConstant;
+    getSpotConstants(cosHalfAngle, softnessConstant);
+    
     args.setUniform(prefix + "attenuation",
         Vector4(attenuation[0],
             attenuation[1],
             attenuation[2],
             cosHalfAngle));
 
-    args.setUniform(prefix + "softnessConstant", lightSoftnessConstant);
+    args.setUniform(prefix + "softnessConstant", softnessConstant);
 
     const float lightRadius = m_extent.length() / 2.0f;
     args.setUniform(prefix + "radius", lightRadius);
