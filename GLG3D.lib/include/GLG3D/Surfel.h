@@ -211,9 +211,6 @@ public:
         Useful for computing velocity. */
     Point3            prevPosition;
 
-    /** \deprecated Use position.*/
-    Point3&           location;
-
     /** The normal to the true underlying geometry of the patch that
         was sampled (e.g., the face normal).  This is often useful for ray bumping. 
 
@@ -289,7 +286,7 @@ public:
 protected:
 
     Surfel
-    (const String& name,
+    (const String&     name,
      const Point3&     position,
      const Point3&     prevPosition,
      const Vector3&    geometricNormal,
@@ -306,7 +303,7 @@ protected:
 
 public:
 
-    Surfel() : location(position) {}
+    Surfel() : etaPos(1.0f), etaNeg(1.0f) {}
 
     virtual ~Surfel() {}
 

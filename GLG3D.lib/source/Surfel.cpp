@@ -64,7 +64,6 @@ Surfel::Surfel
     name(name),
     position(_pos),
     prevPosition(_prevPos),
-    location(position),
     geometricNormal(geometricNormal),
     shadingNormal(shadingNormal),
     shadingTangent1(shadingTangent1),
