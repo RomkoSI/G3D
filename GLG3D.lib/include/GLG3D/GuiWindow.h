@@ -138,7 +138,7 @@ protected:
     class Modal {
     public:
         UserInput*          userInput;
-        WidgetManager::Ref  manager;
+        shared_ptr<WidgetManager>  manager;
         OSWindow*           osWindow;
         RenderDevice*       renderDevice;
         

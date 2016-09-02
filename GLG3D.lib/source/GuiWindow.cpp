@@ -251,6 +251,7 @@ static GEvent makeRelative(const GEvent& e, const Vector2& clientOrigin) {
     return out;
 }
 
+
 bool GuiWindow::processMouseButtonDownEventForFocusChangeAndWindowDrag(const GEvent& event) {
     bool consumed = false;
 
@@ -276,8 +277,7 @@ bool GuiWindow::processMouseButtonDownEventForFocusChangeAndWindowDrag(const GEv
 
     titleRect = m_theme->windowToTitleBounds(m_rect, GuiTheme::WindowStyle(m_style));
     closeRect = m_theme->windowToCloseButtonBounds(m_rect, GuiTheme::WindowStyle(m_style));
-
-
+    
     if ((m_closeAction != NO_CLOSE) && closeRect.contains(mouse)) {
         close();
         return true;
@@ -286,7 +286,7 @@ bool GuiWindow::processMouseButtonDownEventForFocusChangeAndWindowDrag(const GEv
     GuiControl* oldFocusControl = keyFocusGuiControl;
     if (titleRect.contains(mouse) && (m_style != GuiTheme::MENU_WINDOW_STYLE)) {
         inDrag = true;
-        keyFocusGuiControl = NULL;
+        keyFocusGuiControl = nullptr;
         dragStart = mouse;
         dragOriginalRect = m_rect;
         return true;
@@ -294,7 +294,7 @@ bool GuiWindow::processMouseButtonDownEventForFocusChangeAndWindowDrag(const GEv
     } else if (resizable() && resizeFrameContains(mouse)) {
         // Resizable border click
         inResize = true;
-        keyFocusGuiControl = NULL;
+        keyFocusGuiControl = nullptr;
         dragStart = mouse;
         dragOriginalRect = m_rect;
         return true;
@@ -303,7 +303,7 @@ bool GuiWindow::processMouseButtonDownEventForFocusChangeAndWindowDrag(const GEv
         // Interior click
         mouse -= m_clientRect.x0y0();
 
-        keyFocusGuiControl = NULL;
+        keyFocusGuiControl = nullptr;
         m_rootPane->findControlUnderMouse(mouse, keyFocusGuiControl);
     }
 
@@ -401,18 +401,18 @@ bool GuiWindow::onEvent(const GEvent& event) {
     
     bool consumed = false;
 
-    if (keyFocusGuiControl != NULL) {
+    if (notNull(keyFocusGuiControl)) {
         // Deliver event to the control that has focus
       
         // Walk the GUI hierarchy  
-        for (GuiControl* target = keyFocusGuiControl; (target != NULL) && ! consumed; target = target->m_parent) {
+        for (GuiControl* target = keyFocusGuiControl; notNull(target) && ! consumed; target = target->m_parent) {
             if (event.isMouseEvent()) {
 
                 Point2 origin = m_clientRect.x0y0();
 
                 // Make the event relative by accumulating all of the transformations
                 GuiContainer* p = target->m_parent;
-                while (p != NULL) {
+                while (notNull(p)) {
                     origin += p->clientRect().x0y0();
                     p = p->m_parent;
                 }

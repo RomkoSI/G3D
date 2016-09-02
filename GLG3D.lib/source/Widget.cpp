@@ -41,7 +41,7 @@ Ray EventCoordinateMapper::eventPixelToCameraSpaceRay(const Point2& pixel) const
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void Widget::fireEvent(const GEvent& event) {
-    if(notNull(m_manager)) {
+    if (notNull(m_manager)) {
         m_manager->fireEvent(event);
     }
 }
@@ -61,8 +61,8 @@ OSWindow* WidgetManager::window() const {
 }
 
 
-WidgetManager::Ref WidgetManager::create(OSWindow* window) {
-    WidgetManager::Ref m(new WidgetManager());
+shared_ptr<WidgetManager> WidgetManager::create(OSWindow* window) {
+    shared_ptr<WidgetManager> m(new WidgetManager());
     m->m_window = window;
     return m;
 }
@@ -72,7 +72,7 @@ void WidgetManager::fireEvent(const GEvent& event) {
     if (GEventType(event.type).isGuiEvent()) {
         debugAssertM(notNull(event.gui.control), "GUI events must have non-NULL controls.");
         GuiContainer* parent = event.gui.control->m_parent;
-        if (parent != NULL) {
+        if (notNull(parent)) {
             if (parent->onChildControlEvent(event)) {
                 // The event was suppressed by the GUI hierarchy
                 return;
@@ -434,13 +434,13 @@ void WidgetManager::onAfterEvents() {
 
 #undef ITERATOR
 
-bool WidgetManager::onEvent(const GEvent& event, WidgetManager::Ref& a) {
+bool WidgetManager::onEvent(const GEvent& event, shared_ptr<WidgetManager>& a) {
     static shared_ptr<WidgetManager> s;
     return onEvent(event, a, s);
 }
 
 
-bool WidgetManager::onEvent(const GEvent& event, WidgetManager::Ref& a, WidgetManager::Ref& b) {
+bool WidgetManager::onEvent(const GEvent& event, shared_ptr<WidgetManager>& a, shared_ptr<WidgetManager>& b) {
     a->beginLock();
     if (b) {
         b->beginLock();
