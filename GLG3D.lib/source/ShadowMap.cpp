@@ -22,6 +22,8 @@ ShadowMap::ShadowMap(const String& name) :
     m_name(name), 
     m_baseLayer(name + " m_baseLayer"),
     m_dynamicLayer(name + " m_dynamicLayer"),
+    m_vsmSourceBaseLayer(name + "m_vsmSourceBaseLayer"),
+    m_vsmSourceDynamicLayer(name + "m_vsmSourceDynamicLayer"),
     m_bias(1.5f * units::centimeters()),
     m_polygonOffset(0.0f),
     m_backfacePolygonOffset(0.0f),
@@ -56,26 +58,29 @@ void ShadowMap::setSize(Vector2int16 desiredSize) {
     m_dynamicLayer.setSize(desiredSize);
     m_baseLayer.setSize(desiredSize);
     if (useVarianceShadowMap()) {
-        if (desiredSize.x == 0) {
+        const Vector2int16 vsmSize = m_vsmSettings.baseSize;
+        m_vsmSourceBaseLayer.setSize(vsmSize);
+        m_vsmSourceDynamicLayer.setSize(vsmSize);
+        if (vsmSize.x == 0) {
             m_varianceShadowMapFB.reset();
             return;
         }
         const bool generateMipMaps = false;
         shared_ptr<Texture> vsm = Texture::createEmpty
             (name() + "_VSMRaw",
-                desiredSize.x, desiredSize.y,
+                vsmSize.x, vsmSize.y,
                 ImageFormat::RG32F(),
                 Texture::DIM_2D,
                 generateMipMaps);
         shared_ptr<Texture> vsmHBlur = Texture::createEmpty
             (name() + "_VSMHBlur",
-                desiredSize.x / m_vsmSettings.downsampleFactor, desiredSize.y,
+                vsmSize.x / m_vsmSettings.downsampleFactor, vsmSize.y,
                 ImageFormat::RG32F(),
                 Texture::DIM_2D,
                 generateMipMaps);
         shared_ptr<Texture> vsmFinal = Texture::createEmpty
             (name() + "_VSMFinal",
-                desiredSize.x / m_vsmSettings.downsampleFactor, desiredSize.y / m_vsmSettings.downsampleFactor,
+                vsmSize.x / m_vsmSettings.downsampleFactor, vsmSize.y / m_vsmSettings.downsampleFactor,
                 ImageFormat::RG32F(),
                 Texture::DIM_2D,
                 generateMipMaps);
@@ -131,8 +136,12 @@ void ShadowMap::updateDepth
  const Matrix4&                     lightProjectionMatrix,
  const Array<shared_ptr<Surface> >& shadowCaster,
  CullFace                           cullFace,
- const Color3&                      transmissionWeight) {
-
+ const Color3&                      transmissionWeight,
+ const RenderPassType               passType) {
+    debugAssertM(passType == RenderPassType::SHADOW_MAP || 
+        passType == RenderPassType::OPAQUE_SHADOW_MAP || 
+        passType == RenderPassType::TRANSPARENT_SHADOW_MAP,
+        "ShadowMap::updateDepth must be called with appropriate RenderPassType");
     m_lastRenderDevice = renderDevice;
 
     // Segment the shadow casters into base (static) and dynamic arrays, and 
@@ -151,29 +160,36 @@ void ShadowMap::updateDepth
     size_t   dynamicShadowCasterEntityHash = 0;
     for (int i = 0; i < shadowCaster.length(); ++i) {
         const shared_ptr<Surface>& c = shadowCaster[i];
-        if (c->canChange()) {
-            dynamicArray.append(c);
-            // Prevent the hash from being zero by adding 1. Don't XOR the entitys
-            // because that would make two surfaces from the same entity cancel.
-            dynamicShadowCasterEntityHash += 1 + intptr_t(c->entity().get());
-            lastDynamicShadowCasterChangeTime = max(lastDynamicShadowCasterChangeTime, c->lastChangeTime());
-        } else {
-            baseArray.append(c);
-            baseShadowCasterEntityHash += 1 + intptr_t(c->entity().get());
-            lastBaseShadowCasterChangeTime = max(lastBaseShadowCasterChangeTime, c->lastChangeTime());
+        bool valid = (passType == RenderPassType::SHADOW_MAP) ||
+            (passType == RenderPassType::OPAQUE_SHADOW_MAP != c->hasTransmission());
+        if (valid) {
+            if (c->canChange()) {
+                dynamicArray.append(c);
+                // Prevent the hash from being zero by adding 1. Don't XOR the entitys
+                // because that would make two surfaces from the same entity cancel.
+                dynamicShadowCasterEntityHash += 1 + intptr_t(c->entity().get());
+                lastDynamicShadowCasterChangeTime = max(lastDynamicShadowCasterChangeTime, c->lastChangeTime());
+            } else {
+                baseArray.append(c);
+                baseShadowCasterEntityHash += 1 + intptr_t(c->entity().get());
+                lastBaseShadowCasterChangeTime = max(lastBaseShadowCasterChangeTime, c->lastChangeTime());
+            }
         }
     }
+    bool vsmPass = (passType == RenderPassType::TRANSPARENT_SHADOW_MAP);
+    ShadowMap::Layer& baseLayer = vsmPass ? m_vsmSourceBaseLayer : m_baseLayer;
+    ShadowMap::Layer& dynamicLayer = vsmPass ? m_vsmSourceDynamicLayer : m_dynamicLayer;
 
     if ((m_lightProjection != lightProjectionMatrix) ||
         (m_lightFrame != lightCFrame)) {
         // The light itself moved--recompute everything
-        m_dynamicLayer.lastUpdateTime = m_baseLayer.lastUpdateTime = 0.0;
+        dynamicLayer.lastUpdateTime = baseLayer.lastUpdateTime = 0.0;
     }
 
     if ((max(lastBaseShadowCasterChangeTime, lastDynamicShadowCasterChangeTime) < 
-         min(m_baseLayer.lastUpdateTime, m_dynamicLayer.lastUpdateTime)) &&
-        (baseShadowCasterEntityHash == m_baseLayer.entityHash) &&
-        (dynamicShadowCasterEntityHash == m_dynamicLayer.entityHash)) {
+         min(baseLayer.lastUpdateTime, dynamicLayer.lastUpdateTime)) &&
+        (baseShadowCasterEntityHash == baseLayer.entityHash) &&
+        (dynamicShadowCasterEntityHash == dynamicLayer.entityHash)) {
         // Everything is up to date, so there's no reason to re-render the shadow map
         return;
     }
@@ -197,28 +213,28 @@ void ShadowMap::updateDepth
     m_unitLightProjection = unitize * m_lightProjection;
     m_unitLightMVP = unitize * m_lightMVP;
 
-    if ((lastBaseShadowCasterChangeTime > m_baseLayer.lastUpdateTime) ||
-        (baseShadowCasterEntityHash != m_baseLayer.entityHash)) {
-        m_baseLayer.updateDepth(renderDevice, this, baseArray, cullFace, nullptr, m_stochastic, transmissionWeight);
+    if ((lastBaseShadowCasterChangeTime > baseLayer.lastUpdateTime) ||
+        (baseShadowCasterEntityHash != baseLayer.entityHash)) {
+        baseLayer.updateDepth(renderDevice, this, baseArray, cullFace, nullptr, m_stochastic, transmissionWeight);
     }
 
     // Render the dynamic layer if the dynamic layer OR the base layer changed
-    if ((lastBaseShadowCasterChangeTime > m_baseLayer.lastUpdateTime) || 
-        (lastDynamicShadowCasterChangeTime > m_dynamicLayer.lastUpdateTime) ||
-        (baseShadowCasterEntityHash != m_baseLayer.entityHash) ||
-        (dynamicShadowCasterEntityHash != m_dynamicLayer.entityHash)) {
+    if ((lastBaseShadowCasterChangeTime > baseLayer.lastUpdateTime) || 
+        (lastDynamicShadowCasterChangeTime > dynamicLayer.lastUpdateTime) ||
+        (baseShadowCasterEntityHash != baseLayer.entityHash) ||
+        (dynamicShadowCasterEntityHash != dynamicLayer.entityHash)) {
 
-        m_dynamicLayer.updateDepth(renderDevice, this, dynamicArray, cullFace, 
+        dynamicLayer.updateDepth(renderDevice, this, dynamicArray, cullFace, 
             // Only pass the base layer if it is not empty
-            (baseShadowCasterEntityHash == 0) ? nullptr : m_baseLayer.framebuffer,
+            (baseShadowCasterEntityHash == 0) ? nullptr : baseLayer.framebuffer,
             m_stochastic, transmissionWeight);
 
-        if (m_vsmSettings.enabled) {
+        if (m_vsmSettings.enabled && vsmPass) {
             renderDevice->push2D(m_varianceShadowMapFB); {
                 Projection projection(m_lightProjection);
                 Args args;
                 args.setUniform("clipInfo", projection.reconstructFromDepthClipInfo());
-                m_dynamicLayer.depthTexture->setShaderArgs(args, "depth_", Sampler::buffer());
+                dynamicLayer.depthTexture->setShaderArgs(args, "depth_", Sampler::buffer());
                 args.setRect(renderDevice->viewport());
                 LAUNCH_SHADER("Light/Light_convertToVSM.pix", args);
             } renderDevice->pop2D();
@@ -239,8 +255,8 @@ void ShadowMap::updateDepth
         }
     }
 
-    m_baseLayer.entityHash = baseShadowCasterEntityHash;
-    m_dynamicLayer.entityHash = dynamicShadowCasterEntityHash;
+    baseLayer.entityHash = baseShadowCasterEntityHash;
+    dynamicLayer.entityHash = dynamicShadowCasterEntityHash;
 }
 
 
@@ -414,6 +430,7 @@ ShadowMap::VSMSettings::VSMSettings(const Any & a) {
     r.getIfPresent("filterRadius", filterRadius);
     r.getIfPresent("downsampleFactor", downsampleFactor);
     r.getIfPresent("lightBleedReduction", lightBleedReduction);
+    r.getIfPresent("baseSize", baseSize);
     downsampleFactor = max(downsampleFactor, 1);
     r.verifyDone();
 }
@@ -425,6 +442,7 @@ Any ShadowMap::VSMSettings::toAny() const {
     a["filterRadius"] = filterRadius;
     a["downsampleFactor"] = downsampleFactor;
     a["lightBleedReduction"] = lightBleedReduction;
+    a["baseSize"] = baseSize;
     return a;
 }
 
@@ -433,7 +451,8 @@ bool ShadowMap::VSMSettings::operator==(const VSMSettings & o) const {
         (blurMultiplier == o.blurMultiplier) && 
         (filterRadius == o.filterRadius) && 
         (downsampleFactor == o.downsampleFactor) &&
-        (lightBleedReduction == o.lightBleedReduction);
+        (lightBleedReduction == o.lightBleedReduction) &&
+        (baseSize == o.baseSize);
 }
 
 } // G3D

@@ -15,10 +15,10 @@
 #include "G3D/ReferenceCount.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/Framebuffer.h"
+#include "GLG3D/Surface.h"
 
 namespace G3D {
 
-class Surface;
 class Light;
 class Projection;
 class RenderDevice;
@@ -31,6 +31,8 @@ class ShadowMap : public ReferenceCountedObject {
 public:
     struct VSMSettings {
         bool                    enabled;
+        /** Size of the (non-Variance) shadow map to render into */
+        Vector2int16            baseSize;
         int                     filterRadius;
         /** Multiplier for the standard deviation of the Gaussian Blur */
         float                   blurMultiplier;
@@ -45,7 +47,7 @@ public:
             return !(operator==(s));
         }
 
-        VSMSettings() : enabled(false), filterRadius(5), blurMultiplier(1.0f), downsampleFactor(1), lightBleedReduction(0.0f) {}
+        VSMSettings() : enabled(false), baseSize(2048,2048), filterRadius(5), blurMultiplier(1.0f), downsampleFactor(1), lightBleedReduction(0.0f) {}
     };
 protected:
     String                  m_name;
@@ -90,6 +92,11 @@ protected:
 
     /** For Surface::canMove() == true surfaces */
     Layer                   m_dynamicLayer;
+
+    /** For Surface::canMove() == false surfaces that want to be in the VSM */
+    Layer                   m_vsmSourceBaseLayer;
+    /** For Surface::canMove() == true surfaces that want to be in the VSM */
+    Layer                   m_vsmSourceDynamicLayer;
 
     Matrix4                 m_lightMVP;
 
@@ -298,7 +305,8 @@ public:
      const Matrix4&                lightProjectionMatrix,
      const Array< shared_ptr<Surface> >& shadowCaster,
      CullFace                      cullFace  = CullFace::BACK,
-     const Color3&                 transmissionWeight = Color3::white() / 3.0f); 
+     const Color3&                 transmissionWeight = Color3::white() / 3.0f,
+     const RenderPassType          passType = RenderPassType::SHADOW_MAP); 
 
     /** Model-View-Projection matrix that maps world space to the
         shadow map pixels; used for rendering the shadow map itself.  Note that

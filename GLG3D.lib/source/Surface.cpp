@@ -347,9 +347,22 @@ void Surface::renderShadowMaps(RenderDevice* rd, const Array<shared_ptr<Light> >
             }
 
             Surface::sortFrontToBack(lightVisible, lightFrame.lookVector());
-            light->shadowMap()->updateDepth(rd, lightFrame, lightProjectionMatrix, lightVisible, 
-                (cullFace == CullFace::CURRENT) ? light->shadowCullFace() : cullFace,
-                light->bulbPower() / max(light->bulbPower().sum(), 1e-6f));
+
+            CullFace renderCullFace = (cullFace == CullFace::CURRENT) ? light->shadowCullFace() : cullFace;
+            Color3 transmissionWeight = light->bulbPower() / max(light->bulbPower().sum(), 1e-6f);
+
+            if (light->shadowMap()->useVarianceShadowMap()) {
+                light->shadowMap()->updateDepth(rd, lightFrame, lightProjectionMatrix, 
+                    lightVisible, renderCullFace, transmissionWeight, 
+                    RenderPassType::OPAQUE_SHADOW_MAP);
+                light->shadowMap()->updateDepth(rd, lightFrame, lightProjectionMatrix, 
+                    lightVisible, renderCullFace, transmissionWeight, 
+                    RenderPassType::TRANSPARENT_SHADOW_MAP);
+            } else {
+                light->shadowMap()->updateDepth(rd, lightFrame, lightProjectionMatrix, 
+                    lightVisible, renderCullFace, transmissionWeight, 
+                    RenderPassType::SHADOW_MAP);
+            }
 
             lightVisible.fastClear();
             ++s;
