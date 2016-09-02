@@ -148,7 +148,7 @@ UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex,
 
 
 float UniversalSurfel::blinnPhongExponent() const {
-    return UniversalBSDF::packGlossyExponent(smoothness);
+    return UniversalBSDF::unpackGlossyExponent(smoothness);
 }
 
 
