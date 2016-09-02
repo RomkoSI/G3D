@@ -760,13 +760,13 @@ inline float distance(float x, float y, float z) {
 
 //----------------------------------------------------------------------------
 
-/** @deprecated use G3D::min */
+/** \deprecated use G3D::min */
 inline int iMin(int x, int y) {
     return (x >= y) ? y : x;
 }
 
 //----------------------------------------------------------------------------
-/** @deprecated use G3D::min */
+/** \deprecated use G3D::max */
 inline int iMax(int x, int y) {
     return (x >= y) ? x : y;
 }

@@ -745,7 +745,7 @@ public:
     }
 
     /**
-       When true, debugPrintf prints to the screen.
+       When true, screenPrintf prints to the screen.
        (default is true)
     */
     bool                    showDebugText;
