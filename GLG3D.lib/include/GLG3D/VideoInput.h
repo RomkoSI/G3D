@@ -13,7 +13,7 @@
 #include "G3D/G3DString.h"
 #include "G3D/ReferenceCount.h"
 #include "G3D/Queue.h"
-#include "G3D/GThread.h"
+#include "G3D/Thread.h"
 #include "GLG3D/Texture.h"
 
 // forward declarations for ffmpeg
@@ -174,7 +174,7 @@ namespace G3D {
         Queue<Buffer*>      m_emptyBuffers;
         GMutex              m_bufferMutex;
 
-        shared_ptr<GThread> m_decodingThread;
+        shared_ptr<Thread> m_decodingThread;
         volatile bool       m_quitThread;
 
         volatile bool       m_clearBuffersAndSeek;

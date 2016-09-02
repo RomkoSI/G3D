@@ -132,7 +132,7 @@ public:
          IntersectRayOptions                options         = IntersectRayOptions(0)) const = 0;
 
     /** Batch ray casting. The default implementation calls the single-ray version using
-        GThread::runConcurrently. */
+        Thread::runConcurrently. */
     virtual void intersectRays
         (const Array<Ray>&                  rays,
          Array<Hit>&                        results,

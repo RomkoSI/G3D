@@ -201,7 +201,7 @@ PhysXWorld::PhysXWorld() {
 #       ifdef G3D_DEBUG
             1;
 #       else
-            max(2, GThread::numCores());
+            max(2, Thread::numCores());
 #       endif
 
     if (! sceneDesc.cpuDispatcher) {

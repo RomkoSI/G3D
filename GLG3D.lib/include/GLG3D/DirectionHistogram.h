@@ -10,7 +10,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
-#include "G3D/GThread.h"
+#include "G3D/Thread.h"
 #include "G3D/Vector3.h"
 #include "G3D/Color3.h"
 #include "G3D/Color4.h"

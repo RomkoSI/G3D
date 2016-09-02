@@ -547,7 +547,7 @@ at the bottom.
         \link G3D::AtomicInt32 AtomicInt32\endlink,
         \link G3D::GMutex GMutex\endlink,
         \link G3D::GMutexLock GMutexLock\endlink,
-        \link G3D::GThread GThread\endlink,
+        \link G3D::Thread Thread\endlink,
         \link G3D::GUniqueID GUniqueID\endlink,
         \link G3D::msgBox msgBox\endlink,
         \link G3D::pathConcat pathConcat\endlink,

@@ -134,7 +134,7 @@ protected:
         inefficient. */
     void maybeUpdatePhotonMap();
 
-    /** Called from GThread::runConcurrently2D(), which is invoked in traceAllPixels() */
+    /** Called from Thread::runConcurrently2D(), which is invoked in traceAllPixels() */
     void traceOnePixel(int x, int y, int threadID);
 
     /** Called from traceOnePixel */

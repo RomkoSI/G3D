@@ -9,7 +9,7 @@
 
 namespace G3D {
 
-class GThread;
+class Thread;
 
 /** Manages a set of threads. All methods are threadsafe except for
     the iterator begin/end. 
@@ -18,7 +18,7 @@ class GThread;
 class ThreadSet : public ReferenceCountedObject {
 public:
     /** Intended to allow future use with a template parameter.*/
-    typedef GThread                                        Thread;
+    typedef Thread                                        Thread;
     typedef Array<shared_ptr<Thread>>::Iterator            Iterator;
     typedef Array<shared_ptr<Thread>>::ConstIterator       ConstIterator;
 

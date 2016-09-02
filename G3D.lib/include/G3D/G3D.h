@@ -147,7 +147,7 @@ template<class T> struct HashTrait< shared_ptr<T> > {
 #include "G3D/MeshBuilder.h"
 #include "G3D/Stopwatch.h"
 #include "G3D/AtomicInt32.h"
-#include "G3D/GThread.h"
+#include "G3D/Thread.h"
 #include "G3D/ThreadSet.h"
 #include "G3D/RegistryUtil.h"
 #include "G3D/Any.h"

@@ -49,7 +49,7 @@ A good starting point for building your own G3D programs. (This is the program t
 <ul>
  <li> Ray tracing
  <li> CPU rendering
- <li> G3D::GThread
+ <li> G3D::Thread
  <li> G3D::GuiRadioButton
  <li> G3D::GuiNumberBox
  <li> G3D::GuiButton

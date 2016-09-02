@@ -17,7 +17,7 @@
 #include "G3D/Vector2int16.h"
 #include "G3D/ReferenceCount.h"
 #include "G3D/AtomicInt32.h"
-#include "G3D/GThread.h"
+#include "G3D/Thread.h"
 #include "G3D/Rect2D.h"
 #include "G3D/WrapMode.h"
 

@@ -169,7 +169,6 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
     <ClCompile Include="..\G3D.lib\source\g3dfnmatch.cpp" />
     <ClCompile Include="..\G3D.lib\source\g3dmath.cpp" />
     <ClCompile Include="..\G3D.lib\source\G3DString.cpp" />
-    <ClCompile Include="..\G3D.lib\source\GThread.cpp" />
     <ClCompile Include="..\G3D.lib\source\GUniqueID.cpp" />
     <ClCompile Include="..\G3D.lib\source\HaltonSequence.cpp" />
     <ClCompile Include="..\G3D.lib\source\Image.cpp" />
@@ -235,6 +234,7 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
     <ClCompile Include="..\G3D.lib\source\System.cpp" />
     <ClCompile Include="..\G3D.lib\source\TextInput.cpp" />
     <ClCompile Include="..\G3D.lib\source\TextOutput.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Thread.cpp" />
     <ClCompile Include="..\G3D.lib\source\ThreadSet.cpp" />
     <ClCompile Include="..\G3D.lib\source\Triangle.cpp" />
     <ClCompile Include="..\G3D.lib\source\uint128.cpp" />
@@ -282,6 +282,7 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
     <ClInclude Include="..\G3D.lib\include\G3D\SmallTable.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\svnutils.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\svn_info.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Thread.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\ThreadsafeQueue.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\BIN.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\BinaryFormat.h" />
@@ -329,7 +330,6 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
     <ClInclude Include="..\G3D.lib\include\G3D\G3DGameUnits.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\g3dmath.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\GMutex.h" />
-    <ClInclude Include="..\G3D.lib\include\G3D\GThread.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\GUniqueID.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\HashTrait.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Image.h" />

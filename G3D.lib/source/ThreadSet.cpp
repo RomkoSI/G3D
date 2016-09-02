@@ -1,5 +1,5 @@
 #include "G3D/ThreadSet.h"
-#include "G3D/GThread.h"
+#include "G3D/Thread.h"
 
 namespace G3D {
 
@@ -29,7 +29,7 @@ int ThreadSet::numStarted() const {
 void ThreadSet::start(SpawnBehavior lastBehavior) const {
     ThreadSet* me = const_cast<ThreadSet*>(this);
 
-    Array<shared_ptr<GThread>> unstarted;
+    Array<shared_ptr<Thread>> unstarted;
     me->m_lock.lock();
     // Find the unstarted threads
     for (int i = 0; i < m_thread.size(); ++i) {

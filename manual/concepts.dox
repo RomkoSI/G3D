@@ -147,7 +147,7 @@ If you have already chosen a framework you can skip this section.
 
 Some features in %G3D are useful to any program, regardles of whether
 it performs 3D computations or runs on a graphics processor.  These
-include the platform independent G3D::GThread and G3D::GMutex, data
+include the platform independent G3D::Thread and G3D::GMutex, data
 structures like G3D::Array, G3D::Set, G3D::Table, and G3D::Queue that
 are both fast and easy to use, and the G3D::System class that provides
 fast memory management, timing, and CPU information.

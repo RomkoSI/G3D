@@ -115,7 +115,7 @@ void testAtomicInt32();
 
 void testCoordinateFrame();
 
-void testGThread();
+void testThread();
 
 void testfilter();
 
@@ -854,7 +854,7 @@ int main(int argc, char* argv[]) {
 
     testAtomicInt32();
 
-    testGThread();
+    testThread();
     
     testWeakCache();
     

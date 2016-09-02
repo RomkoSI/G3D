@@ -110,7 +110,7 @@ void RayTracer::maybeUpdatePhotonMap() {
             {
                 const RealTime start = System::time();
                 
-                GThread::runConcurrently2D
+                Thread::runConcurrently2D
                     (Point2int32(0, 0),
                      Point2int32(1, m_settings.photon.numEmitted),
                      this,
@@ -278,7 +278,7 @@ shared_ptr<Image> RayTracer::render
 
     // Render the image
     start = System::time();
-    const int numThreads = settings.multithreaded ? GThread::NUM_CORES : 1;
+    const int numThreads = settings.multithreaded ? Thread::NUM_CORES : 1;
     traceAllPixels(numThreads);
     stats.rayTraceTimeMilliseconds = float((System::time() - start) / units::milliseconds());
 
@@ -305,7 +305,7 @@ void RayTracer::traceAllPixels(int numThreads) {
             format("Light %s is not at a finite location", light->name().c_str()));
     }
 
-    GThread::runConcurrently2D
+    Thread::runConcurrently2D
         (Point2int32(0, 0),
          Point2int32(m_image->width(), m_image->height()),
          this,

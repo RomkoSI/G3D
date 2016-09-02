@@ -1,5 +1,5 @@
 /** 
-  @file GThread.h
+  @file Thread.h
  
   @created 2005-09-22
   @edited  2016-08-26
@@ -30,24 +30,24 @@ namespace G3D {
 
 /**
  Platform independent thread implementation.  You can either subclass and 
- override GThread::threadMain or call the create method with a method.
+ override Thread::threadMain or call the create method with a method.
 
  Beware of reference counting and threads.  If circular references exist between
- GThread subclasses then neither class will ever be deallocated.  Also, 
- dropping all pointers (and causing deallocation) of a GThread does NOT 
+ Thread subclasses then neither class will ever be deallocated.  Also, 
+ dropping all pointers (and causing deallocation) of a Thread does NOT 
  stop the underlying process.
 
  \sa G3D::GMutex, G3D::Spinlock, G3D::AtomicInt32, G3D::ThreadSet
 */
-class GThread : public ReferenceCountedObject {
+class Thread : public ReferenceCountedObject {
 private:
     // "Status" is a reserved word on FreeBSD
     enum GStatus {STATUS_CREATED, STATUS_STARTED, STATUS_RUNNING, STATUS_COMPLETED};
 
     // Not implemented on purpose, don't use
-    GThread(const GThread &);
-    GThread& operator=(const GThread&);
-    bool operator==(const GThread&);
+    Thread(const Thread &);
+    Thread& operator=(const Thread&);
+    bool operator==(const Thread&);
 
 #ifdef G3D_WINDOWS
     static DWORD WINAPI internalThreadProc(LPVOID param);
@@ -77,14 +77,14 @@ public:
     /** Returns System::numCores(); put here to break a dependence on System.h */
     static int numCores();
 
-    GThread(const String& name);
+    Thread(const String& name);
 
-    virtual ~GThread();
+    virtual ~Thread();
 
-    /** Constructs a basic GThread without requiring a subclass.
+    /** Constructs a basic Thread without requiring a subclass.
 
         @param proc The global or static function for the threadMain() */
-    static shared_ptr<GThread> create(const String& name, void (*proc)(void*), void* param = NULL);
+    static shared_ptr<Thread> create(const String& name, void (*proc)(void*), void* param = NULL);
 
     /** Starts the thread and executes threadMain().  Returns false if
        the thread failed to start (either because it was already started
@@ -128,7 +128,7 @@ public:
 
 
     enum {
-        /** Tells GThread::runConcurrently() and GThread::runConcurrently2D() to
+        /** Tells Thread::runConcurrently() and Thread::runConcurrently2D() to
             use System::numCores() threads.*/
         NUM_CORES = -100
     };
@@ -157,7 +157,7 @@ public:
             }
 
             void traceAll() {
-               GThread::runConcurrently2D(Point2int32(0,0), Point2int32(w,h), this, &RayTracer::trace);
+               Thread::runConcurrently2D(Point2int32(0,0), Point2int32(w,h), this, &RayTracer::trace);
             }
         };
         \endcode
@@ -216,7 +216,7 @@ public:
             }
 
             void traceAll() {
-               GThread::runConcurrently(Point2int32(0,0), Point2int32(w,h), [this](pixel) { trace(pixel); );
+               Thread::runConcurrently(Point2int32(0,0), Point2int32(w,h), [this](pixel) { trace(pixel); );
             }
         };
         \endcode
@@ -247,7 +247,7 @@ public:
 /** For use by runConcurrently2D. Designed for arbitrary iteration, although only used for
     interlaced rows in the current implementation. */
 template<class Class>
-class _internalGThreadWorker : public GThread {
+class _internalThreadWorker : public Thread {
 public:
     /** Start for this thread, which differs from the others */
     const int                 threadID;
@@ -258,14 +258,14 @@ public:
     void             (Class::*method1)(int x, int y);
     void             (Class::*method2)(int x, int y, int threadID);
         
-    _internalGThreadWorker(int                 threadID,
+    _internalThreadWorker(int                 threadID,
             const Vector2int32& start, 
             const Vector2int32& upTo, 
             Class*              object,
             void (Class::*method1)(int x, int y),
             void (Class::*method2)(int x, int y, int threadID),
             const Vector2int32& stride) : 
-        GThread("runConcurrently2D worker"),
+        Thread("runConcurrently2D worker"),
         threadID(threadID),
         start(start),
         upTo(upTo), 
@@ -301,8 +301,8 @@ void _internal_runConcurrently2DHelper
     int                 maxThreads) {
         
     // Create a group of threads
-    if (maxThreads == GThread::NUM_CORES) {
-        maxThreads = GThread::numCores();
+    if (maxThreads == Thread::NUM_CORES) {
+        maxThreads = Thread::numCores();
     }
 
     const int numRows = upTo.y - start.y;
@@ -310,7 +310,7 @@ void _internal_runConcurrently2DHelper
     const Vector2int32 stride(1, numThreads);
     ThreadSet threadSet;
     for (int t = 0; t < numThreads; ++t) {
-        threadSet.insert(shared_ptr<_internalGThreadWorker<Class> >(new _internalGThreadWorker<Class>(t, start + Vector2int32(0, t), upTo, object, method1, method2, stride)));
+        threadSet.insert(shared_ptr<_internalThreadWorker<Class> >(new _internalThreadWorker<Class>(t, start + Vector2int32(0, t), upTo, object, method1, method2, stride)));
     }
 
     // Run the threads, reusing the current thread and blocking until

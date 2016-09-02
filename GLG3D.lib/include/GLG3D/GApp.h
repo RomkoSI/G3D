@@ -18,7 +18,7 @@
 #include "G3D/CoordinateFrame.h"
 #include "GLG3D/Camera.h"
 #include "G3D/NetworkDevice.h"
-#include "G3D/GThread.h"
+#include "G3D/Thread.h"
 #include "GLG3D/GFont.h"
 #include "GLG3D/FirstPersonManipulator.h"
 #include "GLG3D/OSWindow.h"

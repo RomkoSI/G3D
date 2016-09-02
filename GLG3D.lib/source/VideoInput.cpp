@@ -160,7 +160,7 @@ void VideoInput::initialize(const String& filename, const Settings& settings) {
     debugAssert(m_avResizeContext);
     
     // everything is setup and ready to be decoded
-    m_decodingThread = GThread::create("VideoInput::m_bufferThread", VideoInput::decodingThreadProc, this);
+    m_decodingThread = Thread::create("VideoInput::m_bufferThread", VideoInput::decodingThreadProc, this);
     m_decodingThread->start();
 #endif
 }

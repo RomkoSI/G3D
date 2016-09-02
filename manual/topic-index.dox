@@ -264,7 +264,7 @@ simulates photons moving around a scene).
 
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
-<tr><td></td><td>\link G3D::GThread <b>GThread</b>\endlink</td><td>\copybrief G3D::GThread </td></tr>
+<tr><td></td><td>\link G3D::Thread <b>Thread</b>\endlink</td><td>\copybrief G3D::Thread </td></tr>
 <tr><td></td><td>\link G3D::ThreadSet <b>ThreadSet</b>\endlink</td><td>\copybrief G3D::ThreadSet </td></tr>
 <tr><td></td><td>\link G3D::GMutex <b>GMutex</b>\endlink</td><td>\copybrief G3D::GMutex</td></tr>
 <tr><td></td><td>\link G3D::Spinlock <b>Spinlock</b>\endlink</td><td>\copybrief G3D::Spinlock</td></tr>

@@ -202,7 +202,7 @@ void App::rayTraceImage(float scale, int numRays) {
     }
 
     m_currentRays = numRays;
-    GThread::runConcurrently(Point2int32(0, 0), Point2int32(width, height), [&](Point2int32 coord) {
+    Thread::runConcurrently(Point2int32(0, 0), Point2int32(width, height), [&](Point2int32 coord) {
         trace(coord.x, coord.y, Random::threadCommon());
     });
 

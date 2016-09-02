@@ -15,7 +15,7 @@
 #include "G3D/Array.h"
 #include "G3D/G3DGameUnits.h"
 #include "G3D/Table.h"
-#include "G3D/GThread.h"
+#include "G3D/Thread.h"
 
 typedef int GLint;
 typedef unsigned int GLuint;
@@ -204,7 +204,7 @@ private:
 
 public:
 
-    /** Do not call directly if using GThread. Registered with GThread to deallocate the ThreadInfo for a thread.
+    /** Do not call directly if using Thread. Registered with Thread to deallocate the ThreadInfo for a thread.
         Must be explicitly invoked if you use a different thread API. */
     static void threadShutdownHook();
 

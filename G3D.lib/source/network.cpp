@@ -2,7 +2,7 @@
 #include "G3D/network.h"
 #include "G3D/units.h"
 #include "G3D/ThreadsafeQueue.h"
-#include "G3D/GThread.h"
+#include "G3D/Thread.h"
 #ifdef G3D_OSX
 #   include <netdb.h>
 #endif
@@ -450,13 +450,13 @@ void serviceNetwork() {
 
 
 namespace _internal {
-class NetworkThread : public GThread {
+class NetworkThread : public Thread {
 public:
 
     /** Set to 0 by cleanupNetwork() */
     AtomicInt32 keepGoing;
 
-    NetworkThread() : GThread("G3D::NetworkThread"), keepGoing(1) {}
+    NetworkThread() : Thread("G3D::NetworkThread"), keepGoing(1) {}
 
     virtual void threadMain() override {
         while (keepGoing.value() != 0) {
