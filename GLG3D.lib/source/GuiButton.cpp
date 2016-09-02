@@ -49,8 +49,7 @@ bool GuiButton::onEvent(const GEvent& event) {
         return true;
 
     case GEventType::GUI_ACTION:
-        // invoke the pre-event handler
-        m_callback.execute();
+        if (event.gui.control == this) { m_callback.execute(); }
 
         // Don't consume the event...someone else may want to listen to it
         return false;
