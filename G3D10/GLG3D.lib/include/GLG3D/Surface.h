@@ -77,7 +77,17 @@ G3D_DECLARE_ENUM_CLASS(
         Surfaces (and ideally, triangles within them) should be submitted in back-to-front order.
 
         */
-    MULTIPASS_BLENDED_SAMPLES
+    MULTIPASS_BLENDED_SAMPLES,
+
+    /* Generic shadow map pass */
+    SHADOW_MAP,
+
+    /* Only render opaque surfaces to the shadow map */
+    OPAQUE_SHADOW_MAP,
+
+    /* Only render transparent surfaces (stochastically) to the shadow map */
+    TRANSPARENT_SHADOW_MAP
+
     );
 
 /**
