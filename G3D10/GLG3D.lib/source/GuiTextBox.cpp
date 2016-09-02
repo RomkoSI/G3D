@@ -206,7 +206,6 @@ bool GuiTextBox::onEvent(const GEvent& event) {
     }
 
     switch (event.type) {
-
     case GEventType::MOUSE_BUTTON_UP:
         /**place the cursor in the space closest to the mouse click (does not support multi-line textboxes)*/
         {           

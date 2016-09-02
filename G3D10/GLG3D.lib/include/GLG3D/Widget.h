@@ -198,6 +198,7 @@ public:
     }
 };
 
+
 /**
  Manages a group of G3D::Widget.  This is used internally by G3D::GApp
  to process its modules.  It also enables use of Widgets without the
@@ -206,10 +207,6 @@ public:
  You can use G3D::Widget without this class.
  */
 class WidgetManager : public Widget {
-public:
-
-    typedef shared_ptr<class WidgetManager> Ref;
-
 private:
     /** Manages events that have been delayed by a lock.  Not related
         to GEvent in any way. */
@@ -217,8 +214,8 @@ private:
     public:
         enum Type {REMOVE_ALL, REMOVE, ADD, SET_FOCUS, SET_FOCUS_AND_MOVE_TO_FRONT, SET_DEFOCUS, MOVE_TO_BACK};
 
-        Type        type;
-        shared_ptr<Widget> module;
+        Type                type;
+        shared_ptr<Widget>  module;
 
         DelayedEvent(Type type = ADD, const shared_ptr<Widget>& module = shared_ptr<Widget>()) : type(type), module(module) {}
     };
@@ -329,11 +326,11 @@ public:
         Runs the event handles of each manager interlaced, as if all
         the modules from b were in a.*/
     static bool onEvent(const GEvent& event, 
-                        WidgetManager::Ref& a, 
-                        WidgetManager::Ref& b);
+                        shared_ptr<WidgetManager>& a, 
+                        shared_ptr<WidgetManager>& b);
 
     static bool onEvent(const GEvent& event,
-                        WidgetManager::Ref& a);
+                        shared_ptr<WidgetManager>& a);
 
     /** Returns a module by index number.  The highest index is the one that receives events first.*/
     const shared_ptr<Widget>& operator[](int i) const;
