@@ -101,6 +101,7 @@ at the bottom.
     \link G3D::PhysicsFrameSplineEditor PhysicsFrameSplineEditor\endlink, 
     \link G3D::screenPrintf screenPrintf\endlink,
     \link G3D::SceneEditorWindow SceneEditorWindow\endlink,
+	\link G3D::ScreenshotDialog ScreenshotDialog\endlink,
     \link G3D::ThirdPersonManipulator ThirdPersonManipulator\endlink,
     \link G3D::TextureBrowserWindow TextureBrowserWindow\endlink,
     \link G3D::UprightSplineManipulator UprightSplineManipulator\endlink,

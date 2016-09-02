@@ -4,14 +4,13 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2007-10-01
-  \edited  2014-01-24
+  \edited  2016-09-02
  
  G3D Innovation Engine
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
-#ifndef G3D_ScreenshotDialog_h
-#define G3D_ScreenshotDialog_h
+#pragma once
 
 #include "G3D/platform.h"
 #include "GLG3D/Widget.h"
@@ -19,7 +18,6 @@
 #include "GLG3D/GuiButton.h"
 #include "GLG3D/GuiTextBox.h"
 #include "GLG3D/FileDialog.h"
-
 
 namespace G3D {
 
@@ -41,19 +39,18 @@ protected:
     String              m_journalFilename;
 
     OSWindow*           m_osWindow;
-   // shared_ptr<FileDialog>         m_dialog;
 
     enum {JOURNAL_TAB, FILE_ONLY_TAB};
-    int			m_currentTab;
+    int			        m_currentTab;
     
     
     enum Location {APPEND, NEW} location;	
-    Location		m_location;
+    Location		    m_location;
     
-    bool        m_addToSVN;
-    String		m_newEntryName;
-    String		m_caption;
-    String		m_discussion;
+    bool                m_addToSVN;
+    String		        m_newEntryName;
+    String		        m_caption;
+    String		        m_discussion;
     
     GuiTextureBox*      m_textureBox;
     
@@ -91,6 +88,4 @@ public:
 
 };
 
-} // namespace
-
-#endif
+} // namespace G3D
