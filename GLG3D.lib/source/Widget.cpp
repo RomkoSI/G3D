@@ -207,7 +207,7 @@ shared_ptr<Widget> WidgetManager::focusedWidget() const {
 }
 
 
-void WidgetManager::moveWidgetToBack(const Widget::Ref& widget) {
+void WidgetManager::moveWidgetToBack(const shared_ptr<Widget>& widget) {
    if (m_locked) {
         m_delayedEvent.append(DelayedEvent(DelayedEvent::MOVE_TO_BACK, widget));
    } else {
@@ -223,16 +223,16 @@ void WidgetManager::moveWidgetToBack(const Widget::Ref& widget) {
 }
 
 
-void WidgetManager::defocusWidget(const Widget::Ref& m) {
+void WidgetManager::defocusWidget(const shared_ptr<Widget>& m) {
    if (m_locked) {
         m_delayedEvent.append(DelayedEvent(DelayedEvent::SET_DEFOCUS, m));
    } else if (focusedWidget().get() == m.get()) {
-       setFocusedWidget(Widget::Ref());
+       setFocusedWidget(shared_ptr<Widget>());
    }    
 }
 
 
-static inline bool __cdecl depthGreatherThan(const Widget::Ref& elem1, const Widget::Ref& elem2) {
+static inline bool __cdecl depthGreatherThan(const shared_ptr<Widget>& elem1, const shared_ptr<Widget>& elem2) {
     return elem1->depth() > elem2->depth();
 }
 
@@ -245,7 +245,7 @@ void WidgetManager::updateWidgetDepths() {
 }
 
 
-void WidgetManager::setFocusedWidget(const Widget::Ref& m, bool moveToFront) {
+void WidgetManager::setFocusedWidget(const shared_ptr<Widget>& m, bool moveToFront) {
     if (m_locked) {
         if (moveToFront) {
             m_delayedEvent.append(DelayedEvent(DelayedEvent::SET_FOCUS_AND_MOVE_TO_FRONT, m));
@@ -450,7 +450,7 @@ bool WidgetManager::onEvent(const GEvent& event, shared_ptr<WidgetManager>& a, s
 
     // Process each
     for (int k = 0; k < numManagers; ++k) {
-        Array<Widget::Ref >& array = 
+        Array<shared_ptr<Widget> >& array = 
             (k == 0) ?
             a->m_moduleArray :
             b->m_moduleArray;
