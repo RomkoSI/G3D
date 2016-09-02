@@ -34,8 +34,6 @@ bool GuiButton::onEvent(const GEvent& event) {
     switch (event.type) {
     case GEventType::MOUSE_BUTTON_DOWN:
         m_down = true;
-        // invoke the pre-event handler
-        m_callback.execute();
         fireEvent(GEventType::GUI_DOWN);
         return true;
     
@@ -49,6 +47,13 @@ bool GuiButton::onEvent(const GEvent& event) {
 
         m_down = false;
         return true;
+
+    case GEventType::GUI_ACTION:
+        // invoke the pre-event handler
+        m_callback.execute();
+
+        // Don't consume the event...someone else may want to listen to it
+        return false;
     }
 
     return false;

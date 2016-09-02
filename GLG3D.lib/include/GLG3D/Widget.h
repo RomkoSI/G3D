@@ -228,7 +228,6 @@ private:
     /** The widget that will receive events first. This is usually but
         not always the top Widget in m_moduleArray. */
     shared_ptr<Widget>          m_focusedModule;
-
  
     /** To be processed in endLock */
     Array<DelayedEvent>         m_delayedEvent;
