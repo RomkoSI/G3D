@@ -2051,6 +2051,18 @@ void Texture::getTexImage(void* data, const ImageFormat* desiredFormat, CubeFace
 shared_ptr<Image4> Texture::toImage4() const {
     const shared_ptr<Image4>& im = Image4::createEmpty(m_width, m_height, WrapMode::TILE, m_depth); 
     getTexImage(im->getCArray(), ImageFormat::RGBA32F());
+
+    if ((m_encoding.format->openGLBaseFormat == GL_LUMINANCE) || 
+        (m_encoding.format->openGLBaseFormat == GL_LUMINANCE_ALPHA)) {
+        // Spread the R values across the G and B channels, since getTexImage 
+        // doesn't automatically do that
+        Color4* ptr = im->getCArray();
+        const int N = im->width() * im->height();
+        for (int i = 0; i < N; ++i, ++ptr) {
+            ptr->g = ptr->b = ptr->r;
+        }
+    }
+
     return im;
 }
 
