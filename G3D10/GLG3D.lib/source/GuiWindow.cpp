@@ -260,7 +260,7 @@ bool GuiWindow::processMouseButtonDownEventForFocusChangeAndWindowDrag(const GEv
 
     if (! focused()) {
         // Set focus
-        bool moveToFront = (m_style != GuiTheme::NO_WINDOW_STYLE) && (m_style != GuiTheme::PANEL_WINDOW_STYLE);
+        const bool moveToFront = (m_style != GuiTheme::NO_WINDOW_STYLE) && (m_style != GuiTheme::PANEL_WINDOW_STYLE);
         m_manager->setFocusedWidget(dynamic_pointer_cast<Widget>(shared_from_this()), moveToFront);
         m_focused = true;
 
@@ -445,13 +445,13 @@ bool GuiWindow::onEvent(const GEvent& event) {
         Vector2 mouse(event.button.x, event.button.y);
         mouse -= m_clientRect.x0y0();
 
-        GuiControl* underMouseControl = NULL;
+        GuiControl* underMouseControl = nullptr;
         m_rootPane->findControlUnderMouse(mouse, underMouseControl);
 
         if (underMouseControl && underMouseControl->enabled() && (underMouseControl != keyFocusGuiControl)) {
             Vector2 origin = m_clientRect.x0y0();
             GuiContainer* p = underMouseControl->m_parent;
-            while (p != NULL) {
+            while (notNull(p)) {
                 origin += p->clientRect().x0y0();
                 p = p->m_parent;
             }

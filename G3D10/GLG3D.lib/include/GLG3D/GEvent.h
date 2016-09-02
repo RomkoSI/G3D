@@ -280,8 +280,8 @@ private:
            "GUI_ACTION",          /* Commit action: Button fire, enter pressed in a text box, slider released, menu selecion. */
            "GUI_CHANGE",          /* Continuous changing (e.g., typing in text box, slider dragged.) */
            "GUI_CANCEL",          /* Esc pressed in a text box or menu */
-           "GUI_CLOSE",           /* GuiWindow close button pressed. */
            "GUI_KEY_FOCUS",       /** GuiControl gains or loses key focus. */
+           "GUI_CLOSE",           /* GuiWindow close button pressed. */
            "FILE_DROP",           /* Signifies that files have been dropped onto the program. Call 
                                    OSWindow.getDroppedFilenames to receive the actual data.*/
            "MOUSE_SCROLL_2D",     /* A 2D scroll event has occured */
@@ -289,7 +289,7 @@ private:
            "KEY_REPEAT",/** Operating system virtual key press from the key being held down. This is not fired on the physical key press.*/
            "FOCUS",
 
-           "NUMEVENTS", NULL};
+           "NUMEVENTS", nullptr};
        static const Value val[] = {NONE,            /* Unused (do not remove) */
        ACTIVE,                /* Application loses/gains visibility \deprecated.  Use FOCUS */
        KEY_DOWN,            /* Keys pressed */
@@ -319,8 +319,8 @@ private:
        GUI_ACTION,          /* Commit action: Button fire, enter pressed in a text box, slider released, menu selecion. */
        GUI_CHANGE,          /* Continuous changing (e.g., typing in text box, slider dragged.) */
        GUI_CANCEL,          /* Esc pressed in a text box or menu */
-       GUI_CLOSE,           /* GuiWindow close button pressed. */
        GUI_KEY_FOCUS,       /** GuiControl gains or loses key focus within its window.  This is distinct from a GuiWindow gaining or losing focus relative to other windows, and relative to the app as a whole losing focus. */
+       GUI_CLOSE,           /* GuiWindow close button pressed. */
        FILE_DROP,           /* Signifies that files have been dropped onto the program. Call 
                                OSWindow.getDroppedFilenames to receive the actual data.*/
        MOUSE_SCROLL_2D,     /* A 2D scroll event has occured */
@@ -344,7 +344,7 @@ public:
 
     /** False for GUI_CLOSE, which is a GuiCloseEvent */
     bool isGuiEvent() const {
-        return value >= GUI_DOWN && value < GUI_CLOSE;
+        return (value >= GUI_DOWN) && (value <= GUI_KEY_FOCUS);
     }
 };
 
