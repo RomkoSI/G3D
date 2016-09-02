@@ -187,12 +187,6 @@ bool DeveloperWindow::onEvent(const GEvent& event) {
         return false;
     }
 
-    if ((!isNull(m_menu)) && (!m_menu->visible()) && (m_textureBrowserButton->isDown())) {
-        m_textureBrowserButton->setFocused(false);
-        m_textureBrowserButton->setUp();
-    }
-
-
     if (GuiWindow::onEvent(event)) {
         return true;
     }
