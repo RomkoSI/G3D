@@ -5,7 +5,8 @@
 
   \created 2007-06-01
   \edited  2013-04-08
- Copyright 2000-2015, Morgan McGuire.
+
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 
@@ -33,8 +34,8 @@ namespace G3D {
 
 shared_ptr<DeveloperWindow> DeveloperWindow::create
     (GApp*                                      app,
-     const shared_ptr<FirstPersonManipulator>&   manualManipulator,
-     const shared_ptr<UprightSplineManipulator>& trackManipulator,
+     const shared_ptr<FirstPersonManipulator>&  manualManipulator,
+     const shared_ptr<UprightSplineManipulator>&trackManipulator,
      const Pointer<shared_ptr<Manipulator> >&   cameraManipulator,
      const shared_ptr<Camera>&                  camera,
      const shared_ptr<Scene>&                   scene,
@@ -44,7 +45,7 @@ shared_ptr<DeveloperWindow> DeveloperWindow::create
      const Pointer<bool>&                       debugVisible,
      bool*                                      showStats,
      bool*                                      showText,
-     const String&                         screenshotPrefix) {
+     const String&                              screenshotPrefix) {
 
     return shared_ptr<DeveloperWindow>(new DeveloperWindow(app, manualManipulator, trackManipulator, cameraManipulator,
                                camera, scene, film, theme, console, debugVisible, showStats, showText, screenshotPrefix));
@@ -53,9 +54,9 @@ shared_ptr<DeveloperWindow> DeveloperWindow::create
 
 DeveloperWindow::DeveloperWindow
     (GApp*                                      app,
-     const shared_ptr<FirstPersonManipulator>&   manualManipulator,
-     const shared_ptr<UprightSplineManipulator>& trackManipulator,
-     const Pointer< shared_ptr<Manipulator> >&   cameraManipulator,
+     const shared_ptr<FirstPersonManipulator>&  manualManipulator,
+     const shared_ptr<UprightSplineManipulator>&trackManipulator,
+     const Pointer< shared_ptr<Manipulator> >&  cameraManipulator,
      const shared_ptr<Camera>&                  debugCamera,
      const shared_ptr<Scene>&                   scene,
      const shared_ptr<Film>&                    film,
@@ -64,14 +65,14 @@ DeveloperWindow::DeveloperWindow
      const Pointer<bool>&                       debugVisible,
      bool*                                      showStats,
      bool*                                      showText,
-     const String&                         screenshotPrefix) :
+     const String&                              screenshotPrefix) :
     GuiWindow("Developer (F11)", theme, Rect2D::xywh(600, 80, 0, 0), GuiTheme::TOOL_WINDOW_STYLE, HIDE_ON_CLOSE),
     m_textureBrowserButton(),
     m_textureBrowserWindow(),
     m_texturePopUpWindow(),
     consoleWindow(console) {
 
-    alwaysAssertM(this != NULL, "Memory corruption");
+    alwaysAssertM(notNull(this), "Memory corruption");
     alwaysAssertM(notNull(debugCamera), "NULL camera");
 
     cameraControlWindow = CameraControlWindow::create(manualManipulator, trackManipulator, cameraManipulator,
@@ -100,7 +101,7 @@ DeveloperWindow::DeveloperWindow
     const float iconSize = 32;
     Vector2 buttonSize(iconSize, iconSize);
 
-    shared_ptr<IconSet> iconSet = IconSet::fromFile(System::findDataFile("icon/tango.icn"));
+    const shared_ptr<IconSet>& iconSet = IconSet::fromFile(System::findDataFile("icon/tango.icn"));
     GuiText cameraIcon(iconSet->get("22x22/devices/camera-photo.png"));
     GuiText movieIcon(iconSet->get("22x22/categories/applications-multimedia.png"));
     GuiText consoleIcon(iconSet->get("22x22/apps/utilities-terminal.png"));
@@ -153,7 +154,6 @@ DeveloperWindow::DeveloperWindow
     cameraControlWindow->setVisible(true);
     videoRecordDialog->setVisible(false);
     pack();
-
 }
 
 
@@ -206,6 +206,7 @@ bool DeveloperWindow::onEvent(const GEvent& event) {
     return false;
 }
 
+
 void DeveloperWindow::makeNewTexturePane() {
     m_textureBrowserWindow->setTextureIndex(m_textureIndex);
     m_app->addWidget(m_textureBrowserWindow);
@@ -213,6 +214,7 @@ void DeveloperWindow::makeNewTexturePane() {
     m_texturePopUpWindow->setVisible(false);
     m_texturePopUpWindow->setEnabled(false);
 }
+
 
 void DeveloperWindow::texturePopUp() {
     Array<String> textureNames;

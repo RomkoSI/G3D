@@ -4,7 +4,10 @@
   \maintainer Michael Mara, http://www.illuminationcodified.com
 
   \created 2013-04-08
-  \edited  2013-04-08
+  \edited  2016-09-02
+
+  Copyright 2000-2016, Morgan McGuire.
+  All rights reserved.
 */
 
 #include "GLG3D/TextureBrowserWindow.h"
@@ -91,8 +94,8 @@ TextureBrowserWindow::TextureBrowserWindow
 }
 
 
-shared_ptr<TextureBrowserWindow> TextureBrowserWindow::create(const shared_ptr<GuiTheme>& skin, GApp* app) {
-    return shared_ptr<TextureBrowserWindow>(new TextureBrowserWindow(skin, app));
+shared_ptr<TextureBrowserWindow> TextureBrowserWindow::create(const shared_ptr<GuiTheme>& theme, GApp* app) {
+    return createShared<TextureBrowserWindow>(theme, app);
 }
 
 
