@@ -124,7 +124,7 @@ void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings
             Args args;
             source->setShaderArgs(args, "sourceTexture_", Sampler::video());
             args.setUniform("ySign", invertY ? -1 : 1);
-            args.setUniform("yOffset", invertY ? source->height() : 0);
+            args.setUniform("yOffset", invertY ? (source->height() - 1) : 0);
             args.setUniform("guardBandSize", Vector2int32(sourceDepthGuardBandThickness, sourceDepthGuardBandThickness));
             args.setUniform("sensitivity", settings.sensitivity());
             args.setUniform("toneCurve", m_toneCurve->texture(0), Sampler::video());
@@ -149,7 +149,7 @@ void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings
         // Combine, fix saturation, gamma correct and draw
         source->setShaderArgs(args, "sourceTexture_", Sampler::video());
         args.setUniform("ySign", invertY ? -1 : 1);
-        args.setUniform("yOffset", invertY ? source->height() : 0);
+        args.setUniform("yOffset", invertY ? (source->height() - 1) : 0);
         args.setUniform("guardBandSize", Vector2int32(sourceDepthGuardBandThickness, sourceDepthGuardBandThickness));
 
         args.setUniform("toneCurve", m_toneCurve->texture(0), Sampler::video());
