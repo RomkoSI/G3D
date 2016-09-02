@@ -12,6 +12,7 @@
     <p>
     Changes in 10.01:
      <ul>
+       <li> Increased <i>minimum</i> spec to OpenGL 4.1 core, GLSL 410 </li>
        <li> Replaced GApp::FilmSettings::enabled with FilmSettings::effectsEnabled() and FilmSettings::setEffectsEnabled() [Mike] </li>
        <li> Shader calls using Args::setRect now use implicit indices. [Mike] </li>
        <li> Shader calls using Args::setRect now use a triangle strip if unable to use single large triangle. [Mike] </li>
@@ -133,6 +134,7 @@
 	   <li> G3D::Tri::setStorage </li>
 	   <li> G3D::Light::spotHardness </li>
 	   <li> G3D::ReferenceCountedObject::createShared </li>
+       <li> G3D::GuiButton callback now fires on delivery of the G3D::GEventType::GUI_ACTION event insead of during the mouse down handler </li>
       </ul>
     </p>
 
