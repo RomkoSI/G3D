@@ -4,10 +4,10 @@
 \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
 \created 2007-10-01
-\edited  2014-07-19
+\edited  2016-09-02
 
  G3D Innovation Engine
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
 #include "G3D/svn_info.h"
@@ -73,12 +73,18 @@ ScreenshotDialog::ScreenshotDialog(OSWindow* osWindow, const shared_ptr<GuiTheme
         discussionBox->setSize(400, 100);
     } journalPane->endRow();
 
-
-
     journalPane->beginRow(); {
-        GuiCheckBox* box = journalPane->addCheckBox("Add to SVN", &m_addToSVN);
-        box->setEnabled(G3D::hasCommandLineSVN() && (projectRevision >= 0));
-        m_addToSVN = G3D::hasCommandLineSVN() && (projectRevision >= 0);
+        static bool hasCMD = G3D::hasCommandLineSVN();
+        static String extra = hasCMD ? "" :
+#           ifdef G3D_WINDOWS
+                " (Install TortoiseSVN Command Line Tools to enable)"
+#           else
+                " (Install svn to enable)"
+#           endif
+            ;
+        GuiCheckBox* box = journalPane->addCheckBox("Add to SVN" + extra, &m_addToSVN);
+        m_addToSVN = hasCMD && (projectRevision >= 0);
+        box->setEnabled(m_addToSVN);
     } journalPane->endRow();
 
     journalPane->addLabel("Include in filename:");

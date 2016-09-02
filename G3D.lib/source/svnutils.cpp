@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <stdio.h>
+
 namespace G3D {
 
 
@@ -19,6 +20,7 @@ static FILE* g3d_popen(const char* cmd, const char* mode) {
 #   endif
 }
 
+
 static int g3d_pclose(FILE* file) {
 #   ifdef G3D_WINDOWS
         return _pclose(file);
@@ -26,6 +28,7 @@ static int g3d_pclose(FILE* file) {
         return pclose(file);
 #   endif
 }
+
 
 /** Go up one directory if possible */
 static String maybeUpOneDirectory(const String& directory) {
@@ -42,66 +45,83 @@ static String maybeUpOneDirectory(const String& directory) {
     }
 }
 
+
 static String g3d_exec(const char* cmd) {
     FILE* pipe = g3d_popen(cmd, "r");
-    if (!pipe) return "ERROR";
+    if (!pipe) { return "ERROR"; }
     char buffer[128];
-    String result = "";
-    while(!feof(pipe)) {
-    	if(fgets(buffer, 128, pipe) != NULL)
+    String result;
+
+    while (!feof(pipe)) {
+    	if (fgets(buffer, 128, pipe) != nullptr) {
     		result += buffer;
+        }
     }
+
     g3d_pclose(pipe);
+    pipe = nullptr;
     return result;
 }
 
+
 static bool commandExists(const String& cmd) {
     const char* path = System::getEnv("PATH");
-    if (path != NULL) {
-#   ifdef G3D_WINDOWS
-        Array<String> pathDirs = G3D::stringSplit(path, ';');
-#   else
-        Array<String> pathDirs = G3D::stringSplit(path, ':');
-#   endif
+
+    if (notNull(path)) {
+        Array<String> pathDirs = G3D::stringSplit(path, 
+#       ifdef G3D_WINDOWS
+            ';'
+#       else
+            ':'
+#       endif
+            );
+
         for (const String& p : pathDirs) {
-            if (FileSystem::exists(p + "/" + cmd)) {
+            if (FileSystem::exists(FilePath::concat(p, cmd))) {
                 return true;
             }
         }
     }
+
     return false;
 }
 
+
 static String svnName() {
 #   ifdef G3D_WINDOWS
-    return "svn.exe";
+        return "svn.exe";
 #   else
-    return "svn";
+        return "svn";
 #   endif
     
 }
 
+
 bool hasCommandLineSVN() {
     static bool initialized = false;
     static bool hasSVN = false;
-    if (!initialized) {
+    if (! initialized) {
         hasSVN = commandExists(svnName());
         initialized = true;
     }
     return hasSVN;
 }
 
+
 int svnAdd(const String& path) {
-    if (hasCommandLineSVN()) {
-        const String& command = (svnName() + " add \"" + path + "\"");
-        debugPrintf("Command: %s\n", command.c_str());
-        const String& result = g3d_exec(command.c_str());
-        if (result != "ERROR") {
-            return 0;
-        }
+    if (! hasCommandLineSVN()) { return -1; }
+
+    const String& command = (svnName() + " add \"" + path + "\"");
+    debugPrintf("Command: %s\n", command.c_str());
+    const String& result = g3d_exec(command.c_str());
+
+    if (result == "ERROR") {
+        return -1;
+    } else {
+        return 0;
     }
-    return -1;
 }
+
 
 /** 
     Returns the highest revision of svn version files under \param path
@@ -134,6 +154,7 @@ int getSVNDirectoryRevision(const String& path) {
         return -1;
 #   endif
 }
+
 
 /** 
     Fails if the path is over 4 parents away from the versioned part of the repository.
@@ -170,4 +191,4 @@ int getSVNRepositoryRevision(const String& rawPath) {
     return revisionNumber;
 }
 
-}
+} // namespace G3D
