@@ -376,7 +376,7 @@ at the bottom.
      \link G3D::PrecomputedRandom PrecomputedRandom\endlink,
      \link G3D::square square\endlink,
      \link G3D::squareMagnitude squareMagnitude\endlink,
-     \link G3D::sinc sync\endlink,
+     \link G3D::sinc sinc\endlink,
      \link G3D::sumSquares sumSquares\endlink,
      \link G3D::distance distance\endlink,
      \link G3D::toRadians toRadians\endlink,

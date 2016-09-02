@@ -1,5 +1,5 @@
 /** 
-  \file G3D/DepthFirstTree.h
+  \file G3D/DepthFirstTreeBuilder.h
  
   \maintainer Jamie Lesser, http://graphics.cs.williams.edu
  
@@ -9,8 +9,7 @@
   Copyright 2015, Morgan McGuire.
   All rights reserved.
  */
-#ifndef DepthFirstTreeBuilder_h
-#define DepthFirstTreeBuilder_h
+#pragma once
 
 #include "G3D/platform.h"
 
@@ -24,8 +23,9 @@ namespace G3D {
 template <class Node>
 class DepthFirstTreeBuilder { 
 public: 
-    DepthFirstTreeBuilder() {};
-    virtual ~DepthFirstTreeBuilder() {}; 
+    DepthFirstTreeBuilder() {}
+
+    virtual ~DepthFirstTreeBuilder() {}
 
     /** Add child to current node and go down a level. */
     virtual void enterChild(const Node& node) = 0; 
@@ -35,5 +35,3 @@ public:
 };
 
 } // namespace
-
-#endif

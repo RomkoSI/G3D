@@ -178,6 +178,7 @@ namespace G3D {
         uniform mat3   g3d_CameraToObjectNormalMatrix;
         uniform mat4   g3d_ObjectToScreenMatrix; // includes invertY information
         uniform mat4   g3d_ObjectToScreenMatrixTranspose;
+        uniform mat4x3 g3d_ObjectToCameraMatrix;
         uniform mat4x3 g3d_WorldToCameraMatrix;
         uniform mat4x3 g3d_CameraToWorldMatrix;
         uniform bool   g3d_InvertY;
