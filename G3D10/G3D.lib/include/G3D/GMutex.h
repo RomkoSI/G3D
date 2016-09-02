@@ -31,7 +31,7 @@ namespace G3D {
    On a machine with one (significant) thread per processor core,
    a Spinlock may be substantially faster than a mutex.
 
-   \sa G3D::GThread, G3D::GMutex, G3D::AtomicInt32
+   \sa G3D::Thread, G3D::GMutex, G3D::AtomicInt32
  */
 class Spinlock {
 private:
@@ -71,7 +71,7 @@ public:
 /**
  \brief Mutual exclusion lock used for synchronization.
 
- @sa G3D::GThread, G3D::AtomicInt32, G3D::Spinlock
+ @sa G3D::Thread, G3D::AtomicInt32, G3D::Spinlock
 */
 class GMutex {
 private:

@@ -5,9 +5,9 @@ using G3D::uint32;
 using G3D::uint64;
 #include <string>
 
-class TGThread : public GThread {
+class TThread : public Thread {
 public:
-    TGThread(const String& n): GThread(n),
+    TThread(const String& n): Thread(n),
       _value(0) {}
 
     int value() {
@@ -30,23 +30,23 @@ protected:
     GMutex getterMutex;
 };
 
-void testGThread() {
-    printf("G3D::GThread ");
+void testThread() {
+    printf("G3D::Thread ");
 
     {
-        TGThread tGThread("tGThread");
-        testAssert(tGThread.value() == 0);
+        TThread tThread("tThread");
+        testAssert(tThread.value() == 0);
 
-        bool started = tGThread.start();
+        bool started = tThread.start();
         testAssert(started);
 
-        tGThread.waitForCompletion();
-        testAssert(tGThread.completed());
+        tThread.waitForCompletion();
+        testAssert(tThread.completed());
 
-        testAssert(tGThread.value() == 1);
+        testAssert(tThread.value() == 1);
 
-        tGThread.incValue();
-        testAssert(tGThread.value() == 2);
+        tThread.incValue();
+        testAssert(tThread.value() == 2);
     }
 
     printf("passed\n");

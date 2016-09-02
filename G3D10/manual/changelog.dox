@@ -123,7 +123,7 @@
 	   <li> Added automatic SVN ADD in ScreenshotDialog (requires TortoiseSVN with command line tools on Windows)</li>
 	   <li> Pointer can now return a Pointer::IndirectValue for a const Pointer (to a non-const value) </li>
 	   <li> Cleaned up GuiPane::addRadioButton template type safety </li>
-	   <li> G3D::GThread::runConcurrently </li>
+	   <li> G3D::Thread::runConcurrently </li>
 	   <li> Added G3D::TriTreeBase with an API designed for performance </li>
 	   <li> Added minDistance and maxDistance to G3D::Ray </li>
 	   <li> Added default G3D::HashTrait for std::thread::id</li>
@@ -659,7 +659,7 @@
 	 <li> Fix: Depth write state now works correctly in push2D mode</li>
      <li> Fix: BinaryOutput::writeString(str, len) for the truncating case </li>
      <li> Fix: TextOutput::writeString will now never word-wrap inside the string </li>
-     <li> Fix: On Windows, GThread now sets the thread name so that it is visible in the debugger </li>
+     <li> Fix: On Windows, Thread now sets the thread name so that it is visible in the debugger </li>
     </ul>
 
      <b>Backwards Incompatible Changes</b>:
@@ -988,7 +988,7 @@
      <li> Removed 6.xx Discovery API, replaced with 7.01 Discovery API
      <li> G3D::GApp::onLogic -> G3D::GApp::onAI, G3D::Widget::onLogic -> G3D::Widget::onAI
      <li> Removed unused G3D::BSPMap::getTriangles texCoordIndex argument
-     <li> G3D::GThread::threadMain is now protected; see the new argument to G3D::GThread::start()
+     <li> G3D::Thread::threadMain is now protected; see the new argument to G3D::Thread::start()
      <li> G3D::ArticulatedModel::Part::TriList::material is now a pointer
      <li> G3D::Surface bounding boxes are now G3D::AABox instead of G3D::Box
      <li> Moved G3D::ArticulatedModel::setProfile to G3D::UniversalSurface::setProfile
@@ -1060,7 +1060,7 @@
      <li> Gui controls now have configureable GuiControl::setCaptionSize
      <li> Gui controls now default to no indent if the caption is "" (use " " for indent with no caption)
      <li> G3D::GuiContainer
-     <li> G3D::GThread::started
+     <li> G3D::Thread::started
      <li> buildg3d installation arguments changed--see
      <li> G3D::Vector3int32
      <li> GuiButton now accepts an optional callback function/method
@@ -1502,7 +1502,7 @@
            Draw::rect2D stripped down to raw OpenGL, consistent internal use of float,
            increased RenderDevice state change optimization.
 	  <LI> Minimized header interdependencies (GLG3D headers no longer include all of G3D)
-      <LI> Added GThread and GMutex classes. [Corey]
+      <LI> Added Thread and GMutex classes. [Corey]
       <LI> Added ImageFormat::fromCode(). [Corey]
       <LI> Added Plane::distance() and Plane::closestPoint() helper methods. [Corey]
       <LI> G3D::ImageFormat::code, G3D::ImageFormat::colorSpace
@@ -1557,7 +1557,7 @@
       <LI> G3D::TextInput::readStringToken [cgd]
       <LI> Threadsafe G3D::shared_ptr
       <LI> G3D::AtomicInt32
-      <LI> G3D::GThread [Corey]
+      <LI> G3D::Thread [Corey]
       <LI> G3D::Array::popDiscard
       <LI> Optimized multi-argument Array::append
       <LI> G3D::GFont 2x faster than in G3D 6.07

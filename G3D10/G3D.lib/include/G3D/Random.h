@@ -112,7 +112,7 @@ public:
         This will always return the same instance for the same thread. Calling this repeatedly with too many threads
         will consume resources.
 
-        Useful for efficiently and safely producing random numbers with GThread::runConcurrently.
+        Useful for efficiently and safely producing random numbers with Thread::runConcurrently.
     */
     static Random& threadCommon();
 

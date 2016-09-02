@@ -891,7 +891,7 @@ shared_ptr<Texture> Texture::create(const Specification& s) {
 }
 
 
-class ImageLoaderThread : public GThread {
+class ImageLoaderThread : public Thread {
 private:
     String         m_filename;
     shared_ptr<Image>&         m_image;
@@ -899,7 +899,7 @@ private:
 public:
     
     ImageLoaderThread(const String& filename, shared_ptr<Image>& im, const ImageFormat* format = ImageFormat::AUTO()) : 
-        GThread(filename), m_filename(filename), m_image(im) { m_format = format; }
+        Thread(filename), m_filename(filename), m_image(im) { m_format = format; }
 
     void threadMain() {
         m_image = Image::fromFile(m_filename, m_format);
