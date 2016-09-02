@@ -47,14 +47,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.lib</TargetExt>
     <IntDir>$(ProjectDir)\..\temp\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
-    <IncludePath>$(ProjectDir)..\jpeg.lib\include;$(ProjectDir)..\png.lib\include;$(ProjectDir)..\zip.lib\include;$(ProjectDir)..\zlib.lib\include;$(ProjectDir)..\freeimage.lib\include;$(ProjectDir)..\G3D.lib\include;$(ProjectDir)..\GLG3D.lib\include;$(ProjectDir)..\glew.lib\include;$(ProjectDir)..\ffmpeg\windows\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\jpeg.lib\include;$(ProjectDir)..\png.lib\include;$(ProjectDir)..\zip.lib\include;$(ProjectDir)..\zlib.lib\include;$(ProjectDir)..\freeimage.lib\include;$(ProjectDir)..\G3D.lib\include;$(ProjectDir)..\GLG3D.lib\include;$(ProjectDir)..\glew.lib\include;$(ProjectDir)..\ffmpeg\windows\include;$(ProjectDir)..\tbb\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath);$(VSInstallDir);$(VSInstallDir)lib\amd64;C:\Users\Mx7f\g3d\G3D9\build\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)\..\build\lib\</OutDir>
     <IntDir>$(ProjectDir)\..\temp\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(ProjectDir)..\jpeg.lib\include;$(ProjectDir)..\png.lib\include;$(ProjectDir)..\zip.lib\include;$(ProjectDir)..\zlib.lib\include;$(ProjectDir)..\freeimage.lib\include;$(ProjectDir)..\G3D.lib\include;$(ProjectDir)..\GLG3D.lib\include;$(ProjectDir)..\glew.lib\include;$(ProjectDir)..\ffmpeg\windows\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\jpeg.lib\include;$(ProjectDir)..\png.lib\include;$(ProjectDir)..\zip.lib\include;$(ProjectDir)..\zlib.lib\include;$(ProjectDir)..\freeimage.lib\include;$(ProjectDir)..\G3D.lib\include;$(ProjectDir)..\GLG3D.lib\include;$(ProjectDir)..\glew.lib\include;$(ProjectDir)..\ffmpeg\windows\include;$(ProjectDir)..\tbb\include;$(IncludePath)</IncludePath>
     <TargetName>GLG3D_x64</TargetName>
     <LibraryPath>$(LibraryPath);$(VSInstallDir);$(VSInstallDir)lib\amd64;</LibraryPath>
   </PropertyGroup>
