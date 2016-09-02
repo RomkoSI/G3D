@@ -572,7 +572,7 @@ GLFWWindow::GLFWWindow(const OSWindow::Settings& settings) : m_currentKeyMod(GKe
 
     glfwWindowHint(GLFW_AUTO_ICONIFY, GL_TRUE);
 
-    glfwWindowHint(GLFW_SAMPLES, settings.msaaSamples ? 16 : 0);
+    glfwWindowHint(GLFW_SAMPLES, settings.msaaSamples);
 
     glfwWindowHint(GLFW_STEREO, settings.stereo ? GL_TRUE : GL_FALSE);
 

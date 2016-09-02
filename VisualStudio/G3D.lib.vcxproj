@@ -165,6 +165,7 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
     <ClCompile Include="..\G3D.lib\source\filter.cpp" />
     <ClCompile Include="..\G3D.lib\source\float16.cpp" />
     <ClCompile Include="..\G3D.lib\source\format.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Frustum.cpp" />
     <ClCompile Include="..\G3D.lib\source\G3DAllocator.cpp" />
     <ClCompile Include="..\G3D.lib\source\g3dfnmatch.cpp" />
     <ClCompile Include="..\G3D.lib\source\g3dmath.cpp" />

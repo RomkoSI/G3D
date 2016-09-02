@@ -1,5 +1,5 @@
 /**
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 #include "G3D/Frustum.h"
@@ -15,6 +15,7 @@ void Frustum::getPlanes(Array<Plane>& planes) const {
         planes.append(faceArray[i].plane);
     }
 }
+
 
 Box Frustum::boundingBox(float minObjectSpaceDepth) const {
 

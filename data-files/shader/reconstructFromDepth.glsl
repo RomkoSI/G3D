@@ -18,7 +18,7 @@
     void swap(inout float a, inout float b) {
         float temp = a;
         a = b;
-        b = a;
+        b = temp;
     }
 #endif
 
