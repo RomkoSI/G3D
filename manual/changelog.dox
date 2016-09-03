@@ -135,6 +135,7 @@
 	   <li> G3D::Light::spotHardness </li>
 	   <li> G3D::ReferenceCountedObject::createShared </li>
        <li> G3D::GuiButton callback now fires on delivery of the G3D::GEventType::GUI_ACTION event insead of during the mouse down handler </li>
+       <li> G3D::UniversalSurface now binds the current depth buffer during forward render passes</li>
       </ul>
     </p>
 
