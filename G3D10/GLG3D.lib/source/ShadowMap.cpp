@@ -234,7 +234,8 @@ void ShadowMap::updateDepth
                 Projection projection(m_lightProjection);
                 Args args;
                 args.setUniform("clipInfo", projection.reconstructFromDepthClipInfo());
-                dynamicLayer.depthTexture->setShaderArgs(args, "depth_", Sampler::buffer());
+                m_dynamicLayer.depthTexture->setShaderArgs(args, "opaqueDepth_", Sampler::video());
+                m_vsmSourceDynamicLayer.depthTexture->setShaderArgs(args, "stochasticDepth_", Sampler::buffer());
                 args.setRect(renderDevice->viewport());
                 LAUNCH_SHADER("Light/Light_convertToVSM.pix", args);
             } renderDevice->pop2D();
