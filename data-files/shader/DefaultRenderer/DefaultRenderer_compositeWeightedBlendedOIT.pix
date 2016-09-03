@@ -71,12 +71,15 @@ void main() {
 
     // Suppress overflow of the numerator by outputting white
     if (isinf(maxComponent(accum.rgb))) {
-        accum = float4(isinf(accum.a) ? 1 : accum.a);
+        accum = float4(isinf(accum.a) ? 1.0 : accum.a);
     }
 
     // Attempt to fake transmission on the additive term by blending in a little bit of the 
-    // background modulation
-    accum.rgb *= Color3(0.5) + backgroundModulation / max(0.01, 2.0 * maxComponent(backgroundModulation));
+    // background modulation.
+    {
+        const float epsilon = 0.001;
+        accum.rgb *= Color3(0.5) + max(backgroundModulation, vec3(epsilon)) / (2.0 * max(epsilon, maxComponent(backgroundModulation)));
+    }
 
     Color3 background = Color3(0);
 
