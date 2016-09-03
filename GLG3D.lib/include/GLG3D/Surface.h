@@ -374,6 +374,11 @@ public:
         Assume that surfaceArray is sorted back to front, so render in reverse order for optimal
         early-z test behavior.
 
+        \param alphaTestMode: net coverage testing mode applied _after_ the alphaHint's processing.
+             - REJECT_LESS_THAN_ONE (used for depth prepass, and Williams shadow maps when SVSM is enabled) 
+             - STOCHASTIC (used for Williams shadow maps when SVSM is disabled)
+             - STOCHASTIC_REJECT_ONE (used for SVSM)
+
         \param requireBinaryAlpha If true, the surface may use stochastic transparency or alpha thresholding
         instead of forcing a threshold at alpha = 1.
 
