@@ -86,7 +86,7 @@ public:
         System::free(p);
     }
 
-    UniversalSurfel() : smoothness(0.0f), coverage(1.0f), isTransmissive(false) {}
+    UniversalSurfel() : coverage(1.0f), isTransmissive(false), smoothness(0.0f) {}
 
     static shared_ptr<UniversalSurfel> create() {
         return std::make_shared<UniversalSurfel>();
