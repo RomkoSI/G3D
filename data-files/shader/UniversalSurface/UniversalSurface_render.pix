@@ -5,7 +5,7 @@
   \author Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-12-18
-  \edited  2016-02-11
+  \edited  2016-09-02
 
   Copyright 2001-2016, Morgan McGuire
  */
@@ -28,6 +28,7 @@
 #include <UniversalMaterial/UniversalMaterial.glsl>
 #include <AlphaHint.glsl>
 #include <UniversalMaterial/UniversalMaterial_sample.glsl>
+#include <reconstructFromDepth.glsl>
 
 ///////////////////////////////////////////////////
 // Arguments for screen-space refraction
@@ -38,6 +39,14 @@ uniform float2      backgroundMinCoord, backgroundMaxCoord;
 
 /** Camera space z position of the background plane; Negative number */
 uniform float       backgroundZ;
+
+/** The depth buffer for the current framebuffer. It is not safe to read from
+    this if the current pass is also writing to the depth buffer */
+uniform sampler2D   depthBuffer;
+
+/** For the current camera. Only has a defined value when rendering
+    a partial coverage surface in a blended pass. */
+uniform vec3        clipInfo;
 
 uniform float       etaRatio;
 
@@ -139,7 +148,24 @@ Radiance3 computeRefraction
 #else
     out float4 _result; void writePixel(Radiance3 premultipliedReflectionAndEmission, float coverage, Color3 transmissionCoefficient, float collimation, float etaRatio, Point3 csPosition, Vector3 csNormal) { _result = vec4(premultipliedReflectionAndEmission, coverage); }
 #endif
-    
+  
+
+/** Used for inferred AO. Returns weighted AO, weight based on depth locality */
+float2 sampleNeighborAO(vec2 offset, float myZ, vec3 clipInfo) {
+    ivec2 coord = ivec2(gl_FragCoord.xy + offset);
+
+    // Read the depth at the offset coordinate
+    float neighborDepth = texelFetch(depthBuffer, coord, 0).r;
+    float neighborZ = reconstructCSZ(neighborDepth, clipInfo);
+
+    // Read the AO at the offset coordinate
+    float AO = texelFetch(ambientOcclusion_buffer, clamp(coord + ambientOcclusion_offset, ivec2(0), ivec2(ambientOcclusion_size.xy - vec2(1, 1))), 0).r;
+
+    float weight = 0.01 / (0.01 + abs(neighborZ - myZ));
+
+    return float2(AO * weight, weight);
+}
+
 
 void main() {    
     vec3 wsEyePos = g3d_CameraToWorldMatrix[3].xyz;
@@ -227,79 +253,60 @@ void main() {
 #   endif
 
     float AO = 1.0;
-#   if defined(ambientOcclusion_notNull)  
+#   if defined(ambientOcclusion_notNull)
 #       if UNBLENDED_PASS
             // There is no blending...normal situation
-            AO = (0.95 * texelFetch(ambientOcclusion_buffer, min(ivec2(gl_FragCoord.xy) + ambientOcclusion_offset, ivec2(ambientOcclusion_size.xy - vec2(1, 1))), 0).r + 0.05);
-#       elif INFER_AMBIENT_OCCLUSION_AT_TRANSPARENT_PIXELS
-#           ifdef HAS_TRANSMISSIVE
-                // Fade out AO with transmission, since we don't have depth buffer values
-                // useful for it. Leave a little AO on slightly transmissive surfaces to
-                // fade the transition
-                float maxAO = clamp(1.0 - maxComponent(transmissionCoefficient) * 6, 0.0, 1.0);
-#           else
-                // For partial-coverage only surfaces, allow the compiler to optimize out the branch below
-                const float maxAO = 1.0;
-#           endif
-
-            if (maxAO > 0) {
-                // Steal local AO for transparents. This is wrong in many cases, but should be fairly
+            AO = texelFetch(ambientOcclusion_buffer, min(ivec2(gl_FragCoord.xy) + ambientOcclusion_offset, ivec2(ambientOcclusion_size.xy - vec2(1, 1))), 0).r;
+#       elif INFER_AMBIENT_OCCLUSION_AT_TRANSPARENT_PIXELS && ! HAS_TRANSMISSIVE
+            {
+                // Steal local AO for partial coverage. This is wrong in many cases, but should be fairly
                 // temporally coherent and keeps the edges of alpha cutouts from appearing too bright.
-
+                
                 // Compute the gradient of alpha; that is the direction to march to blend AO. 
                 vec2 gradient = vec2(dFdx(materialSample.coverage), dFdy(materialSample.coverage));
                 float L = length(gradient);
-                float weight = 0;
+
+                float2 sum = float2(0);
                 if (L < 1e-4) {
-                    // Sample densely in a small neighborhood, since the gradient was negligible
+                    // Sample densely in a small neighborhood, since the gradient was negligible.
+                    // This is primarily used right near the alpha = 1 portion of the surface.
                     const int R = 3;
-                    const float stride =
-#                       ifdef HAS_TRANSMISSIVE
-                            1;
-#                       else
-                            4;
-#                       endif
+                    const float stride = 2;
 
                     for (int dy = -R; dy <= R; ++dy) {
                         // Offset alternating rows (in the 3x3 case, the 1st and last)
                         // To reduce sampling artifacts from a regular grid
                         float dxShift = ((abs(dy) & 1) - 0.5);
                         for (int dx = -R; dx <= R; ++dx) {
-                            float tempAO = texelFetch(ambientOcclusion_buffer, min(ivec2(gl_FragCoord.xy + vec2(dx + dxShift, dy) * stride) + ambientOcclusion_offset, ivec2(ambientOcclusion_size.xy - vec2(1, 1))), 0).r;
-                            AO *= tempAO;
-                            ++weight;
+                            sum += sampleNeighborAO(vec2(dx + dxShift, dy) * stride, csPosition.z, clipInfo);
                         }
                     }
-                    weight = 1.0 / weight;
                 } else {
-                    // Step in the gradient direction and then average on a line using the geometric mean
+                    // Step in the gradient direction
                     vec2 dir = gradient * (1.0 / L);
-                    vec2 center = gl_FragCoord.xy + dir * (6.0 * min(0.95, 1.0 - materialSample.coverage) / L);
-                    AO = 1.0;
-                    const int R = 10;
-                    for (float t = -R; t <= +R; ++t) {
-                        AO *= texelFetch(ambientOcclusion_buffer, min(ivec2(center + dir * t * 2.0) + ambientOcclusion_offset, ivec2(ambientOcclusion_size.xy - vec2(1, 1))), 0).r;
+                    const int R = 12;
+                    const int stride = 3;
+                    for (float t = 0; t < R; ++t) {
+                        sum += sampleNeighborAO(dir * (t * stride), csPosition.z, clipInfo);
                     }
-                    weight = 1.0 / (2 * R + 1);
                 }
-                AO = 0.95 * pow(AO, weight) + 0.05;
-
-                // Fade out AO with transmission (but not partial coverage)
-                AO = 1.0 - (1.0 - AO) * maxAO;
+                AO = clamp(sum.x / max(0.01, sum.y), 0.0, 1.0);
             }
-
 #       endif
+
+        // AO scale and bias
+        AO = 0.95 * AO + 0.05;
 #   endif
 
     // How much ambient occlusion to apply to direct illumination (sort of approximates area lights,
     // more importantly: NPR term that adds local contrast)
     const float aoInfluenceOnDirectIllumination = 0.65;
     float directAO = lerp(1.0, AO, aoInfluenceOnDirectIllumination);
-
+    
     // Outgoing light
     L_o += (E_lambertian * directAO + E_ambient       * AO) * lambertianCoefficient +
            (E_glossy     * directAO + E_glossyAmbient * AO) * glossyColor;
-    
+
     writePixel(L_o * materialSample.coverage, materialSample.coverage, transmissionCoefficient, materialSample.collimation,
 #       ifdef REFRACTION
             material.etaRatio,
