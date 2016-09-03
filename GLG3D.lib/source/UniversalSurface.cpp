@@ -178,7 +178,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
  const Array<shared_ptr<Surface> >& surfaceArray,
  const shared_ptr<Texture>&         previousDepthBuffer,
  const float                        minZSeparation,
- bool                               requireBinaryAlpha,
+ AlphaTestMode                      alphaTestMode,
  const Color3&                      transmissionWeight) const {
     debugAssertGLOk();
 
@@ -368,7 +368,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
 
         // N.B. Alpha testing is handled explicitly inside the shader.
         if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((surface->material()->alphaHint() == AlphaHint::BLEND) || (surface->material()->alphaHint() == AlphaHint::BINARY)))) {
-            args.setMacro("STOCHASTIC", ! requireBinaryAlpha);
+            args.setMacro("STOCHASTIC", alphaTestMode != AlphaTestMode::REJECT_LESS_THAN_ONE);
             // The depth with alpha shader handles the depth peel case internally
             LAUNCH_SHADER_PTR_WITH_HINT(depthNonOpaqueShader, args, surface->m_profilerHint);
         } else if (notNull(previousDepthBuffer)) {

@@ -90,6 +90,11 @@ G3D_DECLARE_ENUM_CLASS(
 
     );
 
+G3D_DECLARE_ENUM_CLASS(AlphaTestMode, 
+    REJECT_LESS_THAN_ONE, //(used for depth prepass, and Williams shadow maps when SVSM is enabled) 
+    STOCHASTIC,// (used for Williams shadow maps when SVSM is disabled)
+    STOCHASTIC_REJECT_ONE);// (used for SVSM)
+
 /**
    \brief The surface of a model, posed and ready for rendering.
    
@@ -379,9 +384,6 @@ public:
           - STOCHASTIC (used for Williams shadow maps when SVSM is disabled)
           - STOCHASTIC_REJECT_ONE (used for SVSM)
 
-        \param requireBinaryAlpha If true, the surface may use stochastic transparency or alpha thresholding
-        instead of forcing a threshold at alpha = 1.
-
         \param transmissionWeight How wavelength-varying transmission elements
          (for shadow map rendering: lightPower/dot(lightPower, vec3(1,1,1)))
         \sa renderDepthOnly
@@ -391,7 +393,7 @@ public:
      const Array<shared_ptr<Surface> >& surfaceArray,
      const shared_ptr<Texture>&         depthPeelTexture,
      const float                        depthPeelEpsilon,
-     bool                               requireBinaryAlpha,
+     AlphaTestMode                      alphaTestMode,
      const Color3&                      transmissionWeight) const;
 
     /** 
@@ -627,7 +629,7 @@ public:
      CullFace                               cull,
      const shared_ptr<Texture>&             depthPeelTexture = shared_ptr<Texture>(),
      const float                            minZSeparation = 0.0f,
-     bool                                   requireBinaryAlpha = false,
+     AlphaTestMode                          alphaTestMode = AlphaTestMode::REJECT_LESS_THAN_ONE,
      const Color3&                          transmissionWeight = Color3::white() / 3.0f);
     
     /** 

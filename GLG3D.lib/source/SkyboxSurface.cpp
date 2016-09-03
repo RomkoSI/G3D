@@ -280,7 +280,7 @@ void SkyboxSurface::renderDepthOnlyHomogeneous
  const Array<shared_ptr<Surface> >& surfaceArray,
  const shared_ptr<Texture>&         depthPeelTexture,
  const float                        depthPeelEpsilon,
- bool                               requireBinaryAlpha,
+ AlphaTestMode                      alphaTestMode,  
  const Color3&                      transmissionWeight) const {
     // Intentionally empty; nothing to do since the skybox is at infinity and
     // would just fail the depth test or set it back to infinity
