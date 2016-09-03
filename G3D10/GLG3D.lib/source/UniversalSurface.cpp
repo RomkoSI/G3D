@@ -739,6 +739,7 @@ void UniversalSurface::render
     }
     rd->setObjectToWorldMatrix(m_frame);
     setShaderArgs(args, true);
+    args.setUniform("depthBuffer", Texture::opaqueBlackIfNull(rd->framebuffer()->texture(Framebuffer::DEPTH)), Sampler::buffer());
 
     rd->setDepthWrite(anyUnblendedPass);
     rd->setDepthTest(RenderDevice::DEPTH_LESS);
@@ -748,6 +749,9 @@ void UniversalSurface::render
     if (hasRefractiveTransmission()) {
         args.setMacro("REFRACTION", 1);
     }
+
+    // For non-partial coverage passes
+    args.setUniform("clipInfo", Vector3(0, 0, 0));
 
     switch (passType) {
     case RenderPassType::OPAQUE_SAMPLES:
@@ -764,6 +768,9 @@ void UniversalSurface::render
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
         } else {
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
+            // For AO inference
+            const Projection projection(rd->projectionMatrix());
+            args.setUniform("clipInfo", projection.reconstructFromDepthClipInfo());
         }
         if (twoSided) {
             rd->setCullFace(CullFace::FRONT);
@@ -782,6 +789,11 @@ void UniversalSurface::render
 
     case RenderPassType::SINGLE_PASS_UNORDERED_BLENDED_SAMPLES:
         if (m_gpuGeom->twoSided) { rd->setCullFace(CullFace::NONE); }
+        if (! hasTransmission()) {
+            // For AO inference
+            const Projection projection(rd->projectionMatrix());
+            args.setUniform("clipInfo", projection.reconstructFromDepthClipInfo());
+        }
         launchForwardShader(args);
         break;
        
@@ -1031,29 +1043,20 @@ void UniversalSurface::getTrisHomogeneous
 }
 
 
-G3D_DECLARE_SYMBOL(g3d_Vertex);
-G3D_DECLARE_SYMBOL(g3d_Normal);
-G3D_DECLARE_SYMBOL(g3d_TexCoord0);
-G3D_DECLARE_SYMBOL(g3d_TexCoord1);
-G3D_DECLARE_SYMBOL(g3d_PackedTangent);
-G3D_DECLARE_SYMBOL(g3d_BoneIndices);
-G3D_DECLARE_SYMBOL(g3d_BoneWeights);
-G3D_DECLARE_SYMBOL(boneMatrixTexture);
-G3D_DECLARE_SYMBOL(prevBoneMatrixTexture);
-G3D_DECLARE_SYMBOL(HAS_BONES);
+
 void UniversalSurface::GPUGeom::setShaderArgs(Args& args) const {
     debugAssert(normal.valid());
     debugAssert(index.valid());
 
-    args.setAttributeArray(SYMBOL_g3d_Vertex, vertex);
-    args.setAttributeArray(SYMBOL_g3d_Normal, normal);
+    args.setAttributeArray("g3d_Vertex", vertex);
+    args.setAttributeArray("g3d_Normal", normal);
             
     if (texCoord0.valid() && (texCoord0.size() > 0)){
-        args.setAttributeArray(SYMBOL_g3d_TexCoord0, texCoord0);
+        args.setAttributeArray("g3d_TexCoord0", texCoord0);
     }
 
     if (texCoord1.valid() && (texCoord1.size() > 0)){
-        args.setAttributeArray(SYMBOL_g3d_TexCoord1, texCoord1);
+        args.setAttributeArray("g3d_TexCoord1", texCoord1);
     }
 
     if (vertexColor.valid() && (vertexColor.size() > 0)){
@@ -1064,14 +1067,14 @@ void UniversalSurface::GPUGeom::setShaderArgs(Args& args) const {
     }
 
     if (packedTangent.valid() && (packedTangent.size() > 0)) {
-        args.setAttributeArray(SYMBOL_g3d_PackedTangent, packedTangent);
+        args.setAttributeArray("g3d_PackedTangent", packedTangent);
     }
 
     if (hasBones()) {
-        args.setAttributeArray(SYMBOL_g3d_BoneIndices, boneIndices);
-        args.setAttributeArray(SYMBOL_g3d_BoneWeights, boneWeights);
-        args.setUniform(SYMBOL_boneMatrixTexture, boneTexture, Sampler::buffer());
-        args.setUniform(SYMBOL_prevBoneMatrixTexture, prevBoneTexture, Sampler::buffer(), false);
+        args.setAttributeArray("g3d_BoneIndices", boneIndices);
+        args.setAttributeArray("g3d_BoneWeights", boneWeights);
+        args.setUniform("boneMatrixTexture", boneTexture, Sampler::buffer());
+        args.setUniform("prevBoneMatrixTexture", prevBoneTexture, Sampler::buffer(), false);
         args.setMacro("HAS_BONES", 1);
     } else {
         args.setMacro("HAS_BONES", 0); 
