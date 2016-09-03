@@ -50,28 +50,28 @@ void DefaultRenderer::allocateAllOITBuffers
     const int lowResWidth  = rd->width()  / m_oitLowResDownsampleFactor;
     const int lowResHeight = rd->height() / m_oitLowResDownsampleFactor;
 
-    m_oitFramebuffer = Framebuffer::create("DefaultRenderer::m_oitFramebuffer");
+    m_oitFramebuffer = Framebuffer::create("G3D::DefaultRenderer::m_oitFramebuffer");
     allocateOITFramebufferAttachments(rd, m_oitFramebuffer, rd->width(), rd->height(), highPrecision);
     m_oitLowResFramebuffer = Framebuffer::create("DefaultRenderer::m_oitLowResFramebuffer");
 
     allocateOITFramebufferAttachments(rd, m_oitLowResFramebuffer, lowResWidth, lowResHeight, false);
 
     const ImageFormat* depthFormat = rd->drawFramebuffer()->texture(Framebuffer::DEPTH)->format();
-    shared_ptr<Texture> lowResDepthBuffer = Texture::createEmpty("DefaultRenderer::lowResDepth", lowResWidth, lowResHeight, depthFormat);
+    shared_ptr<Texture> lowResDepthBuffer = Texture::createEmpty("G3D::DefaultRenderer::lowResDepth", lowResWidth, lowResHeight, depthFormat);
     m_oitLowResFramebuffer->set(Framebuffer::DEPTH, lowResDepthBuffer);
 
     m_backgroundFramebuffer = Framebuffer::create
-        (Texture::createEmpty("DefaultRenderer::backgroundTexture", 
+        (Texture::createEmpty("G3D::DefaultRenderer::backgroundTexture", 
             rd->width(), rd->height(), rd->drawFramebuffer()->texture(0)->format()));
 
     m_blurredBackgroundFramebuffer = Framebuffer::create
-        (Texture::createEmpty("DefaultRenderer::backgroundBlurredTexture", 
+        (Texture::createEmpty("G3D::DefaultRenderer::backgroundBlurredTexture", 
             rd->width(), rd->height(), rd->drawFramebuffer()->texture(0)->format()));
 
-    m_blurredBackgroundFramebuffer->set(Framebuffer::COLOR1, Texture::createEmpty("DefaultRenderer::radiusBlurredTexture",
+    m_blurredBackgroundFramebuffer->set(Framebuffer::COLOR1, Texture::createEmpty("G3D::DefaultRenderer::radiusBlurredTexture",
         rd->width(), rd->height(), ImageFormat::R32F()));
 
-    m_csOctLowResNormalFramebuffer = Framebuffer::create(Texture::createEmpty("DefaultRenderer::m_csOctLowResNormalFramebuffer", 
+    m_csOctLowResNormalFramebuffer = Framebuffer::create(Texture::createEmpty("G3D::DefaultRenderer::m_csOctLowResNormalFramebuffer", 
             lowResWidth, lowResHeight, ImageFormat::RG8_SNORM()));
 
 }
