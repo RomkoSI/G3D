@@ -189,10 +189,10 @@ void UniversalSurface::renderDepthOnlyHomogeneous
 
     static const shared_ptr<Shader> depthShader = 
         Shader::fromFiles(System::findDataFile("UniversalSurface/UniversalSurface_depthOnly.vrt")
-#ifdef G3D_OSX // OS X crashes if there isn't a shader bound for depth only rendering
-, System::findDataFile("UniversalSurface/UniversalSurface_depthOnly.pix")
-#endif
-);
+#       ifdef G3D_OSX // OS X crashes if there isn't a shader bound for depth only rendering
+            , System::findDataFile("UniversalSurface/UniversalSurface_depthOnly.pix")
+#       endif
+        );
 
     static const shared_ptr<Shader> depthPeelShader =
         Shader::fromFiles(System::findDataFile("UniversalSurface/UniversalSurface_depthOnly.vrt"),
@@ -250,7 +250,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
             Args args;
             canonicalSurface->setShaderArgs(args);
 
-            args.setMacro("UNBLENDED_PASS", 1);
+            args.setMacro("DISCARD_IF_FULL_COVERAGE", 0);
             args.setMacro("HAS_ALPHA", 0);
             args.setMacro("USE_PARALLAX_MAPPING", 0);
 
@@ -313,7 +313,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
             Args args;
             surface->setShaderArgs(args);
 
-            args.setMacro("UNBLENDED_PASS", 1);
+            args.setMacro("DISCARD_IF_FULL_COVERAGE", 0);
             args.setMacro("HAS_ALPHA", 0);
             args.setMacro("USE_PARALLAX_MAPPING", 0);
 
@@ -327,8 +327,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
             // N.B. Alpha testing is handled explicitly inside the shader.
             if (notNull(previousDepthBuffer)) {
                 LAUNCH_SHADER_PTR_WITH_HINT(depthPeelShader, args, surface->m_profilerHint);
-            }
-            else {
+            } else {
                 LAUNCH_SHADER_PTR_WITH_HINT(depthShader, args, surface->m_profilerHint);
             }
 
@@ -365,8 +364,8 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         surface->setShaderArgs(args, true);
     	bindDepthPeelArgs(args, rd, previousDepthBuffer, minZSeparation);
         args.setUniform("transmissionWeight", transmissionWeight);
-        args.setMacro("UNBLENDED_PASS", 1);
-        
+        args.setMacro("DISCARD_IF_FULL_COVERAGE", 0);
+
         // N.B. Alpha testing is handled explicitly inside the shader.
         if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((surface->material()->alphaHint() == AlphaHint::BLEND) || (surface->material()->alphaHint() == AlphaHint::BINARY)))) {
             args.setMacro("STOCHASTIC", ! requireBinaryAlpha);
