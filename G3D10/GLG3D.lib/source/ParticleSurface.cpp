@@ -126,10 +126,10 @@ void ParticleSurface::renderDepthOnlyHomogeneous
     const Array<shared_ptr<Surface>>&   surfaceArray,
     const shared_ptr<Texture>& 	        depthPeelTexture,
     const float 	                    depthPeelEpsilon,
-    bool 	                            requireBinaryAlpha,
+    AlphaTestMode                       alphaTestMode,
     const Color3&                       transmissionWeight) const {
 
-    if (requireBinaryAlpha || (surfaceArray.size() == 0)) { return; }
+    if (alphaTestMode == AlphaTestMode::REJECT_LESS_THAN_ONE || (surfaceArray.size() == 0)) { return; }
 
     rd->setDepthWrite(true);
     rd->setDepthTest(RenderDevice::DEPTH_LESS);

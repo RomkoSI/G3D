@@ -424,7 +424,7 @@ public:
      const Array<shared_ptr<Surface> >&     surfaceArray,
      const shared_ptr<Texture>&             depthPeelTexture,
      const float                            minZSeparation,
-     bool                                   requireBinaryAlpha,
+     AlphaTestMode                          alphaTestMode,  
      const Color3&                          transmissionWeight) const override;
     
     virtual void getTrisHomogeneous

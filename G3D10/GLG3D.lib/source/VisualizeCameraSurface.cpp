@@ -67,7 +67,7 @@ void VisualizeCameraSurface::renderDepthOnlyHomogeneous
     const Array<shared_ptr<Surface> >&      surfaceArray,
     const shared_ptr<Texture>&              depthPeelTexture,
     const float                             depthPeelEpsilon,
-    bool                                    requireBinaryAlpha,
+    AlphaTestMode                           alphaTestMode,
     const Color3&                           transmissionWeight) const {
     Draw::camera(m_camera, rd);
 } 

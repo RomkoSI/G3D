@@ -294,9 +294,9 @@ void ShadowMap::Layer::updateDepth
 }
 
 
-void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array<shared_ptr<Surface> >& shadowCaster, CullFace cullFace, float polygonOffset, bool stochastic, const Color3& transmissionWeight) const {
+void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array<shared_ptr<Surface> >& shadowCaster, CullFace cullFace, float polygonOffset, AlphaTestMode alphaTestMode, const Color3& transmissionWeight) const {
     renderDevice->setPolygonOffset(polygonOffset);
-    Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace, shared_ptr<Texture>(), 0.0f, ! stochastic, transmissionWeight);
+    Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace, shared_ptr<Texture>(), 0.0f, alphaTestMode, transmissionWeight);
 }
 
 
@@ -304,11 +304,11 @@ void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowM
     if ((cullFace == CullFace::NONE) && 
         (shadowMap->m_backfacePolygonOffset != shadowMap->m_polygonOffset)) {
         // Different culling values
-        renderDepthOnly(renderDevice, shadowMap, shadowCaster, CullFace::BACK, shadowMap->m_polygonOffset, stochastic, transmissionWeight);
-        renderDepthOnly(renderDevice, shadowMap, shadowCaster, CullFace::FRONT, shadowMap->m_backfacePolygonOffset, stochastic, transmissionWeight);
+        renderDepthOnly(renderDevice, shadowMap, shadowCaster, CullFace::BACK, shadowMap->m_polygonOffset, stochastic ? AlphaTestMode::STOCHASTIC : AlphaTestMode::REJECT_LESS_THAN_ONE, transmissionWeight);
+        renderDepthOnly(renderDevice, shadowMap, shadowCaster, CullFace::FRONT, shadowMap->m_backfacePolygonOffset, stochastic ? AlphaTestMode::STOCHASTIC : AlphaTestMode::REJECT_LESS_THAN_ONE, transmissionWeight);
     } else {
         float polygonOffset = (cullFace == CullFace::FRONT) ? shadowMap->m_backfacePolygonOffset : shadowMap->m_polygonOffset;
-        renderDepthOnly(renderDevice, shadowMap, shadowCaster, cullFace, polygonOffset, stochastic, transmissionWeight);
+        renderDepthOnly(renderDevice, shadowMap, shadowCaster, cullFace, polygonOffset, stochastic ? AlphaTestMode::STOCHASTIC : AlphaTestMode::REJECT_LESS_THAN_ONE, transmissionWeight);
     }
 }
 

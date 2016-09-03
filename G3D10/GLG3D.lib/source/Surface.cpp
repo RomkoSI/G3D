@@ -129,7 +129,7 @@ void Surface::renderIntoGBuffer
             Array<shared_ptr<Surface> >& derivedArray = derivedTable[t];
             debugAssertM(derivedArray.size() > 0, "categorizeByDerivedType produced an empty subarray");
             if (gbuffer->isDepthAndStencilOnly()) {
-                derivedArray[0]->renderDepthOnlyHomogeneous(rd, derivedArray, depthPeelTexture, minZSeparation, true, Color3::white() / 3.0f);
+                derivedArray[0]->renderDepthOnlyHomogeneous(rd, derivedArray, depthPeelTexture, minZSeparation, AlphaTestMode::REJECT_LESS_THAN_ONE, Color3::white() / 3.0f);
             } else {
                 derivedArray[0]->renderIntoGBufferHomogeneous(rd, derivedArray, gbuffer, previousCameraFrame, expressivePreviousCameraFrame, depthPeelTexture, minZSeparation, lightingEnvironment);
             }
@@ -193,7 +193,7 @@ void Surface::renderDepthOnlyHomogeneous
  const Array<shared_ptr<Surface> >& surfaceArray,
  const shared_ptr<Texture>&         previousDepthBuffer,
  const float                        minZSeparation,
- bool                               requireBinaryAlpha,
+ AlphaTestMode                      alphaTestMode,
  const Color3&                      transmissionWeight) const {
     rd->setColorWrite(false);
     renderHomogeneous(rd, surfaceArray, LightingEnvironment(), RenderPassType::OPAQUE_SAMPLES, "");
@@ -282,7 +282,7 @@ void Surface::renderDepthOnly
  CullFace                           cull,
  const shared_ptr<Texture>&         previousDepthBuffer,
  const float                        minZSeparation,
- bool                               requireBinaryAlpha,
+ AlphaTestMode                      alphaTestMode,
  const Color3&                      transmissionWeight) {
 
     BEGIN_PROFILER_EVENT("Surface::renderDepthOnly");
@@ -301,7 +301,7 @@ void Surface::renderDepthOnly
             Array<shared_ptr<Surface> >& derivedArray = derivedTable[t];
             debugAssertM(derivedArray.size() > 0, "categorizeByDerivedType produced an empty subarray");
             // debugPrintf("Invoking on type %s\n", typeid(*derivedArray[0]).raw_name());
-            derivedArray[0]->renderDepthOnlyHomogeneous(rd, derivedArray, previousDepthBuffer, minZSeparation, requireBinaryAlpha, transmissionWeight);
+            derivedArray[0]->renderDepthOnlyHomogeneous(rd, derivedArray, previousDepthBuffer, minZSeparation, alphaTestMode, transmissionWeight);
         }
 
     } rd->popState();

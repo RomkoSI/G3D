@@ -75,7 +75,7 @@ void HeightfieldModel::Tile::renderDepthOnlyHomogeneous
      const Array< shared_ptr< Surface > >&  surfaceArray, 
      const shared_ptr<Texture>&             previousDepthBuffer,
      const float                            minDepthSeparation,
-     bool                                   requireBinaryAlpha,
+     AlphaTestMode                          alphaTestMode,  
      const Color3&                          transmissionWeight) const {
 
     Args args;
@@ -103,7 +103,7 @@ void HeightfieldModel::Tile::renderDepthOnlyHomogeneous
         const bool thisSurfaceHasTransmissive = tile->modelPtr()->m_material->hasTransmissive();
         shared_ptr<Shader> shader;
         if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((tile->modelPtr()->m_material->alphaHint() == AlphaHint::BLEND) || (tile->modelPtr()->m_material->alphaHint() == AlphaHint::BINARY)))) {
-            args.setMacro("STOCHASTIC", !requireBinaryAlpha);
+            args.setMacro("STOCHASTIC", alphaTestMode != AlphaTestMode::REJECT_LESS_THAN_ONE);
             shader = depthNonOpaqueShader;
         } else {
             args.setUniform("color", Color4(Color3::black(), 1.0f));
