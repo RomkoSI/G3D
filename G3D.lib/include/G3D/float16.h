@@ -82,10 +82,14 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef G3D_FLOAT16_H
-#define G3D_FLOAT16_H
+#pragma once
+#include "G3D/platform.h"
 #include <limits>
 #include <iostream>
+
+#ifdef G3D_OSX
+#define register
+#endif
 
 class float16 {
 public:
@@ -456,10 +460,7 @@ inline float16::float16 (float f)
 
 		x.f = f;
 
-                #ifndef G3D_OSX
-		register
-#endif
-                    int e = (x.i >> 23) & 0x000001ff;
+                int e = (x.i >> 23) & 0x000001ff;
 
 		e = _eLut[e];
 
@@ -876,4 +877,3 @@ template <class T> inline T float16Function<T>::operator () (float16 x) const
 //	    float16 y = hsqrt (3.5);
 
 
-#endif
