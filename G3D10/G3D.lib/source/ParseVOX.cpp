@@ -49,6 +49,7 @@ void ParseVOX::parse(BinaryInput& bi) {
     const String& fileID = bi.readString(4);
     if (fileID != "VOX ") { throw ParseError(bi.getFilename(), bi.getPosition() - 4, "Expected magic VOX prefix"); }
     const int version = bi.readInt32();
+    (void)version;
 
     // Main chunk
     const String mainID = bi.readString(4);
