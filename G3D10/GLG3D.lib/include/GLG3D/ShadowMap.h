@@ -36,11 +36,12 @@ public:
         /** Size of the (non-Variance) shadow map to render into */
         Vector2int16            baseSize;
         int                     filterRadius;
-        /** Multiplier for the standard deviation of the Gaussian Blur. Larger = blurrier using the same filter taps. */
+        /** Multiplier for the standard deviation of the Gaussian Blur. Larger = blurrier using the same filter taps. Reasonable range is 1 (gaussian) to 10 (force to uniform)*/
         float                   blurMultiplier;
         int                     downsampleFactor;
 
-        /** If >0, apply a light bleeding reduction function, that skews towards overdarkening. */
+        /** If >0, apply a light bleeding reduction function, that skews towards overdarkening. 
+            Reasonable range is 0 (maximum light bleeding) to 1 (maximum shadow bleeding) */
         float                   lightBleedReduction;
         VSMSettings(const Any& any);
         Any toAny() const;
