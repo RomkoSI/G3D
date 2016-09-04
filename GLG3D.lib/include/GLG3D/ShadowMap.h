@@ -36,7 +36,7 @@ public:
         /** Size of the (non-Variance) shadow map to render into */
         Vector2int16            baseSize;
         int                     filterRadius;
-        /** Multiplier for the standard deviation of the Gaussian Blur */
+        /** Multiplier for the standard deviation of the Gaussian Blur. Larger = blurrier using the same filter taps. */
         float                   blurMultiplier;
         int                     downsampleFactor;
 

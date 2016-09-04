@@ -114,7 +114,7 @@ void computeDirectLighting(Vector3 n, Vector3 glossyN, Vector3 w_o, Vector3 n_fa
 #           else
                 // Pass dummy shadow map args
                 0.0,
-                Matrix4(),
+                Matrix4(1.0),
                 dummyLightSampler2DShadow,
                 false,
                 vec2(1.0),

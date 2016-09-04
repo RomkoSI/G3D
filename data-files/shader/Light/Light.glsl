@@ -282,26 +282,29 @@ void addLightContribution
 
     vec2 attenuation = computeAttenuation(n, glossyN, light_position, light_attenuation, light_softnessConstant, wsPosition, light_look, light_upVector, light_rightVector, light_rectangular, light_radius, tan_Z, backside, w_i);
 
-    if (max(attenuation.x, attenuation.y) >= attenuationThreshold) {
-        if (light_shadowMap_vsmTexture_notNull) {
-            vec4 cFrameZRow = vec4(light_look.xyz, -light_position.z);
-            float lightSpaceZ = dot(cFrameZRow, vec4(adjustedWSPos, 1.0));
-            lightSpaceZ = -dot(light_look.xyz, adjustedWSPos - light_position.xyz);
-
-            // Variance Shadow Map case
-            attenuation *= varianceShadowMapVisibility(shadowCoord, lightSpaceZ, light_shadowMap_vsmTexture_buffer, light_shadowMap_vsmLightBleedReduction);
-            if (maxComponent(attenuation) <= attenuationThreshold) { return; }
-
-        } else if (light_shadowMap_texture_notNull) {
+    if (maxComponent(attenuation) >= attenuationThreshold) {
+        if (light_shadowMap_texture_notNull) {
 
             // Williams Shadow Map case
 
             // "Normal offset shadow mapping" http://www.dissidentlogic.com/images/NormalOffsetShadows/GDC_Poster_NormalOffset.png
             // Note that the normal bias must be > shadowMapBias$(I) to prevent self-shadowing; we use 3x here so that most
             // glancing angles are OK.
-            attenuation *= shadowMapVisibility(light_look, light_position, light_attenuation, shadowCoord, light_shadowMap_texture_buffer, light_shadowMap_texture_invSize, light_stochasticShadows);
+            float visibility = shadowMapVisibility(light_look, light_position, light_attenuation, shadowCoord, light_shadowMap_texture_buffer, light_shadowMap_texture_invSize, light_stochasticShadows);
+            if (visibility * maxComponent(attenuation) <= attenuationThreshold) { return; }
+
+            if (light_shadowMap_vsmTexture_notNull) {
+                vec4 cFrameZRow = vec4(light_look.xyz, -light_position.z);
+                float lightSpaceZ = dot(cFrameZRow, vec4(adjustedWSPos, 1.0));
+                lightSpaceZ = -dot(light_look.xyz, adjustedWSPos - light_position.xyz);
+
+                // Variance Shadow Map case
+                visibility = min(visibility, varianceShadowMapVisibility(shadowCoord, lightSpaceZ, light_shadowMap_vsmTexture_buffer, light_shadowMap_vsmLightBleedReduction));
+            }
+
+            attenuation *= visibility;
             if (maxComponent(attenuation) <= attenuationThreshold) { return; }
-        }
+        } 
 
         computeShading(n, glossyN, w_o, attenuation, glossyExponent, light_color, I_lambertian, I_glossy, w_i);
     }
