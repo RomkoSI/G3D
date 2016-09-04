@@ -90,10 +90,15 @@ G3D_DECLARE_ENUM_CLASS(
 
     );
 
-G3D_DECLARE_ENUM_CLASS(AlphaTestMode, 
-    REJECT_LESS_THAN_ONE, //(used for depth prepass, and Williams shadow maps when SVSM is enabled) 
-    STOCHASTIC,// (used for Williams shadow maps when SVSM is disabled)
-    STOCHASTIC_REJECT_ONE);// (used for SVSM)
+    /**
+    - REJECT_LESS_THAN_ONE The surface must discard alpha less than 1. Same as `glAlphaFunc(GL_GEQUAL, 1.0f)`. Used for depth prepass, and Williams shadow maps when SVSM is enabled. 
+    - STOCHASTIC The surface may perform stochastic alpha testing or use any threshold value that it wishes. Used for Williams shadow maps when SVSM is disabled.
+    - STOCHASTIC_REJECT_ONE The surface may perform stochastic alpha test but must discard on alpha = 1. Used for SVSM generation.
+    */
+    G3D_DECLARE_ENUM_CLASS(AlphaTestMode, 
+        REJECT_LESS_THAN_ONE,  
+        STOCHASTIC,
+        STOCHASTIC_REJECT_ONE);
 
 /**
    \brief The surface of a model, posed and ready for rendering.
@@ -379,11 +384,8 @@ public:
         Assume that surfaceArray is sorted back to front, so render in reverse order for optimal
         early-z test behavior.
 
-        \param alphaTestMode: net coverage testing mode applied _after_ the alphaHint's processing.
-          - REJECT_LESS_THAN_ONE (used for depth prepass, and Williams shadow maps when SVSM is enabled) 
-          - STOCHASTIC (used for Williams shadow maps when SVSM is disabled)
-          - STOCHASTIC_REJECT_ONE (used for SVSM)
-
+        \param alphaTestMode net coverage testing mode applied _after_ the alphaHint's processing.
+ 
         \param transmissionWeight How wavelength-varying transmission elements
          (for shadow map rendering: lightPower/dot(lightPower, vec3(1,1,1)))
         \sa renderDepthOnly
