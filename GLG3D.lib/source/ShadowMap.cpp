@@ -3,7 +3,7 @@
 
   \author Morgan McGuire, http://graphics.cs.williams.edu
   \created 2014-12-13
-  \edited 2016-09-04
+  \edited  2016-09-04
 
   Copyright 2000-2016, Morgan McGuire
   All rights reserved
@@ -32,7 +32,9 @@ ShadowMap::ShadowMap(const String& name) :
     m_polygonOffset(0.0f),
     m_backfacePolygonOffset(0.0f),
     m_stochastic(false),
-    m_vsmSettings() {
+    m_vsmSettings(),
+    m_vsmBaseLayerInUse(false),
+    m_vsmInUse(false) {
 }
 
 
@@ -164,8 +166,8 @@ void ShadowMap::updateDepth
 
     for (int i = 0; i < shadowCaster.length(); ++i) {
         const shared_ptr<Surface>& c = shadowCaster[i];
-        bool valid = (passType == RenderPassType::SHADOW_MAP) ||
-            (passType == RenderPassType::OPAQUE_SHADOW_MAP != c->hasTransmission());
+        const bool valid = (passType == RenderPassType::SHADOW_MAP) ||
+                           (passType == RenderPassType::OPAQUE_SHADOW_MAP != c->hasTransmission());
         if (valid) {
             if (c->canChange()) {
                 dynamicArray.append(c);
@@ -180,9 +182,13 @@ void ShadowMap::updateDepth
             }
         }
     }
-    bool vsmPass = (passType == RenderPassType::TRANSPARENT_SHADOW_MAP);
-    ShadowMap::Layer& baseLayer = vsmPass ? m_vsmSourceBaseLayer : m_baseLayer;
+
+    const bool vsmPass = (passType == RenderPassType::TRANSPARENT_SHADOW_MAP);
+    ShadowMap::Layer& baseLayer    = vsmPass ? m_vsmSourceBaseLayer    : m_baseLayer;
     ShadowMap::Layer& dynamicLayer = vsmPass ? m_vsmSourceDynamicLayer : m_dynamicLayer;
+
+    debugAssertM(! vsmPass || m_vsmSettings.enabled, 
+        "Light called ShadowMap::updateDepth with RenderPassType::TRANSPARENT_SHADOW_MAP when VSM was not enabled");
 
     if ((m_lightProjection != lightProjectionMatrix) ||
         (m_lightFrame != lightCFrame)) {
@@ -220,6 +226,9 @@ void ShadowMap::updateDepth
     if ((lastBaseShadowCasterChangeTime > baseLayer.lastUpdateTime) ||
         (baseShadowCasterEntityHash != baseLayer.entityHash)) {
         baseLayer.updateDepth(renderDevice, this, baseArray, cullFace, nullptr, m_stochastic, transmissionWeight);
+        if (vsmPass) {
+            m_vsmBaseLayerInUse = (baseArray.size() > 0);
+        }
     }
 
     // Render the dynamic layer if the dynamic layer OR the base layer changed
@@ -232,8 +241,12 @@ void ShadowMap::updateDepth
             // Only pass the base layer if it is not empty
             (baseShadowCasterEntityHash == 0) ? nullptr : baseLayer.framebuffer,
             m_stochastic, transmissionWeight);
+        
+        if (vsmPass) {
+            m_vsmInUse = (dynamicArray.size() > 0) || m_vsmBaseLayerInUse;
+        }
 
-        if (m_vsmSettings.enabled && vsmPass) {
+        if (vsmPass) {
             renderDevice->push2D(m_vsmRawFB); {
                 Projection projection(m_lightProjection);
                 Args args;
@@ -418,13 +431,15 @@ void ShadowMap::computeMatrices
              lightProjY, lightProjNear, lightProjFar);
     }
 
-    float fov = atan2(lightProjX, lightProjNear) * 2.0f;
+    const float fov = atan2(lightProjX, lightProjNear) * 2.0f;
     lightProjection.setFieldOfView(fov, FOVDirection::HORIZONTAL);
     lightProjection.setNearPlaneZ(-lightProjNear);
     lightProjection.setFarPlaneZ(-lightProjFar);
 }
 
-ShadowMap::VSMSettings::VSMSettings(const Any & a) {
+///////////////////////////////////////////////////////////////////////////////////////////
+
+ShadowMap::VSMSettings::VSMSettings(const Any& a) {
     *this = VSMSettings();
     a.verifyName("VSMSettings");
 
@@ -440,6 +455,7 @@ ShadowMap::VSMSettings::VSMSettings(const Any & a) {
     r.verifyDone();
 }
 
+
 Any ShadowMap::VSMSettings::toAny() const {
     Any a(Any::TABLE, "VSMSettings");
     a["enabled"] = enabled;
@@ -450,6 +466,7 @@ Any ShadowMap::VSMSettings::toAny() const {
     a["baseSize"] = baseSize;
     return a;
 }
+
 
 bool ShadowMap::VSMSettings::operator==(const VSMSettings & o) const {
     return (enabled == o.enabled) &&
