@@ -12,8 +12,6 @@
 class App : public GApp {
 protected:
 
-    int number = 0;
-
     /** Called from onInit */
     void makeGUI();
 
