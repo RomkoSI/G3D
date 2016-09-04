@@ -21,7 +21,7 @@
 #expect HAS_VERTEX_COLOR
 #expect HAS_TRANSMISSIVE
 #expect STOCHASTIC "Boolean"
-#expedt DISCARD_IF_FULL_COVERAGE "Boolean"
+#expect DISCARD_IF_FULL_COVERAGE "Boolean"
 
 in Point2        texCoord;
 
