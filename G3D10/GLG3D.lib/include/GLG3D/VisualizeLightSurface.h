@@ -35,8 +35,7 @@ public:
     static shared_ptr<VisualizeLightSurface> create(const shared_ptr<Light>& c, bool showBounds = false);
 
     virtual bool hasTransmission() const override {
-        // Force rendering in back-to-front order
-        return true;
+        return false;
     }
 
     virtual String name() const override;
@@ -75,6 +74,7 @@ public:
     }
 
     virtual bool anyUnblended() const override {
+        // The light surface is unblended, but the cone is blended
         return true;
     }
 
