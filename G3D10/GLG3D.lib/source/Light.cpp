@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2003-11-12
-  \edited  2016-08-26
+  \edited  2016-09-04
 */
 #include "G3D/Sphere.h"
 #include "G3D/CoordinateFrame.h"
@@ -630,6 +630,69 @@ float Light::farPlaneZLimit() const {
 void Light::makeGUI(class GuiPane* pane, class GApp* app) {
     Entity::makeGUI(pane, app);
     pane->addCheckBox("Enabled", Pointer<bool>(this, &Light::enabled, &Light::setEnabled));
+}
+
+
+void Light::renderShadowMaps(RenderDevice* rd, const Array<shared_ptr<Light> >& lightArray, const Array<shared_ptr<Surface> >& allSurfaces, CullFace cullFace) {
+    BEGIN_PROFILER_EVENT("Light::renderShadowMaps");
+
+    // Find the scene bounds
+    AABox shadowCasterBounds;
+    bool ignoreBool;
+    Surface::getBoxBounds(allSurfaces, shadowCasterBounds, false, ignoreBool, true);
+
+    Array<shared_ptr<Surface> > lightVisible;
+
+    // Generate shadow maps
+    int s = 0;
+    for (int L = 0; L < lightArray.size(); ++L) {
+        const shared_ptr<Light>& light = lightArray[L];
+        if (light->castsShadows() && light->enabled()) {
+
+            CFrame lightFrame;
+            Matrix4 lightProjectionMatrix;
+                
+            const float nearMin = -light->nearPlaneZLimit();
+            const float farMax = -light->farPlaneZLimit();
+            ShadowMap::computeMatrices(light, shadowCasterBounds, lightFrame, light->shadowMap()->projection(), lightProjectionMatrix, 20, 20, nearMin, farMax);
+                
+            // Cull objects not visible to the light
+            debugAssert(notNull(light->shadowMap()->depthTexture()));
+            Surface::cull(lightFrame, light->shadowMap()->projection(), light->shadowMap()->rect2DBounds(), allSurfaces, lightVisible, false);
+
+            // Cull objects that don't cast shadows
+            for (int i = 0; i < lightVisible.size(); ++i) {
+                if (! lightVisible[i]->castsShadows()) {
+                    // Changing order is OK because we sort below
+                    lightVisible.fastRemove(i);
+                    --i;
+                }
+            }
+
+            Surface::sortFrontToBack(lightVisible, lightFrame.lookVector());
+
+            CullFace renderCullFace = (cullFace == CullFace::CURRENT) ? light->shadowCullFace() : cullFace;
+            Color3 transmissionWeight = light->bulbPower() / max(light->bulbPower().sum(), 1e-6f);
+
+            if (light->shadowMap()->useVarianceShadowMap()) {
+                light->shadowMap()->updateDepth(rd, lightFrame, lightProjectionMatrix, 
+                    lightVisible, renderCullFace, transmissionWeight, 
+                    RenderPassType::OPAQUE_SHADOW_MAP);
+                light->shadowMap()->updateDepth(rd, lightFrame, lightProjectionMatrix, 
+                    lightVisible, renderCullFace, transmissionWeight, 
+                    RenderPassType::TRANSPARENT_SHADOW_MAP);
+            } else {
+                light->shadowMap()->updateDepth(rd, lightFrame, lightProjectionMatrix, 
+                    lightVisible, renderCullFace, transmissionWeight, 
+                    RenderPassType::SHADOW_MAP);
+            }
+
+            lightVisible.fastClear();
+            ++s;
+        }
+    }
+
+    END_PROFILER_EVENT();
 }
 
 } // G3D

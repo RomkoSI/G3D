@@ -4,9 +4,9 @@
    \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
    \created 2014-12-30
-   \edited  2015-05-22
+   \edited  2016-09-04
 
-   Copyright 2000-2015, Morgan McGuire.
+   Copyright 2000-2016, Morgan McGuire.
    All rights reserved.
 */
 #include "G3D/typeutils.h"
@@ -18,6 +18,7 @@
 #include "GLG3D/Surface.h"
 #include "GLG3D/AmbientOcclusion.h"
 #include "GLG3D/SkyboxSurface.h"
+#include "GLG3D/Light.h"
 
 namespace G3D {
 
@@ -52,8 +53,7 @@ void Renderer::computeShadowing
     LightingEnvironment&                lightingEnvironment) {
 
     BEGIN_PROFILER_EVENT("Renderer::computeShadowing");
-    // Compute shadows
-    Surface::renderShadowMaps(rd, lightingEnvironment.lightArray, allSurfaces);
+    Light::renderShadowMaps(rd, lightingEnvironment.lightArray, allSurfaces);
 
     if (! gbuffer->colorGuardBandThickness().isZero()) {
         rd->setGuardBandClip2D(gbuffer->colorGuardBandThickness());

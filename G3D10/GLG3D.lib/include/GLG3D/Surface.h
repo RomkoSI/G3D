@@ -655,11 +655,6 @@ public:
      Array<Tri>&                        triArray,
      bool                               computePrevPosition = false) const {}
 
-    /** Update the shadow maps in the enabled shadow casting lights from the array of surfaces.
-    
-      \param cullFace If CullFace::CURRENT, the Light::shadowCullFace is used for each light.*/
-    static void renderShadowMaps(RenderDevice* rd, const Array<shared_ptr<class Light> >& lightArray, const Array<shared_ptr<Surface> >& allSurfaces, CullFace cullFace = CullFace::CURRENT);
-
     /** Set the storage on all Materials in the array */
     static void setStorage(const Array<shared_ptr<Surface>>& surfaceArray, ImageStorage newStorage);
 

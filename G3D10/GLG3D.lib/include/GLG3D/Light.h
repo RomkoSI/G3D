@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2003-11-12
-  \edited  2016-09-01
+  \edited  2016-09-04
 
   G3D Innovation Engine
   Copyright 2000-2016, Morgan McGuire.
@@ -30,6 +30,7 @@
 namespace G3D {
 class Any;
 class Scene;
+class Surface;
 
 typedef Spline<Power3> Power3Spline;
 
@@ -515,6 +516,10 @@ public:
 
     virtual void makeGUI(class GuiPane* pane, class GApp* app) override;
 
+    /** Update the shadow maps in the enabled shadow casting lights from the array of surfaces.
+    
+      \param cullFace If CullFace::CURRENT, the Light::shadowCullFace is used for each light.*/
+    static void renderShadowMaps(RenderDevice* rd, const Array<shared_ptr<Light> >& lightArray, const Array<shared_ptr<Surface> >& allSurfaces, CullFace cullFace = CullFace::CURRENT);
 };
 
 } // namespace

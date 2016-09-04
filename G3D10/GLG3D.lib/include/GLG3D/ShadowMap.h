@@ -51,7 +51,9 @@ public:
 
         VSMSettings() : enabled(false), baseSize(2048,2048), filterRadius(5), blurMultiplier(1.0f), downsampleFactor(1), lightBleedReduction(0.0f) {}
     };
+
 protected:
+
     String                      m_name;
 
     class Layer {
@@ -128,9 +130,13 @@ protected:
 
     bool                    m_stochastic;
 
-    /** True if shadows are enabled AND some surface actually rendered to the vsm. */
+    /** True if VSM is enabled AND some surface actually rendered to the vsm's base layer. */
+    bool                    m_vsmBaseLayerInUse;
+
+    /** True if VSM is enabled AND some surface actually rendered to the vsm's (base layer OR dynamic layer). */
     bool                    m_vsmInUse;
 
+    /** Do not change after initialization */
     VSMSettings             m_vsmSettings;
 
     /** m_vsmSourceDynamicLayer converted to VSM format (mean + variance) before filtering */
