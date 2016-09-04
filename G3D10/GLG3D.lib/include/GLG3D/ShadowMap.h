@@ -1,10 +1,11 @@
 /**
   \file GLG3D/ShadowMap.h
 
-  \author Morgan McGuire, http://graphics.cs.williams.edu
- */
-#ifndef G3D_ShadowMap_h
-#define G3D_ShadowMap_h
+  \maintainer Mike Mara
+  Copyright 2000-2016, Morgan McGuire
+  All rights reserved
+*/
+#pragma once
 
 #include "G3D/platform.h"
 #include "G3D/CoordinateFrame.h"
@@ -29,6 +30,7 @@ class RenderDevice;
 */
 class ShadowMap : public ReferenceCountedObject {
 public:
+    /** Stochastic-variance shadow map settings */
     struct VSMSettings {
         bool                    enabled;
         /** Size of the (non-Variance) shadow map to render into */
@@ -95,6 +97,7 @@ protected:
 
     /** For Surface::canMove() == false surfaces that want to be in the VSM */
     Layer                   m_vsmSourceBaseLayer;
+
     /** For Surface::canMove() == true surfaces that want to be in the VSM */
     Layer                   m_vsmSourceDynamicLayer;
 
@@ -125,11 +128,14 @@ protected:
 
     bool                    m_stochastic;
 
-    VSMSettings m_vsmSettings;
+    /** True if shadows are enabled AND some surface actually rendered to the vsm. */
+    bool                    m_vsmInUse;
 
-    shared_ptr<Framebuffer> m_varianceShadowMapFB;
-    shared_ptr<Framebuffer> m_varianceShadowMapHBlurFB;
-    shared_ptr<Framebuffer> m_varianceShadowMapFinalFB;
+    VSMSettings             m_vsmSettings;
+
+    shared_ptr<Framebuffer> m_vsmFB;
+    shared_ptr<Framebuffer> m_vsmHBlurFB;
+    shared_ptr<Framebuffer> m_vsmFinalFB;
 
     class RenderDevice*     m_lastRenderDevice;
 
@@ -320,9 +326,9 @@ public:
         return m_dynamicLayer.depthTexture;
     }
 
-    const shared_ptr<Texture>& varianceShadowMap() const {
+    const shared_ptr<Texture>& vsm() const {
         static shared_ptr<Texture> nullTexture;
-        return isNull(m_varianceShadowMapFinalFB) ? nullTexture : m_varianceShadowMapFinalFB->texture(0);
+        return isNull(m_vsmFinalFB) ? nullTexture : m_vsmFinalFB->texture(0);
     }
 
     inline Rect2D rect2DBounds() const {
@@ -331,5 +337,3 @@ public:
 };
 
 } // G3D
-
-#endif // G3D_ShadowMap_h

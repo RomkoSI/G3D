@@ -2,7 +2,11 @@
   \file GLG3D.lib/source/ShadowMap.cpp
 
   \author Morgan McGuire, http://graphics.cs.williams.edu
-  \edited 2014-12-13
+  \created 2014-12-13
+  \edited 2016-09-04
+
+  Copyright 2000-2016, Morgan McGuire
+  All rights reserved
  */
 #include "GLG3D/ShadowMap.h"
 #include "GLG3D/RenderDevice.h"
@@ -29,12 +33,12 @@ ShadowMap::ShadowMap(const String& name) :
     m_backfacePolygonOffset(0.0f),
     m_stochastic(false),
     m_vsmSettings(),
-    m_lastRenderDevice(NULL) {
+    m_lastRenderDevice(nullptr) {
 }
 
 
 shared_ptr<ShadowMap> ShadowMap::create(const String& name, Vector2int16 size, bool stochastic, const VSMSettings& vsmSettings) {
-    shared_ptr<ShadowMap> s(new ShadowMap(name));
+    const shared_ptr<ShadowMap>& s(createShared<ShadowMap>(name));
     s->m_vsmSettings = vsmSettings;
     s->m_stochastic = stochastic;
     s->setSize(size);
@@ -44,11 +48,10 @@ shared_ptr<ShadowMap> ShadowMap::create(const String& name, Vector2int16 size, b
 
 void ShadowMap::setShaderArgsRead(UniformTable& args, const String& prefix) const {
     if (useVarianceShadowMap()) {
-        varianceShadowMap()->setShaderArgs(args, prefix + "variance_", Sampler::video());
+        vsm()->setShaderArgs(args, prefix + "variance_", Sampler::video());
         args.setUniform(prefix + "variance_lightBleedReduction", m_vsmSettings.lightBleedReduction);
     }
-    // The notNull macro is set by the depthTexture()
-    args.setUniform(prefix + "MVP",    unitLightMVP());
+    args.setUniform(prefix + "MVP",  unitLightMVP());
     args.setUniform(prefix + "bias", bias());
     depthTexture()->setShaderArgs(args, prefix, Sampler::shadow());
 }
@@ -62,36 +65,38 @@ void ShadowMap::setSize(Vector2int16 desiredSize) {
         m_vsmSourceBaseLayer.setSize(vsmSize);
         m_vsmSourceDynamicLayer.setSize(vsmSize);
         if (vsmSize.x == 0) {
-            m_varianceShadowMapFB.reset();
+            m_vsmFB.reset();
             return;
         }
+
         const bool generateMipMaps = false;
-        shared_ptr<Texture> vsm = Texture::createEmpty
+        const shared_ptr<Texture>& vsm = Texture::createEmpty
             (name() + "_VSMRaw",
                 vsmSize.x, vsmSize.y,
                 ImageFormat::RG32F(),
                 Texture::DIM_2D,
                 generateMipMaps);
-        shared_ptr<Texture> vsmHBlur = Texture::createEmpty
+        
+        const shared_ptr<Texture>& vsmHBlur = Texture::createEmpty
             (name() + "_VSMHBlur",
                 vsmSize.x / m_vsmSettings.downsampleFactor, vsmSize.y,
                 ImageFormat::RG32F(),
                 Texture::DIM_2D,
                 generateMipMaps);
-        shared_ptr<Texture> vsmFinal = Texture::createEmpty
+        
+        const shared_ptr<Texture>& vsmFinal = Texture::createEmpty
             (name() + "_VSMFinal",
                 vsmSize.x / m_vsmSettings.downsampleFactor, vsmSize.y / m_vsmSettings.downsampleFactor,
                 ImageFormat::RG32F(),
                 Texture::DIM_2D,
                 generateMipMaps);
         
-        m_varianceShadowMapFB = Framebuffer::create(name() + "_VSM" + " Frame Buffer");
-        m_varianceShadowMapFB->set(Framebuffer::COLOR0, vsm);
-        m_varianceShadowMapHBlurFB = Framebuffer::create(name() + "_VSMHBlur" + " Frame Buffer");
-        m_varianceShadowMapHBlurFB->set(Framebuffer::COLOR0, vsmHBlur);
-        m_varianceShadowMapFinalFB = Framebuffer::create(name() + "_VSMFinal" + " Frame Buffer");
-        m_varianceShadowMapFinalFB->set(Framebuffer::COLOR0, vsmFinal);
-
+        m_vsmFB = Framebuffer::create(name() + "_VSM" + " Frame Buffer");
+        m_vsmFB->set(Framebuffer::COLOR0, vsm);
+        m_vsmHBlurFB = Framebuffer::create(name() + "_VSMHBlur" + " Frame Buffer");
+        m_vsmHBlurFB->set(Framebuffer::COLOR0, vsmHBlur);
+        m_vsmFinalFB = Framebuffer::create(name() + "_VSMFinal" + " Frame Buffer");
+        m_vsmFinalFB->set(Framebuffer::COLOR0, vsmFinal);
     }
 }
 
@@ -138,9 +143,9 @@ void ShadowMap::updateDepth
  CullFace                           cullFace,
  const Color3&                      transmissionWeight,
  const RenderPassType               passType) {
-    debugAssertM(passType == RenderPassType::SHADOW_MAP || 
-        passType == RenderPassType::OPAQUE_SHADOW_MAP || 
-        passType == RenderPassType::TRANSPARENT_SHADOW_MAP,
+    debugAssertM((passType == RenderPassType::SHADOW_MAP) || 
+        (passType == RenderPassType::OPAQUE_SHADOW_MAP) || 
+        (passType == RenderPassType::TRANSPARENT_SHADOW_MAP),
         "ShadowMap::updateDepth must be called with appropriate RenderPassType");
     m_lastRenderDevice = renderDevice;
 
@@ -154,10 +159,11 @@ void ShadowMap::updateDepth
     // Find the most recently changed shadow caster. Start with a time later than 0
     // so that the first call to this method always forces rendering, even if there
     // are no casters. 
-    RealTime lastBaseShadowCasterChangeTime = 1.0f;
+    RealTime lastBaseShadowCasterChangeTime    = 1.0f;
     RealTime lastDynamicShadowCasterChangeTime = 1.0f;
-    size_t   baseShadowCasterEntityHash = 0;
-    size_t   dynamicShadowCasterEntityHash = 0;
+    size_t   baseShadowCasterEntityHash        = 0;
+    size_t   dynamicShadowCasterEntityHash     = 0;
+
     for (int i = 0; i < shadowCaster.length(); ++i) {
         const shared_ptr<Surface>& c = shadowCaster[i];
         bool valid = (passType == RenderPassType::SHADOW_MAP) ||
@@ -230,7 +236,7 @@ void ShadowMap::updateDepth
             m_stochastic, transmissionWeight);
 
         if (m_vsmSettings.enabled && vsmPass) {
-            renderDevice->push2D(m_varianceShadowMapFB); {
+            renderDevice->push2D(m_vsmFB); {
                 Projection projection(m_lightProjection);
                 Args args;
                 args.setUniform("clipInfo", projection.reconstructFromDepthClipInfo());
@@ -242,16 +248,16 @@ void ShadowMap::updateDepth
             if (m_vsmSettings.filterRadius > 0) {
                 int guassianBlurTaps = 2 * m_vsmSettings.filterRadius + 1;
                 
-                renderDevice->push2D(m_varianceShadowMapHBlurFB); {
-                    GaussianBlur::apply(renderDevice, m_varianceShadowMapFB->texture(0), Vector2(1.0f, 0.0f), 
-                        guassianBlurTaps, m_varianceShadowMapHBlurFB->texture(0)->vector2Bounds(), false, true, m_vsmSettings.blurMultiplier);
+                renderDevice->push2D(m_vsmHBlurFB); {
+                    GaussianBlur::apply(renderDevice, m_vsmFB->texture(0), Vector2(1.0f, 0.0f), 
+                        guassianBlurTaps, m_vsmHBlurFB->texture(0)->vector2Bounds(), false, true, m_vsmSettings.blurMultiplier);
                 } renderDevice->pop2D();
-                renderDevice->push2D(m_varianceShadowMapFinalFB); {
-                    GaussianBlur::apply(renderDevice, m_varianceShadowMapHBlurFB->texture(0), Vector2(0.0f, 1.0f),
-                        guassianBlurTaps, m_varianceShadowMapFinalFB->texture(0)->vector2Bounds(), false, true, m_vsmSettings.blurMultiplier);
+                renderDevice->push2D(m_vsmFinalFB); {
+                    GaussianBlur::apply(renderDevice, m_vsmHBlurFB->texture(0), Vector2(0.0f, 1.0f),
+                        guassianBlurTaps, m_vsmFinalFB->texture(0)->vector2Bounds(), false, true, m_vsmSettings.blurMultiplier);
                 } renderDevice->pop2D();
             } else {
-                Texture::copy(m_varianceShadowMapFB->texture(0), m_varianceShadowMapFinalFB->texture(0));
+                Texture::copy(m_vsmFB->texture(0), m_vsmFinalFB->texture(0));
             }
         }
     }
