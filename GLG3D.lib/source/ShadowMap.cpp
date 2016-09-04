@@ -166,9 +166,14 @@ void ShadowMap::updateDepth
 
     for (int i = 0; i < shadowCaster.length(); ++i) {
         const shared_ptr<Surface>& c = shadowCaster[i];
-        const bool valid = (passType == RenderPassType::SHADOW_MAP) ||
-                           (passType == RenderPassType::OPAQUE_SHADOW_MAP != c->hasTransmission());
-        if (valid) {
+
+        const bool needsToRenderThisPass = 
+            (passType == RenderPassType::SHADOW_MAP) ||
+
+            // This test also implicitly includes TRANSPARENT_SHADOW_MAP && c->requiresBlending()
+            ((passType == RenderPassType::OPAQUE_SHADOW_MAP) != c->requiresBlending());
+
+        if (needsToRenderThisPass) {
             if (c->canChange()) {
                 dynamicArray.append(c);
                 // Prevent the hash from being zero by adding 1. Don't XOR the entitys
@@ -183,6 +188,7 @@ void ShadowMap::updateDepth
         }
     }
 
+    // Choose whether to target the VSM or the regular shadow map
     const bool vsmPass = (passType == RenderPassType::TRANSPARENT_SHADOW_MAP);
     ShadowMap::Layer& baseLayer    = vsmPass ? m_vsmSourceBaseLayer    : m_baseLayer;
     ShadowMap::Layer& dynamicLayer = vsmPass ? m_vsmSourceDynamicLayer : m_dynamicLayer;

@@ -59,7 +59,6 @@ struct Light {
 };
 
 
-
 float shadowFetch(sampler2DShadow shadowMap, vec3 coord, vec2 invSize) {
     return texture(shadowMap, vec3(clamp(coord.xy, invSize, vec2(1) - invSize), coord.z));
 }
@@ -315,7 +314,7 @@ void addShadowedLightContribution
 
 
 void addVarianceShadowedLightContribution
-(in vec3                n,
+   (in vec3             n,
     in vec3             glossyN,
     in vec3             wsE,
     in vec3             wsPosition,
