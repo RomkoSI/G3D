@@ -162,7 +162,6 @@ protected:
 
     bool                m_castsShadows;
 
-    bool                m_stochasticShadows;
     ShadowMap::VSMSettings m_varianceShadowSettings;
 
     CullFace            m_shadowCullFace;

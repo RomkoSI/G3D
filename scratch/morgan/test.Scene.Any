@@ -79,11 +79,9 @@
             producesIndirectIllumination = true; 
             shadowMapSize = Vector2int16(4096, 4096 ); 
             spotHalfAngleDegrees = 15; 
-            spotSquare = true; 
-            stochasticShadows = true;
+            spotSquare = true;
             type = "SPOT"; 
-        }; 
-        
+        };     
         
     }; 
     
