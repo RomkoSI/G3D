@@ -136,7 +136,6 @@ public:
            md3Pose      = <MD2Model::PoseSequence>;
            visible      = <bool>;
            expressiveLightScatteringProperties = <object>;
-           }
        }
        \endcode
 

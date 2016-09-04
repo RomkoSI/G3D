@@ -74,6 +74,7 @@ public:
     }
 
     virtual bool hasTransmission() const override {
+        // Conservatively enabled
         return true;
     }
 

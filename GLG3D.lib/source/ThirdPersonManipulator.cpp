@@ -389,10 +389,8 @@ public:
         m_manipulator->render3D(rd);
     }
 
-    /** Force rendering after opaque objects so that it can try to
-        always be on top. */
     virtual bool hasTransmission() const override {
-        return true;
+        return false;
     }
 
     virtual String name() const override {

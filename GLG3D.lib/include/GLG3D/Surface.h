@@ -289,9 +289,9 @@ public:
      Array<Point2>&               texCoord, 
      bool                         previous = false) const {}
 
-    /** If true, this object transmits light and depends on
-        back-to-front rendering order and should be rendered in sorted
-        order. 
+    /** If true, this object transmits light, potentially refracting it and 
+        filtering the background with color or diffusion. This says nothing about whether it
+        has partial coverage.
 
         The default implementation returns false.*/
     virtual bool hasTransmission() const {
