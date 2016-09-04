@@ -32,9 +32,7 @@ ShadowMap::ShadowMap(const String& name) :
     m_polygonOffset(0.0f),
     m_backfacePolygonOffset(0.0f),
     m_stochastic(false),
-    m_vsmSettings(),
-    m_vsmBaseLayerInUse(false),
-    m_vsmInUse(false) {
+    m_vsmSettings() {
 }
 
 
@@ -231,10 +229,7 @@ void ShadowMap::updateDepth
 
     if ((lastBaseShadowCasterChangeTime > baseLayer.lastUpdateTime) ||
         (baseShadowCasterEntityHash != baseLayer.entityHash)) {
-        baseLayer.updateDepth(renderDevice, this, baseArray, cullFace, nullptr, m_stochastic, transmissionWeight);
-        if (vsmPass) {
-            m_vsmBaseLayerInUse = (baseArray.size() > 0);
-        }
+        baseLayer.updateDepth(renderDevice, this, baseArray, cullFace, nullptr, m_stochastic, transmissionWeight);      
     }
 
     // Render the dynamic layer if the dynamic layer OR the base layer changed
@@ -248,10 +243,6 @@ void ShadowMap::updateDepth
             (baseShadowCasterEntityHash == 0) ? nullptr : baseLayer.framebuffer,
             m_stochastic, transmissionWeight);
         
-        if (vsmPass) {
-            m_vsmInUse = (dynamicArray.size() > 0) || m_vsmBaseLayerInUse;
-        }
-
         if (vsmPass) {
             renderDevice->push2D(m_vsmRawFB); {
                 Projection projection(m_lightProjection);
