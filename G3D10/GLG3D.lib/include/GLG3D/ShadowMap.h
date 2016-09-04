@@ -130,12 +130,6 @@ protected:
 
     bool                    m_stochastic;
 
-    /** True if VSM is enabled AND some surface actually rendered to the vsm's base layer. */
-    bool                    m_vsmBaseLayerInUse;
-
-    /** True if VSM is enabled AND some surface actually rendered to the vsm's (base layer OR dynamic layer). */
-    bool                    m_vsmInUse;
-
     /** Do not change after initialization */
     VSMSettings             m_vsmSettings;
 
