@@ -236,122 +236,74 @@ void computeShading
     }
 }
 
-
-/**
- \param lightAttenuation OpenGL distance attenuation polynomial coefficients, with cosine of spotlight angle in the w component
- \param lightDirection   OpenGL spotlight direction
- */
+/** 
+  Computes the contribution of one light to
+  I_lambertian and I_glossy, factoring in shadowing,
+  distance attenuation, and spot light bounds.
+*/
 void addLightContribution
-   (in vec3             n, 
-    in vec3             glossyN, 
-    in vec3             wsE,
-    in vec3             wsPosition, 
-    in float            glossyExponent, 
-    in vec4             lightPosition, 
-    in vec4             lightAttenuation,
-    in float            lightSoftnessConstant,
-    in vec3             lightLook, 
-    in vec3             lightUpVector, 
-    in vec3             lightRightVector, 
-    in bool             lightRectangular,
-    in float            lightRadius,
-    in vec3             lightColor,
-    in vec3             tan_Z,
-    in float            backside,
-    inout vec3          I_lambertian,
-    inout vec3          I_glossy,
-    out vec3            w_i) {
-
-    // vec2(subsurface/diffuse, surface/glossy)  
-    vec2 attenuation = computeAttenuation(n, glossyN, lightPosition, lightAttenuation, lightSoftnessConstant, wsPosition, lightLook, lightUpVector, lightRightVector, lightRectangular, lightRadius, tan_Z, backside, w_i);
-
-    if (max(attenuation.x, attenuation.y) >= attenuationThreshold) {
-        computeShading(n, glossyN, wsE, attenuation, glossyExponent, lightColor, I_lambertian, I_glossy, w_i);
-    }
-}
-
-
-void addShadowedLightContribution
    (in vec3             n,
     in vec3             glossyN,
-    in vec3             wsE,
-    in vec3             wsPosition, 
-    in float            glossyExponent,
-    in vec4             lightPosition,
-    in vec4             lightAttenuation,
-    in float            lightSoftnessConstant,
-    in vec3             lightLook,
-    in vec3             lightUpVector, 
-    in vec3             lightRightVector, 
-    in bool             lightRectangular,
-    in float            lightRadius,
-    in vec3             lightColor, 
-    in bool             lightStochastic,
-    in vec4             shadowCoord,
-    in sampler2DShadow  shadowMap,
-    in vec2             invShadowMapSize,
-    in vec3             tan_Z,
-    in float            backside,
-    inout vec3          I_lambertian, 
-    inout vec3          I_glossy, 
-    out vec3            w_i) {
-
-    vec2 attenuation = computeAttenuation(n, glossyN, lightPosition, lightAttenuation, lightSoftnessConstant, wsPosition, lightLook, lightUpVector, lightRightVector, lightRectangular, lightRadius, tan_Z, backside, w_i);
-
-    if (max(attenuation.x, attenuation.y) >= attenuationThreshold) {
-        // The following call assumes that attenuation is non-zero
-        float s = shadowMapVisibility(lightLook, lightPosition, lightAttenuation, shadowCoord, shadowMap, invShadowMapSize, lightStochastic);
-
-        if (s <= attenuationThreshold) {
-            // No light due to shadowing
-            return;
-        }
-
-        attenuation *= s;
-        computeShading(n, glossyN, wsE, attenuation, glossyExponent, lightColor, I_lambertian, I_glossy, w_i);
-    }
-}
-
-
-void addVarianceShadowedLightContribution
-   (in vec3             n,
-    in vec3             glossyN,
-    in vec3             wsE,
+    in vec3             w_o,
     in vec3             wsPosition,
     in float            glossyExponent,
-    in vec4             lightPosition,
-    in vec4             lightAttenuation,
-    in float            lightSoftnessConstant,
-    in vec3             lightLook,
-    in vec3             lightUpVector,
-    in vec3             lightRightVector,
-    in bool             lightRectangular,
-    in float            lightRadius,
-    in vec3             lightColor,
-    in vec4             shadowCoord,
-    in float            lightSpaceZ,
-    in float            lightBleedReduction,
-    in sampler2D        varianceShadowMap,
-    in vec2             invShadowMapSize,
+    in vec4             light_position,
+    in vec4             light_attenuation,
+    in float            light_softnessConstant,
+    in vec3             light_look,
+    in vec3             light_upVector,
+    in vec3             light_rightVector,
+    in bool             light_rectangular,
+    in float            light_radius,
+    in vec3             light_color,
+    in bool             light_stochasticShadows,
+    in float            light_shadowMap_bias,
+    in Matrix4          light_shadowMap_MVP,
+    in sampler2DShadow  light_shadowMap_texture_buffer,
+    const in bool       light_shadowMap_texture_notNull,       
+    in vec2             light_shadowMap_texture_invSize,
+    in sampler2D        light_shadowMap_vsmTexture_buffer,
+    const in bool       light_shadowMap_vsmTexture_notNull,
+    in float            light_shadowMap_vsmLightBleedReduction,
     in vec3             tan_Z,
     in float            backside,
     inout vec3          I_lambertian,
     inout vec3          I_glossy,
     out vec3            w_i) {
 
-    vec2 attenuation = computeAttenuation(n, glossyN, lightPosition, lightAttenuation, lightSoftnessConstant, wsPosition, lightLook, lightUpVector, lightRightVector, lightRectangular, lightRadius, tan_Z, backside, w_i);
+    // Only used for shadow mapping
+    vec3 adjustedWSPos;
+    vec4 shadowCoord;
+
+    if (light_shadowMap_texture_notNull || light_shadowMap_vsmTexture_notNull) {
+        adjustedWSPos = wsPosition + w_o * (1.5 * light_shadowMap_bias) + tan_Z * (backside * 0.5 * light_shadowMap_bias);
+        shadowCoord = light_shadowMap_MVP * vec4(adjustedWSPos, 1.0);
+    }
+
+    vec2 attenuation = computeAttenuation(n, glossyN, light_position, light_attenuation, light_softnessConstant, wsPosition, light_look, light_upVector, light_rightVector, light_rectangular, light_radius, tan_Z, backside, w_i);
 
     if (max(attenuation.x, attenuation.y) >= attenuationThreshold) {
-        // The following call assumes that attenuation is non-zero
-        float s = varianceShadowMapVisibility(shadowCoord, lightSpaceZ, varianceShadowMap, lightBleedReduction);
+        if (light_shadowMap_vsmTexture_notNull) {
+            vec4 cFrameZRow = vec4(light_look.xyz, -light_position.z);
+            float lightSpaceZ = dot(cFrameZRow, vec4(adjustedWSPos, 1.0));
+            lightSpaceZ = -dot(light_look.xyz, adjustedWSPos - light_position.xyz);
 
-        if (s <= attenuationThreshold) {
-            // No light due to shadowing
-            return;
+            // Variance Shadow Map case
+            attenuation *= varianceShadowMapVisibility(shadowCoord, lightSpaceZ, light_shadowMap_vsmTexture_buffer, light_shadowMap_vsmLightBleedReduction);
+            if (maxComponent(attenuation) <= attenuationThreshold) { return; }
+
+        } else if (light_shadowMap_vsmTexture_notNull) {
+
+            // Williams Shadow Map case
+
+            // "Normal offset shadow mapping" http://www.dissidentlogic.com/images/NormalOffsetShadows/GDC_Poster_NormalOffset.png
+            // Note that the normal bias must be > shadowMapBias$(I) to prevent self-shadowing; we use 3x here so that most
+            // glancing angles are OK.
+            attenuation *= shadowMapVisibility(light_look, light_position, light_attenuation, shadowCoord, light_shadowMap_texture_buffer, light_shadowMap_texture_invSize, light_stochasticShadows);
+            if (maxComponent(attenuation) <= attenuationThreshold) { return; }
         }
 
-        attenuation *= s;
-        computeShading(n, glossyN, wsE, attenuation, glossyExponent, lightColor, I_lambertian, I_glossy, w_i);
+        computeShading(n, glossyN, w_o, attenuation, glossyExponent, light_color, I_lambertian, I_glossy, w_i);
     }
 }
 
