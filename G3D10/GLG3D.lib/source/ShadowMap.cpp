@@ -32,8 +32,7 @@ ShadowMap::ShadowMap(const String& name) :
     m_polygonOffset(0.0f),
     m_backfacePolygonOffset(0.0f),
     m_stochastic(false),
-    m_vsmSettings(),
-    m_lastRenderDevice(nullptr) {
+    m_vsmSettings() {
 }
 
 
@@ -65,12 +64,12 @@ void ShadowMap::setSize(Vector2int16 desiredSize) {
         m_vsmSourceBaseLayer.setSize(vsmSize);
         m_vsmSourceDynamicLayer.setSize(vsmSize);
         if (vsmSize.x == 0) {
-            m_vsmFB.reset();
+            m_vsmRawFB.reset();
             return;
         }
 
         const bool generateMipMaps = false;
-        const shared_ptr<Texture>& vsm = Texture::createEmpty
+        const shared_ptr<Texture>& vsmRaw = Texture::createEmpty
             (name() + "_VSMRaw",
                 vsmSize.x, vsmSize.y,
                 ImageFormat::RG32F(),
@@ -91,11 +90,11 @@ void ShadowMap::setSize(Vector2int16 desiredSize) {
                 Texture::DIM_2D,
                 generateMipMaps);
         
-        m_vsmFB = Framebuffer::create(name() + "_VSM" + " Frame Buffer");
-        m_vsmFB->set(Framebuffer::COLOR0, vsm);
-        m_vsmHBlurFB = Framebuffer::create(name() + "_VSMHBlur" + " Frame Buffer");
+        m_vsmRawFB = Framebuffer::create(name() + "_vsmRawFB");
+        m_vsmRawFB->set(Framebuffer::COLOR0, vsmRaw);
+        m_vsmHBlurFB = Framebuffer::create(name() + "_vsmHBlurFB");
         m_vsmHBlurFB->set(Framebuffer::COLOR0, vsmHBlur);
-        m_vsmFinalFB = Framebuffer::create(name() + "_VSMFinal" + " Frame Buffer");
+        m_vsmFinalFB = Framebuffer::create(name() + "_vsmFinalFB");
         m_vsmFinalFB->set(Framebuffer::COLOR0, vsmFinal);
     }
 }
@@ -147,7 +146,6 @@ void ShadowMap::updateDepth
         (passType == RenderPassType::OPAQUE_SHADOW_MAP) || 
         (passType == RenderPassType::TRANSPARENT_SHADOW_MAP),
         "ShadowMap::updateDepth must be called with appropriate RenderPassType");
-    m_lastRenderDevice = renderDevice;
 
     // Segment the shadow casters into base (static) and dynamic arrays, and 
     // take advantage of this iteration to discover the latest update time
@@ -236,7 +234,7 @@ void ShadowMap::updateDepth
             m_stochastic, transmissionWeight);
 
         if (m_vsmSettings.enabled && vsmPass) {
-            renderDevice->push2D(m_vsmFB); {
+            renderDevice->push2D(m_vsmRawFB); {
                 Projection projection(m_lightProjection);
                 Args args;
                 args.setUniform("clipInfo", projection.reconstructFromDepthClipInfo());
@@ -249,7 +247,7 @@ void ShadowMap::updateDepth
                 int guassianBlurTaps = 2 * m_vsmSettings.filterRadius + 1;
                 
                 renderDevice->push2D(m_vsmHBlurFB); {
-                    GaussianBlur::apply(renderDevice, m_vsmFB->texture(0), Vector2(1.0f, 0.0f), 
+                    GaussianBlur::apply(renderDevice, m_vsmRawFB->texture(0), Vector2(1.0f, 0.0f), 
                         guassianBlurTaps, m_vsmHBlurFB->texture(0)->vector2Bounds(), false, true, m_vsmSettings.blurMultiplier);
                 } renderDevice->pop2D();
                 renderDevice->push2D(m_vsmFinalFB); {
@@ -257,7 +255,7 @@ void ShadowMap::updateDepth
                         guassianBlurTaps, m_vsmFinalFB->texture(0)->vector2Bounds(), false, true, m_vsmSettings.blurMultiplier);
                 } renderDevice->pop2D();
             } else {
-                Texture::copy(m_vsmFB->texture(0), m_vsmFinalFB->texture(0));
+                Texture::copy(m_vsmRawFB->texture(0), m_vsmFinalFB->texture(0));
             }
         }
     }
