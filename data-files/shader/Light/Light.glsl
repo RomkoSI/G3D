@@ -292,7 +292,7 @@ void addLightContribution
             attenuation *= varianceShadowMapVisibility(shadowCoord, lightSpaceZ, light_shadowMap_vsmTexture_buffer, light_shadowMap_vsmLightBleedReduction);
             if (maxComponent(attenuation) <= attenuationThreshold) { return; }
 
-        } else if (light_shadowMap_vsmTexture_notNull) {
+        } else if (light_shadowMap_texture_notNull) {
 
             // Williams Shadow Map case
 
