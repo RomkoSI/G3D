@@ -82,12 +82,12 @@ shared_ptr<SkyboxSurface> SkyboxSurface::create
         vert.append(Vector4(-s, -s, +s, 0.0f));
         vert.append(Vector4(+s, -s, +s, 0.0f));
 
-	Array<int> indices;
-	for (int i = 0; i < 6; ++i) {
-	    int off = i*4;
-	    indices.append(0 + off, 1 + off, 2 + off);
-	    indices.append(0 + off, 2 + off, 3 + off);
-	}
+	    Array<int> indices;
+	    for (int i = 0; i < 6; ++i) {
+	        int off = i*4;
+	        indices.append(0 + off, 1 + off, 2 + off);
+	        indices.append(0 + off, 2 + off, 3 + off);
+	    }
 
         const shared_ptr<VertexBuffer>& vb = VertexBuffer::create(vert.size() * sizeof(Vector4), VertexBuffer::WRITE_ONCE);
         s_cubeVertices = AttributeArray(vert, vb);

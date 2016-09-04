@@ -227,30 +227,38 @@ void Surface::cull
 (const CFrame&              cameraFrame,
  const Projection&          cameraProjection,
  const Rect2D&              viewport, 
- Array<shared_ptr<Surface> >& allModels,
- Array<shared_ptr<Surface> >& outModels,
+ Array<shared_ptr<Surface> >& allSurfaces,
+ Array<shared_ptr<Surface> >& outSurfaces,
  bool                       previous,
  bool                       inPlace) {
     if (inPlace) {
-        debugAssert(&allModels != &outModels);
-        outModels.fastClear();
+        debugAssert(&allSurfaces != &outSurfaces);
+        outSurfaces.fastClear();
     }
     Frustum fr;
     cameraProjection.frustum(viewport, fr);
     fr = cameraFrame.toWorldSpace(fr);
-    Array<Plane> clipPlanes;
+    
+    static Array<Plane> clipPlanes;
     cameraProjection.getClipPlanes(viewport, clipPlanes);
     for (int i = 0; i < clipPlanes.size(); ++i) {
         clipPlanes[i] = cameraFrame.toWorldSpace(clipPlanes[i]);
     }
 
-    for (int i = 0; i < allModels.size(); ++i) {
+    for (int i = 0; i < allSurfaces.size(); ++i) {
         Sphere sphere;
         CFrame c;
-        shared_ptr<Surface> m = allModels[i];
+
+        // We actually remove this shared_ptr from the array below,
+        // at which point this reference will become invalid. However,
+        // the code doesn't touch the reference again afterwards, so 
+        // that dangling pointer is ok.
+        const shared_ptr<Surface>& m = allSurfaces[i];
         m->getCoordinateFrame(c, previous);
         m->getObjectSpaceBoundingSphere(sphere, previous);
         sphere = c.toWorldSpace(sphere);
+        
+        // Not const because it is reevaluated in the branch immediately below
         bool culled = sphere.culledBy(clipPlanes);
         if (!culled) {
             AABox osBox;
@@ -258,12 +266,13 @@ void Surface::cull
             Box wsBox = c.toWorldSpace(osBox);
             culled = wsBox.culledBy(fr);
         }
+
         if (!culled) {
             if (inPlace) {
-                allModels.fastRemove(i);
+                allSurfaces.fastRemove(i);
                 --i;
             } else {
-                outModels.append(allModels[i]);
+                outSurfaces.append(allSurfaces[i]);
             }
         }
     }
