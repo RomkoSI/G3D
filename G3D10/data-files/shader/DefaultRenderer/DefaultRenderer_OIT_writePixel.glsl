@@ -128,38 +128,46 @@ void writePixel
     /* float w = clamp(tmp * 1e3, 1e-2, 3e2 * 0.1);*/
 
     _accum = vec4(premultipliedReflectionAndEmission, coverage) * w;
-    float backgroundZ = csPosition.z - 4;
 
-    Vector2 refractionOffset = (etaRatio == 1.0) ? Vector2(0) : computeRefractionOffset(backgroundZ, csNormal, csPosition, etaRatio);
-
-    float trueBackgroundCSZ = _reconstructCSZ(texelFetch(_depthTexture.sampler, ivec2(gl_FragCoord.xy), 0).r, _clipInfo);
-
-    /* Diffusion scaling constant. Adjust based on the precision of the _modulate.a texture channel. */
-    const float k_0 = 8.0;
-
-    /** Focus rate. Increase to make objects come into focus behind a frosted glass surface more quickly,
-        decrease to defocus them quickly. */
-    const float k_1 = 0.1;
-
-    /* Compute standard deviation */
-    _modulate.a = k_0 * coverage * (1.0 - collimation) * (1.0 - k_1 / (k_1 + csPosition.z - trueBackgroundCSZ)) / abs(csPosition.z);
-
-    /* Convert to variance */
-    _modulate.a *= _modulate.a;
-
-    /* Prevent underflow in 8-bit color channels: */
-    if (_modulate.a > 0) {
-        _modulate.a = max(_modulate.a, 1.0 / 256.0);
+    Vector2 refractionOffset = Vector2(0);
+    
+    if (etaRatio != 1.0) {
+        float backgroundZ = csPosition.z - 4;
+        refractionOffset = computeRefractionOffset(backgroundZ, csNormal, csPosition, etaRatio);
     }
+    
+    if (collimation < 1.0) {
+        float trueBackgroundCSZ = _reconstructCSZ(texelFetch(_depthTexture.sampler, ivec2(gl_FragCoord.xy), 0).r, _clipInfo);
 
-    /* We tried this stochastic rounding scheme to avoid banding for very low coverage surfaces, but
-       it doesn't look good:
+        /* Diffusion scaling constant. Adjust based on the precision of the _modulate.a texture channel. */
+        const float k_0 = 8.0;
 
-    if ((_modulate.a > 0) && (_modulate.a < 254.5 / 255.0)) {
-        _modulate.a = clamp(_modulate.a + randomVal(vec3(gl_FragCoord.xy * 100.0, 0)) * (1.0 / 255.0), 0.0, 1.0);
+        /** Focus rate. Increase to make objects come into focus behind a frosted glass surface more quickly,
+            decrease to defocus them quickly. */
+        const float k_1 = 0.1;
+
+        /* Compute standard deviation */
+        _modulate.a = k_0 * coverage * (1.0 - collimation) * (1.0 - k_1 / (k_1 + csPosition.z - trueBackgroundCSZ)) / abs(csPosition.z);
+        /* Convert to variance */
+        _modulate.a *= _modulate.a;
+
+        /* Prevent underflow in 8-bit color channels: */
+        if (_modulate.a > 0) {
+            _modulate.a = max(_modulate.a, 1.0 / 256.0);
+        }
+
+        /* We tried this stochastic rounding scheme to avoid banding for very low coverage surfaces, but
+           it doesn't look good:
+
+        if ((_modulate.a > 0) && (_modulate.a < 254.5 / 255.0)) {
+            _modulate.a = clamp(_modulate.a + randomVal(vec3(gl_FragCoord.xy * 100.0, 0)) * (1.0 / 255.0), 0.0, 1.0);
+        }
+        */
+
+    } else {
+        /* There is no diffusion for this surface */
+        _modulate.a = 0.0;
     }
-    */
-
     /* Encode into snorm. Maximum offset is 1 / 8 of the screen */
     _refraction = refractionOffset * coverage * 8.0;
 }
