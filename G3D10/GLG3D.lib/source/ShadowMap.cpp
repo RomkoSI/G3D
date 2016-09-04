@@ -31,15 +31,13 @@ ShadowMap::ShadowMap(const String& name) :
     m_bias(1.5f * units::centimeters()),
     m_polygonOffset(0.0f),
     m_backfacePolygonOffset(0.0f),
-    m_stochastic(false),
     m_vsmSettings() {
 }
 
 
-shared_ptr<ShadowMap> ShadowMap::create(const String& name, Vector2int16 size, bool stochastic, const VSMSettings& vsmSettings) {
+shared_ptr<ShadowMap> ShadowMap::create(const String& name, Vector2int16 size, const VSMSettings& vsmSettings) {
     const shared_ptr<ShadowMap>& s(createShared<ShadowMap>(name));
     s->m_vsmSettings = vsmSettings;
-    s->m_stochastic = stochastic;
     s->setSize(size);
     return s;
 }
@@ -229,7 +227,7 @@ void ShadowMap::updateDepth
 
     if ((lastBaseShadowCasterChangeTime > baseLayer.lastUpdateTime) ||
         (baseShadowCasterEntityHash != baseLayer.entityHash)) {
-        baseLayer.updateDepth(renderDevice, this, baseArray, cullFace, nullptr, m_stochastic, transmissionWeight);      
+        baseLayer.updateDepth(renderDevice, this, baseArray, cullFace, nullptr, transmissionWeight);      
     }
 
     // Render the dynamic layer if the dynamic layer OR the base layer changed
@@ -240,8 +238,7 @@ void ShadowMap::updateDepth
 
         dynamicLayer.updateDepth(renderDevice, this, dynamicArray, cullFace, 
             // Only pass the base layer if it is not empty
-            (baseShadowCasterEntityHash == 0) ? nullptr : baseLayer.framebuffer,
-            m_stochastic, transmissionWeight);
+            (baseShadowCasterEntityHash == 0) ? nullptr : baseLayer.framebuffer, transmissionWeight);
         
         if (vsmPass) {
             renderDevice->push2D(m_vsmRawFB); {
@@ -281,7 +278,6 @@ void ShadowMap::Layer::updateDepth
  const Array<shared_ptr<Surface> >& shadowCaster,
  CullFace                           cullFace,
  const shared_ptr<Framebuffer>&     initialValues,
- bool                               stochastic,
  const Color3&                      transmissionWeight) {
 
     renderDevice->pushState(framebuffer); {
@@ -291,7 +287,6 @@ void ShadowMap::Layer::updateDepth
         renderDevice->setDepthWrite(true);
 
         if (notNull(initialValues)) {
-
             initialValues->blitTo(renderDevice, framebuffer, false, false, true ,false, false);
         } else {
             renderDevice->clear(true, true, false);
@@ -301,7 +296,7 @@ void ShadowMap::Layer::updateDepth
         renderDevice->setCameraToWorldMatrix(shadowMap->m_lightFrame);
         renderDevice->setProjectionMatrix(shadowMap->m_lightProjection);
 
-        renderDepthOnly(renderDevice, shadowMap, shadowCaster, cullFace, stochastic, transmissionWeight);
+        renderDepthOnly(renderDevice, shadowMap, shadowCaster, cullFace, transmissionWeight);
     } renderDevice->popState();
 
     lastUpdateTime = System::time();
@@ -314,15 +309,15 @@ void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowM
 }
 
 
-void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array<shared_ptr<Surface> >& shadowCaster, CullFace cullFace, bool stochastic, const Color3& transmissionWeight) const {
+void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array<shared_ptr<Surface> >& shadowCaster, CullFace cullFace, const Color3& transmissionWeight) const {
     if ((cullFace == CullFace::NONE) && 
         (shadowMap->m_backfacePolygonOffset != shadowMap->m_polygonOffset)) {
         // Different culling values
-        renderDepthOnly(renderDevice, shadowMap, shadowCaster, CullFace::BACK, shadowMap->m_polygonOffset, stochastic ? AlphaTestMode::STOCHASTIC : AlphaTestMode::REJECT_LESS_THAN_ONE, transmissionWeight);
-        renderDepthOnly(renderDevice, shadowMap, shadowCaster, CullFace::FRONT, shadowMap->m_backfacePolygonOffset, stochastic ? AlphaTestMode::STOCHASTIC : AlphaTestMode::REJECT_LESS_THAN_ONE, transmissionWeight);
+        renderDepthOnly(renderDevice, shadowMap, shadowCaster, CullFace::BACK, shadowMap->m_polygonOffset, AlphaTestMode::STOCHASTIC, transmissionWeight);
+        renderDepthOnly(renderDevice, shadowMap, shadowCaster, CullFace::FRONT, shadowMap->m_backfacePolygonOffset, AlphaTestMode::STOCHASTIC, transmissionWeight);
     } else {
         float polygonOffset = (cullFace == CullFace::FRONT) ? shadowMap->m_backfacePolygonOffset : shadowMap->m_polygonOffset;
-        renderDepthOnly(renderDevice, shadowMap, shadowCaster, cullFace, polygonOffset, stochastic ? AlphaTestMode::STOCHASTIC : AlphaTestMode::REJECT_LESS_THAN_ONE, transmissionWeight);
+        renderDepthOnly(renderDevice, shadowMap, shadowCaster, cullFace, polygonOffset, AlphaTestMode::STOCHASTIC, transmissionWeight);
     }
 }
 

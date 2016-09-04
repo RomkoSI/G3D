@@ -9,7 +9,6 @@
 #ifndef Light_glsl
 #define Light_glsl
 
-// HIGH_QUALITY_SHADOW_FILTERING is automatically triggered by setting any light in stochasticShadows mode
 //#define HIGH_QUALITY_SHADOW_FILTERING 1
 
 #include <g3dmath.glsl>
@@ -32,8 +31,6 @@ struct Light {
 
     /** Power of the light */
     vec3                color;
-
-    bool                stochasticShadows;
 
     /** Spot light facing direction (unit length). Object space -z axis. */
     vec3                direction;
@@ -65,7 +62,7 @@ float shadowFetch(sampler2DShadow shadowMap, vec3 coord, vec2 invSize) {
 
 
 /** Returns a number between 0 = fully shadowed and 1 = fully lit.  Assumes that the shadowCoord is already within the spotlight cone. */
-float shadowMapVisibility(vec3 lightDirection, vec4 lightPosition, vec4 lightAttenuation, vec4 shadowCoord, sampler2DShadow shadowMap, vec2 invSize, bool highQualityFiltering) {    
+float shadowMapVisibility(vec3 lightDirection, vec4 lightPosition, vec4 lightAttenuation, vec4 shadowCoord, sampler2DShadow shadowMap, vec2 invSize, const bool highQualityFiltering) {    
     // Compute projected shadow coord.
     vec3 projShadowCoord = shadowCoord.xyz / shadowCoord.w;
 
@@ -256,7 +253,6 @@ void addLightContribution
     in bool             light_rectangular,
     in float            light_radius,
     in vec3             light_color,
-    in bool             light_stochasticShadows,
     in float            light_shadowMap_bias,
     in Matrix4          light_shadowMap_MVP,
     in sampler2DShadow  light_shadowMap_texture_buffer,
@@ -290,7 +286,7 @@ void addLightContribution
             // "Normal offset shadow mapping" http://www.dissidentlogic.com/images/NormalOffsetShadows/GDC_Poster_NormalOffset.png
             // Note that the normal bias must be > shadowMapBias$(I) to prevent self-shadowing; we use 3x here so that most
             // glancing angles are OK.
-            float visibility = shadowMapVisibility(light_look, light_position, light_attenuation, shadowCoord, light_shadowMap_texture_buffer, light_shadowMap_texture_invSize, light_stochasticShadows);
+            float visibility = shadowMapVisibility(light_look, light_position, light_attenuation, shadowCoord, light_shadowMap_texture_buffer, light_shadowMap_texture_invSize, false);
             if (visibility * maxComponent(attenuation) <= attenuationThreshold) { return; }
 
             if (light_shadowMap_vsmTexture_notNull) {

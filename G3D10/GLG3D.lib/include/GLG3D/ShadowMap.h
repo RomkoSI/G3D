@@ -43,6 +43,7 @@ public:
         /** If >0, apply a light bleeding reduction function, that skews towards overdarkening. 
             Reasonable range is 0 (maximum light bleeding) to 1 (maximum shadow bleeding) */
         float                   lightBleedReduction;
+
         VSMSettings(const Any& any);
         Any toAny() const;
         bool operator==(const VSMSettings& s) const;
@@ -81,11 +82,10 @@ protected:
          const Array<shared_ptr<Surface> >& shadowCaster,
          CullFace                           cullFace,
          const shared_ptr<Framebuffer>&     initialValues,
-         bool                               stochastic, 
          const Color3&                      transmissionWeight);
 
         /** Calls the other method of the same name multiple times with appropriate culling faces and polygon offsets */
-        void renderDepthOnly(class RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array< shared_ptr<Surface> >& shadowCaster, CullFace cullFace, bool stochastic, const Color3& transmissionWeight) const;
+        void renderDepthOnly(class RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array< shared_ptr<Surface> >& shadowCaster, CullFace cullFace, const Color3& transmissionWeight) const;
         void renderDepthOnly(class RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array< shared_ptr<Surface> >& shadowCaster, CullFace cullFace, float polygonOffset, AlphaTestMode alphaTestMode, const Color3& transmissionWeight) const;
     };
 
@@ -128,9 +128,7 @@ protected:
 
     float                   m_polygonOffset;
     float                   m_backfacePolygonOffset;
-
-    bool                    m_stochastic;
-
+    
     /** Do not change after initialization */
     VSMSettings             m_vsmSettings;
 
@@ -234,7 +232,6 @@ public:
     static shared_ptr<ShadowMap> create
         (const String&              name        = "Shadow Map", 
          Vector2int16               desiredSize = Vector2int16(1024, 1024),
-         bool                       stochastic  = false,
          const VSMSettings&         vsmSettings = VSMSettings());
     
     /** Increase to hide self-shadowing artifacts, decrease to avoid
@@ -249,12 +246,7 @@ public:
             m_backfacePolygonOffset = b;
         }
     }
-
-    /** Should transparency be handled stochastically? */
-    bool stochastic() const {
-        return m_stochastic;
-    }
-
+    
     bool useVarianceShadowMap() const {
         return m_vsmSettings.enabled;
     }

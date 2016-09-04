@@ -41,7 +41,6 @@ void Light::init(const String& name, AnyTableReader& propertyTable){
     propertyTable.getIfPresent("bulbPowerTrack", m_bulbPowerTrack);
     propertyTable.getIfPresent("biradiance", color);
     propertyTable.getIfPresent("type", m_type);
-    propertyTable.getIfPresent("stochasticShadows", m_stochasticShadows);
     propertyTable.getIfPresent("varianceShadowSettings", m_varianceShadowSettings);
 
     Any temp;
@@ -62,7 +61,7 @@ void Light::init(const String& name, AnyTableReader& propertyTable){
     float f;
     bool hasShadowMapBias = propertyTable.getIfPresent("shadowMapBias", f);
     if (m_castsShadows && (min(shadowMapSize.x, shadowMapSize.y) > 0)) {
-        m_shadowMap = ShadowMap::create("G3D::ShadowMap for " + name, shadowMapSize, m_stochasticShadows, m_varianceShadowSettings);
+        m_shadowMap = ShadowMap::create("G3D::ShadowMap for " + name, shadowMapSize, m_varianceShadowSettings);
         if (hasShadowMapBias) {
             m_shadowMap->setBias(f);
         }
@@ -334,12 +333,6 @@ Any Light::toAny(const bool forceAll) const {
         a["castsShadows"] = m_castsShadows; 
     }
 
-    bool stochasticShadows = false;
-    oldValues.getIfPresent("stochasticShadows", stochasticShadows);
-    if (m_stochasticShadows != stochasticShadows) {
-        a["stochasticShadows"] = m_stochasticShadows;
-    }
-
     ShadowMap::VSMSettings vsmSettings;
     oldValues.getIfPresent("varianceShadowSettings", vsmSettings);
     if (m_varianceShadowSettings != vsmSettings) {
@@ -374,7 +367,6 @@ Light::Light() :
     m_spotSquare(false),
     m_spotHardness(1.0f),
     m_castsShadows(true),
-    m_stochasticShadows(false),
     m_varianceShadowSettings(),
     m_shadowCullFace(CullFace::BACK),
     m_enabled(true),
@@ -571,7 +563,6 @@ void Light::getSpotConstants(float& cosHalfAngle, float& softnessConstant) const
 
 
 void Light::setShaderArgs(UniformTable& args, const String& prefix) const {
-    args.setUniform(prefix + "stochasticShadows", m_stochasticShadows);
     args.setUniform(prefix + "position",    position());
     args.setUniform(prefix + "color",       color);
     args.setUniform(prefix + "rectangular", m_spotSquare);

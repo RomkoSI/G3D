@@ -18,8 +18,6 @@
     /** Power of the light */
     uniform vec3        light$(I)_color;
 
-    uniform bool        light$(I)_stochasticShadows;
-
     /** Spot light facing direction (unit length) */
     uniform vec3        light$(I)_direction;
 
@@ -102,7 +100,6 @@ void computeDirectLighting(Vector3 n, Vector3 glossyN, Vector3 w_o, Vector3 n_fa
             light$(I)_rectangular,
             light$(I)_radius,
             light$(I)_color,
-            light$(I)_stochasticShadows,
 
 #           ifdef light$(I)_shadowMap_notNull
                 light$(I)_shadowMap_bias,
