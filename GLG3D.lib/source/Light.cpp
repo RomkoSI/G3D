@@ -593,8 +593,13 @@ void Light::setShaderArgs(UniformTable& args, const String& prefix) const {
     const float lightRadius = m_extent.length() / 2.0f;
     args.setUniform(prefix + "radius", lightRadius);
 
+    // The last character is either "." for struct-style passing or "_" for underscore-style
+    // uniform passing. Repeat whichever convention was used for the light for the 
+    // shadow map fields.
+    const String& separatorChar = prefix.empty() ? "_" : prefix.substr(prefix.length() - 1);
+
     if (castsShadows()) {
-        shadowMap()->setShaderArgsRead(args, prefix + "shadowMap" + prefix[prefix.length() - 1]);
+        shadowMap()->setShaderArgsRead(args, prefix + "shadowMap" + separatorChar);
     }
 }
 

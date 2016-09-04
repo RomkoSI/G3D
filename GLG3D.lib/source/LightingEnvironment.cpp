@@ -229,6 +229,14 @@ void LightingEnvironment::setShaderArgs(UniformTable& args, const String& prefix
     if (notNull(uniformTable)) {
         args.append(*uniformTable, prefix);
     }
+
+    // Bind dummy arguments for lights that do not have shadow maps.
+    // We always burn two samplers on this, even when all lights have
+    // shadow maps and it is unnecessary...but (a) that will compile out
+    // because the uniforms won't be read, and (b) in that case, we have
+    // a lot of available samplers anyway.
+    args.setUniform("dummyLightSampler2D", Texture::white(), Sampler::buffer());
+    args.setUniform("dummyLightSampler2DShadow", Texture::white(), Sampler::shadow());
 }
 
 

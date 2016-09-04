@@ -39,9 +39,9 @@
     uniform float       light$(I)_radius;
 
 #   if defined(light$(I)_shadowMap_notNull)
-        /** Modelview projection matrix used for the light's shadow map */
-        uniform mat4                light$(I)_shadowMap_MVP;
-        uniform float               light$(I)_shadowMap_bias;
+        /** Modelview projection matrix used for the light's shadow map and VSM (they have the same projection) */
+        uniform mat4    light$(I)_shadowMap_MVP;
+        uniform float   light$(I)_shadowMap_bias;
 
         uniform_Texture(sampler2DShadow,   light$(I)_shadowMap_);
 #       if defined(light$(I)_shadowMap_variance_notNull)
@@ -50,9 +50,17 @@
             uniform float light$(I)_shadowMap_variance_lightBleedReduction;
 #       endif
 #   endif
-
-
 #endfor
+
+/** Used by computeDirectLighting for lights that do 
+    not have shadow maps on them. We don't pass dummy
+    shadow maps per-Light because OpenGL has a small,
+    limited number of samplers (when not using bindless
+    texture), and that would cause scenes with many lights
+    to exhaust the available samplers unnecessarily. */
+uniform sampler2D       dummyLightSampler2D;
+uniform sampler2DShadow dummyLightSampler2DShadow;
+
 
 
 /**
@@ -78,37 +86,56 @@
 void computeDirectLighting(Vector3 n, Vector3 glossyN, Vector3 w_o, Vector3 n_face, float backside, Point3 wsPosition, float glossyExponent, inout Color3 E_lambertian, inout Color3 E_glossy) {
     vec3 w_i;
 #   for (int I = 0; I < NUM_LIGHTS; ++I)
-    {
-#       if defined(light$(I)_shadowMap_notNull) || defined(light$(I)_shadowMap_variance_notNull)
-            vec3 adjustedWSPos = wsPosition + w_o * (1.5 * light$(I)_shadowMap_bias) + n_face * (backside * 0.5 * light$(I)_shadowMap_bias);
-            vec4 shadowCoord = light$(I)_shadowMap_MVP * vec4(adjustedWSPos, 1.0);
-#       endif
+    {    
+        addLightContribution
+           (n,
+            glossyN,
+            w_o,
+            wsPosition,
+            glossyExponent,
+            light$(I)_position,
+            light$(I)_attenuation,
+            light$(I)_softnessConstant,
+            light$(I)_direction,
+            light$(I)_up,
+            light$(I)_right,
+            light$(I)_rectangular,
+            light$(I)_radius,
+            light$(I)_color,
+            light$(I)_stochasticShadows,
 
-#       if defined(light$(I)_shadowMap_variance_notNull)
-            vec4 cFrameZRow = vec4(light$(I)_direction.xyz, -light$(I)_position.z);
-            float lightSpaceZ = dot(cFrameZRow, vec4(adjustedWSPos, 1.0));
-            lightSpaceZ = -dot(light$(I)_direction.xyz, adjustedWSPos - light$(I)_position.xyz);
+#           ifdef light$(I)_shadowMap_notNull
+                light$(I)_shadowMap_bias,
+                light$(I)_shadowMap_MVP,
 
-            addVarianceShadowedLightContribution(n, glossyN, w_o, wsPosition, glossyExponent,
-                light$(I)_position, light$(I)_attenuation, light$(I)_softnessConstant, light$(I)_direction, light$(I)_up, light$(I)_right, light$(I)_rectangular, light$(I)_radius, light$(I)_color,
-                shadowCoord, lightSpaceZ, light$(I)_shadowMap_variance_lightBleedReduction, light$(I)_shadowMap_variance_buffer, light$(I)_shadowMap_variance_invSize.xy,
-                n_face, backside,
-                E_lambertian, E_glossy, w_i);
+                light$(I)_shadowMap_buffer,
+                light$(I)_shadowMap_notNull != 0,
+                light$(I)_shadowMap_invSize.xy,
+#           else
+                // Pass dummy shadow map args
+                0.0,
+                Matrix4(),
+                dummyLightSampler2DShadow,
+                false,
+                vec2(1.0),
+#           endif
 
-#       elif defined(light$(I)_shadowMap_notNull)
-            // "Normal offset shadow mapping" http://www.dissidentlogic.com/images/NormalOffsetShadows/GDC_Poster_NormalOffset.png
-            // Note that the normal bias must be > shadowMapBias$(I) to prevent self-shadowing; we use 3x here so that most
-            // glancing angles are ok.
-            addShadowedLightContribution(n, glossyN, w_o, wsPosition, glossyExponent,
-                light$(I)_position, light$(I)_attenuation, light$(I)_softnessConstant, light$(I)_direction, light$(I)_up, light$(I)_right, light$(I)_rectangular, light$(I)_radius, light$(I)_color, 
-                light$(I)_stochasticShadows, shadowCoord, light$(I)_shadowMap_buffer, light$(I)_shadowMap_invSize.xy,
-                n_face, backside,
-                E_lambertian, E_glossy, w_i);
-#        else
-            addLightContribution(n, glossyN, w_o, wsPosition, glossyExponent,
-                light$(I)_position, light$(I)_attenuation, light$(I)_softnessConstant, light$(I)_direction, light$(I)_up, light$(I)_right, light$(I)_rectangular, light$(I)_radius, light$(I)_color, 
-                n_face, backside, E_lambertian, E_glossy, w_i);
-#       endif
+#           if defined(light$(I)_shadowMap_notNull) && defined(light$(I)_shadowMap_variance_notNull)
+                light$(I)_shadowMap_variance_buffer,
+                light$(I)_shadowMap_variance_notNull != 0,
+                light$(I)_shadowMap_variance_lightBleedReduction,
+#           else
+                // Pass dummy VSM args
+                dummyLightSampler2D,
+                false,
+                0.0,
+#           endif
+
+            n_face,
+            backside,
+            E_lambertian,
+            E_glossy,
+            w_i);       
     }
 #   endfor
 }
