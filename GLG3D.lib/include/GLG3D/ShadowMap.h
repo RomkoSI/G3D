@@ -52,7 +52,7 @@ public:
         VSMSettings() : enabled(false), baseSize(2048,2048), filterRadius(5), blurMultiplier(1.0f), downsampleFactor(1), lightBleedReduction(0.0f) {}
     };
 protected:
-    String                  m_name;
+    String                      m_name;
 
     class Layer {
     public:
@@ -133,11 +133,14 @@ protected:
 
     VSMSettings             m_vsmSettings;
 
-    shared_ptr<Framebuffer> m_vsmFB;
-    shared_ptr<Framebuffer> m_vsmHBlurFB;
-    shared_ptr<Framebuffer> m_vsmFinalFB;
+    /** m_vsmSourceDynamicLayer converted to VSM format (mean + variance) before filtering */
+    shared_ptr<Framebuffer> m_vsmRawFB;
 
-    class RenderDevice*     m_lastRenderDevice;
+    /** m_vsmRawFB after horizontal filtering */
+    shared_ptr<Framebuffer> m_vsmHBlurFB;
+
+    /** m_vsmRawFB after vertical filtering. This is used for reading */
+    shared_ptr<Framebuffer> m_vsmFinalFB;
 
     ShadowMap(const String& name);
 
