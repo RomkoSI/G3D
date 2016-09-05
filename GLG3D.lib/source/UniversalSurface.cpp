@@ -272,15 +272,21 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         }
     }
 
+    // Batch rendering is an optimization that uses a single draw call for all surfaces
+    // that share vertex buffers. This can potentially speed up rendering of models
+    // with lots of substructure but no internal transformations.
     const bool batchRender = true;
+
+    // Process opaque surfaces first, front-to-back to maximize early-z test performance
     if (batchRender) {
         static Array< Array<shared_ptr<Surface> > > batchTable;
         batchTable.fastClear();
 
-        // Separate into batches that have the same cull face, bones, coordinate frame, and index buffer
+        // Separate into batches that have the same cull face, bones, coordinate frame, and vertex buffer. This is useful
+        // for depth rendering because materials have been stripped, so many surfaces can all be rendered in the same call.
+        //
         // We could potentially batch surfaces with different coordinate frames together by binding an array of coordinate frames instead.
         categorizeByBatchDescriptor(opaqueSurfaces, batchTable);
-        // Process opaque surfaces first, front-to-back to maximize early-z test performance
         for (int b = batchTable.size() - 1; b >= 0; --b) {
             const Array<shared_ptr<Surface> >& batch = batchTable[b];
 	        const shared_ptr<UniversalSurface>& canonicalSurface = dynamic_pointer_cast<UniversalSurface>(batch[0]);
@@ -291,11 +297,9 @@ void UniversalSurface::renderDepthOnlyHomogeneous
 			}
 
 			depthRenderHelper(rd, args, canonicalSurface, format("batch%d (%s)", b, canonicalSurface->m_profilerHint.c_str()), previousDepthBuffer, minZSeparation, alphaTestMode, transmissionWeight, depthShader, depthPeelShader, cull);
-
         } // for each surface  
 
     } else {
-        // Process opaque surfaces first, front-to-back to maximize early-z test performance
         for (int g = opaqueSurfaces.size() - 1; g >= 0; --g) {
             const shared_ptr<UniversalSurface>& surface = dynamic_pointer_cast<UniversalSurface>(opaqueSurfaces[g]);
             Args args;
