@@ -22,10 +22,10 @@
 
 namespace G3D {
 
-//#define HIGH_PRECISION_OIT_FORMAT ImageFormat::RGBA16F()
-//#define HIGH_PRECISION_OIT_FORMAT_RG ImageFormat::RG16F()
-#define HIGH_PRECISION_OIT_FORMAT ImageFormat::RGBA32F()
-#define HIGH_PRECISION_OIT_FORMAT_RG ImageFormat::RG32F()
+#define HIGH_PRECISION_OIT_FORMAT ImageFormat::RGBA16F()
+#define HIGH_PRECISION_OIT_FORMAT_RG ImageFormat::RG16F()
+//#define HIGH_PRECISION_OIT_FORMAT ImageFormat::RGBA32F()
+//#define HIGH_PRECISION_OIT_FORMAT_RG ImageFormat::RG32F()
 
 DefaultRenderer::DefaultRenderer() :
     m_deferredShading(false),
@@ -56,7 +56,7 @@ void DefaultRenderer::allocateAllOITBuffers
     allocateOITFramebufferAttachments(rd, m_oitFramebuffer, rd->width(), rd->height(), highPrecision);
     m_oitLowResFramebuffer = Framebuffer::create("G3D::DefaultRenderer::m_oitLowResFramebuffer");
 
-    allocateOITFramebufferAttachments(rd, m_oitLowResFramebuffer, lowResWidth, lowResHeight, false);
+    allocateOITFramebufferAttachments(rd, m_oitLowResFramebuffer, lowResWidth, lowResHeight, highPrecision);
 
     const ImageFormat* depthFormat = rd->drawFramebuffer()->texture(Framebuffer::DEPTH)->format();
     shared_ptr<Texture> lowResDepthBuffer = Texture::createEmpty("G3D::DefaultRenderer::lowResDepth", lowResWidth, lowResHeight, depthFormat);
