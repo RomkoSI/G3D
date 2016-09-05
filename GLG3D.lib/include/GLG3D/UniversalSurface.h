@@ -245,7 +245,6 @@ protected:
         const String&                      profilerHint,
         const shared_ptr<Texture>&         previousDepthBuffer,
         const float                        minZSeparation,
-        AlphaTestMode                      alphaTestMode,
         const Color3&                      transmissionWeight,
         const shared_ptr<Shader>&          depthShader,
         const shared_ptr<Shader>&          depthPeelShader,

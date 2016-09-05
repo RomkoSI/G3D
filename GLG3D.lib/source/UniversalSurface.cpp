@@ -179,7 +179,6 @@ void UniversalSurface::depthRenderHelper
     const String&                      profilerHint,
     const shared_ptr<Texture>&         previousDepthBuffer,
     const float                        minZSeparation,
-    AlphaTestMode                      alphaTestMode,
     const Color3&                      transmissionWeight,
     const shared_ptr<Shader>&          depthShader,
     const shared_ptr<Shader>&          depthPeelShader,
@@ -296,14 +295,14 @@ void UniversalSurface::renderDepthOnlyHomogeneous
 				args.appendIndexStream(dynamic_pointer_cast<UniversalSurface>(batch[s])->gpuGeom()->index);
 			}
 
-			depthRenderHelper(rd, args, canonicalSurface, format("batch%d (%s)", b, canonicalSurface->m_profilerHint.c_str()), previousDepthBuffer, minZSeparation, alphaTestMode, transmissionWeight, depthShader, depthPeelShader, cull);
+			depthRenderHelper(rd, args, canonicalSurface, format("batch%d (%s)", b, canonicalSurface->m_profilerHint.c_str()), previousDepthBuffer, minZSeparation, transmissionWeight, depthShader, depthPeelShader, cull);
         } // for each surface  
 
     } else {
         for (int g = opaqueSurfaces.size() - 1; g >= 0; --g) {
             const shared_ptr<UniversalSurface>& surface = dynamic_pointer_cast<UniversalSurface>(opaqueSurfaces[g]);
             Args args;
-			depthRenderHelper(rd, args, surface, surface->m_profilerHint, previousDepthBuffer, minZSeparation, alphaTestMode, transmissionWeight, depthShader, depthPeelShader, cull);
+			depthRenderHelper(rd, args, surface, surface->m_profilerHint, previousDepthBuffer, minZSeparation, transmissionWeight, depthShader, depthPeelShader, cull);
         } // for each surface  
     }
 
@@ -334,7 +333,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         surface->setShaderArgs(args, true);
     	bindDepthPeelArgs(args, rd, previousDepthBuffer, minZSeparation);
         args.setUniform("transmissionWeight", transmissionWeight);
-        args.setMacro("DISCARD_IF_FULL_COVERAGE", 0);
+        args.setMacro("DISCARD_IF_FULL_COVERAGE", alphaTestMode == AlphaTestMode::STOCHASTIC_REJECT_ONE);
 
         // N.B. Alpha testing is handled explicitly inside the shader.
         if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((surface->material()->alphaHint() == AlphaHint::BLEND) || (surface->material()->alphaHint() == AlphaHint::BINARY)))) {
