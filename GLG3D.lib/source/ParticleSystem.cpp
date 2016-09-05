@@ -425,8 +425,12 @@ void ParticleSystem::init() {
             break;
 
         case ParticleSystemModel::Emitter::SpawnLocation::VOLUME:
-            numParticlesToEmit = iRound(emitter->m_spawnShape->volume() * initialDensity);
-            break;                    
+           if (notNull(dynamic_pointer_cast<MeshShape>(emitter->m_spawnShape))) {
+                numParticlesToEmit = iRound(emitter->m_spawnShape->boundingAABox().volume() * initialDensity);
+           } else {   
+                numParticlesToEmit = iRound(emitter->m_spawnShape->volume() * initialDensity);
+           }
+           break;                   
         }
 
         if (numParticlesToEmit > 0) {

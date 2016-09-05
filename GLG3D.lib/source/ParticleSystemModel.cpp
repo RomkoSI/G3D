@@ -250,9 +250,18 @@ bool ParticleSystemModel::Emitter::Specification::operator==(const Specification
 
 ParticleSystemModel::Emitter::Emitter(const Specification& s) : m_specification(s) {
     switch (s.shapeType) {
+    
     case Shape::Type::MESH:
-        // Load the mesh
-        debugAssertM(false, "TODO");
+        {
+            // Load the mesh
+            Array<shared_ptr<Surface> > surfaces;
+            shared_ptr<ArticulatedModel> am = ArticulatedModel::create(s.mesh, "ParticleSystemModel::Emitter temporary AM");
+            am->pose(surfaces, CFrame(), am->defaultPose(), nullptr);
+            CPUVertexArray vertexArray;
+            Array<Tri> tris;
+            Surface::getTris(surfaces, vertexArray, tris, false);
+            m_spawnShape = shared_ptr<Shape>(new MeshShape(vertexArray, tris));
+        }
         break;
 
     case Shape::Type::BOX:
