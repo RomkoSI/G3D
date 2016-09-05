@@ -671,16 +671,10 @@ void Light::renderShadowMaps(RenderDevice* rd, const Array<shared_ptr<Light> >& 
             Color3 transmissionWeight = light->bulbPower() / max(light->bulbPower().sum(), 1e-6f);
 
             if (light->shadowMap()->useVarianceShadowMap()) {
-                light->shadowMap()->updateDepth(rd, lightFrame, lightProjectionMatrix, 
-                    lightVisible, renderCullFace, transmissionWeight, 
-                    RenderPassType::OPAQUE_SHADOW_MAP);
-                light->shadowMap()->updateDepth(rd, lightFrame, lightProjectionMatrix, 
-                    lightVisible, renderCullFace, transmissionWeight, 
-                    RenderPassType::TRANSPARENT_SHADOW_MAP);
+                light->shadowMap()->updateDepth(rd, lightFrame, lightProjectionMatrix, lightVisible, renderCullFace, transmissionWeight, RenderPassType::OPAQUE_SHADOW_MAP);
+                light->shadowMap()->updateDepth(rd, lightFrame, lightProjectionMatrix, lightVisible, renderCullFace, transmissionWeight, RenderPassType::TRANSPARENT_SHADOW_MAP);
             } else {
-                light->shadowMap()->updateDepth(rd, lightFrame, lightProjectionMatrix, 
-                    lightVisible, renderCullFace, transmissionWeight, 
-                    RenderPassType::SHADOW_MAP);
+                light->shadowMap()->updateDepth(rd, lightFrame, lightProjectionMatrix, lightVisible, renderCullFace, transmissionWeight, RenderPassType::SHADOW_MAP);
             }
 
             lightVisible.fastClear();

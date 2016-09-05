@@ -144,6 +144,7 @@ struct DepthOnlyBatchDescriptor {
     }
 };
 
+
 static void categorizeByBatchDescriptor(const Array<shared_ptr<Surface> >& all, Array< Array<shared_ptr<Surface> > >& derivedArray) {
     derivedArray.fastClear();
 
@@ -171,7 +172,59 @@ static void categorizeByBatchDescriptor(const Array<shared_ptr<Surface> >& all, 
     }
 }
 
+void UniversalSurface::depthRenderHelper
+   (RenderDevice*                      rd,
+    Args&                              args, 
+	const shared_ptr<UniversalSurface>&surface,
+    const String&                      profilerHint,
+    const shared_ptr<Texture>&         previousDepthBuffer,
+    const float                        minZSeparation,
+    AlphaTestMode                      alphaTestMode,
+    const Color3&                      transmissionWeight,
+    const shared_ptr<Shader>&          depthShader,
+    const shared_ptr<Shader>&          depthPeelShader,
+    const CullFace                     cull) {
 
+    const shared_ptr<UniversalSurface::GPUGeom>& geom = surface->gpuGeom();
+
+    if (geom->twoSided) {
+        rd->setCullFace(CullFace::NONE);
+    }
+
+    // Needed for every type of pass 
+    CFrame cframe;
+    surface->getCoordinateFrame(cframe, false);
+    if (geom->hasBones()) {
+        rd->setObjectToWorldMatrix(CFrame());
+    } else {
+        rd->setObjectToWorldMatrix(cframe);
+    }
+
+    surface->setShaderArgs(args);
+
+    args.setMacro("DISCARD_IF_FULL_COVERAGE", 0);
+    args.setMacro("HAS_ALPHA", 0);
+    args.setMacro("USE_PARALLAX_MAPPING", 0);
+
+    // Don't use lightMaps for depth only...
+    args.setMacro("NUM_LIGHTMAP_DIRECTIONS", 0);
+    args.setMacro("NUM_LIGHTS", 0);
+    args.setMacro("USE_IMAGE_STORE", 0);
+    args.setUniform("transmissionWeight", transmissionWeight, true);
+
+    bindDepthPeelArgs(args, rd, previousDepthBuffer, minZSeparation);
+            
+    // N.B. Alpha testing is handled explicitly inside the shader.
+    if (notNull(previousDepthBuffer)) {
+        LAUNCH_SHADER_PTR_WITH_HINT(depthPeelShader, args, profilerHint);
+    } else {
+        LAUNCH_SHADER_PTR_WITH_HINT(depthShader, args, profilerHint);
+    }
+
+    if (geom->twoSided) {
+        rd->setCullFace(cull);
+    }
+}
 
 void UniversalSurface::renderDepthOnlyHomogeneous
 (RenderDevice*                      rd, 
@@ -230,110 +283,23 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         // Process opaque surfaces first, front-to-back to maximize early-z test performance
         for (int b = batchTable.size() - 1; b >= 0; --b) {
             const Array<shared_ptr<Surface> >& batch = batchTable[b];
-            const shared_ptr<UniversalSurface>& canonicalSurface = dynamic_pointer_cast<UniversalSurface>(batch[0]);
+	        const shared_ptr<UniversalSurface>& canonicalSurface = dynamic_pointer_cast<UniversalSurface>(batch[0]);
 
-            const shared_ptr<UniversalSurface::GPUGeom>& geom = canonicalSurface->gpuGeom();
+			Args args;
+			for (int s = batch.size() - 1; s >= 0; --s) {
+				args.appendIndexStream(dynamic_pointer_cast<UniversalSurface>(batch[s])->gpuGeom()->index);
+			}
 
-            if (geom->twoSided) {
-                rd->setCullFace(CullFace::NONE);
-            }
+			depthRenderHelper(rd, args, canonicalSurface, format("batch%d (%s)", b, canonicalSurface->m_profilerHint.c_str()), previousDepthBuffer, minZSeparation, alphaTestMode, transmissionWeight, depthShader, depthPeelShader, cull);
 
-            // Needed for every type of pass 
-            CFrame cframe;
-            canonicalSurface->getCoordinateFrame(cframe, false);
-            if (geom->hasBones()) {
-                rd->setObjectToWorldMatrix(CFrame());
-            } else {
-                rd->setObjectToWorldMatrix(cframe);
-            }
-
-            Args args;
-            canonicalSurface->setShaderArgs(args);
-
-            args.setMacro("DISCARD_IF_FULL_COVERAGE", 0);
-            args.setMacro("HAS_ALPHA", 0);
-            args.setMacro("USE_PARALLAX_MAPPING", 0);
-
-            // Don't use lightMaps for depth only...
-            args.setMacro("NUM_LIGHTMAP_DIRECTIONS", 0);
-            args.setMacro("NUM_LIGHTS", 0);
-            args.setMacro("USE_IMAGE_STORE", 0);
-            args.setUniform("transmissionWeight", transmissionWeight, true);
-
-            bindDepthPeelArgs(args, rd, previousDepthBuffer, minZSeparation);
-            
-            for (int s = batch.size() - 1; s >= 0; --s) {
-                args.appendIndexStream(dynamic_pointer_cast<UniversalSurface>(batch[s])->gpuGeom()->index);
-            }
-
-            // N.B. Alpha testing is handled explicitly inside the shader.
-            if (notNull(previousDepthBuffer)) {
-                LAUNCH_SHADER_PTR_WITH_HINT(depthPeelShader, args, format("batch%d (%s)", b, canonicalSurface->m_profilerHint.c_str()));
-            }
-            else {
-                LAUNCH_SHADER_PTR_WITH_HINT(depthShader, args, format("batch%d (%s)", b, canonicalSurface->m_profilerHint.c_str()));
-            }
-            /*
-            for (int s = batch.size() - 1; s >= 0; --s) {
-                args.setIndexStream(dynamic_pointer_cast<UniversalSurface>(batch[s])->gpuGeom()->index);
-                // N.B. Alpha testing is handled explicitly inside the shader.
-                if (notNull(previousDepthBuffer)) {
-                    LAUNCH_SHADER_PTR(depthPeelShader, args);
-                }
-                else {
-                    LAUNCH_SHADER_PTR(depthShader, args);
-                }
-            }            */           
-
-            if (geom->twoSided) {
-                rd->setCullFace(cull);
-            }
         } // for each surface  
 
     } else {
         // Process opaque surfaces first, front-to-back to maximize early-z test performance
         for (int g = opaqueSurfaces.size() - 1; g >= 0; --g) {
             const shared_ptr<UniversalSurface>& surface = dynamic_pointer_cast<UniversalSurface>(opaqueSurfaces[g]);
-            const shared_ptr<UniversalSurface::GPUGeom>& geom = surface->gpuGeom();
-
-            if (geom->twoSided) {
-                rd->setCullFace(CullFace::NONE);
-            }
-
-            // Needed for every type of pass 
-            CFrame cframe;
-            surface->getCoordinateFrame(cframe, false);
-            if (geom->hasBones()) {
-                rd->setObjectToWorldMatrix(CFrame());
-            }
-            else {
-                rd->setObjectToWorldMatrix(cframe);
-            }
-
             Args args;
-            surface->setShaderArgs(args);
-
-            args.setMacro("DISCARD_IF_FULL_COVERAGE", 0);
-            args.setMacro("HAS_ALPHA", 0);
-            args.setMacro("USE_PARALLAX_MAPPING", 0);
-
-            // Don't use lightMaps for depth only...
-            args.setMacro("NUM_LIGHTMAP_DIRECTIONS", 0);
-            args.setMacro("NUM_LIGHTS", 0);
-            args.setMacro("USE_IMAGE_STORE", 0);
-
-            bindDepthPeelArgs(args, rd, previousDepthBuffer, minZSeparation);
-
-            // N.B. Alpha testing is handled explicitly inside the shader.
-            if (notNull(previousDepthBuffer)) {
-                LAUNCH_SHADER_PTR_WITH_HINT(depthPeelShader, args, surface->m_profilerHint);
-            } else {
-                LAUNCH_SHADER_PTR_WITH_HINT(depthShader, args, surface->m_profilerHint);
-            }
-
-            if (geom->twoSided) {
-                rd->setCullFace(cull);
-            }
+			depthRenderHelper(rd, args, surface, surface->m_profilerHint, previousDepthBuffer, minZSeparation, alphaTestMode, transmissionWeight, depthShader, depthPeelShader, cull);
         } // for each surface  
     }
 
