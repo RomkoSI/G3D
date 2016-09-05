@@ -4,10 +4,10 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2008-11-12
-  \edited  2015-01-02
+  \edited  2016-09-05
  
  G3D Innovation Engine
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 #ifndef GLG3D_UniversalSurface_h
@@ -224,8 +224,6 @@ public:
     
 protected:
 
-    
-
     /** Used in renderDepthOnlyHomogeneous to store the last pass type. Alpha testing turns of 
         depth-only optimizations on GPUs, so we need to avoid using alpha testing when unneccessary.
         When a surface is both parallax mapped and has alpha, we need a shader to render the depth pass.
@@ -237,6 +235,21 @@ protected:
         FIXED_FUNCTION_ALPHA,
         PARALLAX_AND_ALPHA
     };
+
+
+    /** Abstracts some common code for batch rendering mode from renderDepthOnlyHomogeneous */
+    static void depthRenderHelper
+       (RenderDevice*                      rd,
+        Args&                              args, 
+        const shared_ptr<UniversalSurface>&surface,
+        const String&                      profilerHint,
+        const shared_ptr<Texture>&         previousDepthBuffer,
+        const float                        minZSeparation,
+        AlphaTestMode                      alphaTestMode,
+        const Color3&                      transmissionWeight,
+        const shared_ptr<Shader>&          depthShader,
+        const shared_ptr<Shader>&          depthPeelShader,
+        const CullFace                     cull);
 
     virtual void defaultRender(RenderDevice* rd) const override {
         alwaysAssertM(false, "Not implemented");
