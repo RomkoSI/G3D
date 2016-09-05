@@ -51,9 +51,9 @@ uniform int         downsampleFactor;
 
 in Point2           g3d_TexCoord;
 
-out float4          accum;
-out float4          backgroundModulationAndDiffusion;
-out float2          delta;
+layout(location = 0) out float4          accum;
+layout(location = 1) out float4          backgroundModulationAndDiffusion;
+layout(location = 2) out float2          delta;
 
 void main() {
     int2 fullPixelIndex = int2(gl_FragCoord.xy);
