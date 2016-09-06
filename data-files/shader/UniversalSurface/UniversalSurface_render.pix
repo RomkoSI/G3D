@@ -230,7 +230,8 @@ void main() {
     }
        
     Color3 E_lambertian = Color3(0.0);
-    computeDirectLighting(materialSample.shadingNormal, materialSample.glossyShadingNormal, wsE, tan_Z, backside, wsPosition, glossyExponent, E_lambertian, E_glossy);
+    // The last argument just has to be any shader to make the code compile
+    computeDirectLighting(materialSample.shadingNormal, materialSample.glossyShadingNormal, wsE, tan_Z, backside, wsPosition, glossyExponent, E_lambertian, E_glossy, material.lambertian.sampler);
     
     // Emission
     Radiance3 L_o = materialSample.emissive;

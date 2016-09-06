@@ -85,7 +85,8 @@ void main() {
     float glossyExponent = 0.0;
     float glossyCoefficient = 0.0;
 
-    computeDirectLighting(wsN, wsN, w_o, wsN, 1.0, wsPosition, glossyExponent, E_lambertian, E_glossy);
+    // The last argument just has to be any shader to make the code compile
+    computeDirectLighting(wsN, wsN, w_o, wsN, 1.0, wsPosition, glossyExponent, E_lambertian, E_glossy, gbuffer_LAMBERTIAN_buffer);
 
 #if USE_INDIRECT
     vec2 ssV = texelFetch(ssPositionChange_buffer, C, 0).rg * ssPositionChange_readMultiplyFirst.xy + ssPositionChange_readAddSecond.xy;
