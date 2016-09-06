@@ -9,17 +9,6 @@
             model = "backgroundSpotTargetModel";
             canChange = false;
         };
-
-        bmp = VisibleEntity { 
-            frame = CFrame::fromXYZYPRDegrees(-6.5, -0.649, -3, 90 ); 
-            model = "squareModel";
-            articulatedModelPose = ArticulatedModel::Pose{
-                materialTable = {
-                    mesh = "image/test-berry.bmp";
-                }
-            };
-            canChange = false;
-        }; 
         
         camera = Camera { 
             depthOfFieldSettings = DepthOfFieldSettings { 
@@ -77,89 +66,6 @@
         }; 
 
 
-        clearGlassSphere = VisibleEntity { 
-            frame = Point3(2, -0.6, -5 ); 
-            model = "sphereModel";
-            articulatedModelPose = ArticulatedModel::Pose{
-                materialTable = {
-                    mesh = UniversalMaterial::Specification{
-                        etaReflect = 1;
-                        etaTransmit = 1.3;
-                        glossy = Color4(0.2, 0.2, 0.2, mirror());
-                        lambertian = Color3(0);
-                        mirrorHint = "STATIC_PROBE";
-                        refractionHint = "DYNAMIC_FLAT";
-                        transmissive = Color3(0.6);
-                    }
-                }
-            };
-            canChange = false;
-        }; 
-
-        clearGlassBox = VisibleEntity { 
-            frame = Point3(1, -0.65, -5 ); 
-            model = "boxModel";
-            articulatedModelPose = ArticulatedModel::Pose{
-                materialTable = {
-                    mesh = UniversalMaterial::Specification{
-                        etaReflect = 1;
-                        etaTransmit = 1.3;
-                        glossy = Color4(0.2, 0.2, 0.2, mirror());
-                        lambertian = Color3(0);
-                        mirrorHint = "STATIC_PROBE";
-                        refractionHint = "DYNAMIC_FLAT";
-                        transmissive = Color3(0.6);
-                    }
-                }
-            }; 
-            canChange = false;  
-        }; 
-
-		clearGlassSphereNoReflection = VisibleEntity { 
-            frame = Point3(3, -0.6, -5 ); 
-            model = "sphereModel";
-            articulatedModelPose = ArticulatedModel::Pose{
-                materialTable = {
-                    mesh = UniversalMaterial::Specification{
-                        etaReflect = 1;
-                        etaTransmit = 1.3;
-                        glossy = Color4(0, 0, 0, mirror());
-                        lambertian = Color3(0);
-                        mirrorHint = "STATIC_PROBE";
-                        refractionHint = "DYNAMIC_FLAT";
-                        transmissive = Color3(0.6);
-                    }
-                }
-            };
-            canChange = false;
-        }; 
-        
-
-		greenGlassSphere = VisibleEntity { 
-            frame = CFrame::fromXYZYPRDegrees(-4.0, -0.6, -5.0 ); 
-            model = "sphereModel";
-            articulatedModelPose = ArticulatedModel::Pose{
-                materialTable = {
-                    mesh = UniversalMaterial::Specification { 
-                        etaReflect = 1; 
-                        etaTransmit = 1.3; 
-                        glossy = Color4(0.1, 0.1, 0.1, mirror()); 
-                        lambertian = Color3(0 ); 
-                        mirrorHint = "STATIC_PROBE"; 
-                        refractionHint = "DYNAMIC_FLAT"; 
-                        transmissive = Color3(0.1, 0.5, 0.2 ); 
-                    }
-                }
-            };
-            canChange = false;
-        }; 
-        
-        ground = VisibleEntity { 
-            frame = CFrame::fromXYZYPRDegrees(0, -1, 0, 0 ); 
-            model = "groundModel"; 
-            canChange = false;
-        }; 
-        
         
         causticSpot = Light { 
             attenuation = ( 0.0001, 0, 1 ); 
@@ -183,7 +89,7 @@
                 downsampleFactor = 8;
             };
         }; 
-        
+        /*
                
         causticSphere10 = VisibleEntity { 
             frame = Point3(7.2, 1.1, -6.7 ); 
@@ -201,6 +107,7 @@
             };
         };
 
+        */
         causticSphere101 = VisibleEntity { 
             frame = Point3(7.2, 0.3, -6.7 ); 
             model = "sphereModel";
@@ -217,56 +124,6 @@
             };
         };
 
-        
-        causticSphere15 = VisibleEntity { 
-            frame = Point3(8, 0.3, -6.7 ); 
-            model = "sphereModel";
-            canChange = false;
-            articulatedModelPose = ArticulatedModel::Pose{
-                materialTable = {
-                    mesh = UniversalMaterial::Specification{
-                        glossy = Color4(Color3(0.2), mirror());
-                        lambertian = Color3(0);
-                        transmissive = Color3(0.5);
-                        etaTransmit = 1.3;
-                    }
-                }
-            };
-        };
-        
-        causticSphere20 = VisibleEntity { 
-            frame = Point3(8.8, 0.3, -6.7 ); 
-            model = "sphereModel";
-            canChange = false;
-            articulatedModelPose = ArticulatedModel::Pose{
-                materialTable = {
-                    mesh = UniversalMaterial::Specification{
-                        glossy = Color4(Color3(0.2), mirror());
-                        lambertian = Color3(0);
-                        transmissive = Color3(0.5);
-                        etaTransmit = 2.0;
-                    }
-                }
-            };
-        };
-
-        
-        sun = Light { 
-            canChange = false;
-            attenuation = ( 0.0001, 0, 1 ); 
-            bulbPower = Color3(1e5 ); 
-            castsShadows = true; 
-            enabled = true; 
-            frame = CFrame::fromXYZYPRDegrees(-15.1351, 36.5859, -14.5709, -135.458, -59.5992, 5.45791 ); 
-            nearPlaneZLimit = -30; 
-            producesDirectIllumination = true; 
-            producesIndirectIllumination = true; 
-            shadowMapSize = Vector2int16(2048, 2048 ); 
-            spotHalfAngleDegrees = 20; 
-            spotSquare = true; 
-            canChange = false;
-            type = "SPOT"; 
-        }; 
 
         
     }; 

@@ -225,29 +225,29 @@ void ShadowMap::updateDepth
     m_unitLightProjection = unitize * m_lightProjection;
     m_unitLightMVP = unitize * m_lightMVP;
 
-    AlphaTestMode alphaTestMode;
+    TransparencyTestMode transparencyTestMode;
     switch (passType) {
     case RenderPassType::SHADOW_MAP:
         // There is no VSM. This is your only chance to write to a shadow map, so go stochastic if you want.
-        alphaTestMode = AlphaTestMode::STOCHASTIC;
+        transparencyTestMode = TransparencyTestMode::STOCHASTIC;
         break;
 
     case RenderPassType::OPAQUE_SHADOW_MAP:
         // There is a VSM pass coming, but we're still rendering to the Williams map in this pass,
         // so do a hard cutoff at alpha = 1.
-        alphaTestMode = AlphaTestMode::REJECT_LESS_THAN_ONE;
+        transparencyTestMode = TransparencyTestMode::REJECT_LESS_THAN_ONE;
         break;
 
     default: debugAssert(passType == RenderPassType::TRANSPARENT_SHADOW_MAP);
         // This is the VSM pass. Render stochastic, but reject the alpha = 1 pixels
         // that were just rendered in the Williams shadow map.        
-        alphaTestMode = AlphaTestMode::STOCHASTIC_REJECT_ONE;
+        transparencyTestMode = TransparencyTestMode::STOCHASTIC_REJECT_ONE;
         break;
     }
 
     if ((lastBaseShadowCasterChangeTime > baseLayer.lastUpdateTime) ||
         (baseShadowCasterEntityHash != baseLayer.entityHash)) {
-        baseLayer.updateDepth(renderDevice, this, baseArray, cullFace, alphaTestMode, nullptr, transmissionWeight);      
+        baseLayer.updateDepth(renderDevice, this, baseArray, cullFace, transparencyTestMode, nullptr, transmissionWeight);      
     }
 
     // Render the dynamic layer if the dynamic layer OR the base layer changed
@@ -256,7 +256,7 @@ void ShadowMap::updateDepth
         (baseShadowCasterEntityHash != baseLayer.entityHash) ||
         (dynamicShadowCasterEntityHash != dynamicLayer.entityHash)) {
 
-        dynamicLayer.updateDepth(renderDevice, this, dynamicArray, cullFace, alphaTestMode,
+        dynamicLayer.updateDepth(renderDevice, this, dynamicArray, cullFace, transparencyTestMode,
             // Only pass the base layer if it is not empty
             (baseShadowCasterEntityHash == 0) ? nullptr : baseLayer.framebuffer, transmissionWeight);
         
@@ -307,7 +307,7 @@ void ShadowMap::Layer::updateDepth
  ShadowMap*                         shadowMap,
  const Array<shared_ptr<Surface> >& shadowCaster,
  CullFace                           cullFace,
- AlphaTestMode                      alphaTestMode,
+ TransparencyTestMode                      transparencyTestMode,
  const shared_ptr<Framebuffer>&     initialValues,
  const Color3&                      transmissionWeight) {
 
@@ -327,28 +327,28 @@ void ShadowMap::Layer::updateDepth
         renderDevice->setCameraToWorldMatrix(shadowMap->m_lightFrame);
         renderDevice->setProjectionMatrix(shadowMap->m_lightProjection);
 
-        renderDepthOnly(renderDevice, shadowMap, shadowCaster, cullFace, alphaTestMode, transmissionWeight);
+        renderDepthOnly(renderDevice, shadowMap, shadowCaster, cullFace, transparencyTestMode, transmissionWeight);
     } renderDevice->popState();
 
     lastUpdateTime = System::time();
 }
 
 
-void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array<shared_ptr<Surface> >& shadowCaster, CullFace cullFace, float polygonOffset, AlphaTestMode alphaTestMode, const Color3& transmissionWeight) const {
+void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array<shared_ptr<Surface> >& shadowCaster, CullFace cullFace, float polygonOffset, TransparencyTestMode transparencyTestMode, const Color3& transmissionWeight) const {
     renderDevice->setPolygonOffset(polygonOffset);
-    Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace, nullptr, 0.0f, alphaTestMode, transmissionWeight);
+    Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace, nullptr, 0.0f, transparencyTestMode, transmissionWeight);
 }
 
 
-void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array<shared_ptr<Surface> >& shadowCaster, CullFace cullFace, AlphaTestMode alphaTestMode, const Color3& transmissionWeight) const {
+void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array<shared_ptr<Surface> >& shadowCaster, CullFace cullFace, TransparencyTestMode transparencyTestMode, const Color3& transmissionWeight) const {
     if ((cullFace == CullFace::NONE) && 
         (shadowMap->m_backfacePolygonOffset != shadowMap->m_polygonOffset)) {
         // Different culling values
-        renderDepthOnly(renderDevice, shadowMap, shadowCaster, CullFace::BACK, shadowMap->m_polygonOffset, alphaTestMode, transmissionWeight);
-        renderDepthOnly(renderDevice, shadowMap, shadowCaster, CullFace::FRONT, shadowMap->m_backfacePolygonOffset, alphaTestMode, transmissionWeight);
+        renderDepthOnly(renderDevice, shadowMap, shadowCaster, CullFace::BACK, shadowMap->m_polygonOffset, transparencyTestMode, transmissionWeight);
+        renderDepthOnly(renderDevice, shadowMap, shadowCaster, CullFace::FRONT, shadowMap->m_backfacePolygonOffset, transparencyTestMode, transmissionWeight);
     } else {
         float polygonOffset = (cullFace == CullFace::FRONT) ? shadowMap->m_backfacePolygonOffset : shadowMap->m_polygonOffset;
-        renderDepthOnly(renderDevice, shadowMap, shadowCaster, cullFace, polygonOffset, alphaTestMode, transmissionWeight);
+        renderDepthOnly(renderDevice, shadowMap, shadowCaster, cullFace, polygonOffset, transparencyTestMode, transmissionWeight);
     }
 }
 

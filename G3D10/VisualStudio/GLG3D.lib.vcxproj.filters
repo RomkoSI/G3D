@@ -1383,5 +1383,8 @@
     <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_upsampleOIT.pix">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="..\data-files\shader\Light\Light_vsmFilter.pix">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

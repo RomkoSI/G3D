@@ -95,7 +95,7 @@ G3D_DECLARE_ENUM_CLASS(
     - STOCHASTIC The surface may perform stochastic alpha testing or use any threshold value that it wishes. Used for Williams shadow maps when SVSM is disabled.
     - STOCHASTIC_REJECT_ONE The surface may perform stochastic alpha test but must discard on alpha = 1. Used for SVSM generation.
     */
-    G3D_DECLARE_ENUM_CLASS(AlphaTestMode, 
+    G3D_DECLARE_ENUM_CLASS(TransparencyTestMode, 
         REJECT_LESS_THAN_ONE,  
         STOCHASTIC,
         STOCHASTIC_REJECT_ONE);
@@ -384,7 +384,7 @@ public:
         Assume that surfaceArray is sorted back to front, so render in reverse order for optimal
         early-z test behavior.
 
-        \param alphaTestMode net coverage testing mode applied _after_ the alphaHint's processing.
+        \param transparencyTestMode net coverage testing mode applied _after_ the alphaHint's processing.
  
         \param transmissionWeight How wavelength-varying transmission elements
          (for shadow map rendering: lightPower/dot(lightPower, vec3(1,1,1)))
@@ -395,7 +395,7 @@ public:
      const Array<shared_ptr<Surface> >& surfaceArray,
      const shared_ptr<Texture>&         depthPeelTexture,
      const float                        depthPeelEpsilon,
-     AlphaTestMode                      alphaTestMode,
+     TransparencyTestMode                      transparencyTestMode,
      const Color3&                      transmissionWeight) const;
 
     /** 
@@ -631,7 +631,7 @@ public:
      CullFace                               cull,
      const shared_ptr<Texture>&             depthPeelTexture = shared_ptr<Texture>(),
      const float                            minZSeparation = 0.0f,
-     AlphaTestMode                          alphaTestMode = AlphaTestMode::REJECT_LESS_THAN_ONE,
+     TransparencyTestMode                          transparencyTestMode = TransparencyTestMode::REJECT_LESS_THAN_ONE,
      const Color3&                          transmissionWeight = Color3::white() / 3.0f);
     
     /** 

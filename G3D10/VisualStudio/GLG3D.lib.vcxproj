@@ -511,6 +511,7 @@
     <None Include="..\data-files\shader\lightMap.glsl" />
     <None Include="..\data-files\shader\Light\Light.glsl" />
     <None Include="..\data-files\shader\Light\Light_convertToVSM.pix" />
+    <None Include="..\data-files\shader\Light\Light_vsmFilter.pix" />
     <None Include="..\data-files\shader\MotionBlur\MotionBlur_gather.pix" />
     <None Include="..\data-files\shader\MotionBlur\MotionBlur_gatherLoop.glsl" />
     <None Include="..\data-files\shader\MotionBlur\MotionBlur_neighborMinMax.pix" />

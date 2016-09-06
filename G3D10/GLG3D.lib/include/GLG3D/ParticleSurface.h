@@ -99,7 +99,7 @@ public:
         const Array< shared_ptr< Surface > > & 	surfaceArray,
         const shared_ptr< Texture > & 	        depthPeelTexture,
         const float 	                        depthPeelEpsilon,
-        AlphaTestMode                           alphaTestMode,
+        TransparencyTestMode                           transparencyTestMode,
         const Color3&                           transmissionWeight) const override;
 
     virtual void renderHomogeneous
