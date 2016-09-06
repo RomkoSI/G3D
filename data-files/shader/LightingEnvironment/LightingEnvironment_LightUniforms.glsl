@@ -56,9 +56,8 @@
     limited number of samplers (when not using bindless
     texture), and that would cause scenes with many lights
     to exhaust the available samplers unnecessarily. */
-uniform sampler2D       dummyLightSampler2D;
-uniform sampler2DShadow dummyLightSampler2DShadow;
-
+sampler2D       dummyLightSampler2D;
+sampler2DShadow dummyLightSampler2DShadow;
 
 
 /**
