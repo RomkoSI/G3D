@@ -38,7 +38,7 @@ void Renderer::computeGBuffer
         rd->pushState(depthPeelFramebuffer); {
             rd->clear();
             rd->setProjectionAndCameraMatrix(camera->projection(), camera->frame());
-            Surface::renderDepthOnly(rd, sortedVisibleSurfaces, CullFace::BACK, gbuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL), depthPeelSeparationHint, TransparencyTestMode::REJECT_LESS_THAN_ONE, Color3::white() / 3.0f);
+            Surface::renderDepthOnly(rd, sortedVisibleSurfaces, CullFace::BACK, gbuffer->texture(GBuffer::Field::DEPTH_AND_STENCIL), depthPeelSeparationHint, TransparencyTestMode::REJECT_TRANSPARENCY, Color3::white() / 3.0f);
         } rd->popState();
     }
     END_PROFILER_EVENT();

@@ -129,7 +129,7 @@ void Surface::renderIntoGBuffer
             Array<shared_ptr<Surface> >& derivedArray = derivedTable[t];
             debugAssertM(derivedArray.size() > 0, "categorizeByDerivedType produced an empty subarray");
             if (gbuffer->isDepthAndStencilOnly()) {
-                derivedArray[0]->renderDepthOnlyHomogeneous(rd, derivedArray, depthPeelTexture, minZSeparation, TransparencyTestMode::REJECT_LESS_THAN_ONE, Color3::white() / 3.0f);
+                derivedArray[0]->renderDepthOnlyHomogeneous(rd, derivedArray, depthPeelTexture, minZSeparation, TransparencyTestMode::REJECT_TRANSPARENCY, Color3::white() / 3.0f);
             } else {
                 derivedArray[0]->renderIntoGBufferHomogeneous(rd, derivedArray, gbuffer, previousCameraFrame, expressivePreviousCameraFrame, depthPeelTexture, minZSeparation, lightingEnvironment);
             }

@@ -333,11 +333,11 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         surface->setShaderArgs(args, true);
     	bindDepthPeelArgs(args, rd, previousDepthBuffer, minZSeparation);
         args.setUniform("transmissionWeight", transmissionWeight);
-        args.setMacro("DISCARD_IF_NO_TRANSPARENCY", transparencyTestMode == TransparencyTestMode::STOCHASTIC_REJECT_ONE);
+        args.setMacro("DISCARD_IF_NO_TRANSPARENCY", transparencyTestMode == TransparencyTestMode::STOCHASTIC_REJECT_NONTRANSPARENT);
 
         // N.B. Alpha testing is handled explicitly inside the shader.
         if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((surface->material()->alphaHint() == AlphaHint::BLEND) || (surface->material()->alphaHint() == AlphaHint::BINARY)))) {
-            args.setMacro("STOCHASTIC", transparencyTestMode != TransparencyTestMode::REJECT_LESS_THAN_ONE);
+            args.setMacro("STOCHASTIC", transparencyTestMode != TransparencyTestMode::REJECT_TRANSPARENCY);
             // The depth with alpha shader handles the depth peel case internally
             LAUNCH_SHADER_PTR_WITH_HINT(depthNonOpaqueShader, args, surface->m_profilerHint);
         } else if (notNull(previousDepthBuffer)) {
