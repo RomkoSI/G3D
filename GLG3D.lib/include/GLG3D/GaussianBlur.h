@@ -50,6 +50,11 @@ public:
     static void apply(class RenderDevice* rd, const shared_ptr<Texture>& source, const Vector2& direction, int N, const Vector2& destSize, bool clear = true, bool unitArea = true, float stddevMultiplier = 1.0f);
     static void apply(class RenderDevice* rd, const shared_ptr<Texture>& source, const Vector2& direction = Vector2(1.0f, 0.0f), int N = 17);
 
+    /** Returns the preamble for the GuassianBlur shader containing:
+        #define KERNEL_RADIUS
+        loat gaussCoef[KERNEL_RADIUS];
+        */
+    static String getPreamble(int N, bool unitArea, float stddevMultiplier = 1.0f);
 };
 
 }

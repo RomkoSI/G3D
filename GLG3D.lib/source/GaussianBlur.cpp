@@ -45,7 +45,7 @@ void GaussianBlur::apply(RenderDevice* rd, const shared_ptr<Texture>& source, co
 }
 
 
-static String getPreamble(int N, bool unitArea, float stddevMultiplier = 1.0f) {
+String GaussianBlur::getPreamble(int N, bool unitArea, float stddevMultiplier) {
     static Table<PreambleKey, String> preambles;
     PreambleKey preambleKey(N, unitArea, stddevMultiplier);
 
