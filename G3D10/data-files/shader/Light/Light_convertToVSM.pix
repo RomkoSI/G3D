@@ -6,10 +6,11 @@ out vec2 result;
 uniform sampler2D stochasticDepth_buffer;
 uniform vec3 stochasticDepth_invSize;
 uniform sampler2D opaqueDepth_buffer;
+uniform vec3 opaqueDepth_size;
 uniform vec3 clipInfo;
 
 void main() {
-    float z = reconstructCSZ(texture(opaqueDepth_buffer, gl_FragCoord.xy * stochasticDepth_invSize.xy).r, clipInfo);
+    float z = reconstructCSZ(texelFetch(opaqueDepth_buffer, ivec2(gl_FragCoord.xy * stochasticDepth_invSize.xy * opaqueDepth_size.xy), 0).r, clipInfo);
     z = max(z,reconstructCSZ(texelFetch(stochasticDepth_buffer, ivec2(gl_FragCoord.xy), 0).r, clipInfo));
     result = vec2(z, z*z);
 }
