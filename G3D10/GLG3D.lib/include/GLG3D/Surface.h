@@ -91,14 +91,14 @@ G3D_DECLARE_ENUM_CLASS(
     );
 
     /**
-    - REJECT_LESS_THAN_ONE The surface must discard alpha less than 1. Same as `glAlphaFunc(GL_GEQUAL, 1.0f)`. Used for depth prepass, and Williams shadow maps when SVSM is enabled. 
+    - REJECT_TRANSPARENCY The surface must discard alpha less than 1. Same as `glAlphaFunc(GL_GEQUAL, 1.0f)`. Used for depth prepass, and Williams shadow maps when SVSM is enabled. 
     - STOCHASTIC The surface may perform stochastic alpha testing or use any threshold value that it wishes. Used for Williams shadow maps when SVSM is disabled.
-    - STOCHASTIC_REJECT_ONE The surface may perform stochastic alpha test but must discard on alpha = 1. Used for SVSM generation.
+    - STOCHASTIC_REJECT_NONTRANSPARENT The surface may perform stochastic alpha test but must discard on alpha = 1. Used for SVSM generation.
     */
     G3D_DECLARE_ENUM_CLASS(TransparencyTestMode, 
-        REJECT_LESS_THAN_ONE,  
+        REJECT_TRANSPARENCY,  
         STOCHASTIC,
-        STOCHASTIC_REJECT_ONE);
+        STOCHASTIC_REJECT_NONTRANSPARENT);
 
 /**
    \brief The surface of a model, posed and ready for rendering.
@@ -631,7 +631,7 @@ public:
      CullFace                               cull,
      const shared_ptr<Texture>&             depthPeelTexture = shared_ptr<Texture>(),
      const float                            minZSeparation = 0.0f,
-     TransparencyTestMode                          transparencyTestMode = TransparencyTestMode::REJECT_LESS_THAN_ONE,
+     TransparencyTestMode                          transparencyTestMode = TransparencyTestMode::REJECT_TRANSPARENCY,
      const Color3&                          transmissionWeight = Color3::white() / 3.0f);
     
     /** 

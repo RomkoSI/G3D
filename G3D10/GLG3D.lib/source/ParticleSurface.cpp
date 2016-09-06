@@ -129,7 +129,7 @@ void ParticleSurface::renderDepthOnlyHomogeneous
     TransparencyTestMode                       transparencyTestMode,
     const Color3&                       transmissionWeight) const {
 
-    if (transparencyTestMode == TransparencyTestMode::REJECT_LESS_THAN_ONE || (surfaceArray.size() == 0)) { return; }
+    if (transparencyTestMode == TransparencyTestMode::REJECT_TRANSPARENCY || (surfaceArray.size() == 0)) { return; }
 
     rd->setDepthWrite(true);
     rd->setDepthTest(RenderDevice::DEPTH_LESS);

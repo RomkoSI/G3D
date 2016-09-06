@@ -235,13 +235,13 @@ void ShadowMap::updateDepth
     case RenderPassType::OPAQUE_SHADOW_MAP:
         // There is a VSM pass coming, but we're still rendering to the Williams map in this pass,
         // so do a hard cutoff at alpha = 1.
-        transparencyTestMode = TransparencyTestMode::REJECT_LESS_THAN_ONE;
+        transparencyTestMode = TransparencyTestMode::REJECT_TRANSPARENCY;
         break;
 
     default: debugAssert(passType == RenderPassType::TRANSPARENT_SHADOW_MAP);
         // This is the VSM pass. Render stochastic, but reject the alpha = 1 pixels
         // that were just rendered in the Williams shadow map.        
-        transparencyTestMode = TransparencyTestMode::STOCHASTIC_REJECT_ONE;
+        transparencyTestMode = TransparencyTestMode::STOCHASTIC_REJECT_NONTRANSPARENT;
         break;
     }
 
