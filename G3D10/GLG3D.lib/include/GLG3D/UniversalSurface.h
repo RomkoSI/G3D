@@ -41,6 +41,7 @@ class Args;
  */
 class UniversalSurface : public Surface {
 public:
+    virtual TransparencyType transparencyType() const override;
 
     static void bindDepthPeelArgs
         (Args& args,

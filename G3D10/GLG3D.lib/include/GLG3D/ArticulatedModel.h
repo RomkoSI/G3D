@@ -394,7 +394,7 @@ Example:
             will use AlphaFilter::BINARY for binary alpha channels and AlphaFilter::BLEND for fractional alpha channels. Switching 
             this value to AlphaFilter::BINARY will lead to faster rendering for models with lots of masking (such as trees), 
             at a cost of more aliasing. */
-        AlphaFilter                 alphaHint;
+        AlphaFilter                 alphaFilter;
 
         /** Default refraction hint for surfaces that have refractive transmission and don't specify a value. 
             Default is RefractionHint::DYNAMIC_FLAT.
@@ -517,7 +517,7 @@ Example:
             stripVertexColors(false),
             stripLightMaps(false), 
             stripLightMapCoords(false),
-            alphaHint(AlphaFilter::DETECT),
+            alphaFilter(AlphaFilter::DETECT),
             refractionHint(RefractionHint::DYNAMIC_FLAT),
             meshMergeOpaqueClusterRadius(finf()),
             meshMergeTransmissiveClusterRadius(0.0f),

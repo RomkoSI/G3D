@@ -67,7 +67,7 @@
         sampler$(dim)    normalBumpMap;
         float            bumpMapScale;
         float            bumpMapBias;
-        int              alphaHint;
+        int              alphaFilter;
     };
 #endforeach
 

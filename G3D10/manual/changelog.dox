@@ -139,6 +139,7 @@
        <li> Moved renderShadowMaps from G3D::Surface to G3D::Light </li>
 	   <li> G3D::Light::possiblyIlluminates </li>
 	   <li> Improved light culling for forward rendering </li>
+	   <li> AlphaHint &rarr; G3D::AlphaFilter </li>
       </ul>
     </p>
 

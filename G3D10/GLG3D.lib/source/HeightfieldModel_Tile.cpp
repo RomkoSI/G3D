@@ -99,10 +99,10 @@ void HeightfieldModel::Tile::renderDepthOnlyHomogeneous
     for (int i = 0; i < groupedSurfaces.size(); ++i) {
         shared_ptr<HeightfieldModel::Tile> tile = dynamic_pointer_cast<HeightfieldModel::Tile>(groupedSurfaces[i][0]);
         const shared_ptr<Texture>& lambertian = tile->modelPtr()->m_material->bsdf()->lambertian().texture();
-        const bool thisSurfaceNeedsAlphaTest = (tile->modelPtr()->m_material->alphaHint() != AlphaFilter::ONE) && notNull(lambertian) && !lambertian->opaque();
+        const bool thisSurfaceNeedsAlphaTest = (tile->modelPtr()->m_material->alphaFilter() != AlphaFilter::ONE) && notNull(lambertian) && !lambertian->opaque();
         const bool thisSurfaceHasTransmissive = tile->modelPtr()->m_material->hasTransmissive();
         shared_ptr<Shader> shader;
-        if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((tile->modelPtr()->m_material->alphaHint() == AlphaFilter::BLEND) || (tile->modelPtr()->m_material->alphaHint() == AlphaFilter::BINARY)))) {
+        if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((tile->modelPtr()->m_material->alphaFilter() == AlphaFilter::BLEND) || (tile->modelPtr()->m_material->alphaFilter() == AlphaFilter::BINARY)))) {
             args.setMacro("STOCHASTIC", transparencyTestMode != TransparencyTestMode::REJECT_TRANSPARENCY);
             shader = depthNonOpaqueShader;
         } else {
@@ -118,7 +118,7 @@ void HeightfieldModel::Tile::renderDepthOnlyHomogeneous
         args.setMacro("HAS_ALPHA", tile->modelPtr()->m_material->hasAlpha());
         args.setMacro("HAS_TRANSMISSIVE", tile->modelPtr()->m_material->hasTransmissive());
         args.setMacro("HAS_EMISSIVE", tile->modelPtr()->m_material->hasEmissive());
-        args.setMacro("ALPHA_HINT", tile->modelPtr()->m_material->alphaHint());
+        args.setMacro("ALPHA_HINT", tile->modelPtr()->m_material->alphaFilter());
 
         args.setUniform("transmissionWeight", transmissionWeight);
         tile->renderAll(rd, groupedSurfaces[i], args, shader, CFrame(), CFrame(), false, false, false, false, previousDepthBuffer, minDepthSeparation);
@@ -156,7 +156,7 @@ void HeightfieldModel::Tile::renderHomogeneous
         const shared_ptr<HeightfieldModel::Tile>& tile = dynamic_pointer_cast<HeightfieldModel::Tile>(groupedSurfaces[i][0]);
         tile->modelPtr()->m_material->setShaderArgs(args, "material.");
         args.setMacro("HAS_ALPHA", tile->modelPtr()->m_material->hasAlpha());
-        args.setMacro("ALPHA_HINT", tile->modelPtr()->m_material->alphaHint());
+        args.setMacro("ALPHA_HINT", tile->modelPtr()->m_material->alphaFilter());
         args.setMacro("HAS_EMISSIVE", tile->modelPtr()->m_material->hasEmissive());
         args.setMacro("HAS_TRANSMISSIVE", tile->modelPtr()->m_material->hasTransmissive());
         tile->renderAll(rd, groupedSurfaces[i], args, tile->modelPtr()->m_shader, CFrame(), CFrame(), false, false);
@@ -201,7 +201,7 @@ void HeightfieldModel::Tile::renderIntoGBufferHomogeneous
         tile->modelPtr()->m_material->setShaderArgs(args, "material.");
         args.setMacro("HAS_EMISSIVE", tile->modelPtr()->m_material->hasEmissive());
         args.setMacro("HAS_TRANSMISSIVE", tile->modelPtr()->m_material->hasTransmissive());
-        args.setMacro("ALPHA_HINT", tile->modelPtr()->m_material->alphaHint());
+        args.setMacro("ALPHA_HINT", tile->modelPtr()->m_material->alphaFilter());
         args.setMacro("HAS_ALPHA", tile->modelPtr()->m_material->hasAlpha());
         tile->renderAll(rd, groupedSurfaces[i], args, tile->modelPtr()->m_gbufferShader, previousCameraFrame, expressivePreviousCameraFrame, bindPreviousMatrix, bindExpressivePreviousMatrix,
                 renderPreviousPosition, reverseOrder, depthPeelTexture, minZSeparation);

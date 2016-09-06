@@ -74,7 +74,7 @@ ArticulatedModel::Specification::Specification(const Any& a) {
         r.getIfPresent("stripVertexColors",         stripVertexColors);
         r.getIfPresent("stripLightMaps",            stripLightMaps);
         r.getIfPresent("stripLightMapCoords",       stripLightMapCoords);
-        r.getIfPresent("alphaHint",                 alphaHint);
+        r.getIfPresent("alphaFilter",                 alphaFilter);
         r.getIfPresent("refractionHint",            refractionHint);
 
         Any temp;
@@ -105,7 +105,7 @@ size_t ArticulatedModel::Specification::hashCode() const {
         HashTrait<String>().hashCode(filename) ^ 
         (size_t)(stripMaterials) ^
         ((size_t)(stripLightMaps) << 2) ^
-        (alphaHint.hashCode() << 6) ^
+        (alphaFilter.hashCode() << 6) ^
         (refractionHint.hashCode() << 7) ^
         hairOptions.hashCode() ^
         ((size_t)(stripLightMaps) << 3) ^
@@ -121,7 +121,7 @@ Any ArticulatedModel::Specification::toAny() const {
     a["stripVertexColors"]         = stripVertexColors;
     a["stripLightMaps"]            = stripLightMaps;
     a["stripLightMapCoords"]       = stripLightMapCoords;
-    a["alphaHint"]                 = alphaHint;
+    a["alphaFilter"]                 = alphaFilter;
     a["refractionHint"]            = refractionHint;
     a["meshMergeOpaqueClusterRadius"] = meshMergeRadiusToAny(meshMergeOpaqueClusterRadius);
     a["meshMergeTransmissiveClusterRadius"] = meshMergeRadiusToAny(meshMergeTransmissiveClusterRadius);
@@ -144,7 +144,7 @@ bool ArticulatedModel::Specification::operator==(const Specification& other) con
         (stripMaterials == other.stripMaterials) &&
         (stripVertexColors == other.stripVertexColors) &&
         (stripLightMaps == other.stripLightMaps) &&
-        (alphaHint == other.alphaHint) &&
+        (alphaFilter == other.alphaFilter) &&
         (refractionHint == other.refractionHint) &&
         (stripLightMapCoords == other.stripLightMapCoords) &&
         (meshMergeOpaqueClusterRadius == other.meshMergeOpaqueClusterRadius) &&
