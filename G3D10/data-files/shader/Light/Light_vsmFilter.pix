@@ -1,0 +1,56 @@
+/**
+  \file Light_vsmFilter.pix
+  \author Michael Mara
+ */
+#version 330
+#include <compatibility.glsl>
+
+#expect KERNEL_RADIUS      "Half the width, plus 0.5"
+#expect LOG_DOWNSAMPLE_X   "Bits to shift coordinates right in X, e.g., for downsampling output"
+#expect LOG_DOWNSAMPLE_Y   "Bits to shift coordinates right in X, e.g., for downsampling output"
+const int2 shift = int2(LOG_DOWNSAMPLE_X, LOG_DOWNSAMPLE_Y);
+
+uniform sampler2D source;
+uniform int2      direction;
+uniform float     farPlaneZ;
+out vec2 result;
+
+void addTap(in int tap, in int texOffset, in int2 P, inout float2 sum, inout float infinityWeight, inout float minFiniteZ) {
+    float2 v = texelFetch(source, texOffset * direction + P, 0).xy;
+    if (v.x <= farPlaneZ) {
+        infinityWeight += gaussCoef[tap];
+    } else {
+        minFiniteZ = min(minFiniteZ, v.x);
+        sum += v * gaussCoef[tap];
+    }
+}
+
+void main() {
+ 
+#   ifdef  NVIDIA_361_WORKAROUND
+        NVIDIA_361_WORKAROUND();
+#   endif
+    int2   P = int2(gl_FragCoord.xy) << shift; 
+
+    float2 sum = float2(0.0,0.0);
+    float infinityWeight = 0.0;
+    float minFiniteZ = 0.0;
+    
+    addTap(KERNEL_RADIUS - 1, 0, P, sum, infinityWeight, minFiniteZ);
+
+    for (int tap = 0; tap < KERNEL_RADIUS - 1; ++tap) {
+        addTap(tap, (KERNEL_RADIUS - 1 - tap), P, sum, infinityWeight, minFiniteZ);
+    }
+
+    for (int tap = 0; tap < KERNEL_RADIUS - 1; ++tap) {
+        addTap(tap, -(KERNEL_RADIUS - 1 - tap), P, sum, infinityWeight, minFiniteZ);
+    }
+    // Choose a Z value to use for "infinity" that isn't too extreme
+    float infinityZ = farPlaneZ;
+    if (minFiniteZ < 0) {
+        infinityZ = max(infinityZ, minFiniteZ*2.0);
+    }
+    sum += float2(infinityZ,infinityZ*infinityZ)*infinityWeight;
+    result = sum;
+}
+

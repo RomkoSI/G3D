@@ -271,16 +271,26 @@ void ShadowMap::updateDepth
                 LAUNCH_SHADER("Light/Light_convertToVSM.pix", args);
             } renderDevice->pop2D();
             if (m_vsmSettings.filterRadius > 0) {
-                int guassianBlurTaps = 2 * m_vsmSettings.filterRadius + 1;
-                
-                renderDevice->push2D(m_vsmHBlurFB); {
-                    GaussianBlur::apply(renderDevice, m_vsmRawFB->texture(0), Vector2(1.0f, 0.0f), 
-                        guassianBlurTaps, m_vsmHBlurFB->texture(0)->vector2Bounds(), false, true, m_vsmSettings.blurMultiplier);
-                } renderDevice->pop2D();
-                renderDevice->push2D(m_vsmFinalFB); {
-                    GaussianBlur::apply(renderDevice, m_vsmHBlurFB->texture(0), Vector2(0.0f, 1.0f),
-                        guassianBlurTaps, m_vsmFinalFB->texture(0)->vector2Bounds(), false, true, m_vsmSettings.blurMultiplier);
-                } renderDevice->pop2D();
+                const float farPlaneZ = Projection(m_lightProjection).farPlaneZ();
+                auto blurOneDirection = [renderDevice,farPlaneZ](const VSMSettings& settings, const shared_ptr<Framebuffer>& src, const shared_ptr<Framebuffer>& dst, Vector2int32 direction) {
+                    renderDevice->push2D(dst); {
+                        Args args;
+                        const int guassianBlurTaps = 2 * settings.filterRadius + 1;
+                        const String& preamble = GaussianBlur::getPreamble(guassianBlurTaps, true, settings.blurMultiplier);
+                        args.setPreamble(preamble);
+                        const Vector2 sizeRatio = Vector2(src->width(),src->height()) / Vector2(dst->width(),dst->height());
+                        const Vector2int32 s(iRound(log2( sizeRatio.x)), iRound(log2( sizeRatio.y)));
+                        args.setMacro("LOG_DOWNSAMPLE_X", s.x);
+                        args.setMacro("LOG_DOWNSAMPLE_Y", s.y);
+                        args.setUniform("source", src->texture(0), Sampler::video());
+                        args.setUniform("direction", Vector2int32(direction));
+                        args.setUniform("farPlaneZ", farPlaneZ+0.001f);
+                        args.setRect(renderDevice->viewport());
+                        LAUNCH_SHADER("Light/Light_vsmFilter.*", args);
+                    } renderDevice->pop2D();
+                };
+                blurOneDirection(m_vsmSettings, m_vsmRawFB, m_vsmHBlurFB, Vector2int32(1,0));
+                blurOneDirection(m_vsmSettings, m_vsmHBlurFB, m_vsmFinalFB, Vector2int32(0,1));
             } else {
                 Texture::copy(m_vsmRawFB->texture(0), m_vsmFinalFB->texture(0));
             }
