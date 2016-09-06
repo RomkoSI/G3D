@@ -1,0 +1,437 @@
+
+/* -*- c++ -*- */
+{ 
+    entities = { 
+
+                
+        backgroundCausticSpotTarget = VisibleEntity {
+            frame = CFrame::fromXYZYPRDegrees(8, 0.3, -8.05 ); 
+            model = "backgroundSpotTargetModel";
+            canChange = false;
+        };
+
+        bmp = VisibleEntity { 
+            frame = CFrame::fromXYZYPRDegrees(-6.5, -0.649, -3, 90 ); 
+            model = "squareModel";
+            articulatedModelPose = ArticulatedModel::Pose{
+                materialTable = {
+                    mesh = "image/test-berry.bmp";
+                }
+            };
+            canChange = false;
+        }; 
+        
+        camera = Camera { 
+            depthOfFieldSettings = DepthOfFieldSettings { 
+                enabled = false; 
+                farBlurRadiusFraction = 0.005; 
+                farBlurryPlaneZ = -100; 
+                farSharpPlaneZ = -40; 
+                focusPlaneZ = -10; 
+                lensRadius = 0.01; 
+                model = "ARTIST"; 
+                nearBlurRadiusFraction = 0.015; 
+                nearBlurryPlaneZ = -0.05; 
+                nearSharpPlaneZ = -0.1; 
+            }; 
+            
+            filmSettings = FilmSettings { 
+                antialiasingEnabled = true; 
+                antialiasingFilterRadius = 0; 
+                bloomRadiusFraction = 0.01796; 
+                bloomStrength = 0.2; 
+                debugZoom = 1; 
+                gamma = 2.2; 
+                sensitivity = 1.0; 
+                toneCurve = Spline { 
+                    control =  ( 0, 0.0787234, 0.306383, 0.75532, 0.829787 ); 
+                    extrapolationMode = "LINEAR"; 
+                    finalInterval = -1; 
+                    interpolationMode = "CUBIC"; 
+                    time =  ( 0, 0.169565, 0.339131, 0.752174, 1 ); 
+                }; 
+                
+                vignetteBottomStrength = 0.05; 
+                vignetteSizeFraction = 0.17; 
+                vignetteTopStrength = 0.5; 
+            }; 
+            
+            frame = CFrame::fromXYZYPRDegrees(8.4193, 1.3952, -2.6517, 3.7231, -6.8623, 0); 
+            motionBlurSettings = MotionBlurSettings { 
+                cameraMotionInfluence = 0.5; 
+                enabled = true; 
+                exposureFraction = 0.75; 
+                maxBlurDiameterFraction = 0.1; 
+                numSamples = 27; 
+            }; 
+            
+            projection = Projection { 
+                farPlaneZ = -200; 
+                fovDegrees = 40; 
+                fovDirection = "VERTICAL"; 
+                nearPlaneZ = -0.1; 
+                pixelOffset = Vector2(0, 0 ); 
+            }; 
+            
+            visualizationScale = 1; 
+        }; 
+
+
+        clearGlassSphere = VisibleEntity { 
+            frame = Point3(2, -0.6, -5 ); 
+            model = "sphereModel";
+            articulatedModelPose = ArticulatedModel::Pose{
+                materialTable = {
+                    mesh = UniversalMaterial::Specification{
+                        etaReflect = 1;
+                        etaTransmit = 1.3;
+                        glossy = Color4(0.2, 0.2, 0.2, mirror());
+                        lambertian = Color3(0);
+                        mirrorHint = "STATIC_PROBE";
+                        refractionHint = "DYNAMIC_FLAT";
+                        transmissive = Color3(0.6);
+                    }
+                }
+            };
+            canChange = false;
+        }; 
+
+        clearGlassBox = VisibleEntity { 
+            frame = Point3(1, -0.65, -5 ); 
+            model = "boxModel";
+            articulatedModelPose = ArticulatedModel::Pose{
+                materialTable = {
+                    mesh = UniversalMaterial::Specification{
+                        etaReflect = 1;
+                        etaTransmit = 1.3;
+                        glossy = Color4(0.2, 0.2, 0.2, mirror());
+                        lambertian = Color3(0);
+                        mirrorHint = "STATIC_PROBE";
+                        refractionHint = "DYNAMIC_FLAT";
+                        transmissive = Color3(0.6);
+                    }
+                }
+            }; 
+            canChange = false;  
+        }; 
+
+		clearGlassSphereNoReflection = VisibleEntity { 
+            frame = Point3(3, -0.6, -5 ); 
+            model = "sphereModel";
+            articulatedModelPose = ArticulatedModel::Pose{
+                materialTable = {
+                    mesh = UniversalMaterial::Specification{
+                        etaReflect = 1;
+                        etaTransmit = 1.3;
+                        glossy = Color4(0, 0, 0, mirror());
+                        lambertian = Color3(0);
+                        mirrorHint = "STATIC_PROBE";
+                        refractionHint = "DYNAMIC_FLAT";
+                        transmissive = Color3(0.6);
+                    }
+                }
+            };
+            canChange = false;
+        }; 
+        
+
+		greenGlassSphere = VisibleEntity { 
+            frame = CFrame::fromXYZYPRDegrees(-4.0, -0.6, -5.0 ); 
+            model = "sphereModel";
+            articulatedModelPose = ArticulatedModel::Pose{
+                materialTable = {
+                    mesh = UniversalMaterial::Specification { 
+                        etaReflect = 1; 
+                        etaTransmit = 1.3; 
+                        glossy = Color4(0.1, 0.1, 0.1, mirror()); 
+                        lambertian = Color3(0 ); 
+                        mirrorHint = "STATIC_PROBE"; 
+                        refractionHint = "DYNAMIC_FLAT"; 
+                        transmissive = Color3(0.1, 0.5, 0.2 ); 
+                    }
+                }
+            };
+            canChange = false;
+        }; 
+        
+        ground = VisibleEntity { 
+            frame = CFrame::fromXYZYPRDegrees(0, -1, 0, 0 ); 
+            model = "groundModel"; 
+            canChange = false;
+        }; 
+        
+        
+        causticSpot = Light { 
+            attenuation = ( 0.0001, 0, 1 ); 
+            bulbPower = Color3(400 ); 
+            castsShadows = true; 
+            enabled = true; 
+            frame = CFrame::fromXYZYPRDegrees(8, 0.3, -2 ); 
+            nearPlaneZLimit = -0.25; 
+            producesDirectIllumination = true; 
+            producesIndirectIllumination = true; 
+            spotHalfAngleDegrees = 25; 
+            spotSquare = true; 
+            shadowMapSize = Vector2int16(256, 256);
+            type = "SPOT"; 
+            canChange = false;
+            varianceShadowSettings = VSMSettings {
+                baseSize = Vector2int16(4096, 4096);
+                enabled = true;
+                filterRadius = 20;
+                blurMultiplier = 5.0f;
+                downsampleFactor = 8;
+            };
+        }; 
+        
+               
+        causticSphere10 = VisibleEntity { 
+            frame = Point3(7.2, 1.1, -6.7 ); 
+            model = "sphereModel";
+            canChange = false;
+            articulatedModelPose = ArticulatedModel::Pose{
+                materialTable = {
+                    mesh = UniversalMaterial::Specification{
+                        glossy = Color4(Color3(0.2), mirror());
+                        lambertian = Color3(0);
+                        transmissive = Color3(0.5);
+                        etaTransmit = 1.0;
+                    }
+                }
+            };
+        };
+
+        causticSphere101 = VisibleEntity { 
+            frame = Point3(7.2, 0.3, -6.7 ); 
+            model = "sphereModel";
+            canChange = false;
+            articulatedModelPose = ArticulatedModel::Pose{
+                materialTable = {
+                    mesh = UniversalMaterial::Specification{
+                        glossy = Color4(Color3(0.2), mirror());
+                        lambertian = Color3(0);
+                        transmissive = Color3(0.5);
+                        etaTransmit = 1.01;
+                    }
+                }
+            };
+        };
+
+        
+        causticSphere15 = VisibleEntity { 
+            frame = Point3(8, 0.3, -6.7 ); 
+            model = "sphereModel";
+            canChange = false;
+            articulatedModelPose = ArticulatedModel::Pose{
+                materialTable = {
+                    mesh = UniversalMaterial::Specification{
+                        glossy = Color4(Color3(0.2), mirror());
+                        lambertian = Color3(0);
+                        transmissive = Color3(0.5);
+                        etaTransmit = 1.3;
+                    }
+                }
+            };
+        };
+        
+        causticSphere20 = VisibleEntity { 
+            frame = Point3(8.8, 0.3, -6.7 ); 
+            model = "sphereModel";
+            canChange = false;
+            articulatedModelPose = ArticulatedModel::Pose{
+                materialTable = {
+                    mesh = UniversalMaterial::Specification{
+                        glossy = Color4(Color3(0.2), mirror());
+                        lambertian = Color3(0);
+                        transmissive = Color3(0.5);
+                        etaTransmit = 2.0;
+                    }
+                }
+            };
+        };
+
+        
+        sun = Light { 
+            canChange = false;
+            attenuation = ( 0.0001, 0, 1 ); 
+            bulbPower = Color3(1e5 ); 
+            castsShadows = true; 
+            enabled = true; 
+            frame = CFrame::fromXYZYPRDegrees(-15.1351, 36.5859, -14.5709, -135.458, -59.5992, 5.45791 ); 
+            nearPlaneZLimit = -30; 
+            producesDirectIllumination = true; 
+            producesIndirectIllumination = true; 
+            shadowMapSize = Vector2int16(2048, 2048 ); 
+            spotHalfAngleDegrees = 20; 
+            spotSquare = true; 
+            canChange = false;
+            type = "SPOT"; 
+        }; 
+
+        
+    }; 
+    
+    lightingEnvironment = LightingEnvironment { 
+        ambientOcclusionSettings = AmbientOcclusionSettings { 
+            bias = 0.012; 
+            blurRadius = 4; 
+            blurStepSize = 2; 
+            depthPeelSeparationHint = 0.872287; 
+            edgeSharpness = 1; 
+            enabled = true; 
+            intensity = 1; 
+            monotonicallyDecreasingBilateralWeights = false; 
+            numSamples = 19; 
+            radius = 1.5; 
+            useDepthPeelBuffer = true; 
+            useNormalBuffer = true; 
+            useNormalsInBlur = true; 
+        }; 
+        
+        
+        environmentMap = Texture::Specification { 
+            encoding = Texture::Encoding {
+                format = "RGB32F";
+                readMultiplyFirst = 0.25;
+            };
+            filename = "cubemap/uffizi/uffizi-*.exr"; 
+        }; 
+        
+        
+    }; 
+    
+    models = { 
+        backgroundSpotTargetModel = ArticulatedModel::Specification { 
+            filename = "model/cube/cube.ifs"; 
+            preprocess = ( 
+                transformGeometry(root(), Matrix4::scale(3, 3, 0.1 ) ) ); 
+            
+            scale = 1; 
+        }; 
+        
+        squareModel = ArticulatedModel::Specification{
+            filename = "ifs/square.ifs";
+            preprocess = (
+                setTwoSided("mesh", true);
+            transformGeometry(all(), Matrix4::scale(1.5, -0.75, 1.5));
+            );
+        };
+        
+        boxModel = ArticulatedModel::Specification{
+            filename = "model/cube/cube.ifs";
+            preprocess = ( setTwoSided("mesh", true); );
+            scale = 0.7;
+        };
+        
+        teapotModel = ArticulatedModel::Specification { 
+            filename = "teapot/teapot.obj"; 
+            scale = 0.0033; 
+            preprocess = ( renameMesh("Base/default", "Base") );
+        }; 
+        
+        grandCanyonModel = HeightfieldModel::Specification { 
+            filename = "heightfield/grandcanyon/gcanyon_height.jpg"; 
+            material = UniversalMaterial::Specification { 
+                lambertian = "heightfield/grandcanyon/gcanyon_texture.jpg"; 
+            }; 
+            
+            maxElevation = 1; 
+            metersPerPixel = 0.015625; 
+            metersPerTexCoord = 
+            /* 1/64
+            Tile exactly once */
+            0.5; 
+            
+            pixelsPerQuadSide = 1; 
+            pixelsPerTileSide = 64; 
+        }; 
+        
+        cardModel = ArticulatedModel::Specification { 
+            filename = "ifs/square.ifs"; 
+            preprocess = ( 
+                setTwoSided("mesh", true ); 
+                transformGeometry(all(), Matrix4::scale(1, 0.5, 1));               
+            );
+            
+            scale = 3; 
+        }; 
+
+        groundModel = ArticulatedModel::Specification { 
+            filename = "ifs/squarex8.ifs"; 
+            preprocess = ( 
+                setCFrame(root(), CFrame::fromXYZYPRDegrees(0, 0, 0, 0, -90, 0 ) ); 
+                setTwoSided("mesh", true ); 
+                setMaterial(all(), UniversalMaterial::Specification { 
+                        bump = "material/stonewall/stonewall-B.png";
+                        lambertian = "material/stonewall/stonewall-L.jpg";
+                    } ) ); 
+            
+            scale = 20; 
+        }; 
+
+        heightfieldArticulatedModel = ArticulatedModel::Specification { 
+            filename = "heightfield/noise/128.png"; 
+            heightfieldOptions = HeightfieldOptions ( 
+                generateBackfaces = true, 
+                textureScale = Vector2(1, 1 ), 
+            ); 
+            
+            preprocess = ( 
+                setMaterial(all(), UniversalMaterial::Specification { 
+                        lambertian = Color3(0.95 ); 
+                    } ); 
+                transformGeometry(root(), Matrix4::scale(1, 64, 1 ) ) ); 
+            
+            scale = 0.015625; 
+        }; 
+        
+        heightfieldModel = HeightfieldModel::Specification { 
+            filename = "heightfield/noise/128.png"; 
+            material = UniversalMaterial::Specification { 
+                lambertian = Color3(0.95 ); 
+            }; 
+            
+            maxElevation = 1; 
+            metersPerPixel = 
+            /* 1/64 */
+            0.015625; 
+            
+            metersPerTexCoord = 
+            /* Tile exactly once */
+            0.5; 
+            
+            pixelsPerQuadSide = 1; 
+            pixelsPerTileSide = 64; 
+        }; 
+        
+        md3crusader = MD3Model::Specification { 
+            defaultSkin = MD3Model::Skin("md3/crusader/models/players/Crusader/lower_default.skin", "md3/crusader/models/players/Crusader/upper_default.skin", "md3/crusader/models/players/Crusader/head_default.skin"); 
+            directory = "md3/crusader/models/players/Crusader/"; 
+        }; 
+        
+        sphereModel = ArticulatedModel::Specification { 
+            filename = "ifs/sphere.ifs"; 
+            scale = 0.4; 
+        };
+        
+        seymourModel = ArticulatedModel::Specification { 
+            filename = "model/seymour/Seymour_triangulate.dae"; 
+            scale = 15; 
+        }; 
+        
+        squareSpotTargetModel = ArticulatedModel::Specification { 
+            filename = "model/cube/cube.ifs"; 
+            preprocess = ( 
+                transformGeometry(root(), Matrix4::scale(2, 2, 0.1 ) ) );  
+            scale = 1; 
+        }; 
+
+        hexgateModel = ArticulatedModel::Specification{
+            scale = 0.005;
+            filename = "model/hexgate/hexgate.obj";
+            preprocess = (renameMesh("root/gold", "mesh"));
+        };
+    }; 
+    
+    name = "Feature Test"; 
+} 
