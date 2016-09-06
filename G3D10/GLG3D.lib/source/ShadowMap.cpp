@@ -225,8 +225,25 @@ void ShadowMap::updateDepth
     m_unitLightProjection = unitize * m_lightProjection;
     m_unitLightMVP = unitize * m_lightMVP;
 
-    // TODO: What should the alpha test mode be?
-    const AlphaTestMode alphaTestMode = AlphaTestMode::STOCHASTIC;
+    AlphaTestMode alphaTestMode;
+    switch (passType) {
+    case RenderPassType::SHADOW_MAP:
+        // There is no VSM. This is your only chance to write to a shadow map, so go stochastic if you want.
+        alphaTestMode = AlphaTestMode::STOCHASTIC;
+        break;
+
+    case RenderPassType::OPAQUE_SHADOW_MAP:
+        // There is a VSM pass coming, but we're still rendering to the Williams map in this pass,
+        // so do a hard cutoff at alpha = 1.
+        alphaTestMode = AlphaTestMode::REJECT_LESS_THAN_ONE;
+        break;
+
+    default: debugAssert(passType == RenderPassType::TRANSPARENT_SHADOW_MAP);
+        // This is the VSM pass. Render stochastic, but reject the alpha = 1 pixels
+        // that were just rendered in the Williams shadow map.        
+        alphaTestMode = AlphaTestMode::STOCHASTIC_REJECT_ONE;
+        break;
+    }
 
     if ((lastBaseShadowCasterChangeTime > baseLayer.lastUpdateTime) ||
         (baseShadowCasterEntityHash != baseLayer.entityHash)) {
