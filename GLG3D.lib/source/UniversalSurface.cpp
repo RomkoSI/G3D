@@ -230,7 +230,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
  const Array<shared_ptr<Surface> >& surfaceArray,
  const shared_ptr<Texture>&         previousDepthBuffer,
  const float                        minZSeparation,
- AlphaTestMode                      alphaTestMode,
+ TransparencyTestMode                      transparencyTestMode,
  const Color3&                      transmissionWeight) const {
     debugAssertGLOk();
 
@@ -254,9 +254,9 @@ void UniversalSurface::renderDepthOnlyHomogeneous
     const CullFace cull = rd->cullFace();
 
     static Array<shared_ptr<Surface> > opaqueSurfaces;
-    static Array<shared_ptr<Surface> > alphaSurfaces;
+    static Array<shared_ptr<Surface> > transparentSurfaces;
     opaqueSurfaces.fastClear();
-    alphaSurfaces.fastClear();
+    transparentSurfaces.fastClear();
 
     for (int i = 0; i < surfaceArray.size(); ++i) {
         const shared_ptr<UniversalSurface>& surface = dynamic_pointer_cast<UniversalSurface>(surfaceArray[i]);
@@ -265,7 +265,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         const shared_ptr<Texture>& lambertian = material->bsdf()->lambertian().texture();
         const bool thisSurfaceNeedsAlphaTest = (material->alphaHint() != AlphaHint::ONE) && notNull(lambertian) && ! lambertian->opaque();   
         if (surface->hasTransmission() || thisSurfaceNeedsAlphaTest) {
-            alphaSurfaces.append(surface);
+            transparentSurfaces.append(surface);
         } else {
             opaqueSurfaces.append(surface);
         }
@@ -307,8 +307,8 @@ void UniversalSurface::renderDepthOnlyHomogeneous
     }
 
     // Now process surfaces with alpha 
-    for (int g = 0; g < alphaSurfaces.size(); ++g) {
-        const shared_ptr<UniversalSurface>& surface = dynamic_pointer_cast<UniversalSurface>(alphaSurfaces[g]);
+    for (int g = 0; g < transparentSurfaces.size(); ++g) {
+        const shared_ptr<UniversalSurface>& surface = dynamic_pointer_cast<UniversalSurface>(transparentSurfaces[g]);
         debugAssertM(surface, "Surface::renderDepthOnlyHomogeneous passed the wrong subclass");
         const shared_ptr<Texture>& lambertian = surface->material()->bsdf()->lambertian().texture();
         const bool thisSurfaceNeedsAlphaTest = (surface->material()->alphaHint() != AlphaHint::ONE) && notNull(lambertian) && ! lambertian->opaque();
@@ -333,11 +333,11 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         surface->setShaderArgs(args, true);
     	bindDepthPeelArgs(args, rd, previousDepthBuffer, minZSeparation);
         args.setUniform("transmissionWeight", transmissionWeight);
-        args.setMacro("DISCARD_IF_FULL_COVERAGE", alphaTestMode == AlphaTestMode::STOCHASTIC_REJECT_ONE);
+        args.setMacro("DISCARD_IF_NO_TRANSPARENCY", transparencyTestMode == TransparencyTestMode::STOCHASTIC_REJECT_ONE);
 
         // N.B. Alpha testing is handled explicitly inside the shader.
         if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((surface->material()->alphaHint() == AlphaHint::BLEND) || (surface->material()->alphaHint() == AlphaHint::BINARY)))) {
-            args.setMacro("STOCHASTIC", alphaTestMode != AlphaTestMode::REJECT_LESS_THAN_ONE);
+            args.setMacro("STOCHASTIC", transparencyTestMode != TransparencyTestMode::REJECT_LESS_THAN_ONE);
             // The depth with alpha shader handles the depth peel case internally
             LAUNCH_SHADER_PTR_WITH_HINT(depthNonOpaqueShader, args, surface->m_profilerHint);
         } else if (notNull(previousDepthBuffer)) {

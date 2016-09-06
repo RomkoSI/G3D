@@ -81,13 +81,13 @@ protected:
          ShadowMap*                         shadowMap,
          const Array<shared_ptr<Surface> >& shadowCaster,
          CullFace                           cullFace,
-         AlphaTestMode                      alphaTestMode,
+         TransparencyTestMode                      transparencyTestMode,
          const shared_ptr<Framebuffer>&     initialValues,
          const Color3&                      transmissionWeight);
 
         /** Calls the other method of the same name multiple times with appropriate culling faces and polygon offsets */
-        void renderDepthOnly(class RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array< shared_ptr<Surface> >& shadowCaster, CullFace cullFace, AlphaTestMode alphaTestMode, const Color3& transmissionWeight) const;
-        void renderDepthOnly(class RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array< shared_ptr<Surface> >& shadowCaster, CullFace cullFace, float polygonOffset, AlphaTestMode alphaTestMode, const Color3& transmissionWeight) const;
+        void renderDepthOnly(class RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array< shared_ptr<Surface> >& shadowCaster, CullFace cullFace, TransparencyTestMode transparencyTestMode, const Color3& transmissionWeight) const;
+        void renderDepthOnly(class RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array< shared_ptr<Surface> >& shadowCaster, CullFace cullFace, float polygonOffset, TransparencyTestMode transparencyTestMode, const Color3& transmissionWeight) const;
     };
 
     /** For Surface::canMove() == false surfaces, regardless of whether they actually 
