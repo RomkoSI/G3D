@@ -667,9 +667,9 @@ void UniversalSurface::render
         return;
     }
 
-    Sphere myBounds;
     CFrame cframe;
-    getObjectSpaceBoundingSphere(myBounds, false);
+    Sphere myBounds;
+    getObjectSpaceBoundingSphere(myBounds);
     getCoordinateFrame(cframe, false);
     myBounds = cframe.toWorldSpace(myBounds);
     
@@ -687,8 +687,7 @@ void UniversalSurface::render
 
     // Remove lights that cannot affect this object
     for (int L = 0; L < reducedLighting.lightArray.size(); ++L) {
-        Sphere s = reducedLighting.lightArray[L]->effectSphere();
-        if (! s.intersects(myBounds)) {
+        if (! reducedLighting.lightArray[L]->possiblyIlluminates(myBounds)) {
             // This light does not affect this object
             reducedLighting.lightArray.fastRemove(L);
             --L;
