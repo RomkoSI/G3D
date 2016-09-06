@@ -278,7 +278,7 @@ void ShadowMap::updateDepth
                         const int guassianBlurTaps = 2 * settings.filterRadius + 1;
                         const String& preamble = GaussianBlur::getPreamble(guassianBlurTaps, true, settings.blurMultiplier);
                         args.setPreamble(preamble);
-                        const Vector2 sizeRatio = Vector2(src->width(),src->height()) / Vector2(dst->width(),dst->height());
+                        const Vector2 sizeRatio = Vector2(float(src->width()), float(src->height())) / Vector2(float(dst->width()), float(dst->height()));
                         const Vector2int32 s(iRound(log2( sizeRatio.x)), iRound(log2( sizeRatio.y)));
                         args.setMacro("LOG_DOWNSAMPLE_X", s.x);
                         args.setMacro("LOG_DOWNSAMPLE_Y", s.y);
