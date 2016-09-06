@@ -99,9 +99,9 @@ G3D_DECLARE_ENUM_CLASS(MirrorQuality,
 
 /** \brief How the alpha value should be interpreted for partial coverage. 
 
-    This must be kept in sync with AlphaHint.glsl
+    This must be kept in sync with AlphaFilter.glsl
     \sa UniversalMaterial */
-G3D_DECLARE_ENUM_CLASS(AlphaHint,
+G3D_DECLARE_ENUM_CLASS(AlphaFilter,
         /** Used by UniversalMaterial to specify a default behavior:
         
             - use BLEND for surfaces with some 0.0 < alpha < 1.0
@@ -143,7 +143,7 @@ G3D_DECLARE_ENUM_CLASS(AlphaHint,
 G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::PrimitiveType)
 G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::RefractionHint)
 G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::MirrorQuality)
-G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::AlphaHint)
+G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::AlphaFilter)
 
 #endif
 

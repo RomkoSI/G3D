@@ -5,7 +5,7 @@
 #include <g3dmath.glsl>
 #include <BumpMap/BumpMap.glsl>
 #include <lightMap.glsl>
-#include <AlphaHint.glsl>
+#include <AlphaFilter.glsl>
 
 #ifndef UNBLENDED_PASS
 #   define UNBLENDED_PASS 0
@@ -69,7 +69,7 @@ UniversalMaterialSample sampleUniversalMaterial$(dim)
     const bool                  discardIfZeroCoverage,
     const bool                  discardIfFullCoverage,
     Color4                      vertexColor,
-    const AlphaHint             alphaHint,
+    const AlphaFilter             alphaHint,
     const int                   parallaxSteps,
     const bool                  hasNormalBumpMap,
     const bool                  hasVertexColor,

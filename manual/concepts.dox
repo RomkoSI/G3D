@@ -305,7 +305,7 @@ needs to be overriden.
   GLSL structs are fairly limited by the allowed types (e.g., no samplers), are hard to pass consistently across drivers,
   and can't be used within the preprocessor, where much GLSL programming occurs. So, many G3D routines flatten
   structs by using groups of variables with common prefixes. Underscores replace periods and double-colons this naming convention.
-  For example, AlphaHint::COVERAGE_MASK becomes AlphaHint_COVERAGE_MASK.
+  For example, AlphaFilter::COVERAGE_MASK becomes AlphaHint_COVERAGE_MASK.
 
   \subsubsection transparency Transparency
 
@@ -326,7 +326,7 @@ needs to be overriden.
   A <i>surface</i>:
   - is <b>opaque</b> when all of its samples are opaque (no partial coverage or non-refractive transmission anywhere)
   - is <b>nonopaque</b> if some of its samples are not opaque. It describes any situation that could cause two or more geometric surfaces to contribute to the radiance value at a ray sample 
-  - has <b>binary coverage</b> if its coverage can be expressed as 0 or 1 at every point (AlphaHint::BINARY, AlphaHint::COVERAGE_MASK) and it cannot be assumed to have coverage=1 everywhere.
+  - has <b>binary coverage</b> if its coverage can be expressed as 0 or 1 at every point (AlphaFilter::BINARY, AlphaFilter::COVERAGE_MASK) and it cannot be assumed to have coverage=1 everywhere.
   - has <b>transmission</b> if any of its samples have transmission.
   - requires <b>blending</b> if it has partial coverage that is not binary or has transmission
 

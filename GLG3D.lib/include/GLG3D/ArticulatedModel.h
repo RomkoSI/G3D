@@ -390,16 +390,16 @@ Example:
 
         bool                        stripLightMapCoords;
 
-        /** Default alpha hint <b>for surfaces that have alpha maps at load time</b>. Default is AlphaHint::DETECT, which
-            will use AlphaHint::BINARY for binary alpha channels and AlphaHint::BLEND for fractional alpha channels. Switching 
-            this value to AlphaHint::BINARY will lead to faster rendering for models with lots of masking (such as trees), 
+        /** Default alpha filter <b>for surfaces that have alpha maps at load time</b>. Default is AlphaFilter::DETECT, which
+            will use AlphaFilter::BINARY for binary alpha channels and AlphaFilter::BLEND for fractional alpha channels. Switching 
+            this value to AlphaFilter::BINARY will lead to faster rendering for models with lots of masking (such as trees), 
             at a cost of more aliasing. */
-        AlphaHint                   alphaHint;
+        AlphaFilter                 alphaHint;
 
         /** Default refraction hint for surfaces that have refractive transmission and don't specify a value. 
             Default is RefractionHint::DYNAMIC_FLAT.
          */
-        RefractionHint           refractionHint;
+        RefractionHint              refractionHint;
 
         /**
          Radius for clusters of meshes [that have the same material] that can be merged to reduce draw calls.
@@ -517,7 +517,7 @@ Example:
             stripVertexColors(false),
             stripLightMaps(false), 
             stripLightMapCoords(false),
-            alphaHint(AlphaHint::DETECT),
+            alphaHint(AlphaFilter::DETECT),
             refractionHint(RefractionHint::DYNAMIC_FLAT),
             meshMergeOpaqueClusterRadius(finf()),
             meshMergeTransmissiveClusterRadius(0.0f),

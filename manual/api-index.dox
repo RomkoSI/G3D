@@ -573,7 +573,7 @@ at the bottom.
      </li>
         
      <LI><B>Utilities and Constants</B> &nbsp; &nbsp;
-        \link G3D::AlphaHint AlphaHint\endlink,
+        \link G3D::AlphaFilter AlphaFilter\endlink,
         \link G3D::DoNotInitialize DoNotInitialize\endlink,
         \link G3D::MirrorQuality MirrorQuality\endlink,
         \link G3D::PrimitiveType PrimitiveType\endlink,

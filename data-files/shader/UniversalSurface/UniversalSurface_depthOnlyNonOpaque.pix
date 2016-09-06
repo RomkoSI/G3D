@@ -12,7 +12,7 @@
 
 #include <g3dmath.glsl>
 #include <Texture/Texture.glsl>
-#include <AlphaHint.glsl>
+#include <AlphaFilter.glsl>
 #include <UniversalMaterial/UniversalMaterial.glsl>
 #include <UniversalMaterial/UniversalMaterial_sample.glsl>
 
