@@ -32,7 +32,17 @@ void UniversalSurface::setStorage(ImageStorage newStorage) {
 
 
 Surface::TransparencyType UniversalSurface::transparencyType() const {
-    return Surface::transparencyType(); // TODO
+    if (hasTransmission()) {
+        return TransparencyType::FRACTIONAL;
+    } else if ((m_material->alphaFilter() == AlphaFilter::ONE) || ! m_material->bsdf()->lambertian().nonUnitAlpha()) {
+        return TransparencyType::NONE;
+    } else if (m_material->alphaFilter() == AlphaFilter::BINARY) {
+        return TransparencyType::BINARY;
+    } else {
+        debugAssertM(m_material->alphaFilter() != AlphaFilter::COVERAGE_MASK, "Unsupported");
+        // Fractional alpha
+        return TransparencyType::FRACTIONAL;
+    }
 }
 
 
@@ -266,10 +276,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
     for (int i = 0; i < surfaceArray.size(); ++i) {
         const shared_ptr<UniversalSurface>& surface = dynamic_pointer_cast<UniversalSurface>(surfaceArray[i]);
         debugAssertM(surface, "Surface::renderDepthOnlyHomogeneous passed the wrong subclass");
-        const shared_ptr<UniversalMaterial>& material = surface->material();
-        const shared_ptr<Texture>& lambertian = material->bsdf()->lambertian().texture();
-        const bool thisSurfaceNeedsAlphaTest = (material->alphaFilter() != AlphaFilter::ONE) && notNull(lambertian) && ! lambertian->opaque();   
-        if (surface->hasTransmission() || thisSurfaceNeedsAlphaTest) {
+        if (surface->transparencyType() != TransparencyType::NONE) {
             transparentSurfaces.append(surface);
         } else {
             opaqueSurfaces.append(surface);
@@ -311,13 +318,10 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         } // for each surface  
     }
 
-    // Now process surfaces with alpha 
+    // Now process surfaces with transparency 
     for (int g = 0; g < transparentSurfaces.size(); ++g) {
         const shared_ptr<UniversalSurface>& surface = dynamic_pointer_cast<UniversalSurface>(transparentSurfaces[g]);
         debugAssertM(surface, "Surface::renderDepthOnlyHomogeneous passed the wrong subclass");
-        const shared_ptr<Texture>& lambertian = surface->material()->bsdf()->lambertian().texture();
-        const bool thisSurfaceNeedsAlphaTest = (surface->material()->alphaFilter() != AlphaFilter::ONE) && notNull(lambertian) && ! lambertian->opaque();
-        const bool thisSurfaceHasTransmissive = surface->material()->hasTransmissive();
 
         const shared_ptr<UniversalSurface::GPUGeom>& geom = surface->gpuGeom();
             
@@ -340,17 +344,18 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         args.setUniform("transmissionWeight", transmissionWeight);
         args.setMacro("DISCARD_IF_NO_TRANSPARENCY", transparencyTestMode == TransparencyTestMode::STOCHASTIC_REJECT_NONTRANSPARENT);
 
-        // N.B. Alpha testing is handled explicitly inside the shader.
-        if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((surface->material()->alphaFilter() == AlphaFilter::BLEND) || (surface->material()->alphaFilter() == AlphaFilter::BINARY)))) {
-            args.setMacro("STOCHASTIC", transparencyTestMode != TransparencyTestMode::REJECT_TRANSPARENCY);
-            // The depth with alpha shader handles the depth peel case internally
-            LAUNCH_SHADER_PTR_WITH_HINT(depthNonOpaqueShader, args, surface->m_profilerHint);
-        } else if (notNull(previousDepthBuffer)) {
-            LAUNCH_SHADER_PTR_WITH_HINT(depthPeelShader, args, surface->m_profilerHint);
-        } else {
-            LAUNCH_SHADER_PTR_WITH_HINT(depthShader, args, surface->m_profilerHint);
-        }
+        const TransparencyType transparencyType = surface->transparencyType();
+        debugAssert(transparencyType != TransparencyType::NONE);
 
+        // N.B. Alpha testing is handled explicitly inside the shader.
+
+        args.setMacro("STOCHASTIC",
+            (transparencyType != TransparencyType::BINARY) &&
+            (transparencyTestMode != TransparencyTestMode::REJECT_TRANSPARENCY));
+
+        // The depth with alpha shader handles the depth peel case internally
+        LAUNCH_SHADER_PTR_WITH_HINT(depthNonOpaqueShader, args, surface->m_profilerHint);
+     
         if (geom->twoSided) {
             rd->setCullFace(cull);
         }
