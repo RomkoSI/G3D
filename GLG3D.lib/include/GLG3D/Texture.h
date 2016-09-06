@@ -568,7 +568,7 @@ private:
      InterpolateMode                interpolation,
      WrapMode                       wrapping,
      const Encoding&                encoding,
-     AlphaFilter                      alphaHint,
+     AlphaFilter                      alphaFilter,
      int                            numSamples); 
     
 private:
@@ -610,7 +610,7 @@ private:
      Dimension                      dimension,
      const Encoding&                encoding,
      bool                           opaque,
-     AlphaFilter                      alphaHint,
+     AlphaFilter                      alphaFilter,
      int                            numSamples);
 
 public:
@@ -648,7 +648,7 @@ public:
         to a G3D::UniversalMaterial.
         If this returns AlphaFilter::DETECT, then detection has not been executed, likely
         because the texture was not in an 8-bit format. */
-    AlphaFilter alphaHint() const {
+    AlphaFilter alphaFilter() const {
         return opaque() ? AlphaFilter::ONE : m_detectedHint;
     }
 
@@ -843,7 +843,7 @@ public:
     (const String&                   name,
      GLuint                          textureID,
      Encoding                        encoding,
-     AlphaFilter                       alphaHint,
+     AlphaFilter                       alphaFilter,
      Dimension                       dimension      = DIM_2D,
      bool                            destroyGLTextureInDestructor   = true,
 	 int                             numSamples      = 1);

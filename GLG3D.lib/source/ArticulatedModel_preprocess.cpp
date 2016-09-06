@@ -481,7 +481,7 @@ void ArticulatedModel::MeshMergeCallback::operator()
             for (int i = 0; (i < list.size()) && ! merged; ++i) {
                 Mesh* dst = list[i];
 
-                AlphaFilter h = dst->material->alphaHint();
+                AlphaFilter h = dst->material->alphaFilter();
                 debugAssertM(h != AlphaFilter::DETECT, "AlphaFilter::DETECT should have been resolved by this point");
     
                 const Color3& maxTransmission = dst->material->bsdf()->transmissive().texture()->max().rgb();

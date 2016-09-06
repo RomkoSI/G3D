@@ -87,18 +87,7 @@ G3D_DECLARE_ENUM_CLASS(
 
     /* Only render transparent surfaces (stochastically) to the shadow map */
     TRANSPARENT_SHADOW_MAP
-
     );
-
-    /**
-    - REJECT_TRANSPARENCY The surface must discard alpha less than 1. Same as `glAlphaFunc(GL_GEQUAL, 1.0f)`. Used for depth prepass, and Williams shadow maps when SVSM is enabled. 
-    - STOCHASTIC The surface may perform stochastic alpha testing or use any threshold value that it wishes. Used for Williams shadow maps when SVSM is disabled.
-    - STOCHASTIC_REJECT_NONTRANSPARENT The surface may perform stochastic alpha test but must discard on alpha = 1. Used for SVSM generation.
-    */
-    G3D_DECLARE_ENUM_CLASS(TransparencyTestMode, 
-        REJECT_TRANSPARENCY,  
-        STOCHASTIC,
-        STOCHASTIC_REJECT_NONTRANSPARENT);
 
 /**
    \brief The surface of a model, posed and ready for rendering.
@@ -135,6 +124,30 @@ G3D_DECLARE_ENUM_CLASS(
  */
 class Surface : public ReferenceCountedObject {
 public:
+    
+    /**
+    Only used for depth writing purposes
+
+    - REJECT_TRANSPARENCY The surface must discard alpha less than 1. Same as `glAlphaFunc(GL_GEQUAL, 1.0f)`. Used for depth prepass, and Williams shadow maps when SVSM is enabled. 
+    - STOCHASTIC The surface may perform stochastic alpha testing or use any threshold value that it wishes. Used for Williams shadow maps when SVSM is disabled.
+    - STOCHASTIC_REJECT_NONTRANSPARENT The surface may perform stochastic alpha test but must discard on alpha = 1. Used for SVSM generation.
+    */
+    G3D_DECLARE_ENUM_CLASS(TransparencyTestMode, 
+        REJECT_TRANSPARENCY,  
+        STOCHASTIC,
+        STOCHASTIC_REJECT_NONTRANSPARENT);
+
+    /**
+     "Transparency" in G3D = transmission + alpha coverage
+
+        - NONE:       alphaFilter(alpha) * (1 - transmission) is always 1
+        - BINARY:     alphaFilter(alpha) * (1 - transmission) is always 1 or 0
+        - FRACTIONAL: alphaFilter(alpha) * (1 - transmission) has some value < 1
+    */
+    G3D_DECLARE_ENUM_CLASS(TransparencyType, 
+        NONE,  
+        BINARY,
+        FRACTIONAL);
 
     /** Non-physical properties that a Surface might use to affect light transport. */
     class ExpressiveLightScatteringProperties {
@@ -297,6 +310,15 @@ public:
     virtual bool hasTransmission() const {
         return false;
     }
+
+    /** What type of transparency (= alpha and transmission) does this surface have? */
+    virtual TransparencyType transparencyType() const {
+        if (requiresBlending() || hasTransmission()) {
+            return TransparencyType::FRACTIONAL;
+        } else {
+            return TransparencyType::NONE;
+        }
+    }
     
     /** Wall-clock time at which the source of this surface changed in some way,
         e.g., that might require recomputing a shadow map or spatial data structure.
@@ -384,7 +406,7 @@ public:
         Assume that surfaceArray is sorted back to front, so render in reverse order for optimal
         early-z test behavior.
 
-        \param transparencyTestMode net coverage testing mode applied _after_ the alphaHint's processing.
+        \param transparencyTestMode net coverage testing mode applied _after_ the alphaFilter's processing.
  
         \param transmissionWeight How wavelength-varying transmission elements
          (for shadow map rendering: lightPower/dot(lightPower, vec3(1,1,1)))

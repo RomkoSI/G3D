@@ -11,7 +11,7 @@
 
 /** Computes a coverage value from a raw alpha value. 
 
-   \param alphaHintX Named with a trailing "X" because alphaHint is a common macro argument name. */
+   \param alphaHintX Named with a trailing "X" because alphaFilter is a common macro argument name. */
 float computeCoverage(AlphaFilter alphaHintX, float alpha) {
    if (alphaHintX == AlphaHint_ONE) {
         return 1.0;
@@ -20,7 +20,7 @@ float computeCoverage(AlphaFilter alphaHintX, float alpha) {
    } else if ((alphaHintX == AlphaHint_COVERAGE_MASK) || (alphaHintX == AlphaHint_BLEND)) {
         return alpha;
    } else {
-        // Illegal alphaHint value!
+        // Illegal alphaFilter value!
         return -1.0;
    }
 }

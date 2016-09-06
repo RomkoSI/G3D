@@ -225,23 +225,23 @@ void ShadowMap::updateDepth
     m_unitLightProjection = unitize * m_lightProjection;
     m_unitLightMVP = unitize * m_lightMVP;
 
-    TransparencyTestMode transparencyTestMode;
+    Surface::TransparencyTestMode transparencyTestMode;
     switch (passType) {
     case RenderPassType::SHADOW_MAP:
         // There is no VSM. This is your only chance to write to a shadow map, so go stochastic if you want.
-        transparencyTestMode = TransparencyTestMode::STOCHASTIC;
+        transparencyTestMode = Surface::TransparencyTestMode::STOCHASTIC;
         break;
 
     case RenderPassType::OPAQUE_SHADOW_MAP:
         // There is a VSM pass coming, but we're still rendering to the Williams map in this pass,
         // so do a hard cutoff at alpha = 1.
-        transparencyTestMode = TransparencyTestMode::REJECT_TRANSPARENCY;
+        transparencyTestMode = Surface::TransparencyTestMode::REJECT_TRANSPARENCY;
         break;
 
     default: debugAssert(passType == RenderPassType::TRANSPARENT_SHADOW_MAP);
         // This is the VSM pass. Render stochastic, but reject the alpha = 1 pixels
         // that were just rendered in the Williams shadow map.        
-        transparencyTestMode = TransparencyTestMode::STOCHASTIC_REJECT_NONTRANSPARENT;
+        transparencyTestMode = Surface::TransparencyTestMode::STOCHASTIC_REJECT_NONTRANSPARENT;
         break;
     }
 
@@ -307,7 +307,7 @@ void ShadowMap::Layer::updateDepth
  ShadowMap*                         shadowMap,
  const Array<shared_ptr<Surface> >& shadowCaster,
  CullFace                           cullFace,
- TransparencyTestMode                      transparencyTestMode,
+ Surface::TransparencyTestMode      transparencyTestMode,
  const shared_ptr<Framebuffer>&     initialValues,
  const Color3&                      transmissionWeight) {
 
@@ -334,13 +334,13 @@ void ShadowMap::Layer::updateDepth
 }
 
 
-void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array<shared_ptr<Surface> >& shadowCaster, CullFace cullFace, float polygonOffset, TransparencyTestMode transparencyTestMode, const Color3& transmissionWeight) const {
+void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array<shared_ptr<Surface> >& shadowCaster, CullFace cullFace, float polygonOffset, Surface::TransparencyTestMode transparencyTestMode, const Color3& transmissionWeight) const {
     renderDevice->setPolygonOffset(polygonOffset);
     Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace, nullptr, 0.0f, transparencyTestMode, transmissionWeight);
 }
 
 
-void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array<shared_ptr<Surface> >& shadowCaster, CullFace cullFace, TransparencyTestMode transparencyTestMode, const Color3& transmissionWeight) const {
+void ShadowMap::Layer::renderDepthOnly(RenderDevice* renderDevice, const ShadowMap* shadowMap, const Array<shared_ptr<Surface> >& shadowCaster, CullFace cullFace, Surface::TransparencyTestMode transparencyTestMode, const Color3& transmissionWeight) const {
     if ((cullFace == CullFace::NONE) && 
         (shadowMap->m_backfacePolygonOffset != shadowMap->m_polygonOffset)) {
         // Different culling values

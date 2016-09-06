@@ -171,7 +171,7 @@
     
     models = { 
         buildingModel = ArticulatedModel::Specification { 
-            alphaHint = "BINARY"; 
+            alphaFilter = "BINARY"; 
             filename = "model/crytek_sponza/sponza.zip/sponza.obj"; 
             scale = 0.011; 
         }; 

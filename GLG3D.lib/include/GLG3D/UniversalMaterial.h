@@ -137,7 +137,7 @@ Some simple examples follow.
 UniversalMaterial::Specification {
     lambertian = "diffusemap.png";
 
-    alphaHint = BINARY;
+    alphaFilter = BINARY;
  
     // Put smoothness in the alpha channel
     glossy = "specmap.png";
@@ -250,7 +250,7 @@ Any component can be a Texture::Specification, Color3/Color4, or table of <code>
             m_alphaHint = a;
         }
 
-        AlphaFilter alphaHint() const {
+        AlphaFilter alphaFilter() const {
             return m_alphaHint;
         }
 
@@ -462,7 +462,7 @@ public:
      const shared_ptr<MapComponent<Image4>>& customMap      = shared_ptr<MapComponent<Image4>>(),
      const Color4&                       customConstant     = Color4::inf(),
      const String&                       customShaderPrefix = "",
-     const AlphaFilter                     alphaHint          = AlphaFilter::DETECT);
+     const AlphaFilter                     alphaFilter          = AlphaFilter::DETECT);
     
     /** Returns nan() if the constant is not bound. */
     double constant(const String& name) const {
@@ -480,7 +480,7 @@ public:
      */
     bool validateTextureDimensions() const;
 
-    AlphaFilter alphaHint() const {
+    AlphaFilter alphaFilter() const {
         return m_alphaHint;
     }
 

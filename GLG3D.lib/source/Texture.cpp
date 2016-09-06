@@ -583,7 +583,7 @@ static void createTexture
     Color4&         minval, 
     Color4&         maxval, 
     Color4&         meanval,
-    AlphaFilter&      alphaHint,
+    AlphaFilter&      alphaFilter,
 	int				numSamples,
     const Texture::Encoding& encoding);
 
@@ -595,7 +595,7 @@ Texture::Texture
     Dimension               dimension,
     const Encoding&         encoding,
     bool                    opaque,
-    AlphaFilter               alphaHint,
+    AlphaFilter               alphaFilter,
     int                     numSamples) :
 #ifdef G3D_ENABLE_CUDA
 	m_cudaTextureResource(NULL),
@@ -613,7 +613,7 @@ Texture::Texture
     m_min(Color4::nan()),
     m_max(Color4::nan()),
     m_mean(Color4::nan()),
-    m_detectedHint(alphaHint),
+    m_detectedHint(alphaFilter),
     m_numSamples(numSamples),
     m_hasMipMaps(false),
     m_appearsInTextureBrowserWindow(true) {
@@ -662,7 +662,7 @@ Texture::Texture
     InterpolateMode            interpolation,
     WrapMode                   wrapping,
     const Encoding&            encoding,
-    AlphaFilter                  alphaHint,
+    AlphaFilter                  alphaFilter,
     int                        numSamples)
     : m_textureID(0)
     , m_destroyGLTextureInDestructor(true)
@@ -683,7 +683,7 @@ Texture::Texture
     , m_min(Color4::nan())
     , m_max(Color4::nan())
     , m_mean(Color4::nan())
-    , m_detectedHint(alphaHint)
+    , m_detectedHint(alphaFilter)
     , m_numSamples(numSamples)
     , m_hasMipMaps(false)
     , m_appearsInTextureBrowserWindow(true)
@@ -799,7 +799,7 @@ shared_ptr<Texture> Texture::fromGLTexture(
     const String&           name,
     GLuint                  textureID,
     Encoding                encoding,
-    AlphaFilter               alphaHint,
+    AlphaFilter               alphaFilter,
     Dimension               dimension,
     bool                    destroyGLTextureInDestructor,
 	int                     numSamples) {
@@ -812,7 +812,7 @@ shared_ptr<Texture> Texture::fromGLTexture(
         dimension,
         encoding, 
         encoding.format->opaque,
-        alphaHint,
+        alphaFilter,
         numSamples));
 
     t->m_destroyGLTextureInDestructor = destroyGLTextureInDestructor;
@@ -1281,7 +1281,7 @@ shared_ptr<Texture> Texture::fromNothing
     Color4 minval = Color4::nan();
     Color4 meanval = Color4::nan();
     Color4 maxval = Color4::nan();
-	AlphaFilter alphaHint = AlphaFilter::DETECT;
+	AlphaFilter alphaFilter = AlphaFilter::DETECT;
 
     glStatePush(); {
 
@@ -1324,7 +1324,7 @@ shared_ptr<Texture> Texture::fromNothing
                                 bytesFormat->openGLDataFormat,
                                 false,
                                 minval, maxval, meanval,
-								alphaHint,
+								alphaFilter,
 								numSamples,
 								encoding);
                 debugAssertGLOk();
@@ -1357,7 +1357,7 @@ shared_ptr<Texture> Texture::fromNothing
     } glStatePop();
 
     debugAssertGLOk();
-    shared_ptr<Texture> t = fromGLTexture(name, textureID, desiredFormat, alphaHint, dimension);
+    shared_ptr<Texture> t = fromGLTexture(name, textureID, desiredFormat, alphaFilter, dimension);
     debugAssertGLOk();
 
     t->m_width  = width;
@@ -1535,7 +1535,7 @@ shared_ptr<Texture> Texture::fromMemory
     Color4 minval = Color4::nan();
     Color4 meanval = Color4::nan();
     Color4 maxval  = Color4::nan();
-    AlphaFilter alphaHint = AlphaFilter::DETECT;
+    AlphaFilter alphaFilter = AlphaFilter::DETECT;
 
     debugAssertGLOk();
     glStatePush(); {
@@ -1574,7 +1574,7 @@ shared_ptr<Texture> Texture::fromMemory
                      bytesFormat->openGLDataFormat,
                      preprocess.computeMinMaxMean,
                      minval, maxval, meanval,
-                     alphaHint,
+                     alphaFilter,
                      numSamples,
                      desiredEncoding);
                 debugAssertGLOk();
@@ -1607,7 +1607,7 @@ shared_ptr<Texture> Texture::fromMemory
     } glStatePop();
 
     debugAssertGLOk();
-    const shared_ptr<Texture>& t = fromGLTexture(name, textureID, desiredEncoding, alphaHint, dimension, true, numSamples);
+    const shared_ptr<Texture>& t = fromGLTexture(name, textureID, desiredEncoding, alphaFilter, dimension, true, numSamples);
     debugAssertGLOk();
 
     t->m_width  = width;
@@ -2678,12 +2678,12 @@ void computeStats
  Color4&      minval,
  Color4&      maxval,
  Color4&      meanval,
- AlphaFilter&   alphaHint,
+ AlphaFilter&   alphaFilter,
  const Texture::Encoding& encoding) {
     minval  = Color4::nan();
     maxval  = Color4::nan();
     meanval = Color4::nan();
-    alphaHint = AlphaFilter::DETECT;
+    alphaFilter = AlphaFilter::DETECT;
 
     if (rawBytes == NULL) {
         return;
@@ -2721,7 +2721,7 @@ void computeStats
             minval  = Color4(Color3(mn), 1.0f);
             maxval  = Color4(Color3(mx), 1.0f);
             meanval /= (float)height;
-            alphaHint = AlphaFilter::ONE;
+            alphaFilter = AlphaFilter::ONE;
         }
         break;
 
@@ -2748,11 +2748,11 @@ void computeStats
             maxval = mx;
             meanval = meanval / (float)height;
             if (mn.a.bits() * encoding.readMultiplyFirst.a + encoding.readAddSecond.a * 255 == 255) {
-                alphaHint = AlphaFilter::ONE;
+                alphaFilter = AlphaFilter::ONE;
             } else if (anyFractionalAlpha || (encoding.readMultiplyFirst.a != 1.0f) || (encoding.readAddSecond.a != 0.0f)) {
-                alphaHint = AlphaFilter::BLEND;
+                alphaFilter = AlphaFilter::BLEND;
             } else {
-                alphaHint = AlphaFilter::BINARY;
+                alphaFilter = AlphaFilter::BINARY;
             }
         }
         break;
@@ -2782,7 +2782,7 @@ void computeStats
             minval  = Color4(Color3(mn), 1.0f);
             maxval  = Color4(Color3(mx), 1.0f);
             meanval /= (float)height;
-            alphaHint = (1 * encoding.readMultiplyFirst.a + encoding.readAddSecond.a == 1) ? AlphaFilter::ONE : AlphaFilter::BLEND;
+            alphaFilter = (1 * encoding.readMultiplyFirst.a + encoding.readAddSecond.a == 1) ? AlphaFilter::ONE : AlphaFilter::BLEND;
         }
         break;
 
@@ -2813,11 +2813,11 @@ void computeStats
             maxval = mx;
             meanval = meanval / (float)height;
             if (anyFractionalAlpha) {
-                alphaHint = AlphaFilter::BLEND;
+                alphaFilter = AlphaFilter::BLEND;
             } else if (mn.a.bits() == 255) {
-                alphaHint = AlphaFilter::ONE;
+                alphaFilter = AlphaFilter::ONE;
             } else {
-                alphaHint = AlphaFilter::BINARY;
+                alphaFilter = AlphaFilter::BINARY;
             }
         }
         break;
@@ -2853,7 +2853,7 @@ static void createTexture
     Color4&         minval, 
     Color4&         maxval, 
     Color4&         meanval,
-    AlphaFilter&      alphaHint,
+    AlphaFilter&      alphaFilter,
     int		        numSamples,
     const Texture::Encoding& encoding) {
 
@@ -2864,7 +2864,7 @@ static void createTexture
     bool   freeBytes = false; 
     int maxSize = GLCaps::maxTextureSize();
     if (computeMinMaxMean) {
-        computeStats(rawBytes, bytesActualFormat, m_width, m_height, minval, maxval, meanval, alphaHint, encoding);
+        computeStats(rawBytes, bytesActualFormat, m_width, m_height, minval, maxval, meanval, alphaFilter, encoding);
     }
 
     switch (target) {

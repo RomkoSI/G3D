@@ -69,7 +69,7 @@ UniversalMaterialSample sampleUniversalMaterial$(dim)
     const bool                  discardIfZeroCoverage,
     const bool                  discardIfFullCoverage,
     Color4                      vertexColor,
-    const AlphaFilter             alphaHint,
+    const AlphaFilter             alphaFilter,
     const int                   parallaxSteps,
     const bool                  hasNormalBumpMap,
     const bool                  hasVertexColor,
@@ -107,7 +107,7 @@ UniversalMaterialSample sampleUniversalMaterial$(dim)
         smpl.lambertianReflectivity = temp.rgb;
 
         if (hasMaterialAlpha) {
-            smpl.coverage = computeCoverage(alphaHint, temp.a);
+            smpl.coverage = computeCoverage(alphaFilter, temp.a);
             if (discardIfZeroCoverage) {
 #               if UNBLENDED_PASS
                     if (smpl.coverage < 1.0) { discard; }

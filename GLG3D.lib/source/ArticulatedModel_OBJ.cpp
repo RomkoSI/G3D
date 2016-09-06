@@ -342,7 +342,7 @@ void ArticulatedModel::loadOBJ(const Specification& specification) {
                 // The specified material.  G3D::UniversalMaterial will cache
                 // materials, so we can create the same material many times without
                 // concern for loading it multiple times.
-                mesh->material = UniversalMaterial::create(srcMesh->material->name, toMaterialSpecification(specification, srcMesh->material, specification.alphaHint, specification.refractionHint));
+                mesh->material = UniversalMaterial::create(srcMesh->material->name, toMaterialSpecification(specification, srcMesh->material, specification.alphaFilter, specification.refractionHint));
             }
 
             // For each face
