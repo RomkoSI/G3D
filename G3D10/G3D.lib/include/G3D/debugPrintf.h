@@ -45,16 +45,14 @@ String __cdecl consolePrintf(const char* fmt ...) G3D_CHECK_PRINTF_ARGS;
 String consolePrint(const String&);
 
 /**
-   Under visual studio, appears in the VS debug pane.
-   On unix-based operating systems the output is sent to stderr.
+   Under Visual Studio, appears in the Debug pane of the Output window
+   On Unix-based operating systems the output is sent to stderr.
 
-   Also sends output to the console (G3D::consolePrintf) if there is a consolePrintHook,
-   and log (G3D::logPrintf), and flushes before returning.   
+   Also sends output to the console (G3D::consolePrintf) if there is a consolePrintHook, and flushes before returning.   
 
-   @return The string that was printed
+   \return The string that was printed
 */
 String __cdecl debugPrintf(const char* fmt ...) G3D_CHECK_PRINTF_ARGS;
-String debugPrint(const String&);
 
 } // namespace G3D
 

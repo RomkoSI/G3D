@@ -324,7 +324,7 @@ ConsolePrintHook consolePrintHook() {
 }
 
 
-String __cdecl debugPrint(const String& s) {
+static String __cdecl debugPrint(const String& s) {
 #   ifdef G3D_WINDOWS
         const int MAX_STRING_LEN = 1024;
     
