@@ -481,13 +481,13 @@ void ArticulatedModel::MeshMergeCallback::operator()
             for (int i = 0; (i < list.size()) && ! merged; ++i) {
                 Mesh* dst = list[i];
 
-                AlphaHint h = dst->material->alphaHint();
-                debugAssertM(h != AlphaHint::DETECT, "AlphaHint::DETECT should have been resolved by this point");
+                AlphaFilter h = dst->material->alphaHint();
+                debugAssertM(h != AlphaFilter::DETECT, "AlphaFilter::DETECT should have been resolved by this point");
     
                 const Color3& maxTransmission = dst->material->bsdf()->transmissive().texture()->max().rgb();
                 const bool opaque = 
                     maxTransmission.isZero() &&
-                    ((h == AlphaHint::ONE) || (h == AlphaHint::BINARY) || (dst->material->bsdf()->lambertian().min().a == 1.0f));  
+                    ((h == AlphaFilter::ONE) || (h == AlphaFilter::BINARY) || (dst->material->bsdf()->lambertian().min().a == 1.0f));  
                 const bool transmissive = ! opaque;
 
                 // Ensure that we obey the required radii

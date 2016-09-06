@@ -104,7 +104,7 @@ public:
 
         Table<String, double>   m_constantTable;
 
-        AlphaHint               m_alphaHint;
+        AlphaFilter               m_alphaHint;
 
         Sampler                 m_sampler;
 
@@ -246,11 +246,11 @@ Any component can be a Texture::Specification, Color3/Color4, or table of <code>
             m_constantTable.set(name, c);
         }
 
-        void setAlphaHint(const AlphaHint& a) {
+        void setAlphaHint(const AlphaFilter& a) {
             m_alphaHint = a;
         }
 
-        AlphaHint alphaHint() const {
+        AlphaFilter alphaHint() const {
             return m_alphaHint;
         }
 
@@ -414,7 +414,7 @@ protected:
 
     String                      m_macros;
 
-    AlphaHint                   m_alphaHint;
+    AlphaFilter                   m_alphaHint;
 
     Sampler                     m_sampler;
 
@@ -462,7 +462,7 @@ public:
      const shared_ptr<MapComponent<Image4>>& customMap      = shared_ptr<MapComponent<Image4>>(),
      const Color4&                       customConstant     = Color4::inf(),
      const String&                       customShaderPrefix = "",
-     const AlphaHint                     alphaHint          = AlphaHint::DETECT);
+     const AlphaFilter                     alphaHint          = AlphaFilter::DETECT);
     
     /** Returns nan() if the constant is not bound. */
     double constant(const String& name) const {
@@ -480,7 +480,7 @@ public:
      */
     bool validateTextureDimensions() const;
 
-    AlphaHint alphaHint() const {
+    AlphaFilter alphaHint() const {
         return m_alphaHint;
     }
 

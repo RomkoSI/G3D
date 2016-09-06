@@ -24,7 +24,7 @@
 #include <compatibility.glsl>
 #include <UniversalMaterial/UniversalMaterial.glsl>
 #include <UniversalMaterial/UniversalMaterial_sample.glsl>
-#include <AlphaHint.glsl>
+#include <AlphaFilter.glsl>
 
 #expect USE_IMAGE_STORE "1 or 0"
 #expect USE_DEPTH_PEEL "1 or 0"

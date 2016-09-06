@@ -52,7 +52,7 @@
        <li> Added G3D::Renderer and G3D::DefaultRenderer implementation</li>
        <li> Added GApp::m_renderer field</li>
        <li> Switched Starter sample project to use DeferredRenderer</li>
-       <li> G3D::AlphaHint</li>
+       <li> G3D::AlphaFilter</li>
        <li> Replaced Surface::canRenderIntoGBuffer with Surface::canBeFullyRepresentedInGBuffer</li>
        <li> Removed Surface::renderTranslucent (Surfaces should now check G3D::RenderDevice::depthWrite to detect opaque passes)</li>
        <li> Removed UniversalSurface::extract (use G3D::dispatchOnType)</li>

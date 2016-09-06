@@ -23,7 +23,7 @@ UniversalMaterial::Specification::Specification() :
   m_refractionHint(RefractionHint::DYNAMIC_FLAT), 
   m_mirrorHint(MirrorQuality::STATIC_PROBE),
   m_numLightMapDirections(0),
-  m_alphaHint(AlphaHint::DETECT),
+  m_alphaHint(AlphaFilter::DETECT),
   m_inferAmbientOcclusionAtTransparentPixels(true) {
 }
 

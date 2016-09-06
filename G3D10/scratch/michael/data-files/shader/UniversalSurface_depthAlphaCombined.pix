@@ -11,7 +11,7 @@ For depth only passes with both parallax mapping and alpha components
 */
 #include <g3dmath.glsl>
 #include <Texture/Texture.glsl>
-#include <AlphaHint.glsl>
+#include <AlphaFilter.glsl>
 
 #expect USE_DEPTH_PEEL
 #expect material_alphaHint

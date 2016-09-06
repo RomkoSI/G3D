@@ -1146,9 +1146,6 @@
     <None Include="..\data-files\shader\screenSpaceRayTrace.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\data-files\shader\AlphaHint.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_deferredShade.pix">
       <Filter>Shader Files</Filter>
     </None>
@@ -1384,6 +1381,9 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="..\data-files\shader\Light\Light_vsmFilter.pix">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\data-files\shader\AlphaFilter.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

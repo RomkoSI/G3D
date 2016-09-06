@@ -504,7 +504,7 @@ shared_ptr<Texture> Texture::createColorCube(const Color4& color) {
     Encoding e;
     e.format = w->encoding().format;
     e.readMultiplyFirst = color;
-    return fromGLTexture(color.toString(), w->openGLID(), e, AlphaHint::ONE, DIM_CUBE_MAP);
+    return fromGLTexture(color.toString(), w->openGLID(), e, AlphaFilter::ONE, DIM_CUBE_MAP);
 }
 
 
@@ -583,7 +583,7 @@ static void createTexture
     Color4&         minval, 
     Color4&         maxval, 
     Color4&         meanval,
-    AlphaHint&      alphaHint,
+    AlphaFilter&      alphaHint,
 	int				numSamples,
     const Texture::Encoding& encoding);
 
@@ -595,7 +595,7 @@ Texture::Texture
     Dimension               dimension,
     const Encoding&         encoding,
     bool                    opaque,
-    AlphaHint               alphaHint,
+    AlphaFilter               alphaHint,
     int                     numSamples) :
 #ifdef G3D_ENABLE_CUDA
 	m_cudaTextureResource(NULL),
@@ -662,7 +662,7 @@ Texture::Texture
     InterpolateMode            interpolation,
     WrapMode                   wrapping,
     const Encoding&            encoding,
-    AlphaHint                  alphaHint,
+    AlphaFilter                  alphaHint,
     int                        numSamples)
     : m_textureID(0)
     , m_destroyGLTextureInDestructor(true)
@@ -799,7 +799,7 @@ shared_ptr<Texture> Texture::fromGLTexture(
     const String&           name,
     GLuint                  textureID,
     Encoding                encoding,
-    AlphaHint               alphaHint,
+    AlphaFilter               alphaHint,
     Dimension               dimension,
     bool                    destroyGLTextureInDestructor,
 	int                     numSamples) {
@@ -1281,7 +1281,7 @@ shared_ptr<Texture> Texture::fromNothing
     Color4 minval = Color4::nan();
     Color4 meanval = Color4::nan();
     Color4 maxval = Color4::nan();
-	AlphaHint alphaHint = AlphaHint::DETECT;
+	AlphaFilter alphaHint = AlphaFilter::DETECT;
 
     glStatePush(); {
 
@@ -1535,7 +1535,7 @@ shared_ptr<Texture> Texture::fromMemory
     Color4 minval = Color4::nan();
     Color4 meanval = Color4::nan();
     Color4 maxval  = Color4::nan();
-    AlphaHint alphaHint = AlphaHint::DETECT;
+    AlphaFilter alphaHint = AlphaFilter::DETECT;
 
     debugAssertGLOk();
     glStatePush(); {
@@ -2678,12 +2678,12 @@ void computeStats
  Color4&      minval,
  Color4&      maxval,
  Color4&      meanval,
- AlphaHint&   alphaHint,
+ AlphaFilter&   alphaHint,
  const Texture::Encoding& encoding) {
     minval  = Color4::nan();
     maxval  = Color4::nan();
     meanval = Color4::nan();
-    alphaHint = AlphaHint::DETECT;
+    alphaHint = AlphaFilter::DETECT;
 
     if (rawBytes == NULL) {
         return;
@@ -2721,7 +2721,7 @@ void computeStats
             minval  = Color4(Color3(mn), 1.0f);
             maxval  = Color4(Color3(mx), 1.0f);
             meanval /= (float)height;
-            alphaHint = AlphaHint::ONE;
+            alphaHint = AlphaFilter::ONE;
         }
         break;
 
@@ -2748,11 +2748,11 @@ void computeStats
             maxval = mx;
             meanval = meanval / (float)height;
             if (mn.a.bits() * encoding.readMultiplyFirst.a + encoding.readAddSecond.a * 255 == 255) {
-                alphaHint = AlphaHint::ONE;
+                alphaHint = AlphaFilter::ONE;
             } else if (anyFractionalAlpha || (encoding.readMultiplyFirst.a != 1.0f) || (encoding.readAddSecond.a != 0.0f)) {
-                alphaHint = AlphaHint::BLEND;
+                alphaHint = AlphaFilter::BLEND;
             } else {
-                alphaHint = AlphaHint::BINARY;
+                alphaHint = AlphaFilter::BINARY;
             }
         }
         break;
@@ -2782,7 +2782,7 @@ void computeStats
             minval  = Color4(Color3(mn), 1.0f);
             maxval  = Color4(Color3(mx), 1.0f);
             meanval /= (float)height;
-            alphaHint = (1 * encoding.readMultiplyFirst.a + encoding.readAddSecond.a == 1) ? AlphaHint::ONE : AlphaHint::BLEND;
+            alphaHint = (1 * encoding.readMultiplyFirst.a + encoding.readAddSecond.a == 1) ? AlphaFilter::ONE : AlphaFilter::BLEND;
         }
         break;
 
@@ -2813,11 +2813,11 @@ void computeStats
             maxval = mx;
             meanval = meanval / (float)height;
             if (anyFractionalAlpha) {
-                alphaHint = AlphaHint::BLEND;
+                alphaHint = AlphaFilter::BLEND;
             } else if (mn.a.bits() == 255) {
-                alphaHint = AlphaHint::ONE;
+                alphaHint = AlphaFilter::ONE;
             } else {
-                alphaHint = AlphaHint::BINARY;
+                alphaHint = AlphaFilter::BINARY;
             }
         }
         break;
@@ -2853,7 +2853,7 @@ static void createTexture
     Color4&         minval, 
     Color4&         maxval, 
     Color4&         meanval,
-    AlphaHint&      alphaHint,
+    AlphaFilter&      alphaHint,
     int		        numSamples,
     const Texture::Encoding& encoding) {
 

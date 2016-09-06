@@ -200,7 +200,7 @@ int ParticleMaterial::insertMaterial(shared_ptr<UniversalMaterial> newMaterial) 
     if (isNull(s_material)) { 
         
         UniversalMaterial::Specification settings;
-        settings.setAlphaHint(AlphaHint::BLEND);
+        settings.setAlphaHint(AlphaFilter::BLEND);
         //settings.setBump                  TODO: support
         //settings.setConstant              TODO: remove
         //settings.setCustomShaderPrefix    TODO: remove
@@ -229,7 +229,7 @@ int ParticleMaterial::insertMaterial(shared_ptr<UniversalMaterial> newMaterial) 
         
 
         UniversalMaterial::Specification settings;
-        settings.setAlphaHint(AlphaHint::BLEND);
+        settings.setAlphaHint(AlphaFilter::BLEND);
         //settings.setBump                  TODO: support
         //settings.setConstant              TODO: remove
         //settings.setCustomShaderPrefix    TODO: remove

@@ -99,10 +99,10 @@ void HeightfieldModel::Tile::renderDepthOnlyHomogeneous
     for (int i = 0; i < groupedSurfaces.size(); ++i) {
         shared_ptr<HeightfieldModel::Tile> tile = dynamic_pointer_cast<HeightfieldModel::Tile>(groupedSurfaces[i][0]);
         const shared_ptr<Texture>& lambertian = tile->modelPtr()->m_material->bsdf()->lambertian().texture();
-        const bool thisSurfaceNeedsAlphaTest = (tile->modelPtr()->m_material->alphaHint() != AlphaHint::ONE) && notNull(lambertian) && !lambertian->opaque();
+        const bool thisSurfaceNeedsAlphaTest = (tile->modelPtr()->m_material->alphaHint() != AlphaFilter::ONE) && notNull(lambertian) && !lambertian->opaque();
         const bool thisSurfaceHasTransmissive = tile->modelPtr()->m_material->hasTransmissive();
         shared_ptr<Shader> shader;
-        if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((tile->modelPtr()->m_material->alphaHint() == AlphaHint::BLEND) || (tile->modelPtr()->m_material->alphaHint() == AlphaHint::BINARY)))) {
+        if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((tile->modelPtr()->m_material->alphaHint() == AlphaFilter::BLEND) || (tile->modelPtr()->m_material->alphaHint() == AlphaFilter::BINARY)))) {
             args.setMacro("STOCHASTIC", transparencyTestMode != TransparencyTestMode::REJECT_TRANSPARENCY);
             shader = depthNonOpaqueShader;
         } else {

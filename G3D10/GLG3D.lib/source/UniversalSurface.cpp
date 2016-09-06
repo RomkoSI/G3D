@@ -32,11 +32,11 @@ void UniversalSurface::setStorage(ImageStorage newStorage) {
 
 
 bool UniversalSurface::canBeFullyRepresentedInGBuffer(const GBuffer::Specification& specification) const {
-    debugAssertM(m_material->alphaHint() != AlphaHint::DETECT, "AlphaHint::DETECT must be resolved into ONE, BINARY, or BLEND when a material is created");
+    debugAssertM(m_material->alphaHint() != AlphaFilter::DETECT, "AlphaFilter::DETECT must be resolved into ONE, BINARY, or BLEND when a material is created");
 
-    const bool opaqueSamples = ((m_material->alphaHint() == AlphaHint::ONE) || 
-        (m_material->alphaHint() == AlphaHint::BINARY) || 
-        (m_material->alphaHint() == AlphaHint::COVERAGE_MASK) || 
+    const bool opaqueSamples = ((m_material->alphaHint() == AlphaFilter::ONE) || 
+        (m_material->alphaHint() == AlphaFilter::BINARY) || 
+        (m_material->alphaHint() == AlphaFilter::COVERAGE_MASK) || 
         ! m_material->bsdf()->lambertian().nonUnitAlpha()) &&
         (!hasTransmission());
 
@@ -52,8 +52,8 @@ bool UniversalSurface::anyUnblended() const {
     // Transmissive if the largest color channel of the lowest values across the whole texture is nonzero
     const bool allTransmissive    = (m_material->bsdf()->transmissive().min().max() > 0.0f) && (! hasRefractiveTransmission());
     const bool allPartialCoverage = 
-        (((m_material->alphaHint() == AlphaHint::BLEND) || (m_material->alphaHint() == AlphaHint::COVERAGE_MASK)) && (m_material->bsdf()->lambertian().max().a < 1.0f)) ||
-        ((m_material->alphaHint() == AlphaHint::BINARY) && (m_material->bsdf()->lambertian().max().a < 0.5f));
+        (((m_material->alphaHint() == AlphaFilter::BLEND) || (m_material->alphaHint() == AlphaFilter::COVERAGE_MASK)) && (m_material->bsdf()->lambertian().max().a < 1.0f)) ||
+        ((m_material->alphaHint() == AlphaFilter::BINARY) && (m_material->bsdf()->lambertian().max().a < 0.5f));
 
     return ! (allTransmissive || allPartialCoverage);
 }
@@ -263,7 +263,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         debugAssertM(surface, "Surface::renderDepthOnlyHomogeneous passed the wrong subclass");
         const shared_ptr<UniversalMaterial>& material = surface->material();
         const shared_ptr<Texture>& lambertian = material->bsdf()->lambertian().texture();
-        const bool thisSurfaceNeedsAlphaTest = (material->alphaHint() != AlphaHint::ONE) && notNull(lambertian) && ! lambertian->opaque();   
+        const bool thisSurfaceNeedsAlphaTest = (material->alphaHint() != AlphaFilter::ONE) && notNull(lambertian) && ! lambertian->opaque();   
         if (surface->hasTransmission() || thisSurfaceNeedsAlphaTest) {
             transparentSurfaces.append(surface);
         } else {
@@ -311,7 +311,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         const shared_ptr<UniversalSurface>& surface = dynamic_pointer_cast<UniversalSurface>(transparentSurfaces[g]);
         debugAssertM(surface, "Surface::renderDepthOnlyHomogeneous passed the wrong subclass");
         const shared_ptr<Texture>& lambertian = surface->material()->bsdf()->lambertian().texture();
-        const bool thisSurfaceNeedsAlphaTest = (surface->material()->alphaHint() != AlphaHint::ONE) && notNull(lambertian) && ! lambertian->opaque();
+        const bool thisSurfaceNeedsAlphaTest = (surface->material()->alphaHint() != AlphaFilter::ONE) && notNull(lambertian) && ! lambertian->opaque();
         const bool thisSurfaceHasTransmissive = surface->material()->hasTransmissive();
 
         const shared_ptr<UniversalSurface::GPUGeom>& geom = surface->gpuGeom();
@@ -336,7 +336,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
         args.setMacro("DISCARD_IF_NO_TRANSPARENCY", transparencyTestMode == TransparencyTestMode::STOCHASTIC_REJECT_NONTRANSPARENT);
 
         // N.B. Alpha testing is handled explicitly inside the shader.
-        if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((surface->material()->alphaHint() == AlphaHint::BLEND) || (surface->material()->alphaHint() == AlphaHint::BINARY)))) {
+        if (thisSurfaceHasTransmissive || (thisSurfaceNeedsAlphaTest && ((surface->material()->alphaHint() == AlphaFilter::BLEND) || (surface->material()->alphaHint() == AlphaFilter::BINARY)))) {
             args.setMacro("STOCHASTIC", transparencyTestMode != TransparencyTestMode::REJECT_TRANSPARENCY);
             // The depth with alpha shader handles the depth peel case internally
             LAUNCH_SHADER_PTR_WITH_HINT(depthNonOpaqueShader, args, surface->m_profilerHint);
@@ -585,7 +585,7 @@ shared_ptr<UniversalSurface> UniversalSurface::create
 bool UniversalSurface::requiresBlending() const {
     return hasNonRefractiveTransmission() ||
         (hasTransmission() && (m_material->refractionHint() == RefractionHint::DYNAMIC_FLAT_OIT)) ||
-        (m_material->alphaHint() == AlphaHint::BLEND);
+        (m_material->alphaHint() == AlphaFilter::BLEND);
 }
 
 

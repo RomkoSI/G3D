@@ -122,7 +122,7 @@ MTL illum constants:
 static UniversalMaterial::Specification toMaterialSpecification
 (const ArticulatedModel::Specification& modelSpec, 
  const shared_ptr<ParseMTL::Material>&  m,
- AlphaHint a,
+ AlphaFilter a,
  RefractionHint r) {
 
     UniversalMaterial::Specification s;

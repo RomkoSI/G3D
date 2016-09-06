@@ -395,7 +395,7 @@ public:
      const Array<shared_ptr<Surface> >& surfaceArray,
      const shared_ptr<Texture>&         depthPeelTexture,
      const float                        depthPeelEpsilon,
-     TransparencyTestMode                      transparencyTestMode,
+     TransparencyTestMode               transparencyTestMode,
      const Color3&                      transmissionWeight) const;
 
     /** 
@@ -432,19 +432,19 @@ public:
         This can conservatively always return true
         at a performance loss.
 
-        \sa requiresBlending, canBeFullyRepresentedInGBuffer, AlphaHint, hasTransmission */
+        \sa requiresBlending, canBeFullyRepresentedInGBuffer, AlphaFilter, hasTransmission */
     virtual bool anyUnblended() const = 0;
 
     /** \brief Does this surface require blending for some samples?
 
-        Surfaces with non-refractive transmission or AlphaHint::BLEND should return true.
+        Surfaces with non-refractive transmission or AlphaFilter::BLEND should return true.
         A surface must return true if any sample within it requires blending,
         even if large areas are opaque.
 
         Surfaces with <i>refractive</i> transmission but full coverage do not
         require blending because they write the refracted image themselves.
 
-        AlphaHint::BINARY and AlphaHint::COVERAGE_MASK
+        AlphaFilter::BINARY and AlphaFilter::COVERAGE_MASK
         surfaces that are not transmissive do <i>not</i> require blending.
 
         \sa anyUnblended, canBeFullyRepresentedInGBuffer, hasTransmission

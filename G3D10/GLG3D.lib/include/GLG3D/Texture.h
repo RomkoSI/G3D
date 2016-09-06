@@ -568,7 +568,7 @@ private:
      InterpolateMode                interpolation,
      WrapMode                       wrapping,
      const Encoding&                encoding,
-     AlphaHint                      alphaHint,
+     AlphaFilter                      alphaHint,
      int                            numSamples); 
     
 private:
@@ -592,8 +592,8 @@ private:
     Color4                          m_max;
     Color4                          m_mean;
 
-    /** What AlphaHint::DETECT should resolve to for this texture. Left as DETECT if not computed. */
-    AlphaHint                       m_detectedHint;
+    /** What AlphaFilter::DETECT should resolve to for this texture. Left as DETECT if not computed. */
+    AlphaFilter                       m_detectedHint;
 
     /** Multi-sampled texture parameters */
 	int						        m_numSamples;
@@ -610,7 +610,7 @@ private:
      Dimension                      dimension,
      const Encoding&                encoding,
      bool                           opaque,
-     AlphaHint                      alphaHint,
+     AlphaFilter                      alphaHint,
      int                            numSamples);
 
 public:
@@ -644,12 +644,12 @@ public:
     /** Used to display this Texture in a GuiTextureBox \beta */
     Visualization                   visualization;
 
-    /** The value that AlphaHint::DETECT should use for this texture when applied 
+    /** The value that AlphaFilter::DETECT should use for this texture when applied 
         to a G3D::UniversalMaterial.
-        If this returns AlphaHint::DETECT, then detection has not been executed, likely
+        If this returns AlphaFilter::DETECT, then detection has not been executed, likely
         because the texture was not in an 8-bit format. */
-    AlphaHint alphaHint() const {
-        return opaque() ? AlphaHint::ONE : m_detectedHint;
+    AlphaFilter alphaHint() const {
+        return opaque() ? AlphaFilter::ONE : m_detectedHint;
     }
 
     class Specification {
@@ -843,7 +843,7 @@ public:
     (const String&                   name,
      GLuint                          textureID,
      Encoding                        encoding,
-     AlphaHint                       alphaHint,
+     AlphaFilter                       alphaHint,
      Dimension                       dimension      = DIM_2D,
      bool                            destroyGLTextureInDestructor   = true,
 	 int                             numSamples      = 1);
