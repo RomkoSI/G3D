@@ -353,6 +353,9 @@ public:
         return m_spotSquare;
     }
 
+    /** Can this light possibly illuminate anything in the box based on the spotlight and attenuation? */
+    bool possiblyIlluminates(const class Sphere& sphere) const;
+
     /** The translation of a DIRECTIONAL light is infinite.  While
         this is often inconvenient, that inconvenience is intended to
         force separate handling of directional sources.

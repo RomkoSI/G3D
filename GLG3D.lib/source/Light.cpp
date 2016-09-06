@@ -237,15 +237,16 @@ float Light::spotLightFalloff(const Vector3& w_i)  const {
 
 Vector3 Light::randomEmissionDirection(Random& rng) const {
     if (m_type == Type::SPOT) {
-        if( rectangular() ) {
+        if (rectangular()) {
             Vector3 v;
             do {
                 v = Vector3::random(rng);
             } while (!inFieldOfView(-v.direction()));
             return v.direction();
+        } else {
+            Cone spotCone(Point3(), m_frame.lookVector(), spotHalfAngle());
+            return spotCone.randomDirectionInCone(rng);
         }
-        Cone spotCone(Point3(), m_frame.lookVector(), spotHalfAngle());
-        return spotCone.randomDirectionInCone(rng);
     } if (m_type == Type::DIRECTIONAL) {
         return m_frame.lookVector();
     } else {
@@ -457,6 +458,27 @@ shared_ptr<Light> Light::spot(const String& name, const Vector3& pos, const Vect
 
     return L;
 
+}
+
+
+bool Light::possiblyIlluminates(const class Sphere& objectSphere) const {
+    if (m_type == Type::DIRECTIONAL) {
+        return true;
+    }
+
+    // OMNI and SPOT cases
+    const Sphere& lightSphere = effectSphere();
+
+    if (! lightSphere.intersects(objectSphere)) {
+        // The light can't possibly reach the object
+        return false;
+    } else if (m_type == Type::OMNI) {
+        return true;
+    }
+
+    // SPOT case
+    const Cone spotCone(m_frame.translation, m_frame.lookVector(), spotHalfAngle());
+    return spotCone.intersects(objectSphere);
 }
 
 
