@@ -23,10 +23,9 @@ UniversalMaterial::Specification::Specification() :
   m_refractionHint(RefractionHint::DYNAMIC_FLAT), 
   m_mirrorHint(MirrorQuality::STATIC_PROBE),
   m_numLightMapDirections(0),
-  m_alphaHint(AlphaFilter::DETECT),
+  m_alphaFilter(AlphaFilter::DETECT),
   m_inferAmbientOcclusionAtTransparentPixels(true) {
 }
-
 
 
 UniversalMaterial::Specification::Specification(const Color4& color) {
@@ -123,8 +122,12 @@ UniversalMaterial::Specification::Specification(const Any& any) {
             m_customShaderPrefix = it->value.string();
         } else if (key == "custom") {
             m_customTex = Texture::create(it->value);
+        } else if (key == "alphafilter") {
+            m_alphaFilter = it->value;
         } else if (key == "alphahint") {
-            m_alphaHint = it->value;
+            debugPrintf("%s:%d(%d): alphaHint is deprecated. Use alphaFilter instead.\n",
+                it->value.source().filename.c_str(), it->value.source().line, it->value.source().character);
+            m_alphaFilter = it->value;
         } else if (key == "sampler") {
             m_sampler = it->value;
         } else if (key == "inferambientocclusionattransparentpixels") {
@@ -280,7 +283,7 @@ bool UniversalMaterial::Specification::operator==(const Specification& s) const 
 
         (m_inferAmbientOcclusionAtTransparentPixels == s.m_inferAmbientOcclusionAtTransparentPixels) && 
 
-        (m_alphaHint == s.m_alphaHint) &&
+        (m_alphaFilter == s.m_alphaFilter) &&
         
         (m_constantTable == s.m_constantTable);
 }
@@ -304,7 +307,7 @@ size_t UniversalMaterial::Specification::hashCode() const {
         
         HashTrait<String>::hashCode(m_customShaderPrefix) 
 
-        ^ m_alphaHint.hashCode()
+        ^ m_alphaFilter.hashCode()
 
         ^ HashTrait<shared_ptr<Texture> >::hashCode(m_lightMap[0])
         ^ HashTrait<shared_ptr<Texture> >::hashCode(m_lightMap[1])

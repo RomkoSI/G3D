@@ -140,14 +140,16 @@ public:
     /**
      "Transparency" in G3D = transmission + alpha coverage
 
-        - NONE:       alphaFilter(alpha) * (1 - transmission) is always 1
-        - BINARY:     alphaFilter(alpha) * (1 - transmission) is always 1 or 0
-        - FRACTIONAL: alphaFilter(alpha) * (1 - transmission) has some value < 1
+        - NONE:    alphaFilter(alpha) * (1 - transmission) is always 1
+        - BINARY:  alphaFilter(alpha) * (1 - transmission) is always 1 or 0
+        - SOME:    alphaFilter(alpha) * (1 - transmission) is less than one somewhere in this surface and 1 somewhere else.
+        - ALL:     alphaFilter(alpha) * (1 - transmission) is always less than 1 (there are no nontransparent texels in this surface)
     */
     G3D_DECLARE_ENUM_CLASS(TransparencyType, 
         NONE,  
         BINARY,
-        FRACTIONAL);
+        SOME,
+        ALL);
 
     /** Non-physical properties that a Surface might use to affect light transport. */
     class ExpressiveLightScatteringProperties {
@@ -313,8 +315,14 @@ public:
 
     /** What type of transparency (= alpha and transmission) does this surface have? */
     virtual TransparencyType transparencyType() const {
-        if (requiresBlending() || hasTransmission()) {
-            return TransparencyType::FRACTIONAL;
+        if (requiresBlending()) {
+            if (hasTransmission()) {
+                return TransparencyType::SOME;
+            } else if (anyUnblended()) {
+                return TransparencyType::SOME;
+            } else {
+                return TransparencyType::ALL;
+            }
         } else {
             return TransparencyType::NONE;
         }
@@ -454,6 +462,8 @@ public:
         This can conservatively always return true
         at a performance loss.
 
+        \deprecated Use transparencyType()
+
         \sa requiresBlending, canBeFullyRepresentedInGBuffer, AlphaFilter, hasTransmission */
     virtual bool anyUnblended() const = 0;
 
@@ -470,6 +480,8 @@ public:
         surfaces that are not transmissive do <i>not</i> require blending.
 
         \sa anyUnblended, canBeFullyRepresentedInGBuffer, hasTransmission
+
+        \deprecated Use transparencyType()
      */
     virtual bool requiresBlending() const = 0;
 

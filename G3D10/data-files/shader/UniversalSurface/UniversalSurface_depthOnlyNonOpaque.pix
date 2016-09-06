@@ -135,6 +135,11 @@ void main() {
                 // there should be extreme sensitivity to k, increasing both in contrast
                 // and in rate.
                 absorption *= darken;
+
+                // Don't let coverage ever hit 1.0 due to total internal refraction
+                // because that will trigger DISCARD_IF_NO_TRANSPARENCY to drop it 
+                // from SVSM generation.
+                absorption = min(absorption, 0.999);
             }
 
             materialSample.coverage = saturate(materialSample.coverage * absorption);

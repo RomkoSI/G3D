@@ -163,11 +163,27 @@ void ShadowMap::updateDepth
     for (int i = 0; i < shadowCaster.length(); ++i) {
         const shared_ptr<Surface>& c = shadowCaster[i];
 
-        const bool needsToRenderThisPass = 
-            (passType == RenderPassType::SHADOW_MAP) ||
+        bool needsToRenderThisPass = false;
+        
+        switch (passType) {
+        case RenderPassType::SHADOW_MAP:
+            // If there is a single shadow map, then everything always renders to it.
+            needsToRenderThisPass = true;
+            break;
 
-            // This test also implicitly includes TRANSPARENT_SHADOW_MAP && c->requiresBlending()
-            ((passType == RenderPassType::OPAQUE_SHADOW_MAP) != c->requiresBlending());
+        case RenderPassType::OPAQUE_SHADOW_MAP:
+            // There will be a transparent (SVSM) shadow map later. Only render 
+            // if there are some non-transparent pixels.
+            needsToRenderThisPass = (c->transparencyType() != Surface::TransparencyType::ALL);
+            break;
+
+        case RenderPassType::TRANSPARENT_SHADOW_MAP:
+            needsToRenderThisPass = (c->transparencyType() == Surface::TransparencyType::SOME) || (c->transparencyType() == Surface::TransparencyType::ALL);
+            break;
+
+        default: debugAssertM(false, "Illegal RenderPassType for ShadowMap::updateDepth");
+        }
+
 
         if (needsToRenderThisPass) {
             if (c->canChange()) {

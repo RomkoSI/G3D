@@ -69,15 +69,15 @@ shared_ptr<UniversalMaterial> UniversalMaterial::create
     if (alphaFilter == AlphaFilter::DETECT) {
         if (bsdf->lambertian().texture()->alphaFilter() == AlphaFilter::DETECT) {
             if (bsdf->lambertian().max().a < 1.0f) {
-                m->m_alphaHint = AlphaFilter::BLEND;
+                m->m_alphaFilter = AlphaFilter::BLEND;
             } else {
-                m->m_alphaHint = AlphaFilter::ONE;
+                m->m_alphaFilter = AlphaFilter::ONE;
             }
         } else {
-            m->m_alphaHint = bsdf->lambertian().texture()->alphaFilter();
+            m->m_alphaFilter = bsdf->lambertian().texture()->alphaFilter();
         }
     } else {
-        m->m_alphaHint = alphaFilter;
+        m->m_alphaFilter = alphaFilter;
     }
 
     debugAssert(m->m_bsdf->lambertian().texture());
@@ -187,7 +187,7 @@ shared_ptr<UniversalMaterial> UniversalMaterial::create(const String& name, cons
         value->m_customShaderPrefix     = specification.m_customShaderPrefix;
         value->m_refractionHint         = specification.m_refractionHint;
         value->m_mirrorHint             = specification.m_mirrorHint;
-        value->m_alphaHint              = specification.m_alphaHint;
+        value->m_alphaFilter              = specification.m_alphaFilter;
         value->m_sampler                = specification.m_sampler;
 
         if (notNull(specification.m_customTex)) {
@@ -217,15 +217,15 @@ shared_ptr<UniversalMaterial> UniversalMaterial::create(const String& name, cons
         if (specification.alphaFilter() == AlphaFilter::DETECT) {
             if (value->bsdf()->lambertian().texture()->alphaFilter() == AlphaFilter::DETECT) {
                 if (value->bsdf()->lambertian().max().a < 1.0f) {
-                    value->m_alphaHint = AlphaFilter::BLEND;
+                    value->m_alphaFilter = AlphaFilter::BLEND;
                 } else {
-                    value->m_alphaHint = AlphaFilter::ONE;
+                    value->m_alphaFilter = AlphaFilter::ONE;
                 }
             } else {
-                value->m_alphaHint = value->bsdf()->lambertian().texture()->alphaFilter();
+                value->m_alphaFilter = value->bsdf()->lambertian().texture()->alphaFilter();
             }
         } else {
-            value->m_alphaHint = specification.alphaFilter();
+            value->m_alphaFilter = specification.alphaFilter();
         }
 
         if (specification.inferAmbientOcclusionAtTransparentPixels().type() == Any::BOOLEAN) {
@@ -292,7 +292,7 @@ void UniversalMaterial::setShaderArgs(UniformTable& args, const String& prefix) 
         m_bsdf->lambertian().texture()->hasMipMaps() ? m_sampler : noMipSampler);
 
     if (! structStyle) {
-        args.setMacro(prefix + "HAS_ALPHA", (m_alphaHint != AlphaFilter::ONE) && ! m_bsdf->lambertian().texture()->opaque());
+        args.setMacro(prefix + "HAS_ALPHA", (m_alphaFilter != AlphaFilter::ONE) && ! m_bsdf->lambertian().texture()->opaque());
     }
 
     m_bsdf->glossy().texture()->setShaderArgs(args, prefix + (structStyle ? "glossy." : "GLOSSY_"), 
@@ -367,9 +367,9 @@ void UniversalMaterial::setShaderArgs(UniformTable& args, const String& prefix) 
     }
     
     if (structStyle) {
-        args.setUniform(prefix + "alphaFilter", m_alphaHint.value);
+        args.setUniform(prefix + "alphaFilter", m_alphaFilter.value);
     } else {
-        args.setMacro(prefix + "alphaFilter", m_alphaHint.value);
+        args.setMacro(prefix + "alphaFilter", m_alphaFilter.value);
     }
 
     debugAssert(isNull(m_bump) || m_bump->settings().iterations >= 0);

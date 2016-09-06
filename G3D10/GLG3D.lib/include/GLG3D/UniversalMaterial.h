@@ -104,7 +104,7 @@ public:
 
         Table<String, double>   m_constantTable;
 
-        AlphaFilter               m_alphaHint;
+        AlphaFilter               m_alphaFilter;
 
         Sampler                 m_sampler;
 
@@ -247,11 +247,11 @@ Any component can be a Texture::Specification, Color3/Color4, or table of <code>
         }
 
         void setAlphaHint(const AlphaFilter& a) {
-            m_alphaHint = a;
+            m_alphaFilter = a;
         }
 
         AlphaFilter alphaFilter() const {
-            return m_alphaHint;
+            return m_alphaFilter;
         }
 
         Any inferAmbientOcclusionAtTransparentPixels() const {
@@ -414,7 +414,7 @@ protected:
 
     String                      m_macros;
 
-    AlphaFilter                   m_alphaHint;
+    AlphaFilter                   m_alphaFilter;
 
     Sampler                     m_sampler;
 
@@ -481,7 +481,7 @@ public:
     bool validateTextureDimensions() const;
 
     AlphaFilter alphaFilter() const {
-        return m_alphaHint;
+        return m_alphaFilter;
     }
 
     /**
