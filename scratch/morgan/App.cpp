@@ -58,6 +58,7 @@ void App::onInit() {
     // the default scene here.
     
     showRenderingStats      = true;
+    debugPrint("frame rate = %f\n", this->realTimeTargetDuration());
 
     makeGUI();
     // For higher-quality screenshots:
