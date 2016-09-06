@@ -137,6 +137,8 @@
        <li> G3D::GuiButton callback now fires on delivery of the G3D::GEventType::GUI_ACTION event insead of during the mouse down handler </li>
        <li> G3D::UniversalSurface now binds the current depth buffer during forward render passes</li>
        <li> Moved renderShadowMaps from G3D::Surface to G3D::Light </li>
+	   <li> G3D::Light::possiblyIlluminates </li>
+	   <li> Improved light culling for forward rendering </li>
       </ul>
     </p>
 
