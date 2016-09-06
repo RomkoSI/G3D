@@ -56,8 +56,8 @@
     limited number of samplers (when not using bindless
     texture), and that would cause scenes with many lights
     to exhaust the available samplers unnecessarily. */
-sampler2D       dummyLightSampler2D;
-sampler2DShadow dummyLightSampler2DShadow;
+uniform sampler2DShadow dummyLightSampler2DShadow;
+//sampler2D       dummyLightSampler2D;
 
 
 /**
@@ -80,7 +80,7 @@ sampler2DShadow dummyLightSampler2DShadow;
 
   \param glossyN A separate normal to use with glossy [surface, vs. subsurface] reflection terms (simulates a clear coat with a different orientation)
  */
-void computeDirectLighting(Vector3 n, Vector3 glossyN, Vector3 w_o, Vector3 n_face, float backside, Point3 wsPosition, float glossyExponent, inout Color3 E_lambertian, inout Color3 E_glossy) {
+void computeDirectLighting(Vector3 n, Vector3 glossyN, Vector3 w_o, Vector3 n_face, float backside, Point3 wsPosition, float glossyExponent, inout Color3 E_lambertian, inout Color3 E_glossy, sampler2D dummyLightSampler2D) {
     vec3 w_i;
 #   for (int I = 0; I < NUM_LIGHTS; ++I)
     {    

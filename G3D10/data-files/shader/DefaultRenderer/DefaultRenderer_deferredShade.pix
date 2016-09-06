@@ -16,8 +16,7 @@ uniform_GBuffer(gbuffer_);
     uniform_Texture(sampler2D, ambientOcclusion_);
     uniform ivec2       ambientOcclusion_offset;
 #endif
-
-
+    
 out Color3 result;
 
 void main() {
@@ -76,7 +75,8 @@ void main() {
 
     Color3 E_glossy            = Color3(0);
     Color3 E_lambertian        = Color3(0);
-    computeDirectLighting(wsN, wsN, w_o, wsN, 1.0, wsPosition, glossyExponent, E_lambertian, E_glossy);
+    // The last argument just has to be any shader to make the code compile
+    computeDirectLighting(wsN, wsN, w_o, wsN, 1.0, wsPosition, glossyExponent, E_lambertian, E_glossy, gbuffer_LAMBERTIAN_buffer);
    
 
     float AO =
