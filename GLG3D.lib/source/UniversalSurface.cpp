@@ -32,16 +32,30 @@ void UniversalSurface::setStorage(ImageStorage newStorage) {
 
 
 Surface::TransparencyType UniversalSurface::transparencyType() const {
-    if (hasTransmission()) {
-        return TransparencyType::FRACTIONAL;
+    if ((m_material->bsdf()->lambertian().max().a < 1.0f) && (m_material->alphaFilter() == AlphaFilter::BLEND)) {
+        // Because the max alpha is less than one, this surface has no fully nontransparent texels
+        return TransparencyType::ALL;
+    } else if (hasTransmission()) {
+        if (((m_material->alphaFilter() == AlphaFilter::ONE) || (m_material->bsdf()->lambertian().min().a == 1.0f)) &&                    
+            (m_material->bsdf()->transmissive().min() == Color3::zero())) {
+            // There may be some nontransparent pixel in here, because there is at least
+            // one black pixel in the transmissive texture
+            return TransparencyType::SOME;
+        } else {
+            return TransparencyType::ALL;
+        }
     } else if ((m_material->alphaFilter() == AlphaFilter::ONE) || ! m_material->bsdf()->lambertian().nonUnitAlpha()) {
         return TransparencyType::NONE;
     } else if (m_material->alphaFilter() == AlphaFilter::BINARY) {
         return TransparencyType::BINARY;
     } else {
-        debugAssertM(m_material->alphaFilter() != AlphaFilter::COVERAGE_MASK, "Unsupported");
         // Fractional alpha
-        return TransparencyType::FRACTIONAL;
+        debugAssertM(m_material->alphaFilter() != AlphaFilter::COVERAGE_MASK, "Unsupported");
+        if (m_material->bsdf()->lambertian().max().a < 1.0f) {
+            return TransparencyType::ALL;
+        } else {
+            return TransparencyType::SOME;
+        }
     }
 }
 
@@ -245,7 +259,7 @@ void UniversalSurface::renderDepthOnlyHomogeneous
  const Array<shared_ptr<Surface> >& surfaceArray,
  const shared_ptr<Texture>&         previousDepthBuffer,
  const float                        minZSeparation,
- TransparencyTestMode                      transparencyTestMode,
+ TransparencyTestMode               transparencyTestMode,
  const Color3&                      transmissionWeight) const {
     debugAssertGLOk();
 
