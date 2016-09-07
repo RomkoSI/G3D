@@ -16,19 +16,22 @@ int main(int argc, const char* argv[]) {
     // Change the window and other startup parameters by modifying the
     // settings class.  For example:
     settings.window.caption             = argv[0];
+
+    // Set enable to catch more OpenGL errors
     // settings.window.debugContext     = true;
 
+    // Some common resolutions:
     // settings.window.width            =  854; settings.window.height       = 480;
     // settings.window.width            = 1024; settings.window.height       = 768;
-     settings.window.width            = 1280; settings.window.height       = 720;
-    //settings.window.width               = 1920; settings.window.height       = 1080;
+    settings.window.width               = 1280; settings.window.height       = 720;
+    //settings.window.width             = 1920; settings.window.height       = 1080;
     // settings.window.width            = OSWindow::primaryDisplayWindowSize().x; settings.window.height = OSWindow::primaryDisplayWindowSize().y;
     settings.window.fullScreen          = false;
     settings.window.resizable           = ! settings.window.fullScreen;
     settings.window.framed              = ! settings.window.fullScreen;
 
-    // Set to true for a significant performance boost if your app can't render at 60fps,
-    // or if you *want* to render faster than the display.
+    // Set to true for a significant performance boost if your app can't render at 60fps, or if
+    // you *want* to render faster than the display.
     settings.window.asynchronous        = false;
 
     settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(64, 64);
@@ -37,7 +40,7 @@ int main(int argc, const char* argv[]) {
     settings.screenshotDirectory        = "../journal/";
 
     settings.renderer.deferredShading = true;
-    settings.renderer.orderIndependentTransparency = true;
+    settings.renderer.orderIndependentTransparency = false;
 
     return App(settings).run();
 }
@@ -57,7 +60,7 @@ void App::onInit() {
     // Call setScene(shared_ptr<Scene>()) or setScene(MyScene::create()) to replace
     // the default scene here.
     
-    showRenderingStats      = true;
+    showRenderingStats      = false;
 
     makeGUI();
     // For higher-quality screenshots:
@@ -74,8 +77,9 @@ void App::onInit() {
 
 
 void App::makeGUI() {
-    // Initialize the developer HUD (using the existing scene)
+    // Initialize the developer HUD
     createDeveloperHUD();
+
     debugWindow->setVisible(true);
     developerWindow->videoRecordDialog->setEnabled(true);
 
@@ -92,7 +96,7 @@ void App::makeGUI() {
     // debugPane->addTextBox("Name", &myName);
     // debugPane->addNumberBox("height", &height, "m", GuiTheme::LINEAR_SLIDER, 1.0f, 2.5f);
     // button = debugPane->addButton("Run Simulator");
-    // debugPane->addButton("Generate Heightfield", this, &App::generateHeightfield);
+    // debugPane->addButton("Generate Heightfield", [this](){ generateHeightfield(); });
     // debugPane->addButton("Generate Heightfield", [this](){ makeHeightfield(imageName, scale, "model/heightfield.off"); });
 
     debugWindow->pack();
@@ -100,6 +104,9 @@ void App::makeGUI() {
 }
 
 
+// This default implementation is a direct copy of GApp::onGraphics3D to make it easy
+// for you to modify. If you aren't changing the hardware rendering strategy, you can
+// delete this override entirely.
 void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfaces) {
     if (!scene()) {
         if ((submitToDisplayMode() == SubmitToDisplayMode::MAXIMIZE_THROUGHPUT) && (!rd->swapBuffersAutomatically())) {
