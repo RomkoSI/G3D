@@ -13,9 +13,12 @@
 
 in vec4 g3d_Vertex;
 
+out vec3 csPosition;
+
 void main() {
 #   if HAS_TEXTURE
         texCoord = g3d_TexCoord0.xy;
 #   endif
+    csPosition = g3d_ObjectToCameraMatrix * g3d_Vertex;
     gl_Position = g3d_Vertex * g3d_ObjectToScreenMatrixTranspose;
 }
