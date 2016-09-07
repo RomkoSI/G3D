@@ -84,7 +84,7 @@ void App::makeGUI() {
     // Example of how to add debugging controls
     infoPane->addLabel("You can add GUI controls");
     infoPane->addLabel("in App::onInit().");
-    infoPane->addButton("Exit", this, &App::endProgram);
+    infoPane->addButton("Exit", [this]() { m_endProgram = true; });
     infoPane->pack();
 
     // More examples of debugging GUI controls:
@@ -216,9 +216,4 @@ void App::onGraphics2D(RenderDevice* rd, Array<shared_ptr<Surface2D> >& posed2D)
 void App::onCleanup() {
     // Called after the application loop ends.  Place a majority of cleanup code
     // here instead of in the constructor so that exceptions can be caught.
-}
-
-
-void App::endProgram() {
-    m_endProgram = true;
 }

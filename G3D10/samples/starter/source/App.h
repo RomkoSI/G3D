@@ -4,8 +4,7 @@
   The G3D 10.00 default starter app is configured for OpenGL 4.1 and
   relatively recent GPUs.
  */
-#ifndef App_h
-#define App_h
+#pragma once
 #include <G3D/G3DAll.h>
 
 /** \brief Application framework. */
@@ -34,9 +33,4 @@ public:
     virtual bool onEvent(const GEvent& e) override;
     virtual void onUserInput(UserInput* ui) override;
     virtual void onCleanup() override;
-    
-    /** Sets m_endProgram to true. */
-    virtual void endProgram();
 };
-
-#endif
