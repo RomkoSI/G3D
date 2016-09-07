@@ -5,6 +5,7 @@
   Apply a color and texture.
   */
 #include <compatibility.glsl>
+#include <g3dmath.glsl>
 #expect HAS_TEXTURE "1 or 0"
 
 uniform vec4      color;
@@ -13,12 +14,21 @@ uniform vec4      color;
     uniform sampler2D textureMap;
 #endif
 
-out vec4 result;
+in vec3 csPosition;
+
+#ifdef DECLARE_writePixel
+    DECLARE_writePixel
+#else
+    out float4 _result; void writePixel(Radiance3 premultipliedReflectionAndEmission, float coverage, Color3 transmissionCoefficient, float collimation, float etaRatio, Point3 csPosition, Vector3 csNormal) { _result = vec4(premultipliedReflectionAndEmission, coverage); }
+#endif
 
 void main(void) {
-    result =
+    vec4 r = 
 #       if HAS_TEXTURE
             texture(textureMap, texCoord) * 
 #       endif
         color;
+
+    writePixel(r.rgb * r.a, r.a, vec3(0), 0, 1, csPosition, vec3(0,0,1));
+
 }
