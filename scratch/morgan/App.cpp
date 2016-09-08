@@ -1,5 +1,6 @@
 /** \file App.cpp */
 #include "App.h"
+#include <regex>
 
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
 G3D_START_AT_MAIN();
@@ -39,6 +40,10 @@ int main(int argc, const char* argv[]) {
     settings.renderer.deferredShading = true;
     settings.renderer.orderIndependentTransparency = true;
 
+/*    String originalDeclaration = "A B C D http://foo E F G\n H I J\n";
+    const std::string declarationWithoutSingleLineComments(std::regex_replace(originalDeclaration.c_str(), std::regex("//.*\\n"), "\\n"));
+    debugPrintf("%s\n", declarationWithoutSingleLineComments.c_str());
+    return 0;*/
     return App(settings).run();
 }
 

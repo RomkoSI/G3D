@@ -25,8 +25,6 @@ namespace G3D {
 
 #define HIGH_PRECISION_OIT_FORMAT ImageFormat::RGBA16F()
 #define HIGH_PRECISION_OIT_FORMAT_RG ImageFormat::RG16F()
-//#define HIGH_PRECISION_OIT_FORMAT ImageFormat::RGBA32F()
-//#define HIGH_PRECISION_OIT_FORMAT_RG ImageFormat::RG32F()
 
 DefaultRenderer::DefaultRenderer() :
     m_deferredShading(false),
@@ -42,8 +40,8 @@ DefaultRenderer::DefaultRenderer() :
 void DefaultRenderer::reloadWriteDeclaration() {
     // Includes single-line comments and newlines
     const String& originalDeclaration = readWholeFile(System::findDataFile("shader/DefaultRenderer/DefaultRenderer_OIT_writePixel.glsl"));    
-    const std::string declarationWithoutSingleLineComments(std::regex_replace(originalDeclaration.c_str(), std::regex("//.*\\n"), "\\n"));
-    const String declarationWithoutNewlines(std::regex_replace(originalDeclaration.c_str(), std::regex("[\\n\\r]"), ""));
+    const std::string declarationWithoutSingleLineComments(std::regex_replace(originalDeclaration.c_str(), std::regex("//.*\n"), "\n"));
+    const String declarationWithoutNewlines(std::regex_replace(declarationWithoutSingleLineComments.c_str(), std::regex("[\r\n]"), ""));
     m_oitWriteDeclaration = declarationWithoutNewlines;
 }
 
@@ -119,6 +117,7 @@ void DefaultRenderer::clearAndRenderToOITFramebuffer
     // passed to ParticleSurface for soft particle depth testing
     oitFramebuffer->texture(Framebuffer::DEPTH)->setShaderArgs(oitFramebuffer->uniformTable, "_depthTexture.", Sampler::buffer());
     oitFramebuffer->uniformTable.setUniform("_clipInfo", gbuffer->camera()->projection().reconstructFromDepthClipInfo());
+    oitFramebuffer->uniformTable.setMacro("DECLARE_writePixel", m_oitWriteDeclaration);
 
     rd->pushState(oitFramebuffer); {
         // Set blending modes
@@ -269,7 +268,6 @@ void DefaultRenderer::renderOpaqueSamples
     const shared_ptr<GBuffer>&          gbuffer, 
     const LightingEnvironment&          environment) {
 
-    //screenPrintf("renderOpaqueSamples: %d", surfaceArray.length());
     BEGIN_PROFILER_EVENT("DefaultRenderer::renderOpaqueSamples");
     forwardShade(rd, surfaceArray, gbuffer, environment, RenderPassType::OPAQUE_SAMPLES, Surface::defaultWritePixelDeclaration(), ARBITRARY);
     END_PROFILER_EVENT();
@@ -283,7 +281,6 @@ void DefaultRenderer::renderOpaqueScreenSpaceRefractingSamples
     const LightingEnvironment&          environment) {
 
     BEGIN_PROFILER_EVENT("DefaultRenderer::renderOpaqueScreenSpaceRefractingSamples");
-    //screenPrintf("renderOpaqueScreenSpaceRefractingSamples: %d", surfaceArray.length());
     forwardShade(rd, surfaceArray, gbuffer, environment, RenderPassType::UNBLENDED_SCREEN_SPACE_REFRACTION_SAMPLES, Surface::defaultWritePixelDeclaration(), ARBITRARY);
     END_PROFILER_EVENT();
 }
@@ -295,11 +292,7 @@ void DefaultRenderer::renderSortedBlendedSamples
     const shared_ptr<GBuffer>&          gbuffer, 
     const LightingEnvironment&          environment) {
 
-    // TODO: REMOVE THIS DEBUGGING CODE!
-    // surfaceArray.reverse();
-
     BEGIN_PROFILER_EVENT("DefaultRenderer::renderSortedBlendedSamples");
-    //screenPrintf("renderBlendedSamples: %d", surfaceArray.length());
     forwardShade(rd, surfaceArray, gbuffer, environment, RenderPassType::MULTIPASS_BLENDED_SAMPLES, Surface::defaultWritePixelDeclaration(), BACK_TO_FRONT);
     END_PROFILER_EVENT();
 }
@@ -431,84 +424,5 @@ void DefaultRenderer::renderOrderIndependentBlendedSamples
     END_PROFILER_EVENT();
 }
 
-#if 0 // TODO: remove
-void DefaultRenderer::renderOrderIndependentBlendedSamples       
-   (RenderDevice*                       rd, 
-    Array<shared_ptr<Surface> >&        surfaceArray, 
-    const shared_ptr<GBuffer>&          gbuffer, 
-    const LightingEnvironment&          environment) {
-    BEGIN_PROFILER_EVENT("DefaultRenderer::renderOrderIndependentBlendedSamples");
-    if (surfaceArray.size() > 0) {
-
-        //screenPrintf("renderOrderIndependentBlendedSamples: %d", surfaceArray.length());
-
-        // Do we need to allocate the OIT buffers?
-        if (isNull(m_oitFramebuffer)) {
-            m_oitFramebuffer = Framebuffer::create("G3D::DefaultRenderer::m_oitFramebuffer");
-            m_oitFramebuffer->set(Framebuffer::COLOR0, Texture::createEmpty("G3D::DefaultRenderer accum", rd->width(), rd->height(), ImageFormat::RGBA16F()));
-		    m_oitFramebuffer->setClearValue(Framebuffer::COLOR0, Color4::zero());
-
-            const shared_ptr<Texture>& texture = Texture::createEmpty("G3D::DefaultRenderer revealage", rd->width(), rd->height(), ImageFormat::R8());
-            texture->visualization.channels = Texture::Visualization::RasL;
-            m_oitFramebuffer->set(Framebuffer::COLOR1, texture);
-		    m_oitFramebuffer->setClearValue(Framebuffer::COLOR1, Color4::one());
-
-            // Buffer 2 reserved for the background colored modulation term
-        }
-
-        // Do we need to resize the OIT buffers?
-        if ((m_oitFramebuffer->width() != rd->width()) ||
-            (m_oitFramebuffer->height() != rd->height())) {
-            m_oitFramebuffer->texture(Framebuffer::COLOR0)->resize(rd->width(), rd->height());
-            m_oitFramebuffer->texture(Framebuffer::COLOR1)->resize(rd->width(), rd->height());
-        }
-
-        m_oitFramebuffer->set(Framebuffer::DEPTH, rd->drawFramebuffer()->texture(Framebuffer::DEPTH));
-
-        ////////////////////////////////////////////////////////////////////////////////////
-        //
-        // 3D accumulation pass over transparent surfaces
-        //
-        
-        const shared_ptr<Framebuffer>& oldBuffer = rd->drawFramebuffer();
-
-        rd->setFramebuffer(m_oitFramebuffer);
-		rd->clearFramebuffer(true, false);
-
-        // After the clear, bind the color buffer from the main screen
-        m_oitFramebuffer->set(Framebuffer::COLOR2, oldBuffer->texture(Framebuffer::COLOR0));
-        rd->pushState(m_oitFramebuffer); {
-
-            // Set blending modes
-            rd->setBlendFunc(RenderDevice::BLEND_ONE,  RenderDevice::BLEND_ONE,                 RenderDevice::BLENDEQ_ADD, RenderDevice::BLENDEQ_SAME_AS_RGB, Framebuffer::COLOR0);
-            rd->setBlendFunc(RenderDevice::BLEND_ZERO, RenderDevice::BLEND_ONE_MINUS_SRC_COLOR, RenderDevice::BLENDEQ_ADD, RenderDevice::BLENDEQ_SAME_AS_RGB, Framebuffer::COLOR1);
-            rd->setBlendFunc(RenderDevice::BLEND_ZERO, RenderDevice::BLEND_ONE_MINUS_SRC_COLOR, RenderDevice::BLENDEQ_ADD, RenderDevice::BLENDEQ_SAME_AS_RGB, Framebuffer::COLOR2);
-
-            forwardShade(rd, surfaceArray, gbuffer, environment, RenderPassType::SINGLE_PASS_UNORDERED_BLENDED_SAMPLES, m_oitWriteDeclaration, ARBITRARY);
-        } rd->popState();
-
-        // Remove the color buffer binding
-        m_oitFramebuffer->set(Framebuffer::COLOR2, shared_ptr<Texture>());
-        rd->setFramebuffer(oldBuffer);
-
-        ////////////////////////////////////////////////////////////////////////////////////
-        //
-        // 2D compositing pass
-        //
-
-        rd->push2D(); {
-            rd->setDepthTest(RenderDevice::DEPTH_ALWAYS_PASS);
-            rd->setBlendFunc(RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA, RenderDevice::BLEND_ONE);
-            Args args;
-            args.setUniform("accumTexture",     m_oitFramebuffer->texture(0), Sampler::buffer());
-            args.setUniform("revealageTexture", m_oitFramebuffer->texture(1), Sampler::buffer());
-            args.setRect(rd->viewport());
-            LAUNCH_SHADER("DefaultRenderer_compositeWeightedBlendedOIT.pix", args);
-        } rd->pop2D();
-    }
-
-    END_PROFILER_EVENT();
-}
-#endif
 
 } //namespace

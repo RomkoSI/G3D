@@ -11,10 +11,13 @@
 in vec3 csNormal;
 in vec3 csPosition;
 
+// For DECLARE_writePixel's computeRefractionOffset helper
+const vec2        backSizeMeters = vec2(1);
+
 #ifdef DECLARE_writePixel
     DECLARE_writePixel
 #else
-    out float4 _result; void writePixel(Radiance3 premultipliedReflectionAndEmission, float coverage, Color3 transmissionCoefficient, float collimation, float etaRatio, Point3 csPosition, Vector3 csNormal) { _result = vec4(premultipliedReflectionAndEmission, coverage); }
+    out vec4 _result; void writePixel(vec3 premultipliedReflectionAndEmission, float coverage, vec3 transmissionCoefficient, float collimation, float etaRatio, vec3 csPosition, vec3 csNormal) { _result = vec4(premultipliedReflectionAndEmission, coverage); }
 #endif
 
 in vec4         color;
