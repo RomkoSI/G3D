@@ -19,6 +19,7 @@
 #include "GLG3D/AmbientOcclusion.h"
 #include "GLG3D/SkyboxSurface.h"
 #include "GLG3D/GApp.h"
+#include <regex>
 
 namespace G3D {
 
@@ -39,9 +40,11 @@ DefaultRenderer::DefaultRenderer() :
 
 
 void DefaultRenderer::reloadWriteDeclaration() {
-    const String& originalDeclaration = readWholeFile(System::findDataFile("shader/DefaultRenderer/DefaultRenderer_OIT_writePixel.glsl"));
-    const String& declarationWithCarriageReturns = stringJoin(stringSplit(originalDeclaration, '\n'), "");
-    m_oitWriteDeclaration = stringJoin(stringSplit(declarationWithCarriageReturns, '\r'), "");
+    // Includes single-line comments and newlines
+    const String& originalDeclaration = readWholeFile(System::findDataFile("shader/DefaultRenderer/DefaultRenderer_OIT_writePixel.glsl"));    
+    const std::string declarationWithoutSingleLineComments(std::regex_replace(originalDeclaration.c_str(), std::regex("//.*\\n"), "\\n"));
+    const String declarationWithoutNewlines(std::regex_replace(originalDeclaration.c_str(), std::regex("[\\n\\r]"), ""));
+    m_oitWriteDeclaration = declarationWithoutNewlines;
 }
 
 
