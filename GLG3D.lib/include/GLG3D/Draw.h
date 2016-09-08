@@ -106,8 +106,7 @@ public:
     static void light
        (const shared_ptr<Light>&                light, 
         RenderDevice*                           rd,  
-        RenderPassType                          passType, 
-        const String&                           singlePassBlendedOutputMacro,
+        RenderPassType                          passType,
         float                                   dirDist = 1000.0f);
 
     /** Visualize a the geometry of the effect of a single light. Currently does nothing for directional
@@ -115,8 +114,7 @@ public:
     static void visualizeLightGeometry
        (const shared_ptr<Light>&                light, 
         RenderDevice*                           rd,
-        RenderPassType                          passType, 
-        const String&                           singlePassBlendedOutputMacro);
+        RenderPassType                          passType);
 
     /** Draws a symbolic representation of the camera */
     static void camera(shared_ptr<Camera> camera, RenderDevice* rd);

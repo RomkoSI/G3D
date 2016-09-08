@@ -124,14 +124,14 @@ void Renderer::forwardShade
     case FRONT_TO_BACK:
         // Render in the reverse order
         for (int i = surfaceArray.size() - 1; i >= 0; --i) {
-            surfaceArray[i]->render(rd, environment, renderPassType, singlePassBlendedOutputMacro);
+            surfaceArray[i]->render(rd, environment, renderPassType);
         }
         break;
 
     case BACK_TO_FRONT:
         // Render in the provided order
         for (int i = 0; i < surfaceArray.size(); ++i) {
-            surfaceArray[i]->render(rd, environment, renderPassType, singlePassBlendedOutputMacro);
+            surfaceArray[i]->render(rd, environment, renderPassType);
         }
         break;
 
@@ -146,7 +146,7 @@ void Renderer::forwardShade
                 Array<shared_ptr<Surface> >& derivedArray = derivedTable[t];
                 debugAssertM(derivedArray.size() > 0, "categorizeByDerivedType produced an empty subarray");
 
-                derivedArray[0]->renderHomogeneous(rd, derivedArray, environment, renderPassType, singlePassBlendedOutputMacro);
+                derivedArray[0]->renderHomogeneous(rd, derivedArray, environment, renderPassType);
             } // for each derived type
             break;
         } // ARBITRARY

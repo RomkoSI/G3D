@@ -352,8 +352,7 @@ public:
     virtual void render
     (RenderDevice*                      rd,
      const LightingEnvironment&         environment,
-     RenderPassType                     passType, 
-     const String&                      singlePassBlendedOutputMacro) const override;
+     RenderPassType                     passType) const override;
 
     virtual const CPUGeom& cpuGeom() const {
         return m_cpuGeom;

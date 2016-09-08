@@ -112,12 +112,11 @@ void ParticleSurface::setShaderArgs(Args & args, const Array<shared_ptr<Surface>
 void ParticleSurface::render
    (RenderDevice*                       rd,
     const LightingEnvironment& 	        environment,
-    RenderPassType 	                    passType,
-    const String& 	                    singlePassBlendedWritePixelDeclaration) const {
+    RenderPassType 	                    passType) const {
     static Array<shared_ptr<Surface>> surfaceArray;
     surfaceArray.fastClear();
     surfaceArray.append(dynamic_pointer_cast<Surface>(const_cast<ParticleSurface*>(this)->shared_from_this()));
-    renderHomogeneous(rd, surfaceArray, environment, passType, singlePassBlendedWritePixelDeclaration);
+    renderHomogeneous(rd, surfaceArray, environment, passType);
 }
 
 
@@ -126,7 +125,7 @@ void ParticleSurface::renderDepthOnlyHomogeneous
     const Array<shared_ptr<Surface>>&   surfaceArray,
     const shared_ptr<Texture>& 	        depthPeelTexture,
     const float 	                    depthPeelEpsilon,
-    TransparencyTestMode                       transparencyTestMode,
+    TransparencyTestMode                transparencyTestMode,
     const Color3&                       transmissionWeight) const {
 
     if (transparencyTestMode == TransparencyTestMode::REJECT_TRANSPARENCY || (surfaceArray.size() == 0)) { return; }
@@ -149,8 +148,7 @@ void ParticleSurface::renderHomogeneous
    (RenderDevice*                       rd, 
     const Array<shared_ptr<Surface>>&   surfaceArray,
     const LightingEnvironment&          lightingEnvironment, 
-    RenderPassType                      passType,
-    const String&                       singlePassBlendedWritePixelDeclaration) const {
+    RenderPassType                      passType) const {
 
     if (surfaceArray.size() == 0) {
         return;
@@ -166,9 +164,7 @@ void ParticleSurface::renderHomogeneous
         rd->setDepthWrite(false);
         rd->setDepthTest(RenderDevice::DEPTH_LESS);
 
-
         Args args;
-        args.setMacro("DECLARE_writePixel", singlePassBlendedWritePixelDeclaration);
         lightingEnvironment.setShaderArgs(args);
 
         args.setUniform("depthBuffer", rd->framebuffer()->texture(Framebuffer::DEPTH), Sampler::video());

@@ -21,8 +21,7 @@ namespace G3D {
 void ControlPointEditor::ControlPointSurface::render
     (RenderDevice*                        rd, 
      const LightingEnvironment&           environment,
-     RenderPassType                       passType, 
-     const String&                        singlePassBlendedOutputMacro) const {
+     RenderPassType                       passType) const {
     m_manipulator->m_mapper.update(rd);
     m_manipulator->renderControlPoints(rd, environment);
 }

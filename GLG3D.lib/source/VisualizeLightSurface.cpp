@@ -51,13 +51,12 @@ void VisualizeLightSurface::getObjectSpaceBoundingSphere(Sphere& sphere, bool pr
 void VisualizeLightSurface::render
    (RenderDevice*                           rd, 
     const LightingEnvironment&              environment,
-    RenderPassType                          passType, 
-    const String&                           singlePassBlendedOutputMacro) const {
+    RenderPassType                          passType) const {
 
     if (m_showBounds) {
-        Draw::visualizeLightGeometry(m_light, rd, passType, singlePassBlendedOutputMacro);
+        Draw::visualizeLightGeometry(m_light, rd, passType);
     } else {
-        Draw::light(m_light, rd, passType, singlePassBlendedOutputMacro);
+        Draw::light(m_light, rd, passType);
     }
 }
 

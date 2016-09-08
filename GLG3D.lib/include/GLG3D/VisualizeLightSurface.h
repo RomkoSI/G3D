@@ -49,15 +49,14 @@ public:
     virtual void render
     (RenderDevice*                          rd, 
      const LightingEnvironment&             environment,
-     RenderPassType                         passType, 
-     const String&                          singlePassBlendedOutputMacro) const override;
+     RenderPassType                         passType) const override;
 
     virtual void renderDepthOnlyHomogeneous
     (RenderDevice*                          rd, 
      const Array<shared_ptr<Surface> >&     surfaceArray,
      const shared_ptr<Texture>&             depthPeelTexture,
      const float                            depthPeelEpsilon,
-     TransparencyTestMode                          transparencyTestMode,  
+     TransparencyTestMode                   transparencyTestMode,  
      const Color3&                          transmissionWeight) const override;
     
     virtual void renderWireframeHomogeneous

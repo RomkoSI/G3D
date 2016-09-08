@@ -128,12 +128,11 @@ void HeightfieldModel::Tile::renderDepthOnlyHomogeneous
 
 
 void HeightfieldModel::Tile::render
-    (RenderDevice*                           rd,
+    (RenderDevice*                          rd,
     const LightingEnvironment&              environment,
-    RenderPassType                          passType, 
-    const String&                           singlePassBlendedOutputMacro) const {
+    RenderPassType                          passType) const {
     
-    renderHomogeneous(rd, Array<shared_ptr<Surface>>(dynamic_pointer_cast<Tile>(const_cast<Tile*>(this)->shared_from_this())), environment, passType, singlePassBlendedOutputMacro);
+    renderHomogeneous(rd, Array<shared_ptr<Surface>>(dynamic_pointer_cast<Tile>(const_cast<Tile*>(this)->shared_from_this())), environment, passType);
 }
 
 
@@ -141,8 +140,7 @@ void HeightfieldModel::Tile::renderHomogeneous
     (RenderDevice*                          rd, 
     const Array< shared_ptr< Surface > >&   surfaceArray, 
     const LightingEnvironment&              environment,
-    RenderPassType                          passType, 
-    const String&                           singlePassBlendedOutputMacro) const {
+    RenderPassType                          passType) const {
     Args args;
 
     // Lighting and material

@@ -134,8 +134,7 @@ bool SkyboxSurface::canBeFullyRepresentedInGBuffer(const GBuffer::Specification&
 void SkyboxSurface::render
 (RenderDevice*                          rd, 
  const LightingEnvironment&             environment,
- RenderPassType                         passType, 
- const String&                          singlePassBlendedOutputMacro) const {
+ RenderPassType                         passType) const {
     Args args;
 
     // Restore the old projection matrix
