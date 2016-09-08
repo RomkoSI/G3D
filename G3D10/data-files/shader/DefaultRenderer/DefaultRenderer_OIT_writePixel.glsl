@@ -9,6 +9,8 @@
 
   It is designed to be used with the G3D Innovation Engine SVN main branch from date 2016-02-28
   available at http://g3d.cs.williams.edu.
+
+  No #includes or #defines ARE PERMITTED IN THIS FILE...it is reduced to a single line macro.
  */
 
 /** (Ar, Ag, Ab, Aa) */
@@ -19,6 +21,17 @@ layout(location = 1) out vec4 _modulate;
 
 /** (deltax, deltay) */
 layout(location = 2) out vec2 _refraction;
+
+struct Texture2D {
+    sampler2D sampler;
+    vec2       size;
+    vec2       invSize;
+    vec4       readMultiplyFirst;
+    vec4       readAddSecond;
+
+    /** false if the underlying texture was nullptr when bound */
+    bool       notNull;
+};
 
 uniform Texture2D _depthTexture;
 uniform vec3      _clipInfo;
@@ -53,13 +66,13 @@ Vector2 computeRefractionOffset
 
         /* Hit is now scaled in meters from the center of the screen; adjust scale and offset based
           on the actual size of the background */
-        vec2 backCoord = (hit / backSizeMeters) + Vector2(0.5);
+        vec2 backCoord = (hit / backSizeMeters) + vec2(0.5);
 
         if (! g3d_InvertY) {
             backCoord.y = 1.0 - backCoord.y;
         }
 
-        Point2 startCoord = (csPosition.xy / backSizeMeters) + Vector2(0.5);
+        vec2 startCoord = (csPosition.xy / backSizeMeters) + vec2(0.5);
 
         return backCoord - startCoord;
     }

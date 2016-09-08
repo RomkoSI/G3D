@@ -722,12 +722,14 @@ void UniversalSurface::render
     reducedLighting.setShaderArgs(args, "");
     args.setMacro("UNBLENDED_PASS", anyUnblendedPass);
 
+    /* OITTODO: Remove 
     if (passType == RenderPassType::SINGLE_PASS_UNORDERED_BLENDED_SAMPLES) {
         args.setMacro("DECLARE_writePixel", declareWritePixel);
     } else {
         debugAssertM(declareWritePixel.empty() || (declareWritePixel == Surface::defaultWritePixelDeclaration()),
             "Passed a custom declareWritePixel value with a render pass type that does not support it. G3D will ignore declareWritePixel!");
     }
+    */
     rd->setObjectToWorldMatrix(m_frame);
     setShaderArgs(args, true);
     args.setUniform("depthBuffer", Texture::opaqueBlackIfNull(rd->framebuffer()->texture(Framebuffer::DEPTH)), Sampler::buffer());
