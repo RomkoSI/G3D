@@ -58,12 +58,12 @@ void MD3Viewer::onGraphics3D(RenderDevice* rd, App* app, const shared_ptr<Lighti
     env.lightArray = lighting->lightArray;
     env.ambientOcclusion = app->ambientOcclusion();
     for (int i = sortedVisibleSurfaces.size() - 1; i >= 0; --i) {
-        sortedVisibleSurfaces[i]->render(rd, env, RenderPassType::OPAQUE_SAMPLES, "");
+        sortedVisibleSurfaces[i]->render(rd, env, RenderPassType::OPAQUE_SAMPLES);
     }
 
     rd->setDepthWrite(false);
     for (int i = 0; i < sortedVisibleSurfaces.size(); ++i) {
-        sortedVisibleSurfaces[i]->render(rd, env, RenderPassType::MULTIPASS_BLENDED_SAMPLES, Surface::defaultWritePixelDeclaration());
+        sortedVisibleSurfaces[i]->render(rd, env, RenderPassType::MULTIPASS_BLENDED_SAMPLES);
     }
     float x, y, z, yaw, pitch, roll;
     app->activeCamera()->frame().getXYZYPRDegrees(x,y,z,yaw, pitch, roll);
