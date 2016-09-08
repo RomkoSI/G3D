@@ -40,7 +40,7 @@ void MD2Viewer::onGraphics3D(RenderDevice* rd, App* app, const shared_ptr<Lighti
     env.lightArray = lighting->lightArray;
     
     for (int p = 0; p < posed.size(); ++p) {
-        posed[p]->render(rd, env, RenderPassType::OPAQUE_SAMPLES, "");
+        posed[p]->render(rd, env, RenderPassType::OPAQUE_SAMPLES);
     }
     
 }
