@@ -40,7 +40,7 @@ int main(int argc, const char* argv[]) {
     settings.screenshotDirectory        = "../journal/";
 
     settings.renderer.deferredShading = true;
-    settings.renderer.orderIndependentTransparency = true;
+    settings.renderer.orderIndependentTransparency = false;
 
     return App(settings).run();
 }
