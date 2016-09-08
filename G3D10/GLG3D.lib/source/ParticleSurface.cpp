@@ -150,15 +150,14 @@ void ParticleSurface::renderHomogeneous
     const LightingEnvironment&          lightingEnvironment, 
     RenderPassType                      passType) const {
 
-    if (surfaceArray.size() == 0) {
-        return;
-    }
-    if (passType != RenderPassType::SINGLE_PASS_UNORDERED_BLENDED_SAMPLES &&
-        passType != RenderPassType::MULTIPASS_BLENDED_SAMPLES) {
+    if ((surfaceArray.size() == 0) ||
+        ((passType != RenderPassType::SINGLE_PASS_UNORDERED_BLENDED_SAMPLES) &&
+         (passType != RenderPassType::MULTIPASS_BLENDED_SAMPLES))) {
         return;
     }
 
     const ParticleSystem::ParticleBuffer& particleBuffer = ParticleSystem::s_particleBuffer;
+    (void)particleBuffer;
 
     rd->pushState(); {
         rd->setDepthWrite(false);

@@ -4,7 +4,7 @@
    \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
    \created 2014-12-21
-   \edited  2016-03-25
+   \edited  2016-09-07
 
    Copyright 2000-2016, Morgan McGuire.
    All rights reserved.
@@ -40,8 +40,8 @@ DefaultRenderer::DefaultRenderer() :
 void DefaultRenderer::reloadWriteDeclaration() {
     // Includes single-line comments and newlines
     const String& originalDeclaration = readWholeFile(System::findDataFile("shader/DefaultRenderer/DefaultRenderer_OIT_writePixel.glsl"));    
-    const std::string declarationWithoutSingleLineComments(std::regex_replace(originalDeclaration.c_str(), std::regex("//.*\n"), "\n"));
-    const String declarationWithoutNewlines(std::regex_replace(declarationWithoutSingleLineComments.c_str(), std::regex("[\r\n]"), ""));
+    const std::string declarationWithoutSingleLineComments(std::regex_replace(std::string(originalDeclaration.c_str()), std::regex("//.*\n"), "\n"));
+    const String declarationWithoutNewlines(std::regex_replace(declarationWithoutSingleLineComments.c_str(), std::regex("[\r\n]"), "").c_str());
     m_oitWriteDeclaration = declarationWithoutNewlines;
 }
 
