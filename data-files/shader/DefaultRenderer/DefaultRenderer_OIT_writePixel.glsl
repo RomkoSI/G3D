@@ -12,13 +12,13 @@
  */
 
 /** (Ar, Ag, Ab, Aa) */
-layout(location = 0) out float4 _accum;
+layout(location = 0) out vec4 _accum;
 
 /** (Br, Bg, Bb, D^2) */
-layout(location = 1) out float4 _modulate;
+layout(location = 1) out vec4 _modulate;
 
 /** (deltax, deltay) */
-layout(location = 2) out float2 _refraction;
+layout(location = 2) out vec2 _refraction;
 
 uniform Texture2D _depthTexture;
 uniform vec3      _clipInfo;
@@ -26,34 +26,34 @@ uniform vec3      _clipInfo;
 /** Result is in texture coordinates */
 Vector2 computeRefractionOffset
    (float           backgroundZ,
-    Vector3         csN,
-    Point3          csPosition,
+    vec3            csN,
+    vec3            csPosition,
     float           etaRatio) {
 
     /* Incoming ray direction from eye, pointing away from csPosition */
-    Vector3 csw_i = normalize(-csPosition);
+    vec3 csw_i = normalize(-csPosition);
 
     /* Refracted ray direction, pointing away from wsPos */
-    Vector3 csw_o = refract(-csw_i, csN, etaRatio);
+    vec3 csw_o = refract(-csw_i, csN, etaRatio);
 
     bool totalInternalRefraction = (dot(csw_o, csw_o) < 0.01);
     if (totalInternalRefraction) {
         /* No transmitted light */
-        return Vector2(0.0);
+        return vec2(0.0);
     } else {
         /* Take to the reference frame of the background (i.e., offset) */
-        Vector3 d = csw_o;
+        vec3 d = csw_o;
 
         /* Take to the reference frame of the background, where it is the plane z = 0 */
-        Point3 P = csPosition;
+        vec3 P = csPosition;
         P.z -= backgroundZ;
 
         /* Find the xy intersection with the plane z = 0 */
-        Point2 hit = (P.xy - d.xy * P.z / d.z);
+        vec2 hit = (P.xy - d.xy * P.z / d.z);
 
         /* Hit is now scaled in meters from the center of the screen; adjust scale and offset based
           on the actual size of the background */
-        Point2 backCoord = (hit / backSizeMeters) + Vector2(0.5);
+        vec2 backCoord = (hit / backSizeMeters) + Vector2(0.5);
 
         if (! g3d_InvertY) {
             backCoord.y = 1.0 - backCoord.y;
@@ -80,15 +80,15 @@ float randomVal(vec3 p) {
     G3D engine invokes this writePixel() function. This allows mixing different shading 
     models with different OIT models. */
 void writePixel
-   (Radiance3   premultipliedReflectionAndEmission, 
+   (vec3        premultipliedReflectionAndEmission,  // Radiance
     float       coverage, 
-    Color3      transmissionCoefficient, 
+    vec3        transmissionCoefficient,  // Color3
     float       collimation, 
     float       etaRatio, 
-    Point3      csPosition, 
-    Vector3     csNormal) {
+    vec3        csPosition, 
+    vec3        csNormal) {
 
-    /* Perform this operation before modifying the coverage to account for transmission */
+    // Perform this operation before modifying the coverage to account for transmission
     _modulate.rgb = coverage * (vec3(1.0) - transmissionCoefficient);
     
     /* Modulate the net coverage for composition by the transmission. This does not affect the color channels of the
@@ -101,11 +101,12 @@ void writePixel
     for a full explanation and derivation.*/
     coverage *= 1.0 - (transmissionCoefficient.r + transmissionCoefficient.g + transmissionCoefficient.b) * (1.0 / 3.0);
 
-    /* Intermediate terms to be cubed */
+    // Intermediate terms to be cubed
     float tmp = 1.0 - gl_FragCoord.z * 0.99;
 
-    /* tmp *= tmp * tmp;  */ /*Enable if you want more discrimination between lots of transparent surfaces, e.g., for CAD. Risks underflow on individual surfaces in the general case. */
-    
+    // Enable if you want more discrimination between lots of transparent surfaces, e.g., for CAD. Risks underflow on individual surfaces in the general case.   
+    // tmp *= tmp * tmp;
+
     /* If a lot of the scene is close to the far plane (e.g., you know that you have a really close far plane for CAD 
        or a scene with distant mountains and glass castles in fog), then gl_FragCoord.z does not
        provide enough discrimination. You can add this term to compensate:
@@ -121,11 +122,11 @@ void writePixel
       see inf in the frame buffer.
       */
 
-    /* Weight function tuned for the general case. Used for all images in the paper */
+    // Weight function tuned for the general case. Used for all images in the paper
     float w = clamp(coverage * tmp * tmp * tmp * 1e3, 1e-2, 3e2 * 0.2);
     
-    /* Alternative weighting that gives better discrimination for lots of partial-coverage edges (e.g., foliage) */
-    /* float w = clamp(tmp * 1e3, 1e-2, 3e2 * 0.1);*/
+    // Alternative weighting that gives better discrimination for lots of partial-coverage edges (e.g., foliage)
+    // float w = clamp(tmp * 1e3, 1e-2, 3e2 * 0.1);*/
 
     _accum = vec4(premultipliedReflectionAndEmission, coverage) * w;
 
@@ -168,6 +169,7 @@ void writePixel
         /* There is no diffusion for this surface */
         _modulate.a = 0.0;
     }
+
     /* Encode into snorm. Maximum offset is 1 / 8 of the screen */
     _refraction = refractionOffset * coverage * 8.0;
 }
