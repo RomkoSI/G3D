@@ -678,8 +678,7 @@ void UniversalSurface::modulateBackgroundByTransmission(RenderDevice* rd) const 
 void UniversalSurface::render
    (RenderDevice*                       rd,
     const LightingEnvironment&          environment,
-    RenderPassType                      passType, 
-    const String&                       declareWritePixel) const {
+    RenderPassType                      passType) const {
 
     const bool anyUnblendedPass = (passType == RenderPassType::OPAQUE_SAMPLES) || (passType == RenderPassType::UNBLENDED_SCREEN_SPACE_REFRACTION_SAMPLES);
 

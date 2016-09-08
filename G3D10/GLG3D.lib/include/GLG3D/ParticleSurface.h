@@ -36,9 +36,9 @@ protected:
 
     /** This is a POINTER to a block so that in the event of reallocation, the Surface
         will still know where to find its data. */
-    shared_ptr<ParticleSystem::Block>    m_block;
-    AABox                       m_objectSpaceBoxBounds;
-    Sphere                      m_objectSpaceSphereBounds;
+    shared_ptr<ParticleSystem::Block>   m_block;
+    AABox                               m_objectSpaceBoxBounds;
+    Sphere                              m_objectSpaceSphereBounds;
 
     ParticleSurface() {}
     ParticleSurface(const shared_ptr<Entity>& entity) {
@@ -89,31 +89,29 @@ public:
     virtual void getObjectSpaceBoundingSphere(Sphere& sphere, bool previous = false) const override;
 
     virtual void render
-       (RenderDevice* 	rd,
-        const LightingEnvironment& 	environment,
-        RenderPassType 	passType,
-        const String & 	singlePassBlendedWritePixelDeclaration) const override;
+       (RenderDevice* 	                        rd,
+        const LightingEnvironment& 	            environment,
+        RenderPassType 	                        passType) const override;
 
     virtual void renderDepthOnlyHomogeneous
        (RenderDevice* 	                        rd,
         const Array< shared_ptr< Surface > > & 	surfaceArray,
         const shared_ptr< Texture > & 	        depthPeelTexture,
         const float 	                        depthPeelEpsilon,
-        TransparencyTestMode                           transparencyTestMode,
+        TransparencyTestMode                    transparencyTestMode,
         const Color3&                           transmissionWeight) const override;
 
     virtual void renderHomogeneous
-       (RenderDevice *rd, 
-        const Array< shared_ptr< Surface > > &surfaceArray, 
-        const LightingEnvironment &lightingEnvironment, 
-        RenderPassType passType, 
-        const String &singlePassBlendedWritePixelDeclaration) const override;
+       (RenderDevice*                           rd, 
+        const Array< shared_ptr< Surface > >&   surfaceArray, 
+        const LightingEnvironment&              lightingEnvironment, 
+        RenderPassType                          passType) const override;
 
     virtual void renderWireframeHomogeneous	
-       (RenderDevice * 	rd,
-        const Array< shared_ptr< Surface > > & 	surfaceArray,
-        const Color4 & 	color,
-        bool 	previous) const override;
+       (RenderDevice* 	                        rd,
+        const Array< shared_ptr< Surface > >& 	surfaceArray,
+        const Color4 & 	                        color,
+        bool 	                                previous) const override;
 
 };
 

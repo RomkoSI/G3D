@@ -353,8 +353,7 @@ public:
     (RenderDevice*                        rd, 
      const Array<shared_ptr<Surface> >&   surfaceArray, 
      const LightingEnvironment&           lightingEnvironment,
-     RenderPassType                       passType, 
-     const String&                        singlePassBlendedWritePixelDeclaration) const;
+     RenderPassType                       passType) const;
 
     /** 
     \brief Render all instances of \a surfaceArray to the
@@ -500,20 +499,15 @@ public:
      \param environment World-space, screen-space, and light-space
      data needed for illumination.
 
-     \param singlePassBlendedWritePixelDeclaration The contents of a macro that defines
-     \code void writePixel(Radiance3 premultipliedReflectionAndEmission, float coverage, Color3 transmissionCoefficient, float collimation, float etaRatio, Point3 csPosition, Vector3 csNormal) \endcode
-     and pixel-shader output arguments, which must be prefixed with an underscore 
-     to avoid conflicting with other names. 
-     This is for use with \a passType == RenderPassType::SINGLE_PASS_UNORDERED_BLENDED_SAMPLES. 
+     Use the writePixel defined by the Framebuffer for generating output.
+     when \a passType == RenderPassType::SINGLE_PASS_UNORDERED_BLENDED_SAMPLES. 
      A sample implementation is given by 
      defaultWritePixelDeclaration().
-
      */
     virtual void render
        (RenderDevice*                   rd,
         const LightingEnvironment&      environment,
-        RenderPassType                  passType, 
-        const String&                   singlePassBlendedWritePixelDeclaration) const = 0;
+        RenderPassType                  passTypen) const = 0;
 
     /** Returns "out float4 _result; void writePixel(Radiance3 premultipliedReflectionAndEmission, float coverage, Color3 transmissionCoefficient, float collimation, float etaRatio, Point3 csPosition, Vector3 csNormal) {  _result = vec4(premultipliedReflectionAndEmission, coverage); }" */
     static const String& defaultWritePixelDeclaration();

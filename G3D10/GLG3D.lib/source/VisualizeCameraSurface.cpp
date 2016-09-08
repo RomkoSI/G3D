@@ -54,8 +54,7 @@ void VisualizeCameraSurface::getObjectSpaceBoundingSphere(Sphere& sphere, bool p
 void VisualizeCameraSurface::render
    (RenderDevice*                           rd, 
     const LightingEnvironment&              environment,
-    RenderPassType                          passType, 
-    const String&                           singlePassBlendedOutputMacro) const {
+    RenderPassType                          passType) const {
 
     Draw::camera(m_camera, rd);
 
@@ -67,7 +66,7 @@ void VisualizeCameraSurface::renderDepthOnlyHomogeneous
     const Array<shared_ptr<Surface> >&      surfaceArray,
     const shared_ptr<Texture>&              depthPeelTexture,
     const float                             depthPeelEpsilon,
-    TransparencyTestMode                           transparencyTestMode,
+    TransparencyTestMode                    transparencyTestMode,
     const Color3&                           transmissionWeight) const {
     Draw::camera(m_camera, rd);
 } 

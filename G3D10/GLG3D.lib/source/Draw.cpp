@@ -393,14 +393,13 @@ void Draw::camera(shared_ptr<Camera> camera, RenderDevice* rd){
 void Draw::visualizeLightGeometry
    (const shared_ptr<Light>&                light, 
     RenderDevice*                           rd,
-    RenderPassType                          passType, 
-    const String&                           singlePassBlendedOutputMacro) {
+    RenderPassType                          passType) {
 
     switch (light->type()) {
     case Light::Type::SPOT:
         {
             // Get the frustum
-            shared_ptr<ShadowMap> shadowMap = light->shadowMap();
+            const shared_ptr<ShadowMap>& shadowMap = light->shadowMap();
             if (notNull(shadowMap)) {
                 Frustum frustum;
                 shadowMap->projection().frustum(shadowMap->rect2DBounds(), frustum);
@@ -437,8 +436,7 @@ void Draw::visualizeLightGeometry
 void Draw::light
    (const shared_ptr<Light>&                light, 
     RenderDevice*                           rd, 
-    RenderPassType                          passType, 
-    const String&                           singlePassBlendedOutputMacro,
+    RenderPassType                          passType,
     float                                   dirDist) {
 
     if (light->type() == Light::Type::SPOT) {       

@@ -193,10 +193,10 @@ void Surface::renderDepthOnlyHomogeneous
  const Array<shared_ptr<Surface> >& surfaceArray,
  const shared_ptr<Texture>&         previousDepthBuffer,
  const float                        minZSeparation,
- TransparencyTestMode                      transparencyTestMode,
+ TransparencyTestMode               transparencyTestMode,
  const Color3&                      transmissionWeight) const {
     rd->setColorWrite(false);
-    renderHomogeneous(rd, surfaceArray, LightingEnvironment(), RenderPassType::OPAQUE_SAMPLES, "");
+    renderHomogeneous(rd, surfaceArray, LightingEnvironment(), RenderPassType::OPAQUE_SAMPLES);
 }
 
 
@@ -382,18 +382,17 @@ void Surface::renderHomogeneous
     (RenderDevice*                        rd, 
      const Array<shared_ptr<Surface> >&   surfaceArray, 
      const LightingEnvironment&           lightingEnvironment,
-     RenderPassType                       passType, 
-     const String&                        singlePassBlendedOutputMacro) const {
+     RenderPassType                       passType) const {
 
     if ((passType == RenderPassType::OPAQUE_SAMPLES) || (passType == RenderPassType::UNBLENDED_SCREEN_SPACE_REFRACTION_SAMPLES)) {
         // Render front-to-back
         for (int i = surfaceArray.size() - 1; i >= 0; --i) {
-            surfaceArray[i]->render(rd, lightingEnvironment, passType, singlePassBlendedOutputMacro);
+            surfaceArray[i]->render(rd, lightingEnvironment, passType);
         }
     } else {
         // Render back-to-front
         for (int i = 0; i < surfaceArray.size(); ++i) {
-            surfaceArray[i]->render(rd, lightingEnvironment, passType, singlePassBlendedOutputMacro);
+            surfaceArray[i]->render(rd, lightingEnvironment, passType);
         }
     }
 }
