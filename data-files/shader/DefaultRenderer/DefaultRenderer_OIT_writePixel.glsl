@@ -22,7 +22,7 @@ layout(location = 1) out vec4 _modulate;
 /** (deltax, deltay) */
 layout(location = 2) out vec2 _refraction;
 
-struct Texture2D {
+struct _Texture2D {
     sampler2D sampler;
     vec2       size;
     vec2       invSize;
@@ -33,7 +33,7 @@ struct Texture2D {
     bool       notNull;
 };
 
-uniform Texture2D _depthTexture;
+uniform _Texture2D _depthTexture;
 uniform vec3      _clipInfo;
 
 /** Result is in texture coordinates */
