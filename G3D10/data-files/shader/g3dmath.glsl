@@ -16,7 +16,9 @@ const float inv8pi      = 1.0 / (8.0 * pi);
 const float meters      = 1.0;
 const float centimeters = 0.01;
 const float millimeters = 0.001;
-const float inf         = 1.0 / 0.0;
+
+// Avoid the 1/0 underflow warning (requires GLSL 400 or later):
+const float inf         = intBitsToFloat(0x7f800000);//1.0 / 0.0;
 
 #ifndef vec1
 #define vec1 float
