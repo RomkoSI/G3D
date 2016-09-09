@@ -914,10 +914,10 @@ void Shader::processExtensions(String& code, String& extensionLines) {
 	//extensionLines = "\n";
 
 	//Add useful exts by default.
-	extensionLines = "\n#extension GL_NV_bindless_texture : enable\n";
-	extensionLines += "#extension GL_ARB_bindless_texture : enable\n";
-	extensionLines += "#extension GL_NV_gpu_shader5 : enable\n";
-	extensionLines += "#extension GL_EXT_shader_image_load_formatted : enable\n";
+    extensionLines = "\n#ifdef GL_NV_bindless_texture\n#extension GL_NV_bindless_texture : enable\n#endif\n";
+    extensionLines += "\n#ifdef GL_ARB_bindless_texture\n#extension GL_ARB_bindless_texture : enable\n#endif\n";
+    extensionLines += "\n#ifdef GL_NV_gpu_shader5\n#extension GL_NV_gpu_shader5 : enable\n#endif\n";
+    extensionLines += "\n#ifdef GL_EXT_shader_image_load_formatted\n#extension GL_EXT_shader_image_load_formatted : enable\n#endif\n";
 
 	size_t i = findPragmaWithSpaces("extension", code);
 
