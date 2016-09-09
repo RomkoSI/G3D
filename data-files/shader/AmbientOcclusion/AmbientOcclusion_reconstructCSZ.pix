@@ -1,5 +1,4 @@
-#version 330 // -*- c++ -*-
-//#extension GL_EXT_gpu_shader4 : require
+#version 410 // -*- c++ -*-
 #include <reconstructFromDepth.glsl>
 
 /**

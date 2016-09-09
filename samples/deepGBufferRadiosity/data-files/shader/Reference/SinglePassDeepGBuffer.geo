@@ -1,7 +1,12 @@
 #version 440 // -*- c++ -*-
 
+#ifdef NV_viewport_array2
 #extension NV_viewport_array2 : enable
+#endif
+
+#ifdef NV_geometry_shader_passthrough
 #extension NV_geometry_shader_passthrough : enable
+#endif
 
 #if defined(GL_NV_viewport_array2) && defined(GL_NV_geometry_shader_passthrough)
 //  Fast path for 

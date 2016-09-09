@@ -1,5 +1,7 @@
 #version 330// -*- c++ -*-
+#ifdef GL_ARB_explicit_attrib_location
 #extension GL_ARB_explicit_attrib_location : enable
+#endif
 #include <Texture/Texture.glsl>
 
 

@@ -1,5 +1,7 @@
-#version 330 // -*- c++ -*-
+#version 410 // -*- c++ -*-
+#ifdef GL_ARB_explicit_attrib_location
 #extension GL_ARB_explicit_attrib_location : enable
+#endif
 #include <reconstructFromDepth.glsl>
 #include <Texture/Texture.glsl>
 /**

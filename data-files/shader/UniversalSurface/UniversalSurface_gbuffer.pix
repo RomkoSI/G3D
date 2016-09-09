@@ -13,9 +13,17 @@
   Requires BUFFER_WIDTH_MASK = width - 1 and BUFFER_WIDTH_SHIFT = log_2(width) to be
   passed, where width is a power of 2.
 */
+#ifdef GL_ARB_shader_atomic_counters
 #extension GL_ARB_shader_atomic_counters : enable
+#endif
+
+#ifdef GL_ARB_shader_image_load_store
 #extension GL_ARB_shader_image_load_store : enable
+#endif
+
+#ifdef GL_ARB_separate_shader_objects
 #extension GL_ARB_separate_shader_objects : enable
+#endif
 
 // Needed to make UniversalMaterial_sample reject zero-coverage (or partial coverage)
 // pixels

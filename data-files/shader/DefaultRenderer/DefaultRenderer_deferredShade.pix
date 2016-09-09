@@ -1,6 +1,8 @@
 #version 410 // -*- c++ -*-
 /** \file DefaultRenderer_deferredShade.pix */
+#ifdef GL_ARB_texture_query_lod
 #extension GL_ARB_texture_query_lod : enable
+#endif
 #include <compatibility.glsl>
 #include <g3dmath.glsl>
 #include <LightingEnvironment/LightingEnvironment_uniforms.glsl>
