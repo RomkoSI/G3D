@@ -27,9 +27,10 @@
 #   extension GL_ARB_separate_shader_objects : enable
 #endif
 
-#if (__VERSION__ < 420)
+// Fix some problems on Intel GPUs
+//#if (__VERSION__ < 420)
 #   define layout(ignore)
-#endif
+//#endif
 
 #ifdef CUSTOMCONSTANT
     uniform vec4    customConstant;
