@@ -7,6 +7,8 @@
   \edited  2016-09-09
 */
 
+#include "G3D/AABox.h"
+#include "G3D/CollisionDetection.h"
 #include "GLG3D/TriTreeBase.h"
 #include "GLG3D/Surface.h"
 
