@@ -139,7 +139,7 @@ void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings
 
         // Blur and subsample horizontally
         rd->push2D(m_blurryFramebuffer); {
-            GaussianBlur::apply(rd, m_tempFramebuffer->texture(0), Vector2(1, 0), blurDiameter, m_blurry->vector2Bounds());
+            GaussianBlur::apply(rd, m_tempFramebuffer->texture(0), Vector2(0, invertY ? -1 : 1), blurDiameter, m_blurry->vector2Bounds());
         } rd->pop2D();
     }    
     
