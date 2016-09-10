@@ -253,6 +253,7 @@
     <ClCompile Include="..\GLG3D.lib\source\ThirdPersonManipulator.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\Tri.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\TriTree.cpp" />
+    <ClCompile Include="..\GLG3D.lib\source\TriTreeBase.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\TriTree_Poly.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\UniformTable.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\UniversalBSDF.cpp" />
@@ -389,6 +390,7 @@
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\ThirdPersonManipulator.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\Tri.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\TriTree.h" />
+    <ClInclude Include="..\GLG3D.lib\include\GLG3D\TriTreeBase.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\UniformTable.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\UniversalBSDF.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\UniversalMaterial.h" />

@@ -108,12 +108,12 @@ Radiance3 App::rayTrace(const Ray& ray, World* world, Random& rng, int bounce) {
 
             if (light->producesDirectIllumination()) {
                 // Shadow rays
-                if ((! light->castsShadows()) || world->lineOfSight(light->position().xyz(), surfel->location + surfel->geometricNormal * BUMP_DISTANCE)) {
-                    Vector3 w_i = light->position().xyz() - surfel->location;
+                if ((! light->castsShadows()) || world->lineOfSight(light->position().xyz(), surfel->position + surfel->geometricNormal * BUMP_DISTANCE)) {
+                    Vector3 w_i = light->position().xyz() - surfel->position;
                     const float distance2 = w_i.squaredLength();
                     w_i /= sqrt(distance2);
 
-                    const Biradiance3& B_i = light->biradiance(surfel->location);
+                    const Biradiance3& B_i = light->biradiance(surfel->position);
 
                     radiance +=
                         surfel->finiteScatteringDensity(w_i, -ray.direction()) *
@@ -139,7 +139,7 @@ Radiance3 App::rayTrace(const Ray& ray, World* world, Random& rng, int bounce) {
                 const Surfel::Impulse& impulse = impulseArray[i];
                 // Bump along normal *in the outgoing ray direction*.
                 const Vector3& offset = surfel->geometricNormal * sign(impulse.direction.dot(surfel->geometricNormal)) * BUMP_DISTANCE;
-                const Ray& secondaryRay = Ray::fromOriginAndDirection(surfel->location + offset, impulse.direction);
+                const Ray& secondaryRay = Ray::fromOriginAndDirection(surfel->position + offset, impulse.direction);
                 debugAssert(secondaryRay.direction().isFinite());
                 radiance += rayTrace(secondaryRay, world, rng, bounce + 1) * impulse.magnitude;
                 debugAssert(radiance.isFinite());

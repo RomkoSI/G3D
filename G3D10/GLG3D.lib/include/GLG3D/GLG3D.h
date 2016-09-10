@@ -28,6 +28,7 @@
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/VertexBuffer.h"
 #include "GLG3D/AttributeArray.h"
+#include "GLG3D/TriTreeBase.h"
 #include "GLG3D/GFont.h"
 #include "GLG3D/UserInput.h"
 #include "GLG3D/FirstPersonManipulator.h"
