@@ -197,12 +197,6 @@
     <ClCompile Include="..\GLG3D.lib\source\Tri.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GLG3D.lib\source\TriTree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLG3D.lib\source\TriTree_Poly.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\GLG3D.lib\source\UprightSplineManipulator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -489,6 +483,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\GLG3D.lib\source\TriTreeBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLG3D.lib\source\NativeTriTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLG3D.lib\source\NativeTriTree_Poly.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -896,6 +896,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\TriTreeBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLG3D.lib\include\GLG3D\NativeTriTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

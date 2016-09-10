@@ -41,7 +41,7 @@ class Surface;
  */
 class Tri {
 private:
-    friend class TriTree;
+    friend class NativeTriTree;
 
     /** Usually a material, but can be abstracted  */
     lazy_ptr<ReferenceCountedObject>      m_data;

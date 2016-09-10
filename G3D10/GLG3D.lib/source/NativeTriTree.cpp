@@ -1,5 +1,5 @@
 /**
-  \file GLG3D/TriTree.cpp
+  \file GLG3D/NativeTriTree.cpp
 
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
@@ -10,7 +10,7 @@
 #include "G3D/AreaMemoryManager.h"
 #include "G3D/Intersect.h"
 #include "G3D/CollisionDetection.h"
-#include "GLG3D/TriTree.h"
+#include "GLG3D/NativeTriTree.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Draw.h"
 #include "GLG3D/Surface.h"
@@ -27,13 +27,13 @@ namespace G3D {
 #pragma float_control( precise, off )
 #endif
 
-const char* TriTree::algorithmName(SplitAlgorithm s) {
+const char* NativeTriTree::algorithmName(SplitAlgorithm s) {
     const char* n[] = {"Mean extent", "Median area", "Median count", "SAH"};
     return n[s];
 }
 
 
-void TriTree::intersectSphere
+void NativeTriTree::intersectSphere
    (const Sphere& sphere,
     Array<Tri>&   triArray) const {
     if (m_root) {
@@ -43,7 +43,7 @@ void TriTree::intersectSphere
 }
 
 
-void TriTree::intersectBox
+void NativeTriTree::intersectBox
    (const AABox&  box,
     Array<Tri>&   triArray) const {
     if (m_root) {
@@ -53,7 +53,7 @@ void TriTree::intersectBox
 }
 
 
-void TriTree::setContents
+void NativeTriTree::setContents
    (const Array<shared_ptr<Surface> >& surfaceArray, 
     ImageStorage                       newStorage) {
 
@@ -80,7 +80,7 @@ void TriTree::setContents
 }
 
 
-void TriTree::setContents
+void NativeTriTree::setContents
    (const Array<Tri>&                   triArray, 
     const CPUVertexArray&               vertexArray,
     ImageStorage                        newStorage) {
@@ -118,7 +118,7 @@ inline static bool __fastcall intersect(const Ray& ray, const AABox& box, float 
 }
   
 
-void TriTree::Node::setValueArray(const Array<Poly>& src, const shared_ptr<MemoryManager>& mm) {
+void NativeTriTree::Node::setValueArray(const Array<Poly>& src, const shared_ptr<MemoryManager>& mm) {
     if (src.size() == 0) {
         return;
     }
@@ -152,7 +152,7 @@ void TriTree::Node::setValueArray(const Array<Poly>& src, const shared_ptr<Memor
 }
 
         
-bool TriTree::Node::badSplit(int numOriginalSources, int numLow, int numHigh) {
+bool NativeTriTree::Node::badSplit(int numOriginalSources, int numLow, int numHigh) {
     debugAssert(numHigh <= numOriginalSources);
     debugAssert(numLow <= numOriginalSources);
     return
@@ -162,7 +162,7 @@ bool TriTree::Node::badSplit(int numOriginalSources, int numLow, int numHigh) {
 }
 
 
-void TriTree::Node::split(Array<Poly>& original, const Settings& settings, const shared_ptr<MemoryManager>& mm) {
+void NativeTriTree::Node::split(Array<Poly>& original, const Settings& settings, const shared_ptr<MemoryManager>& mm) {
     // Order in which we'd like to split along axes
     Vector3::Axis preferredAxis[3];
     const Vector3& extent = bounds.extent();
@@ -218,7 +218,7 @@ void TriTree::Node::split(Array<Poly>& original, const Settings& settings, const
 }
 
 
-void TriTree::Node::destroy(const shared_ptr<MemoryManager>& mm) {
+void NativeTriTree::Node::destroy(const shared_ptr<MemoryManager>& mm) {
     // Destroy children
     if (! isLeaf()) {
         for (int i = 0; i < 2; ++i) {
@@ -237,7 +237,7 @@ void TriTree::Node::destroy(const shared_ptr<MemoryManager>& mm) {
 }
 
 
-float TriTree::Node::chooseSplitLocation(Array<Poly>& source, const Settings& settings, Vector3::Axis axis) {
+float NativeTriTree::Node::chooseSplitLocation(Array<Poly>& source, const Settings& settings, Vector3::Axis axis) {
     switch (settings.algorithm) {
     case MEAN_EXTENT:
         return bounds.center()[axis];
@@ -259,7 +259,7 @@ float TriTree::Node::chooseSplitLocation(Array<Poly>& source, const Settings& se
 }
 
 
-float TriTree::Node::chooseMedianAreaSplitLocation(Array<Poly>& original, Vector3::Axis axis) {
+float NativeTriTree::Node::chooseMedianAreaSplitLocation(Array<Poly>& original, Vector3::Axis axis) {
     original.sort( HighComparator(axis) );
     
     // Total area of all originals
@@ -285,7 +285,7 @@ float TriTree::Node::chooseMedianAreaSplitLocation(Array<Poly>& original, Vector
 }
 
 
-float TriTree::Node::chooseSAHSplitLocation(Array<Poly>& source, Vector3::Axis axis, const Settings& settings) {
+float NativeTriTree::Node::chooseSAHSplitLocation(Array<Poly>& source, Vector3::Axis axis, const Settings& settings) {
     if (source.size() <= settings.accurateSAHCountThreshold) {
         return chooseSAHSplitLocationAccurate(source, axis, settings);
     } else {
@@ -294,7 +294,7 @@ float TriTree::Node::chooseSAHSplitLocation(Array<Poly>& source, Vector3::Axis a
 }
 
 
-float TriTree::Node::chooseSAHSplitLocationFast(Array<Poly>& source, Vector3::Axis axis, const Settings& settings) {
+float NativeTriTree::Node::chooseSAHSplitLocationFast(Array<Poly>& source, Vector3::Axis axis, const Settings& settings) {
     (void)settings;
     source.sort(HighComparator(axis));
 
@@ -382,7 +382,7 @@ float TriTree::Node::chooseSAHSplitLocationFast(Array<Poly>& source, Vector3::Ax
 }
 
 
-float TriTree::Node::chooseSAHSplitLocationAccurate(Array<Poly>& source, Vector3::Axis axis, const Settings& settings) {
+float NativeTriTree::Node::chooseSAHSplitLocationAccurate(Array<Poly>& source, Vector3::Axis axis, const Settings& settings) {
     // Get the unique potential split locations
     
     Set<float, FloatHashTrait> positionSet;
@@ -412,7 +412,7 @@ float TriTree::Node::chooseSAHSplitLocationAccurate(Array<Poly>& source, Vector3
 }
 
 
-float TriTree::Node::SAHCost(int size, float area, float containingArea) {
+float NativeTriTree::Node::SAHCost(int size, float area, float containingArea) {
     static const float boxIntersectTime = 5;
     static const float triIntersectTime = 1;
     
@@ -424,7 +424,7 @@ float TriTree::Node::SAHCost(int size, float area, float containingArea) {
 }
 
 
-float TriTree::Node::SAHCost(Vector3::Axis axis, float offset, const Array<Poly>& original, float containingArea, const Settings& settings) {
+float NativeTriTree::Node::SAHCost(Vector3::Axis axis, float offset, const Array<Poly>& original, float containingArea, const Settings& settings) {
     // TODO: pass these arrays in for thread-safing
     static Array<Poly> lowArray, highArray, spanArray;
     
@@ -468,7 +468,7 @@ static bool __fastcall rayTriangleIntersection
     const Vector3& e1 = vertex1.position - v0;
     const Vector3& e2 = vertex2.position - v0;
 
-    const bool noBackfaceTest = (options & TriTree::DO_NOT_CULL_BACKFACES) != 0;
+    const bool noBackfaceTest = (options & NativeTriTree::DO_NOT_CULL_BACKFACES) != 0;
 
     // This test is equivalent to n.dot(ray.direction()) >= -EPS
     // Where n is the face unit normal, which we do not explicitly store
@@ -510,8 +510,8 @@ static bool __fastcall rayTriangleIntersection
     const float t = e2.dot(q);
 
     if ((t > minDistance) && (t < maxDistance)) {
-        const bool alphaTest = ((options & TriTree::NO_PARTIAL_COVERAGE_TEST) == 0);
-        const float alphaThreshold = ((options & TriTree::PARTIAL_COVERAGE_THRESHOLD_ZERO) != 0) ? 1.0f : 0.5f;
+        const bool alphaTest = ((options & NativeTriTree::NO_PARTIAL_COVERAGE_TEST) == 0);
+        const float alphaThreshold = ((options & NativeTriTree::PARTIAL_COVERAGE_THRESHOLD_ZERO) != 0) ? 1.0f : 0.5f;
 
         if (alphaTest && ! tri.intersectionAlphaTest(vertexArray, u, v, alphaThreshold)) {
             // Failed the filter (e.g., alpha test)
@@ -535,8 +535,8 @@ static bool __fastcall rayTriangleIntersection
 }
 
 
-bool __fastcall TriTree::Node::intersectRay
-   (const TriTree&                     triTree,
+bool __fastcall NativeTriTree::Node::intersectRay
+   (const NativeTriTree&                     triTree,
     const Ray&                         ray,
     float                              maxDistance,
     Hit&                               hitData,
@@ -621,7 +621,7 @@ bool __fastcall TriTree::Node::intersectRay
 }
 
 
-TriTree::Node::Node(Array<Poly>& originals, const Settings& settings, const shared_ptr<MemoryManager>& mm) : 
+NativeTriTree::Node::Node(Array<Poly>& originals, const Settings& settings, const shared_ptr<MemoryManager>& mm) : 
     bounds(Poly::computeBounds(originals)), 
     splitLocation(0),
     packedChildAxis(0),
@@ -652,7 +652,7 @@ static void draw(RenderDevice* rd, const AABox& m_box, const Color4& color) {
 #endif
 
 
-void TriTree::Node::intersectSphere(const Sphere& sphere, const CPUVertexArray& vertexArray, Array<Tri>& triArray, Set<Tri*>& alreadyAdded) const {
+void NativeTriTree::Node::intersectSphere(const Sphere& sphere, const CPUVertexArray& vertexArray, Array<Tri>& triArray, Set<Tri*>& alreadyAdded) const {
     if (! bounds.intersects(sphere)) {
         return;
     }
@@ -680,7 +680,7 @@ void TriTree::Node::intersectSphere(const Sphere& sphere, const CPUVertexArray& 
 }
 
 
-void TriTree::Node::intersectBox(const AABox& box,  const CPUVertexArray& vertexArray, Array<Tri>& triArray, Set<Tri*>& alreadyAdded) const {
+void NativeTriTree::Node::intersectBox(const AABox& box,  const CPUVertexArray& vertexArray, Array<Tri>& triArray, Set<Tri*>& alreadyAdded) const {
     if (! bounds.intersects(box)) {
         return;
     }
@@ -708,7 +708,7 @@ void TriTree::Node::intersectBox(const AABox& box,  const CPUVertexArray& vertex
 }
 
 
-void TriTree::Node::draw(RenderDevice* rd, const CPUVertexArray& vertexArray, int level, bool showBoxes, int minNodeSize) const {
+void NativeTriTree::Node::draw(RenderDevice* rd, const CPUVertexArray& vertexArray, int level, bool showBoxes, int minNodeSize) const {
 	/*
     if (valueArray && (valueArray->size > minNodeSize)) {
         static const Vector3 epsilon = Vector3::one() * 0.001f;
@@ -756,7 +756,7 @@ void TriTree::Node::draw(RenderDevice* rd, const CPUVertexArray& vertexArray, in
 }
 
 
-void TriTree::Node::print(const String& indent) const {
+void NativeTriTree::Node::print(const String& indent) const {
     debugPrintf("%sbounds = [%s, %s]", indent.c_str(), 
                 bounds.low().toString().c_str(), bounds.high().toString().c_str());
     if (valueArray) {
@@ -772,7 +772,7 @@ void TriTree::Node::print(const String& indent) const {
 }
 
 
-void TriTree::Node::getStats(Stats& s, int level, int valuesPerNode) const {    
+void NativeTriTree::Node::getStats(Stats& s, int level, int valuesPerNode) const {    
     int n = (valueArray) ? valueArray->size : 0;
     s.numTris += n;
     ++s.numNodes;
@@ -795,16 +795,16 @@ void TriTree::Node::getStats(Stats& s, int level, int valuesPerNode) const {
 }
 
 
-TriTree::TriTree() : m_root(NULL) {}
+NativeTriTree::NativeTriTree() : m_root(NULL) {}
 
 
-TriTree::~TriTree() {
+NativeTriTree::~NativeTriTree() {
     clear();
 }
 
 
 /** Walk the entire tree, computing statistics */
-TriTree::Stats TriTree::stats(int valuesPerNode) const {
+NativeTriTree::Stats NativeTriTree::stats(int valuesPerNode) const {
     Stats s;
     if (m_root) {
         m_root->getStats(s, 0, valuesPerNode);
@@ -817,7 +817,7 @@ TriTree::Stats TriTree::stats(int valuesPerNode) const {
 }
 
 
-void TriTree::clear() {
+void NativeTriTree::clear() {
     TriTreeBase::clear();
     if (m_root) {
         m_root->destroy(m_memoryManager);
@@ -828,7 +828,7 @@ void TriTree::clear() {
 }
 
 
-void TriTree::draw(RenderDevice* rd, int level, bool showBoxes, int minNodeSize) {
+void NativeTriTree::draw(RenderDevice* rd, int level, bool showBoxes, int minNodeSize) {
     if (m_root) {
         rd->setCullFace(CullFace::NONE);
         m_root->draw(rd, m_vertexArray, level, showBoxes, minNodeSize);
@@ -836,7 +836,7 @@ void TriTree::draw(RenderDevice* rd, int level, bool showBoxes, int minNodeSize)
 }
 
 
-bool TriTree::intersectRay
+bool NativeTriTree::intersectRay
    (const Ray&                         ray, 
     Hit&                               hit,
     IntersectRayOptions                options) const {
