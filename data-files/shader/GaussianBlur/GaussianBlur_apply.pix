@@ -17,10 +17,11 @@ out vec4 result;
 
 void main() {
  
-#   ifdef  NVIDIA_361_WORKAROUND
+#   ifdef NVIDIA_361_WORKAROUND
         NVIDIA_361_WORKAROUND();
 #   endif
-    int2   P = int2(gl_FragCoord.xy) << shift;         
+//    int2   P = int2(gl_FragCoord.xy * (int2(1) << shift)) + min(direction, int2(0));
+    int2   P = int2(gl_FragCoord.xy * (int2(1) << shift));
     float4 sum = texelFetch(source, P, 0) * gaussCoef[KERNEL_RADIUS - 1];
     
     for (int tap = 0; tap < KERNEL_RADIUS - 1; ++tap) {
