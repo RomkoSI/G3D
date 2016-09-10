@@ -1,5 +1,5 @@
 /**
-  @file GLG3D/TriTree_Poly.cpp
+  @file GLG3D/NativeTriTree_Poly.cpp
 
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
@@ -7,14 +7,14 @@
   @edited  2009-06-20
 */
 
-#include "GLG3D/TriTree.h"
+#include "GLG3D/NativeTriTree.h"
 #include "GLG3D/RenderDevice.h"
 
 namespace G3D {
 
-TriTree::Poly::Poly() : m_source(NULL), m_area(0) {}
+NativeTriTree::Poly::Poly() : m_source(NULL), m_area(0) {}
 
-TriTree::Poly::Poly(const CPUVertexArray& vertexArray, const Tri* tri) : 
+NativeTriTree::Poly::Poly(const CPUVertexArray& vertexArray, const Tri* tri) : 
     m_source(tri),
     m_low(Vector3::inf()),
     m_high(-Vector3::inf()),
@@ -30,7 +30,7 @@ TriTree::Poly::Poly(const CPUVertexArray& vertexArray, const Tri* tri) :
 }
 
 
-void TriTree::Poly::draw(RenderDevice* rd, const CPUVertexArray& vertexArray) const {
+void NativeTriTree::Poly::draw(RenderDevice* rd, const CPUVertexArray& vertexArray) const {
 	/*
     rd->beginPrimitive(PrimitiveType::TRIANGLE_FAN);
     rd->setNormal(m_source->normal(vertexArray));
@@ -42,7 +42,7 @@ void TriTree::Poly::draw(RenderDevice* rd, const CPUVertexArray& vertexArray) co
 }
 
 
-void TriTree::Poly::split
+void NativeTriTree::Poly::split
 (Vector3::Axis axis,
  float         offset,
  float         minSpanArea,
@@ -125,18 +125,18 @@ void TriTree::Poly::split
         // Remove slivers and degenerates
         if (L.area() <= 0.0f) {
             lowArray.popDiscard();
-            //debugPrintf("Warning: TriTree generated and removed zero area poly (low)\n");
+            //debugPrintf("Warning: NativeTriTree generated and removed zero area poly (low)\n");
         }
         
         if (H.area() <= 0.0f) {
             highArray.popDiscard();
-            //debugPrintf("Warning: TriTree generated and removed zero area poly (high)\n");
+            //debugPrintf("Warning: NativeTriTree generated and removed zero area poly (high)\n");
         }
     }
 }
 
 
-void TriTree::Poly::computeArea() {
+void NativeTriTree::Poly::computeArea() {
     m_area = 0.0f;
     // Compute area of triangles
     const int N = m_vertex.size();
@@ -148,7 +148,7 @@ void TriTree::Poly::computeArea() {
 }
 
 
-AABox TriTree::Poly::computeBounds(const Array<Poly>& array) {
+AABox NativeTriTree::Poly::computeBounds(const Array<Poly>& array) {
     if (array.size() == 0) {
         return AABox(Vector3::zero());
     }
