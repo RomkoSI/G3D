@@ -4,10 +4,9 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2008-08-10
-  \edited  2016-08-26
+  \edited  2016-09-09
 */
-#ifndef GLG3D_Tri_h
-#define GLG3D_Tri_h
+#pragma once
 
 #include "G3D/platform.h"
 #include "G3D/HashTrait.h"
@@ -24,7 +23,6 @@
 #include "GLG3D/CPUVertexArray.h"
 
 namespace G3D {
-class Ray;
 class Material;
 class Surfel;
 class Surface;
@@ -179,7 +177,6 @@ public:
         return dynamic_pointer_cast<T>(m_data.resolve());
     }
 
-
     /** 
         \brief Returns a (relatively) unique integer for this object
         
@@ -219,4 +216,3 @@ public:
 };// G3D_END_PACKED_CLASS(4)
 } // namespace G3D
 
-#endif
