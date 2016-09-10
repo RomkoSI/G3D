@@ -4,10 +4,9 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-05-25
-  \edited  2016-08-26
+  \edited  2016-09-09
  */ 
 #include "GLG3D/Tri.h"
-#include "G3D/Ray.h"
 #include "GLG3D/Surface.h"
 #include "GLG3D/Surfel.h"
 #include "GLG3D/Material.h"
