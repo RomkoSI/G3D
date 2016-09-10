@@ -12,18 +12,11 @@
 #include <functional>
 #include "G3D/platform.h"
 #include "GLG3D/TriTreeBase.h"
-#include "G3D/Vector3.h"
 #include "G3D/Color3.h"
 #include "G3D/AABox.h"
-#include "G3D/Ray.h"
 #include "G3D/MemoryManager.h"
-#include "G3D/Array.h"
 #include "G3D/SmallArray.h"
-#include "G3D/Intersect.h"
-#include "G3D/CollisionDetection.h"
-#include "GLG3D/Tri.h"
 #include "GLG3D/Component.h"
-#include "GLG3D/CPUVertexArray.h"
 #ifndef _MSC_VER
 #include <stdint.h>
 #endif

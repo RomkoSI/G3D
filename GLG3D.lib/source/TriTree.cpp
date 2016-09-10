@@ -8,6 +8,8 @@
 */
 
 #include "G3D/AreaMemoryManager.h"
+#include "G3D/Intersect.h"
+#include "G3D/CollisionDetection.h"
 #include "GLG3D/TriTree.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Draw.h"
