@@ -18,7 +18,12 @@ const float centimeters = 0.01;
 const float millimeters = 0.001;
 
 // Avoid the 1/0 underflow warning (requires GLSL 400 or later):
-const float inf         = intBitsToFloat(0x7f800000);//1.0 / 0.0;
+const float inf         = 
+#if __VERSION__ >= 420
+    intBitsToFloat(0x7f800000);
+#else
+    1.0 / 0.0;
+#endif
 
 #ifndef vec1
 #define vec1 float
