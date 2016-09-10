@@ -1,4 +1,4 @@
-#version 330 or 420 compatibility // -*- c++ -*-
+#version 410 // -*- c++ -*-
 /** 
   \file UniversalSurface_GBuffer.pix 
   \author Morgan McGuire, http://graphics.cs.williams.edu
@@ -45,9 +45,10 @@
 #expect PARALLAXSTEPS "int"
 //#expect GBUFFER_STORE "GBUFFER_STORE(gbufferName, coord, sampleID)"
 
-#if (__VERSION__ < 420) 
+// Fix some problems on Intel GPUs
+//#if (__VERSION__ < 420) 
 #   define layout(ignore)
-#endif
+//#endif
 
 uniform UniversalMaterial2D material;
 

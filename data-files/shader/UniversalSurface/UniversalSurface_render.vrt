@@ -1,10 +1,10 @@
-#version 330// -*- c++ -*-
+#version 410 // -*- c++ -*-
 /**
  \file UniversalSurface_render.vrt
  \author Morgan McGuire, Michael Mara
 
  \created 2007-10-22
- \edited  2015-01-03
+ \edited  2016-09-09
  */
 #include <UniversalSurface/UniversalSurface_vertex.glsl>
 #expect HAS_BONES

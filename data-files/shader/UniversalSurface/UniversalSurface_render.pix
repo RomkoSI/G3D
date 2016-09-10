@@ -5,12 +5,13 @@
   \author Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-12-18
-  \edited  2016-09-02
+  \edited  2016-09-09
 
   Copyright 2001-2016, Morgan McGuire
  */
-
+#ifdef GL_ARB_texture_query_lod
 #extension GL_ARB_texture_query_lod : enable    // For textureQueryLod
+#endif
 
 #expect ALPHA_HINT              "AlphaFilter (int) value"
 #expect HAS_EMISSIVE            "Boolean"

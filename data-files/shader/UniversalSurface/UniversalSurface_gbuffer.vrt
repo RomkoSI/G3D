@@ -1,14 +1,16 @@
-#version 330 or 420 compatibility// -*- c++ -*-
+#version 410// -*- c++ -*-
 /**
  \file UniversalSurface_gbuffer.vrt
  \author Morgan McGuire
  \created 2007-10-22
- \edited  2016-02-23 
+ \edited  2016-08-09 
  */
 #include <UniversalSurface/UniversalSurface_vertex.glsl>
 
 #expect HAS_BONES
 
+// Fix some problems on Intel GPUs
+#define layout(ignore)
 
 #if HAS_BONES > 0
     in vec4      g3d_BoneWeights;
