@@ -64,6 +64,9 @@ void App::onInit() {
     
     showRenderingStats      = true;
 
+    shared_ptr<Entity> e = scene()->entity("Sphere");
+    e->setFrame(Point3(0.0f, 1.5f, 0.0f));
+
     makeGUI();
     // For higher-quality screenshots:
     // developerWindow->videoRecordDialog->setScreenShotFormat("PNG");
