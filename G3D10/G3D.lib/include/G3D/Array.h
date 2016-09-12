@@ -36,6 +36,10 @@
 #   pragma warning( disable : 4786)
 #endif
 
+#define TBB_IMPLEMENT_CPP0X 0
+#define __TBB_NO_IMPLICIT_LINKAGE 1
+#define __TBBMALLOC_NO_IMPLICIT_LINKAGE 1
+#include <tbb/tbb.h>
 
 namespace G3D {
 
@@ -195,18 +199,30 @@ public:
     If you really want to copy an Array, use the explicit copy constructor.
     */ 
    Array& operator=(const Array& other) {
-       resize(other.num);       
-       for (int i = 0; i < (int)num; ++i) {
-           data[i] = other[i];
-       }
+       resize(other.num);
+
+       T* dst = getCArray();
+       const T* src = other.getCArray();
+       tbb::parallel_for(tbb::blocked_range<size_t>(0, other.size(), 128), [&](const tbb::blocked_range<size_t>& r) {
+           for (size_t i = r.begin(); i < r.end(); ++i) {
+               dst[i] = src[i];
+           }
+       });
+
        return *this;
    }
 
    Array& operator=(const std::vector<T>& other) {
        resize(other.size());
-       for (size_t i = 0; i < num; ++i) {
-           data[i] = other[i];
-       }
+
+       T* dst = getCArray();
+       const T* src = &other[0];
+       tbb::parallel_for(tbb::blocked_range<size_t>(0, other.size(), 128), [&](const tbb::blocked_range<size_t>& r) {
+           for (size_t i = r.begin(); i < r.end(); ++i) {
+               dst[i] = src[i];
+           }
+       });
+
        return *this;
    }
 

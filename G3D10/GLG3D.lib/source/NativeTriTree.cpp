@@ -53,38 +53,13 @@ void NativeTriTree::intersectBox
 }
 
 
-void NativeTriTree::setContents
-   (const Array<shared_ptr<Surface> >& surfaceArray, 
-    ImageStorage                       newStorage) {
-
-    TriTreeBase::setContents(surfaceArray, newStorage);
-
-    Settings settings;
-    static const float epsilon = 0.000001f;
-
-    Array<Poly> source;
-    // Don't add 0 area triangles to source
-    for (int i = 0; i < m_triArray.size(); ++i) {
-        if (m_triArray[i].area() > epsilon) {
-            source.append(Poly(m_vertexArray, &m_triArray[i]));
-        }
+void NativeTriTree::rebuild() {
+    if (m_root) {
+        m_root->destroy(m_memoryManager);
+        m_memoryManager->free(m_root);
+        m_root = nullptr;
+        m_memoryManager.reset();
     }
-    
-    if (source.size() > 0) {
-        m_memoryManager = AreaMemoryManager::create();
-        m_root = new (m_memoryManager->alloc(sizeof(Node))) Node(source, settings, m_memoryManager);
-    }
-
-    // alwaysAssertM(m_triArray.size() == m_triArray.capacity(), "Allocated too much memory for the Tri Array");
-    // alwaysAssertM(m_vertexArray.vertex.size() == m_vertexArray.vertex.capacity(), "Allocated too much memory for the vertex array");
-}
-
-
-void NativeTriTree::setContents
-   (const Array<Tri>&                   triArray, 
-    const CPUVertexArray&               vertexArray,
-    ImageStorage                        newStorage) {
-    TriTreeBase::setContents(triArray, vertexArray, newStorage);
 
     Settings settings;
     static const float epsilon = 0.000001f;
