@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-06-10
-  \edited  2016-09-09
+  \edited  2016-09-11
 */
 #pragma once
 
@@ -84,6 +84,16 @@ public:
         return m_vertexArray;
     }
 
+    /** If you mutate this, you must call rebuild() */
+    Array<Tri>& triArray() {
+        return m_triArray;
+    }
+
+    /** If you mutate this, you must call rebuild() */
+    CPUVertexArray& vertexArray() {
+        return m_vertexArray;
+    }
+
     /** Array access to the stored Tris */
     const Tri& operator[](int i) const {
         debugAssert(i >= 0 && i < m_triArray.size());
@@ -93,6 +103,9 @@ public:
     int size() const {
         return m_triArray.size();
     }
+
+    /** Rebuil the tree after m_triArray or CPUVertexArray have been mutated. Called automatically by setContents() */
+    virtual void rebuild() = 0;
 
     /** Base class implementation populates m_triArray and m_vertexArray and applies the image storage option. */
     virtual void setContents

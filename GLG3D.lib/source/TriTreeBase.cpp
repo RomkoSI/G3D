@@ -6,11 +6,15 @@
   \created 2009-06-10
   \edited  2016-09-09
 */
-
 #include "G3D/AABox.h"
 #include "G3D/CollisionDetection.h"
 #include "GLG3D/TriTreeBase.h"
 #include "GLG3D/Surface.h"
+
+#define TBB_IMPLEMENT_CPP0X 0
+#define __TBB_NO_IMPLICIT_LINKAGE 1
+#define __TBBMALLOC_NO_IMPLICIT_LINKAGE 1
+#include <tbb/tbb.h>
 
 namespace G3D {
 
@@ -32,16 +36,8 @@ void TriTreeBase::setContents
     const bool computePrevPosition = false;
     clear();
     Surface::getTris(surfaceArray, m_vertexArray, m_triArray, computePrevPosition);
-
-    if (newStorage != IMAGE_STORAGE_CURRENT) {
-        for (int i = 0; i < m_triArray.size(); ++i) {
-            const Tri& tri = m_triArray[i];
-            const shared_ptr<Material>& material = tri.material();
-            if (notNull(material)) {
-                material->setStorage(newStorage);
-            }
-        }
-    }
+    Surface::setStorage(surfaceArray, newStorage);
+    rebuild();
 }
 
 
@@ -52,11 +48,10 @@ void TriTreeBase::setContents
 
     //const bool computePrevPosition = false;
     clear();
-
     m_triArray = triArray;
-    m_vertexArray.copyFrom(vertexArray);
-   
+    m_vertexArray.copyFrom(vertexArray);   
     Tri::setStorage(m_triArray, newStorage);
+    rebuild();
 }
 
 

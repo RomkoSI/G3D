@@ -1035,7 +1035,6 @@ void UniversalSurface::getTrisHomogeneous
 }
 
 
-
 void UniversalSurface::GPUGeom::setShaderArgs(Args& args) const {
     debugAssert(normal.valid());
     debugAssert(index.valid());

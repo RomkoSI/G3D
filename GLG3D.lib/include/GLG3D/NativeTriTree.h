@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-06-10
-  \edited  2016-08-23
+  \edited  2016-09-11
 */
 #pragma once
 
@@ -455,14 +455,7 @@ public:
         (const Sphere&                      sphere,
          Array<Tri>&                        triArray) const override;
 
-    virtual void setContents
-        (const Array<shared_ptr<Surface>>&  surfaceArray, 
-         ImageStorage                       newImageStorage = ImageStorage::COPY_TO_CPU) override;
-
-    virtual void setContents
-       (const Array<Tri>&                   triArray, 
-        const CPUVertexArray&               vertexArray,
-        ImageStorage                        newStorage      = ImageStorage::COPY_TO_CPU) override;
+    virtual void rebuild() override;
 
     virtual bool intersectRay
         (const Ray&                         ray, 
