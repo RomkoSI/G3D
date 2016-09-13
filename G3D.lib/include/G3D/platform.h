@@ -9,10 +9,10 @@
  All rights reserved.
 
  \created 2003-06-09
- \edited  2014-05-03
+ \edited  2016-09-13
  */
 
-#ifndef G3D_platform_h
+#pragma once
 #define G3D_platform_h
 
 /** \def G3D_OSX Defined on OS X */
@@ -439,6 +439,9 @@ namespace G3D {
     Minimum version of OpenGL required by G3D on this platform, mulitplied by 100 to create an integer, e.g., 330 = 3.30.
     Assumes OpenGL core if > 300
 */
-#define G3D_MIN_OPENGL_VERSION 330
+#define G3D_MIN_OPENGL_VERSION 410
 
-#endif // Header guard
+#define TBB_IMPLEMENT_CPP0X 0
+#define __TBB_NO_IMPLICIT_LINKAGE 1
+#define __TBBMALLOC_NO_IMPLICIT_LINKAGE 1
+#include <tbb/tbb.h>

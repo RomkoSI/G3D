@@ -31,13 +31,6 @@
 #include "G3D/Array.h"
 #include <time.h>
 
-#define TBB_IMPLEMENT_CPP0X 0
-#define __TBB_NO_IMPLICIT_LINKAGE 1
-#define __TBBMALLOC_NO_IMPLICIT_LINKAGE 1
-#include <tbb/tbb.h>
-#include <cstring>
-#include <cstdio>
-
 // Uncomment the following line to turn off G3D::System memory
 // allocation and use the operating system's malloc.
 //#define NO_BUFFERPOOL

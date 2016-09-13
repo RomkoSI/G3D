@@ -16,17 +16,28 @@
 namespace G3D {
 
 Random& Random::threadCommon() {
-    Spinlock lock;
-    lock.lock();
+	// Thread local storage implementation
+	static thread_local Random rng(0xF018A4D2 ^ uint32(std::hash<std::thread::id>()(std::this_thread::get_id())), false);
+	return rng;
+	/*
+	// Global table implementation
     static Table<std::thread::id, Random> table;
+	static tbb::spin_mutex                tableLock;
+
     std::thread::id id = std::this_thread::get_id();
     bool created = false;
-    Random& rng = table.getCreate(id, created);
-    if (created) {
-        rng.reset(0xF018A4D2 ^ uint32(std::hash<std::thread::id>()(id)), false);
-    }
-    lock.unlock();
-    return rng;
+	Random* rng = nullptr;
+
+	{
+		tbb::spin_mutex::scoped_lock lock(tableLock);
+		rng = &table.getCreate(id, created);
+		if (created) {
+			rng->reset(0xF018A4D2 ^ uint32(std::hash<std::thread::id>()(id)), false);
+		}
+	}
+
+    return *rng;
+	*/
 }
 
 
