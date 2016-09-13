@@ -160,9 +160,8 @@ public:
       setting the FrameBuffer on the RenderDevice, and calling the 
       three-argument version of exposeAndRender.  That process will be faster than this
       version, which must create its FrameBuffer every time it is invoked.
-      The width and height of output must be a multiple of 4.
 
-     \param output If NULL, this will be allocated to be the same size and format as \a input.
+     \param output If NULL, this will be allocated to be the same size and format as \a input
      */
     void exposeAndRender
        (RenderDevice*               rd,

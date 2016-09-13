@@ -38,7 +38,7 @@ void Film::exposeAndRender
     CubeFace                    outputCubeFace,
     int                         outputMipLevel) {
     
-    if (isNull(output)) {
+	if (isNull(output)) {
         // Allocate new output texture
         const bool generateMipMaps = false;
         output = Texture::createEmpty("Exposed image", input->width(), input->height(), input->format(), 

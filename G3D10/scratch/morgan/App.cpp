@@ -64,8 +64,6 @@ void App::onInit() {
     
     showRenderingStats      = true;
 
-    shared_ptr<Entity> e = scene()->entity("Sphere");
-    e->setFrame(Point3(0.0f, 1.5f, 0.0f));
 
     makeGUI();
     // For higher-quality screenshots:
@@ -73,11 +71,17 @@ void App::onInit() {
     // developerWindow->videoRecordDialog->setCaptureGui(false);
     developerWindow->cameraControlWindow->moveTo(Point2(developerWindow->cameraControlWindow->rect().x0(), 0));
     loadScene(
-        "Feature Test"
+        //"Feature Test"
         //"G3D Sponza"
-        //"G3D Cornell Box" // Load something simple
+        "G3D Cornell Box" // Load something simple
         //developerWindow->sceneEditorWindow->selectedSceneName()  // Load the first scene encountered 
         );
+
+
+	const shared_ptr<Image>& image = Image::create(1, 1, ImageFormat::RGB8());
+	const shared_ptr<Texture>& src = Texture::fromImage("Source", image);
+    shared_ptr<Texture> dst;
+    m_film->exposeAndRender(renderDevice, activeCamera()->filmSettings(), src, 0, 0, dst);
 }
 
 
