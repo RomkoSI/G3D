@@ -95,13 +95,16 @@ void Film::CompositeFilter::apply(RenderDevice* rd, const FilmSettings& settings
         bloomStrength = 0;
     }
 
+	const int smallW = max(w / 4, 1);
+	const int smallH = max(h / 4, 1);
+
     // Allocate intermediate buffers, perhaps because the input size is different than was previously used.
-    if (isNull(m_temp) || (m_blurry->width() != w / 4) || (m_blurry->height() != h / 4)) {
+    if (isNull(m_temp) || (m_blurry->width() != smallW) || (m_blurry->height() != smallH)) {
         bool generateMipMaps = false;
         // Make smaller to save fill rate, since it will be blurry anyway
-        m_preBloom = Texture::createEmpty("G3D::Film::CompositeFilter::m_preBloom", w, h,         m_intermediateFormat, Texture::DIM_2D, generateMipMaps);
-        m_temp     = Texture::createEmpty("G3D::Film::CompositeFilter::m_temp",     w, h / 4,     m_intermediateFormat, Texture::DIM_2D, generateMipMaps);
-        m_blurry   = Texture::createEmpty("G3D::Film::CompositeFilter::m_blurry",   w / 4, h / 4, m_intermediateFormat, Texture::DIM_2D, generateMipMaps);
+        m_preBloom = Texture::createEmpty("G3D::Film::CompositeFilter::m_preBloom", w,      h,      m_intermediateFormat, Texture::DIM_2D, generateMipMaps);
+        m_temp     = Texture::createEmpty("G3D::Film::CompositeFilter::m_temp",     w,      smallH, m_intermediateFormat, Texture::DIM_2D, generateMipMaps);
+        m_blurry   = Texture::createEmpty("G3D::Film::CompositeFilter::m_blurry",   smallW, smallH, m_intermediateFormat, Texture::DIM_2D, generateMipMaps);
 
         const bool w = rd->depthWrite();
         rd->setDepthWrite(false);
