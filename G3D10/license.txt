@@ -25,6 +25,8 @@ The redistributed libraries include:
 * civetweb  - BSD-style open source
 * zip       - BSD-style open source
 * zlib      - BSD-style open source
+* embree    - Apache open source
+* tbb       - apache open source
 * fmod      - FMOD Sound System, copyright (C) Firelight Technologies Pty, Ltd., 1994-2014.
 * FreeImage - FreeImage Public License - Version 1.0
 * ffMPEG    - GNU Lesser General Public License (LGPL) version 2.1
@@ -44,7 +46,7 @@ these licenses and satisfy licensing arrangements.
 --------------------------------------------------------------------------
 This program uses the G3D Innovation Engine (http://g3d.sf.net), which
 is licensed under the "Modified BSD" Open Source license below.  The G3D Innovation Engine
-source code is Copyright © 2000-2014, Morgan McGuire, All rights reserved.
+source code is Copyright Â© 2000-2014, Morgan McGuire, All rights reserved.
 -------------------------------------------------------------------------------------
 FMOD Sound System, copyright (C) Firelight Technologies Pty, Ltd., 1994-2014.
 Used under the conditions specificed in http://www.fmod.com/files/public/LICENSE.TXT
