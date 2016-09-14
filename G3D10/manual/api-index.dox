@@ -50,6 +50,8 @@ at the bottom.
     \link G3D::Surface2D Surface2D\endlink,
     \link G3D::Tri Tri\endlink,
     \link G3D::TriTree TriTree\endlink,
+    \link G3D::TriTreeBase TriTreeBase\endlink,
+    \link G3D::EmbreeTriTree EmbreeTriTree\endlink (Windows only)
 
   <li><b>Materials and Scattering</b>&nbsp;&nbsp;
     \link G3D::BumpMap BumpMap\endlink,
