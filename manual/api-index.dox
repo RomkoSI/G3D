@@ -253,6 +253,7 @@ at the bottom.
     \link G3D::Point3int16 Point3int16\endlink,
     \link G3D::Point3int32 Point3int32\endlink,
     \link G3D::Projection Projection\endlink,
+    \link G3D::PrecomputedRay PrecomputedRay\endlink,
     \link G3D::Ray Ray\endlink,
     \link G3D::RayGridIterator RayGridIterator\endlink,
     \link G3D::RealTime RealTime\endlink,

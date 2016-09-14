@@ -491,7 +491,7 @@
     <ClCompile Include="..\GLG3D.lib\source\NativeTriTree_Poly.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GLG3D.lib\source\NativeTriTree_PrecomputedRay.cpp">
+    <ClCompile Include="..\G3D.lib\source\PrecomputedRay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

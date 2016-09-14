@@ -1,5 +1,5 @@
 /**
- @file NativeTriTree_PrecomputedRay.cpp 
+ @file PrecomputedRay.cpp 
  
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
@@ -8,17 +8,32 @@
  */
 
 #include "G3D/platform.h"
-#include "G3D/Ray.h"
+#include "G3D/PrecomputedRay.h"
 #include "G3D/Plane.h"
 #include "G3D/Sphere.h"
 #include "G3D/CollisionDetection.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
-#include "GLG3D/NativeTriTree.h"
 
 namespace G3D {
 
-void Ray::set(const Vector3& origin, const Vector3& direction, float mn, float mx) {
+PrecomputedRay& PrecomputedRay::operator=(const Ray& ray) {
+    set(ray.origin(), ray.direction(), ray.minDistance(), ray.maxDistance());
+    return *this;
+}
+
+
+PrecomputedRay::PrecomputedRay(const Ray& ray) {
+    *this = ray;
+}
+
+
+PrecomputedRay::operator Ray() const {
+    return Ray(m_origin, m_direction, m_minDistance, m_maxDistance);
+}
+
+
+void PrecomputedRay::set(const Vector3& origin, const Vector3& direction, float mn, float mx) {
     debugAssert(mn >= 0.0 && mn < mx);
     m_minDistance = mn;
     m_maxDistance = mx;
@@ -129,12 +144,12 @@ void Ray::set(const Vector3& origin, const Vector3& direction, float mn, float m
 }
 
 
-Ray::Ray(class BinaryInput& b) {
+PrecomputedRay::PrecomputedRay(class BinaryInput& b) {
     deserialize(b);
 }
 
 
-void Ray::serialize(class BinaryOutput& b) const {
+void PrecomputedRay::serialize(class BinaryOutput& b) const {
     m_origin.serialize(b);
     m_direction.serialize(b);
     b.writeFloat32(m_minDistance);
@@ -142,36 +157,36 @@ void Ray::serialize(class BinaryOutput& b) const {
 }
 
 
-void Ray::deserialize(class BinaryInput& b) {
+void PrecomputedRay::deserialize(class BinaryInput& b) {
     m_origin.deserialize(b);
     m_direction.deserialize(b);
-    float mn = b.readFloat32();
-    float mx = b.readFloat32();
+    const float mn = b.readFloat32();
+    const float mx = b.readFloat32();
     set(m_origin, m_direction, mn, mx);
 }
 
 
-Ray Ray::refract(
+PrecomputedRay PrecomputedRay::refract(
     const Vector3&  newOrigin,
     const Vector3&  normal,
     float           iInside,
     float           iOutside) const {
 
     const Vector3 D = m_direction.refractionDirection(normal, iInside, iOutside);
-    return Ray(newOrigin + (m_direction + normal * (float)sign(m_direction.dot(normal))) * 0.001f, D);
+    return PrecomputedRay(newOrigin + (m_direction + normal * (float)sign(m_direction.dot(normal))) * 0.001f, D);
 }
 
 
-Ray Ray::reflect(
+PrecomputedRay PrecomputedRay::reflect(
     const Vector3&  newOrigin,
     const Vector3&  normal) const {
 
     Vector3 D = m_direction.reflectionDirection(normal);
-    return Ray(newOrigin + (D + normal) * 0.001f, D);
+    return PrecomputedRay(newOrigin + (D + normal) * 0.001f, D);
 }
 
 
-Vector3 Ray::intersection(const Plane& plane) const {
+Vector3 PrecomputedRay::intersection(const Plane& plane) const {
     float d;
     Vector3 normal = plane.normal();
     plane.getEquation(normal, d);
@@ -189,7 +204,7 @@ Vector3 Ray::intersection(const Plane& plane) const {
 }
 
 
-float Ray::intersectionTime(const class Sphere& sphere, bool solid) const {
+float PrecomputedRay::intersectionTime(const class Sphere& sphere, bool solid) const {
     Vector3 dummy;
     const float t = CollisionDetection::collisionTimeForMovingPointFixedSphere(
             m_origin, m_direction, sphere, dummy, dummy, solid);
@@ -201,7 +216,7 @@ float Ray::intersectionTime(const class Sphere& sphere, bool solid) const {
 }
 
 
-float Ray::intersectionTime(const class Plane& plane) const {
+float PrecomputedRay::intersectionTime(const class Plane& plane) const {
     Vector3 dummy;
     const float t = CollisionDetection::collisionTimeForMovingPointFixedPlane(
             m_origin, m_direction, plane, dummy);
@@ -213,7 +228,7 @@ float Ray::intersectionTime(const class Plane& plane) const {
 }
 
 
-float Ray::intersectionTime(const class Box& box) const {
+float PrecomputedRay::intersectionTime(const class Box& box) const {
     Vector3 dummy;
     float time = CollisionDetection::collisionTimeForMovingPointFixedBox(
             m_origin, m_direction, box, dummy);
@@ -228,7 +243,7 @@ float Ray::intersectionTime(const class Box& box) const {
 }
 
 
-float Ray::intersectionTime(const class AABox& box) const {
+float PrecomputedRay::intersectionTime(const class AABox& box) const {
     Vector3 dummy;
     bool inside;
     const float t = CollisionDetection::collisionTimeForMovingPointFixedAABox(
