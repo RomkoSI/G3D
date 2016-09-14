@@ -27,6 +27,9 @@ struct __RTCDevice;
 
 namespace G3D {
 
+/** \brief a TriTreeBase that has high performance on multicore SIMD CPUs for ray-triangle intersection
+    and a fast rebuild time. Unoptimized for box-triangle intersection.
+*/
 class EmbreeTriTree : public TriTreeBase {
 public:
     using TriTreeBase::intersectRays;
