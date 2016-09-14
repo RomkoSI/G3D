@@ -141,6 +141,7 @@
 	   <li> Improved light culling for forward rendering </li>
 	   <li> AlphaHint &rarr; G3D::AlphaFilter </li>
 	   <li> G3D::PrecomputedRay </li>
+	   <li> Minimized size of G3D::Ray </li>
       </ul>
     </p>
 

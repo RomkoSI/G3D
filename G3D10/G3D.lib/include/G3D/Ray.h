@@ -6,11 +6,15 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2002-07-12
- @edited  2016-08-23
+ @edited  2016-09-16
+
+
+  G3D Innovation Engine
+  Copyright 2000-2016, Morgan McGuire.
+  All rights reserved.
  */
 
-#ifndef G3D_Ray_h
-#define G3D_Ray_h
+#pragma once
 
 #include "G3D/platform.h"
 #include "G3D/Vector3.h"
@@ -41,22 +45,6 @@ private:
     /** 1.0 / direction */
     Vector3 m_invDirection;
 
-    
-    /** The following are for the "ray slope" optimization from
-      "Fast Ray / Axis-Aligned Bounding Box Overlap Tests using Ray Slopes" 
-      by Martin Eisemann, Thorsten Grosch, Stefan MÅ¸ller and Marcus Magnor
-      Computer Graphics Lab, TU Braunschweig, Germany and
-      University of Koblenz-Landau, Germany */
-    enum Classification {MMM, MMP, MPM, MPP, PMM, PMP, PPM, PPP, POO, MOO, OPO, OMO, OOP, OOM, OMM, OMP, OPM, OPP, MOM, MOP, POM, POP, MMO, MPO, PMO, PPO};    
-
-    Classification classification;
-
-    /** ray slope */
-    float ibyj, jbyi, kbyj, jbyk, ibyk, kbyi;
-
-    /** Precomputed components */
-    float c_xy, c_xz, c_yx, c_yz, c_zx, c_zy;
-
 public:
 
     /** \param direction Assumed to have unit length */
@@ -80,8 +68,8 @@ public:
     }
 
     /** Component-wise inverse of direction vector.  May have inf() components */
-    const Vector3& invDirection() const {
-        return m_invDirection;
+    Vector3 invDirection() const {
+        return Vector3(1.0f / m_direction.x, 1.0f / m_direction.y, 1.0f / m_direction.z);
     }
     
     Ray() {
@@ -416,5 +404,3 @@ inline float Ray::intersectionTime
 #undef SUB
 
 }// namespace
-
-#endif
