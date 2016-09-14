@@ -19,7 +19,9 @@
 namespace G3D {
 
 /**
-  A 3D Ray optimized for ray casting, optionally limited to a positive subsegment of the ray.
+  A 3D Ray, optionally limited to a positive subsegment of the ray.
+
+  \sa G3D::NativeTriTree::PrecomputedRay, G3D::LineSegment, G3D::Line
  */
 class Ray {
 private:
