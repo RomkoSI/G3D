@@ -85,7 +85,7 @@ void NativeTriTree::rebuild() {
 /** Returns true if \a ray hits \a box.
 
    \param maxTime The routine <i>may</i> return false if an intersection exists but lies after maxTime*/
-inline static bool __fastcall intersect(const Ray& ray, const AABox& box, float maxTime) {
+inline static bool __fastcall intersect(const PrecomputedRay& ray, const AABox& box, float maxTime) {
     //  Enabling the more exact test actually hurts performance on test scenes
     //    float t;
     //    return Intersect::rayAABox(ray, box, t) && (t < maxTime);
@@ -419,7 +419,7 @@ float NativeTriTree::Node::SAHCost(Vector3::Axis axis, float offset, const Array
 
 
 static bool __fastcall rayTriangleIntersection
-   (const Ray&                         ray,
+   (const PrecomputedRay&                         ray,
     float                              minDistance,
     float                              maxDistance,
     const Tri&                         tri,
@@ -512,7 +512,7 @@ static bool __fastcall rayTriangleIntersection
 
 bool __fastcall NativeTriTree::Node::intersectRay
    (const NativeTriTree&                     triTree,
-    const Ray&                         ray,
+    const PrecomputedRay&                         ray,
     float                              maxDistance,
     Hit&                               hitData,
     IntersectRayOptions                options) const {
@@ -812,7 +812,15 @@ void NativeTriTree::draw(RenderDevice* rd, int level, bool showBoxes, int minNod
 
 
 bool NativeTriTree::intersectRay
-   (const Ray&                         ray, 
+   (const Ray&                          ray, 
+    Hit&                               hit,
+    IntersectRayOptions                options) const {
+    return intersectRay(PrecomputedRay(ray), hit, options);
+}
+
+
+bool NativeTriTree::intersectRay
+   (const PrecomputedRay&              ray, 
     Hit&                               hit,
     IntersectRayOptions                options) const {
 
@@ -820,6 +828,60 @@ bool NativeTriTree::intersectRay
     return notNull(m_root) && m_root->intersectRay(*this, ray, maxDistance, hit, options);        
 }
 
+
+void NativeTriTree::intersectRays
+   (const Array<PrecomputedRay>&        rays,
+    Array<Hit>&                         results,
+    IntersectRayOptions                 options) const {
+
+    results.resize(rays.size());
+    Thread::runConcurrently(0, rays.size(), [&](int i) { intersectRay(rays[i], results[i], options); });
+}
+
+
+shared_ptr<Surfel> NativeTriTree::intersectRay
+   (const PrecomputedRay&               ray, 
+    IntersectRayOptions                 options,
+    const Vector3&                      directiondX,
+    const Vector3&                      directiondY) const {
+ 
+    Hit hit;
+    if (intersectRay(ray, hit, options)) {
+        return m_triArray[hit.triIndex].sample(hit.u, hit.v, hit.triIndex, m_vertexArray, hit.backface);
+    } else {
+        return nullptr;
+    }
+}
+
+
+void NativeTriTree::intersectRays
+   (const Array<Ray>&        rays,
+    Array<Hit>&              results,
+    IntersectRayOptions      options) const {
+
+    // Measure API conversion time
+    Stopwatch conversionTimer;
+    conversionTimer.tick();
+    results.resize(rays.size());
+
+    static thread_local Array<PrecomputedRay> prays;
+    prays.resize(rays.size());
+
+    PrecomputedRay* dst = prays.getCArray();
+    const Ray*      src = rays.getCArray();
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, rays.size(), 64), [&](const tbb::blocked_range<size_t>& r) {
+		const size_t start = r.begin();
+		const size_t end   = r.end();
+        for (size_t i = start; i < end; ++i) {
+            dst[i] = src[i];
+        }
+    });
+
+    conversionTimer.tock();
+    debugConversionOverheadTime = conversionTimer.elapsedTime();
+
+    Thread::runConcurrently(0, prays.size(), [&](int i) { intersectRay(prays[i], results[i], options); });
+}
 
 #ifdef _MSC_VER
 // Turn off fast floating-point optimizations

@@ -16,10 +16,12 @@
 #define G3D_Intersect
 
 #include "G3D/platform.h"
-#include "G3D/Ray.h"
-#include "G3D/AABox.h"
 
 namespace G3D {
+
+class Ray;
+class PrecomputedRay;
+class AABox;
 
 /**
  @beta
@@ -34,7 +36,7 @@ public:
       Computer Graphics Lab, TU Braunschweig, Germany and
       University of Koblenz-Landau, Germany
     */
-    static bool __fastcall rayAABox(const Ray& ray, const AABox& box);
+    static bool __fastcall rayAABox(const PrecomputedRay& ray, const AABox& box);
 
     /** \brief Returns true if the intersection of the ray and the solid box is non-empty. 
      
@@ -47,7 +49,7 @@ public:
       Computer Graphics Lab, TU Braunschweig, Germany and
       University of Koblenz-Landau, Germany
       */
-     static bool __fastcall rayAABox(const Ray& ray, const AABox& box, float& time);
+     static bool __fastcall rayAABox(const PrecomputedRay& ray, const AABox& box, float& time);
 };
 
 }

@@ -140,6 +140,7 @@
 	   <li> G3D::Light::possiblyIlluminates </li>
 	   <li> Improved light culling for forward rendering </li>
 	   <li> AlphaHint &rarr; G3D::AlphaFilter </li>
+	   <li> G3D::PrecomputedRay </li>
       </ul>
     </p>
 

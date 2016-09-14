@@ -6,7 +6,8 @@
  \created 2008-11-20
  \edited  2008-11-22
 
- Copyright 2000-2015, Morgan McGuire.
+ G3D Innovation Engine
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
 
