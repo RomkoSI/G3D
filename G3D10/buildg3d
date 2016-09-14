@@ -382,7 +382,14 @@ def buildNativeFFmpeg():
 def libTarget():
     x = 0
 
-    copyIfNewer('tbb/include/*', 'build/include/')
+    ice.utils.mkdir('build/include')
+    ice.utils.mkdir('build/bin')
+    ice.utils.mkdir('build/lib')
+
+    ice.utils.mkdir('build/include/tbb')
+    ice.utils.mkdir('build/include/serial')
+    copyIfNewer('tbb/include/tbb/*', 'build/include/tbb/')
+    copyIfNewer('tbb/include/serial/*', 'build/include/serial/')
     copyIfNewer('embree/include/*', 'build/include/')
 
     if windows:
