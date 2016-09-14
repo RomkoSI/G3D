@@ -41,10 +41,7 @@ private:
     Vector3 m_direction;
 
     float   m_maxDistance;
-
-    /** 1.0 / direction */
-    Vector3 m_invDirection;
-
+	
 public:
 
     /** \param direction Assumed to have unit length */
