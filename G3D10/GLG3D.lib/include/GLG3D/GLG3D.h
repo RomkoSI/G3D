@@ -7,13 +7,13 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2002-08-07
- \edited  2015-09-15
+ \edited  2016-09-14
 
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 
-#ifndef G3D_GLG3D_h
+#pragma once
 #define G3D_GLG3D_h
 
 #include "G3D/G3D.h"
@@ -29,6 +29,7 @@
 #include "GLG3D/VertexBuffer.h"
 #include "GLG3D/AttributeArray.h"
 #include "GLG3D/TriTreeBase.h"
+#include "GLG3D/NativeTriTree.h"
 #include "GLG3D/GFont.h"
 #include "GLG3D/UserInput.h"
 #include "GLG3D/FirstPersonManipulator.h"
@@ -205,5 +206,4 @@ namespace G3D {
 #       pragma comment(lib, "GLG3D_x64")
 #   endif
 
-#endif
 #endif

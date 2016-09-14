@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2009-06-10
-  \edited  2016-09-09
+  \edited  2016-09-14
 */
 
 #include "G3D/AreaMemoryManager.h"
@@ -819,6 +819,7 @@ bool NativeTriTree::intersectRay
     float maxDistance = ray.maxDistance();
     return notNull(m_root) && m_root->intersectRay(*this, ray, maxDistance, hit, options);        
 }
+
 
 #ifdef _MSC_VER
 // Turn off fast floating-point optimizations

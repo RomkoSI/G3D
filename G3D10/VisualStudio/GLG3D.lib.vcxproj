@@ -221,6 +221,7 @@
     <ClCompile Include="..\GLG3D.lib\source\MotionBlurSettings.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\NativeTriTree.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\NativeTriTree_Poly.cpp" />
+    <ClCompile Include="..\GLG3D.lib\source\NativeTriTree_PrecomputedRay.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\OSWindow.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\ParticleSurface.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\ParticleSystem.cpp" />

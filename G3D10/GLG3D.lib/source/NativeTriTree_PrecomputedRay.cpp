@@ -1,10 +1,10 @@
 /**
- @file Ray.cpp 
+ @file NativeTriTree_PrecomputedRay.cpp 
  
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2002-07-12
- @edited  2016-08-23
+ @edited  2016-09-16
  */
 
 #include "G3D/platform.h"
@@ -14,6 +14,7 @@
 #include "G3D/CollisionDetection.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
+#include "GLG3D/NativeTriTree.h"
 
 namespace G3D {
 
@@ -242,4 +243,4 @@ float Ray::intersectionTime(const class AABox& box) const {
     }
 }
 
-}
+} // G3D
