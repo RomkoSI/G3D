@@ -383,6 +383,7 @@ def libTarget():
     x = 0
 
     copyIfNewer('tbb/include/*', 'build/include/')
+    copyIfNewer('embree/include/*', 'build/include/')
 
     if windows:
         copyIfNewer('ffmpeg/windows/bin64/*', 'build/bin/')
@@ -402,6 +403,10 @@ def libTarget():
         # TBB libraries are precompiled binaries
         copyIfNewer('tbb/win64/lib/*', 'build/lib/')
         copyIfNewer('tbb/win64/bin/*', 'build/bin/')
+
+		# Embree is precompiled
+        copyIfNewer('embree/win64/lib/*', 'build/lib/')
+        copyIfNewer('embree/win64/bin/*', 'build/bin/')
 
         x = VisualStudio('VisualStudio/G3D.sln', ['External Libraries\\freeimage.lib', 'External Libraries\\zlib.lib', 'External Libraries\\zip.lib', 'External Libraries\\civetweb.lib', 'External Libraries\\qrencode.lib', 'G3D.lib', 'GLG3D.lib', 'GLG3DVR.lib', 'External Libraries\\enet.lib', 'External Libraries\\glfw.lib', 'External Libraries\\glew.lib']);
 

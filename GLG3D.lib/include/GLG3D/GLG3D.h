@@ -30,6 +30,7 @@
 #include "GLG3D/AttributeArray.h"
 #include "GLG3D/TriTreeBase.h"
 #include "GLG3D/NativeTriTree.h"
+#include "GLG3D/EmbreeTriTree.h"
 #include "GLG3D/GFont.h"
 #include "GLG3D/UserInput.h"
 #include "GLG3D/FirstPersonManipulator.h"
@@ -165,6 +166,7 @@ namespace G3D {
 #   pragma comment(lib, "opengl32")
 #   pragma comment(lib, "glu32")
 #   pragma comment(lib, "shell32") // for drag drop
+#   pragma comment(lib, "embree.lib")
 
 #ifdef USE_ASSIMP
 #   ifdef _DEBUG
