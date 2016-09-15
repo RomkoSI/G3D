@@ -146,8 +146,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
     ++m_frameCount;
     if (m_frameCount > 3) {
         shared_ptr<Texture> resultTexture;
-
-        m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0), resultTexture);
+		m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0), settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x, resultTexture);
 
         const String& name = canonicalizeSceneName(scene()->name());
         saveAndPossiblyCompareTextureToGoldStandard(name, resultTexture);
