@@ -36,6 +36,7 @@ void EmbreeTriTree::apiConvert(const Ray& ray, RTCRay& rtcRay) {
     // rtcRay.time   = 0.0f;                     // uncomment if we need motion blur
 }
 
+
 void EmbreeTriTree::apiConvert(const RTCRay& rtcRay, int triIndex, TriTreeBase::Hit& hit) {
     hit.triIndex = triIndex;
     hit.u = rtcRay.u;
@@ -81,8 +82,8 @@ void EmbreeTriTree::clear() {
 
 
 void EmbreeTriTree::rebuild() {
-    m_alphaTriangleArray.clear();
-    m_opaqueTriangleArray.clear();
+    m_alphaTriangleArray.fastClear();
+    m_opaqueTriangleArray.fastClear();
     if (m_scene) {
         rtcDeleteScene(m_scene);     
         m_scene = nullptr;
@@ -95,34 +96,75 @@ void EmbreeTriTree::rebuild() {
     // RTC_SCENE_HIGH_QUALITY had no impact on trace performance
     m_scene = rtcDeviceNewScene(m_device, RTC_SCENE_STATIC, RTCAlgorithmFlags(RTC_INTERSECT1 | RTC_INTERSECT_STREAM | RTC_SCENE_INCOHERENT));
 
-    // Reserve the expected/worst case of all opaque to speed allocations
-    // when growing the array (negligible impact, less than ~1%)
-    m_opaqueTriangleArray.resize(m_triArray.size());
-    m_opaqueTriangleArray.fastClear();
+	Stopwatch timer;
+	timer.tick();
 
     // Separate out the triangles based on the presence of alpha. Running on multiple 
-    // threads gives negligible gain.
-    {
-        tbb::spin_mutex alphaLock, opaqueLock;
-        const Tri* triCArray = m_triArray.getCArray();
+    // threads actually gives negligible gain for Sponza-size scenes.
+
+    // Reserve the expected/worst case of all opaque to speed allocations
+    // and allow atomic append.
+    m_alphaTriangleArray.resize(m_triArray.size());
+    m_opaqueTriangleArray.resize(m_triArray.size());
+	{
+		std::atomic<int> alphaCount = 0;
+		std::atomic<int> opaqueCount = 0;
+
+		const Tri* triCArray = m_triArray.getCArray();
 		tbb::parallel_for(tbb::blocked_range<size_t>(0, m_triArray.size(), 64), [&](const tbb::blocked_range<size_t>& r) {
 			const size_t start = r.begin();
-			const size_t end   = r.end();
+			const size_t end = r.end();
+			static const size_t NUM_LOCAL_PER_THREAD_TRIS = 64;
 
-            for (size_t t = start; t < end; ++t) {
-                const Tri& tri = triCArray[t];
-                const RTCTriangle rtcTri(tri.index[0], tri.index[1], tri.index[2], int(t));
+			size_t numAlpha = 0;
+			size_t numOpaque = 0;
+			RTCTriangle local_alpha[NUM_LOCAL_PER_THREAD_TRIS];
+			RTCTriangle local_opaque[NUM_LOCAL_PER_THREAD_TRIS];
 
-                if (tri.hasPartialCoverage()) {
-                    tbb::spin_mutex::scoped_lock lock(alphaLock);
-                    m_alphaTriangleArray.append(rtcTri);
+			for (size_t t = start; t < end; ++t) {
+				const Tri& tri = triCArray[t];
+				// sort triangle into either the alpha or opaque queue
+				if (tri.hasPartialCoverage()) {
+					local_alpha[numAlpha++] = RTCTriangle(tri.index[0], tri.index[1], tri.index[2], int(t));
                 } else {
-                    tbb::spin_mutex::scoped_lock lock(opaqueLock);
-                    m_opaqueTriangleArray.append(rtcTri);
+					local_opaque[numOpaque++] = RTCTriangle(tri.index[0], tri.index[1], tri.index[2], int(t));
                 }
-            }
-        });
-    }
+
+				// flush local 'alpha' queue if needed
+				if (numAlpha == NUM_LOCAL_PER_THREAD_TRIS) {
+					const size_t index = (size_t)alphaCount.fetch_add((int)numAlpha);
+					memcpy(&m_alphaTriangleArray[index], local_alpha, sizeof(RTCTriangle)*numAlpha);
+					numAlpha = 0;
+				}
+
+				// flush local 'alpha' queue if needed
+				if (numOpaque == NUM_LOCAL_PER_THREAD_TRIS) {
+					const size_t index = (size_t)opaqueCount.fetch_add((int)numOpaque);
+					memcpy(&m_opaqueTriangleArray[index], local_opaque, sizeof(RTCTriangle)*numOpaque);
+					numOpaque = 0;
+				}
+			}
+
+			// flush all non-empty queues
+			if (numAlpha > 0) {
+				const size_t index = (size_t)alphaCount.fetch_add((int)numAlpha);
+				memcpy(&m_alphaTriangleArray[index], local_alpha, sizeof(RTCTriangle)*numAlpha);
+				numAlpha = 0;
+			}
+
+			if (numOpaque > 0) {
+				const size_t index = (size_t)opaqueCount.fetch_add((int)numOpaque);
+				memcpy(&m_opaqueTriangleArray[index], local_opaque, sizeof(RTCTriangle)*numOpaque);
+				numOpaque = 0;
+			}
+		});
+
+        // Shrink the size (but not capacity) to fit
+        m_alphaTriangleArray.resize(alphaCount, false);
+        m_opaqueTriangleArray.resize(opaqueCount, false);
+	}
+
+	timer.tock();
 
     m_opaqueGeomID = rtcNewTriangleMesh(m_scene, RTC_GEOMETRY_STATIC, m_opaqueTriangleArray.size(), m_vertexArray.size(), 1);
     if (m_opaqueTriangleArray.size() > 0) {
@@ -137,7 +179,7 @@ void EmbreeTriTree::rebuild() {
     }
 
     // Register the generic filter function adapter
-    rtcSetOcclusionFilterFunctionN(m_scene, m_alphaGeomID, FilterAdapter::rtcFilterFuncN);
+    rtcSetOcclusionFilterFunctionN(m_scene, m_alphaGeomID,    FilterAdapter::rtcFilterFuncN);
     rtcSetIntersectionFilterFunctionN(m_scene, m_alphaGeomID, FilterAdapter::rtcFilterFuncN);
 
     // Register the back pointer to the tree
@@ -146,6 +188,7 @@ void EmbreeTriTree::rebuild() {
 
     rtcCommit(m_scene);
 }
+
 
 EmbreeTriTree::FilterAdapter::FilterAdapter(IntersectRayOptions options) : options(options) { }
 
