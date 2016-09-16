@@ -91,7 +91,6 @@ protected:
 
     class ThreadData {
     public:
-        shared_ptr<Random>   rnd;
         Array<Tri>           localTri;
     };
 
@@ -147,7 +146,7 @@ protected:
 
     void emitPhoton(Random& rnd, Photon& photon);
     
-    void traceOnePhoton(int ignorex, int ignorey, int threadID);
+    void traceOnePhoton(int threadID);
 
     /** Computes the radius of the effect of a single photon based on the a priori path probability. */
     float photonEffectRadius(float probabiltyHint) const;
