@@ -24,23 +24,32 @@
 namespace G3D {
 
 void EmbreeTriTree::apiConvert(const Ray& ray, RTCRay& rtcRay) {
-    (Point3&)rtcRay.org = ray.origin();
-    (Vector3&)rtcRay.dir = ray.direction();
+    // G3D::Ray is a strict subset of rtcRay in terms of memory
+    // layout because rtcRay has alignment padding, so directly copy
+    (Ray&)rtcRay = ray;
     rtcRay.tnear  = ray.minDistance(); 
     rtcRay.tfar   = ray.maxDistance();
-    rtcRay.instID = RTC_INVALID_GEOMETRY_ID;
+    // rtcRay.instID = RTC_INVALID_GEOMETRY_ID;  // uncomment if instances are required
     rtcRay.geomID = RTC_INVALID_GEOMETRY_ID; 
-    rtcRay.primID = RTC_INVALID_GEOMETRY_ID; 
-    rtcRay.mask   = 0xFFFFFFFF; 
-    rtcRay.time   = 0.0f;
+    // rtcRay.primID = RTC_INVALID_GEOMETRY_ID;  // 
+    // rtcRay.mask   = 0xFFFFFFFF;               // uncomment if we need ray masking
+    // rtcRay.time   = 0.0f;                     // uncomment if we need motion blur
 }
 
-
-void EmbreeTriTree::apiConvert(const RTCRay& rtcRay, const Vector3& normal, int triIndex, TriTreeBase::Hit& hit) {
+void EmbreeTriTree::apiConvert(const RTCRay& rtcRay, int triIndex, TriTreeBase::Hit& hit) {
     hit.triIndex = triIndex;
     hit.u = rtcRay.u;
     hit.v = rtcRay.v;
-    hit.backface = normal.dot((const Vector3&)rtcRay.Ng) > 0.0f;
+    hit.backface = (rtcRay.Ng[0] * rtcRay.dir[0]) + (rtcRay.Ng[1] * rtcRay.dir[1]) + (rtcRay.Ng[2] * rtcRay.dir[2]) < 0.0f;      
+    hit.distance = rtcRay.tfar;
+}
+
+
+void EmbreeTriTree::apiConvertOcclusion(const RTCRay& rtcRay, TriTreeBase::Hit& hit) {
+    hit.triIndex = 0;
+    hit.u = 0;
+    hit.v = 0;
+    hit.backface = false;        
     hit.distance = rtcRay.tfar;
 }
 
@@ -235,16 +244,16 @@ bool EmbreeTriTree::intersectRay
 #       endif
 
     if (rtcRay.geomID != RTC_INVALID_GEOMETRY_ID) {
-        int triIndex = 0;
-            
-        if (! occlusionOnly) {
-            // Identify the source triangle
-            triIndex = ((rtcRay.geomID == m_alphaGeomID) ? m_alphaTriangleArray : m_opaqueTriangleArray)[rtcRay.primID].triIndex;
+		// Hit
+        if (occlusionOnly) {
+            apiConvertOcclusion(rtcRay, hit);
+        } else {
+            const int triIndex = ((rtcRay.geomID == m_alphaGeomID) ? m_alphaTriangleArray : m_opaqueTriangleArray)[rtcRay.primID].triIndex;
+            apiConvert(rtcRay, triIndex, hit);
         }
-
-        apiConvert(rtcRay, occlusionOnly ? Vector3::zero() : m_triArray[triIndex].nonUnitNormal(m_vertexArray), triIndex, hit);
         return true;
     } else {
+		// Miss
         return false;
     }
 }
@@ -255,15 +264,11 @@ void EmbreeTriTree::intersectRays
     Array<Hit>&                        results,
     IntersectRayOptions                options) const {
 
-    Stopwatch conversionTimer;
-    conversionTimer.tick();
     results.resize(rays.size());    
 
     const bool occlusionOnly = (options & OCCLUSION_TEST_ONLY) != 0;
   
     FilterAdapter adapter(options);
-    const int numBatches = System::numCores();
-
     RTCIntersectContext context;
     context.flags = RTCIntersectFlags(0);
     if ((options & COHERENT_RAY_HINT) != 0) {
@@ -272,49 +277,44 @@ void EmbreeTriTree::intersectRays
         context.flags = RTCIntersectFlags(context.flags | RTC_INTERSECT_INCOHERENT);
     }
     context.userRayExt = (void*)&adapter;
-    conversionTimer.tock();
-    debugConversionOverheadTime = conversionTimer.elapsedTime();
 
     // Using raw pointers instead of C++ arrays gave no performance increase for the code below
-
-    const size_t minStepSize = 32;
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, rays.size(), minStepSize), [&](const tbb::blocked_range<size_t>& r) {
+    static const size_t grainSize = 64;
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, rays.size(), grainSize), [&](const tbb::blocked_range<size_t>& r) {
 		const size_t start = r.begin();
 		const size_t end   = r.end();
 
-        // Making this array "static thread_local" didn't have any performance impact---G3D's allocator
-        // is quite efficient.
-        Array<RTCRay> rtcRays;
-		rtcRays.resize(end - start);
+		// Subblock-based processing to keep the rays in cache gives a ~6% improvement over
+		// converting the entire blocked_range at once.
+		static const size_t BLOCK_SIZE = 64;
+		for (size_t r = start; r < end; r += BLOCK_SIZE) {
+			RTCRay rtcRays[BLOCK_SIZE];
+			const size_t numRays = min(BLOCK_SIZE, end - r);
 
-		for (size_t r = start; r < end; ++r) {
-			apiConvert(rays[r], rtcRays[r - start]);
-		}
-
-        (occlusionOnly ? rtcOccluded1M : rtcIntersect1M)(m_scene, &context, rtcRays.getCArray(), rtcRays.size(), sizeof(RTCRay));
-
-#           ifdef G3D_DEBUG
-		{
-			const RTCError error = rtcDeviceGetError(m_device);
-			debugAssert(error == RTC_NO_ERROR);
-		}
-#           endif
-
-		for (size_t r = start; r < end; ++r) {
-			RTCRay& rtcRay = rtcRays[r - start];
-
-            if (rtcRay.geomID != RTC_INVALID_GEOMETRY_ID) {
-                // Identify the source triangle
-                int triIndex = 0;            
-                if (! occlusionOnly) {
-                    triIndex = ((rtcRay.geomID == m_alphaGeomID) ? m_alphaTriangleArray : m_opaqueTriangleArray)[rtcRay.primID].triIndex;
-                }
-                apiConvert(rtcRay, occlusionOnly ? Vector3::zero() : m_triArray[triIndex].nonUnitNormal(m_vertexArray), triIndex, results[r]);
-			} else {
-				results[r].triIndex = Hit::NONE;
+			for (size_t i = 0; i < numRays; ++i) {
+				apiConvert(rays[r + i], rtcRays[i]);
 			}
-		} // for
+
+			(occlusionOnly ? rtcOccluded1M : rtcIntersect1M)(m_scene, &context, rtcRays, numRays, sizeof(RTCRay));
+
+			for (size_t i = 0; i < numRays; ++i) {
+				RTCRay& rtcRay = rtcRays[i];
+				if (rtcRay.geomID != RTC_INVALID_GEOMETRY_ID) {
+					// Hit
+					if (occlusionOnly) {
+						apiConvertOcclusion(rtcRay, results[r + i]);
+					} else {
+						const int triIndex = ((rtcRay.geomID == m_alphaGeomID) ? m_alphaTriangleArray : m_opaqueTriangleArray)[rtcRay.primID].triIndex;
+						apiConvert(rtcRay, triIndex, results[r + i]);
+					}					
+				} else {
+					// Miss
+					results[r + i].triIndex = Hit::NONE;
+				}
+			} // for each ray
+		} // for 
 	}); // parallel for
+
 }
 
 } // G3D
