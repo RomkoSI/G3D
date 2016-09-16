@@ -47,16 +47,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.lib</TargetExt>
     <IntDir>$(ProjectDir)\..\temp\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
-    <IncludePath>$(ProjectDir)..\jpeg.lib\include;$(ProjectDir)..\png.lib\include;$(ProjectDir)..\zip.lib\include;$(ProjectDir)..\zlib.lib\include;$(ProjectDir)..\freeimage.lib\include;$(ProjectDir)..\G3D.lib\include;$(ProjectDir)..\GLG3D.lib\include;$(ProjectDir)..\glew.lib\include;$(ProjectDir)..\ffmpeg\windows\include;$(ProjectDir)..\tbb\include;$(ProjectDir)..\embree\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\jpeg.lib\include;$(ProjectDir)..\png.lib\include;$(ProjectDir)..\zip.lib\include;$(ProjectDir)..\zlib.lib\include;$(ProjectDir)..\freeimage.lib\include;$(ProjectDir)..\G3D.lib\include;$(ProjectDir)..\GLG3D.lib\include;$(ProjectDir)..\glew.lib\include;$(ProjectDir)..\ffmpeg\win64\include;$(ProjectDir)..\tbb\include;$(ProjectDir)..\embree\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath);$(VSInstallDir);$(VSInstallDir)lib\amd64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)\..\build\lib\</OutDir>
     <IntDir>$(ProjectDir)\..\temp\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(ProjectDir)..\jpeg.lib\include;$(ProjectDir)..\png.lib\include;$(ProjectDir)..\zip.lib\include;$(ProjectDir)..\zlib.lib\include;$(ProjectDir)..\freeimage.lib\include;$(ProjectDir)..\G3D.lib\include;$(ProjectDir)..\GLG3D.lib\include;$(ProjectDir)..\glew.lib\include;$(ProjectDir)..\ffmpeg\windows\include;$(ProjectDir)..\tbb\include;$(ProjectDir)..\embree\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\jpeg.lib\include;$(ProjectDir)..\png.lib\include;$(ProjectDir)..\zip.lib\include;$(ProjectDir)..\zlib.lib\include;$(ProjectDir)..\freeimage.lib\include;$(ProjectDir)..\G3D.lib\include;$(ProjectDir)..\GLG3D.lib\include;$(ProjectDir)..\glew.lib\include;$(ProjectDir)..\ffmpeg\win64\include;$(ProjectDir)..\tbb\include;$(ProjectDir)..\embree\include;$(IncludePath)</IncludePath>
     <TargetName>GLG3D_x64</TargetName>
-    <LibraryPath>$(LibraryPath);$(VSInstallDir);$(VSInstallDir)lib\amd64;</LibraryPath>
+    <LibraryPath>$(LibraryPath);$(VSInstallDir);$(VSInstallDir)lib\amd64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -74,7 +74,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectName)\include" "$(OutDir)\..\include" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\ffmpeg\windows\lib64" "$(OutDir)..\lib" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\ffmpeg\windows\bin64" "$(OutDir)..\bin" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\assimp\lib\assimp_release-dll_x64" "$(OutDir)..\lib"</Command>
+      <Command>call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectName)\include" "$(OutDir)\..\include" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\ffmpeg\win64\include" "$(OutDir)..\include" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\ffmpeg\win64\lib" "$(OutDir)..\lib" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\ffmpeg\win64\bin" "$(OutDir)..\bin" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\assimp\lib\assimp_release-dll_x64" "$(OutDir)..\lib"</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Copying header files and FFMPEG binaries to build directory</Message>
@@ -107,7 +107,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectName)\include" "$(OutDir)\..\include" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\ffmpeg\windows\lib64" "$(OutDir)..\lib" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\ffmpeg\windows\bin64" "$(OutDir)..\bin" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\assimp\lib\assimp_release-dll_x64" "$(OutDir)..\lib"</Command>
+      <Command>call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectName)\include" "$(OutDir)\..\include" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\ffmpeg\win64\include" "$(OutDir)..\include" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\ffmpeg\win64\lib" "$(OutDir)..\lib" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\ffmpeg\win64\bin" "$(OutDir)..\bin" &amp;&amp; "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\assimp\lib\assimp_release-dll_x64" "$(OutDir)..\lib"</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Copying header files and FFMPEG binaries to build directory</Message>

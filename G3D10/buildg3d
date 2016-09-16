@@ -391,14 +391,16 @@ def libTarget():
     copyIfNewer('tbb/include/tbb/*', 'build/include/tbb/')
     copyIfNewer('tbb/include/serial/*', 'build/include/serial/')
     copyIfNewer('embree/include/*', 'build/include/')
+    copyIfNewer('physx/include/*', 'build/include/')
 
     if windows:
-        copyIfNewer('ffmpeg/windows/bin64/*', 'build/bin/')
+        copyIfNewer('ffmpeg/win64/include/*', 'build/include/')
+        copyIfNewer('ffmpeg/win64/bin/*', 'build/bin/')
+        copyIfNewer('ffmpeg/win64/lib/*', 'build/lib/')
         copyIfNewer('fmod/lib-windows/fmod*_vc.lib', 'build/lib/')
         copyIfNewer('fmod/bin-windows/fmod64.dll', 'build/bin/')
 
         # PhysX libraries are precompiled binaries
-        copyIfNewer('physx/include/*', 'build/include/')
         copyIfNewer('physx/win64/lib/*', 'build/lib/')
         copyIfNewer('physx/win64/bin/*', 'build/bin/')
 
@@ -411,7 +413,8 @@ def libTarget():
         copyIfNewer('tbb/win64/lib/*', 'build/lib/')
         copyIfNewer('tbb/win64/bin/*', 'build/bin/')
 
-		# Embree is precompiled
+		# Embree is precompiled. The embree headers aren't needed
+		# by programs using G3D.
         copyIfNewer('embree/win64/lib/*', 'build/lib/')
         copyIfNewer('embree/win64/bin/*', 'build/bin/')
 
