@@ -110,12 +110,7 @@ void RayTracer::maybeUpdatePhotonMap() {
             {
                 const RealTime start = System::time();
                 
-                Thread::runConcurrently2D
-                    (Point2int32(0, 0),
-                     Point2int32(1, m_settings.photon.numEmitted),
-                     this,
-                     &RayTracer::traceOnePhoton,
-                     numThreads);
+                Thread::runConcurrently(0, m_settings.photon.numEmitted), [this](){ traceOnePhoton(); });
                 
                 m_photonTraceTimeMilliseconds = float((System::time() - start) / units::milliseconds());
             }
@@ -179,7 +174,7 @@ float RayTracer::photonEffectRadius(float probabilityHint) const {
 }
 
 
-void RayTracer::traceOnePhoton(int ignoreX, int ignoreY, int threadID) {
+void RayTracer::traceOnePhoton(int threadID) {
     ThreadData& threadData(m_threadData[threadID]);
 
     Photon photon;
