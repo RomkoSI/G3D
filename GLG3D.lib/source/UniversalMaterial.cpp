@@ -36,7 +36,7 @@ UniversalMaterial::UniversalMaterial() :
 
 
 shared_ptr<UniversalMaterial> UniversalMaterial::createEmpty() {
-    return shared_ptr<UniversalMaterial>(new UniversalMaterial());
+    return createShared<UniversalMaterial>();
 }
 
 
@@ -48,7 +48,7 @@ shared_ptr<UniversalMaterial> UniversalMaterial::create
  const shared_ptr<MapComponent<Image4> >& customMap,
  const Color4&                       customConstant,
  const String&                       customShaderPrefix,
- const AlphaFilter                     alphaFilter) {
+ const AlphaFilter                   alphaFilter) {
 
     alwaysAssertM((lightMaps.size() <= 1) || (lightMaps.size() == 3), 
 		format("Tried to create material with %d directional lightMaps, must have 0, 1, or 3", lightMaps.size()));

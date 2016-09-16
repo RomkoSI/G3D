@@ -1004,6 +1004,8 @@ void UniversalSurface::getTrisHomogeneous
         CFrame prevFrame;
         surface->getCoordinateFrame(prevFrame, PREVIOUS);
 
+		const bool hasPartialCoverage = surface->material()->hasPartialCoverage();
+
         bool created = false;
         uint32& indexOffset = indexOffsetTable.getCreate(key, created);
         if (created) {
@@ -1016,10 +1018,8 @@ void UniversalSurface::getTrisHomogeneous
             }
         } 
 
-        alwaysAssertM(cpuGeom.vertexArray != NULL, "No support for non-interlaced vertex formats");
+        alwaysAssertM(notNull(cpuGeom.vertexArray), "No support for non-interlaced vertex formats");
 
-        // G3D 9.00 format with interlaced vertices
-        // All data are in object space
         for (int i = 0; i < index.size(); i += 3) {
             triArray.append
                 (Tri(index[i + 0] + indexOffset,
@@ -1027,8 +1027,9 @@ void UniversalSurface::getTrisHomogeneous
                      index[i + 2] + indexOffset,
 
                      cpuVertexArray,
-                     lazy_ptr<ReferenceCountedObject>(dynamic_pointer_cast<ReferenceCountedObject>(surface)),
-                     twoSided));
+                     surface,
+                     twoSided,
+  					 hasPartialCoverage));
 
         } // for index
     } // for surface
