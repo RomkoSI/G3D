@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2016-09-14
-  \edited  2016-09-14
+  \edited  2016-09-16
 
   G3D Innovation Engine
   Copyright 2000-2016, Morgan McGuire.
@@ -51,7 +51,9 @@ protected:
 
     static void apiConvert(const Ray& ray, RTCRay& rtcRay);
 
-    static void apiConvert(const RTCRay& rtcRay, const Vector3& normal, int triIndex, TriTreeBase::Hit& hit);
+    static void apiConvert(const RTCRay& rtcRay, int triIndex, TriTreeBase::Hit& hit);
+
+    static void apiConvertOcclusion(const RTCRay& rtcRay, TriTreeBase::Hit& hit);
 
     Array<RTCTriangle>      m_opaqueTriangleArray;
     Array<RTCTriangle>      m_alphaTriangleArray;
