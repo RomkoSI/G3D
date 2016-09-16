@@ -151,7 +151,7 @@ DirectionHistogram::DirectionHistogram(int numSlices, const Vector3& axis) : m_s
             // Wind backwards; these tris have to face inward
 
             // Vertex index index
-            const lazy_ptr<ReferenceCountedObject> vii(shared_ptr<ReferenceCountedObject>(new VertexIndexIndex(q)));
+            const shared_ptr<ReferenceCountedObject> vii(new VertexIndexIndex(q));
             
             Tri A(i0, i3, i2, vertexArray, vii);
             Tri B(i0, i2, i1, vertexArray, vii);
@@ -169,7 +169,6 @@ DirectionHistogram::DirectionHistogram(int numSlices, const Vector3& axis) : m_s
         }
         
         m_tree.setContents(triArray, vertexArray);
-        //ASKMORGAN
         vertexArray.vertex.clear();
 
         for (int i = 0; i < m_invArea.size(); ++i) {

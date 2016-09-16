@@ -18,7 +18,6 @@
 #include "G3D/CoordinateFrame.h"
 #include "G3D/ReferenceCount.h"
 #include "G3D/Triangle.h"
-#include "G3D/lazy_ptr.h"
 #include "GLG3D/Component.h"
 #include "GLG3D/CPUVertexArray.h"
 
@@ -43,8 +42,13 @@ class Tri {
 private:
     friend class NativeTriTree;
 
-    /** Usually a material, but can be abstracted  */
-    lazy_ptr<ReferenceCountedObject>      m_data;
+	// Flags:
+	static const uint64 TWO_SIDED            = 1;
+	static const uint64 HAS_PARTIAL_COVERAGE = 2;
+
+
+    /** Usually a Material or Surface, but can be an arbitrary hook. */
+    shared_ptr<ReferenceCountedObject> m_data;
 
     /** 
       The area of the triangle: (e0 x e1).length() * 0.5 
@@ -60,17 +64,25 @@ public:
     /** Indices into the CPU Vertex array */
     uint32                  index[3];
 
+private:
+
+	uint64					m_flags = 0;
+
+public:
+
     /** Assumes that normals are perpendicular to tangents, or that the tangents are zero.
-
-        \param material Create your own lazy_ptr<Material> subclass to store application-specific data; BSDF, image, etc.
-
-       without adding to the size of Tri or having to trampoline all of the UniversalMaterial factory methods.
-       To extract the actual material from the proxy use Tri::material and Tri::data<T>.
+		\param data Usually a Surface or Material, but can be an arbitrary hook
     */
     Tri(const int i0, const int i1, const int i2,
         const CPUVertexArray& vertexArray,
-        const lazy_ptr<ReferenceCountedObject>& material = lazy_ptr<ReferenceCountedObject>(),
+        const shared_ptr<ReferenceCountedObject>& data = shared_ptr<ReferenceCountedObject>(),
         bool twoSided = false);
+
+	Tri(const int i0, const int i1, const int i2,
+        const CPUVertexArray& vertexArray,
+        const shared_ptr<ReferenceCountedObject>& data,
+        bool twoSided,
+		bool partialCoverage);
 
     Tri() {}
 
@@ -84,9 +96,9 @@ public:
         return position(vertexArray, 2) - position(vertexArray, 0);
     }
 
-    /* Override the current material with the parameter */
-    void setData(const lazy_ptr<ReferenceCountedObject>& newMaterial){
-        m_data = newMaterial;
+    /* Override the current data with the parameter */
+    void setData(const shared_ptr<ReferenceCountedObject>& newData){
+        m_data = newData;
     }
 
     /** Returns a bounding box */
@@ -100,8 +112,18 @@ public:
 
     /** Surface area. */
     float area() const {
-        return fabs(m_area);
+        return m_area;
     }
+
+    /** True if this triangle should be treated as double-sided. */
+	bool twoSided() const {
+		return (m_flags & TWO_SIDED) != 0;
+	}
+
+	/** True if this triangle has a material with any alpha < 1 */
+	bool hasPartialCoverage() const {
+		return (m_flags & HAS_PARTIAL_COVERAGE) != 0;
+	}
 
     /** Vertex position (must be computed) */
     Point3 position(const CPUVertexArray& vertexArray, int i) const {
@@ -174,14 +196,14 @@ public:
     */
     template<class T>
     shared_ptr<T> data() const {
-        return dynamic_pointer_cast<T>(m_data.resolve());
+        return dynamic_pointer_cast<T>(m_data);
     }
 
     /** 
         \brief Returns a (relatively) unique integer for this object
         
         NOTE: Hashes only on the indices! Think of Tri simply as
-        a set of indices and not an actual triangle
+        a set of indices and not an actual triangle.
       */
     uint32 hashCode() const {
         return (uint32)((index[0] << 20) + (index[1] << 10) + index[2]);
@@ -197,16 +219,8 @@ public:
             (index[2] == t.index[2]) &&
             (m_data == t.m_data);
     }
-
-
-    /** True if this triangle should be treated as double-sided. */
-    bool twoSided() const {
-        return (m_area < 0);
-    }
     
     Triangle toTriangle(const CPUVertexArray& vertexArray) const;
-
-    bool hasPartialCoverage() const;
 
     shared_ptr<Surfel> sample(float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backface) const;
 
