@@ -258,7 +258,12 @@ public:
     void set(const Point2int32& pos, const Color4unorm8& color);
     void set(const Point2int32& pos, const Color3unorm8& color);
     void set(const Point2int32& pos, const Color1unorm8& color);
-    
+
+    template <class ColorN>
+    void increment(const Point2int32& pos, const ColorN& color) {
+        set(pos, get<ColorN>(pos) + color);
+    }
+
     void setAll(const Color4& color);
     void setAll(const Color3& color);
     void setAll(const Color1& color);
