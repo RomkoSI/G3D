@@ -149,6 +149,11 @@ public:
          Array<shared_ptr<Surfel>>&         results,
          IntersectRayOptions                options         = IntersectRayOptions(0)) const;
 
+    virtual void intersectRays
+        (const Array<Ray>&                  rays,
+         Array<bool>&                       results,
+         IntersectRayOptions                options         = IntersectRayOptions(0)) const;
+
     /** Returns all triangles that lie within the box. Default implementation
         tests each triangle in turn (linear time). */
     virtual void intersectBox
