@@ -35,8 +35,10 @@ void main() {
 #   endif
     int2   P = int2(gl_FragCoord.xy) << shift; 
 
-    float2 sum = float2(0.0,0.0);
+    float2 sum = float2(0.0, 0.0);
     float infinityWeight = 0.0;
+
+    // Smallest finite depth value we've observed
     float minFiniteZ = 0.0;
     
     addTap(KERNEL_RADIUS - 1, 0, P, sum, infinityWeight, minFiniteZ);
@@ -48,12 +50,16 @@ void main() {
     for (int tap = 0; tap < KERNEL_RADIUS - 1; ++tap) {
         addTap(tap, -(KERNEL_RADIUS - 1 - tap), P, sum, infinityWeight, minFiniteZ);
     }
+
     // Choose a Z value to use for "infinity" that isn't too extreme
     float infinityZ = farPlaneZ;
     if (minFiniteZ < 0) {
         infinityZ = max(infinityZ, minFiniteZ * 1.1);
     }
+
+    // Weigh the accumulated infinite taps
     sum += float2(infinityZ, infinityZ * infinityZ) * infinityWeight;
-    result = sum;
+
+    result = sum;    
 }
 
