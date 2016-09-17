@@ -52,6 +52,7 @@ namespace G3D {
 class NativeTriTree : public TriTreeBase {
 public:
     using TriTreeBase::intersectRay;
+    using TriTreeBase::intersectRays;
 
     enum SplitAlgorithm {
         /** Produce nodes with approximately equal shape by splitting
