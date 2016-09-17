@@ -240,15 +240,15 @@ void Thread::runConcurrently
     } else if (extent.x > TASKS_PER_BATCH) {
         // Group tasks into batches by row (favors Y; blocks would be better)
         tbb::parallel_for(0, numRows, [&](size_t r) {
-            for (Point3int32 coord(start.x, (int(r) % extent.y) + start.y, (int(r) / extent.y) + start.z); start.x < stopBefore.x; ++coord.x) {
-                callback(coord);
+            for (Point3int32 coord(start.x, (int(r) % extent.y) + start.y, (int(r) / extent.y) + start.z); coord.x < stopBefore.x; ++coord.x) {
+				callback(coord);
             }
         });
     } else if (extent.x * extent.y > TASKS_PER_BATCH) {
         // Group tasks into batches by groups of rows (favors Z; blocks would be better)
         tbb::parallel_for(tbb::blocked_range<size_t>(0, numRows, TASKS_PER_BATCH), [&](const tbb::blocked_range<size_t>& block) {
             for (size_t r = block.begin(); r < block.end(); ++r) {
-                for (Point3int32 coord(start.x, (int(r) % extent.y) + start.y, (int(r) / extent.y) + start.z); start.x < stopBefore.x; ++coord.x) {
+                for (Point3int32 coord(start.x, (int(r) % extent.y) + start.y, (int(r) / extent.y) + start.z); coord.x < stopBefore.x; ++coord.x) {
                     callback(coord);
                 }
             }
