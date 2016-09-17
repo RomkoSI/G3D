@@ -136,4 +136,17 @@ void TriTreeBase::intersectRays
 }
 
 
+void TriTreeBase::intersectRays
+    (const Array<Ray>&                 rays,
+    Array<bool>&                       results,
+    IntersectRayOptions                options) const {
+
+    Array<Hit> hits;
+    results.resize(rays.size());
+    intersectRays(rays, hits, options);
+    Thread::runConcurrently(0, rays.size(), [&](int i) {
+        results[i] = hits[i].triIndex != Hit::NONE;
+    });
+}
+
 } // G3D
