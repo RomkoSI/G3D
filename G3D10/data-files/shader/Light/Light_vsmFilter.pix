@@ -15,8 +15,10 @@ uniform int2      direction;
 uniform float     farPlaneZ;
 out vec2 result;
 
+ivec2 maxCoord = textureSize(source, 0).xy - ivec2(1);
+
 void addTap(in int tap, in int texOffset, in int2 P, inout float2 sum, inout float infinityWeight, inout float minFiniteZ) {
-    float2 v = texelFetch(source, texOffset * direction + P, 0).xy;
+    float2 v = texelFetch(source, clamp(texOffset * direction + P, ivec2(0), maxCoord), 0).xy;
     if (v.x <= farPlaneZ) {
         infinityWeight += gaussCoef[tap];
     } else {
@@ -25,9 +27,10 @@ void addTap(in int tap, in int texOffset, in int2 P, inout float2 sum, inout flo
     }
 }
 
+
 void main() {
  
-#   ifdef  NVIDIA_361_WORKAROUND
+#   ifdef NVIDIA_361_WORKAROUND
         NVIDIA_361_WORKAROUND();
 #   endif
     int2   P = int2(gl_FragCoord.xy) << shift; 
@@ -50,7 +53,7 @@ void main() {
     if (minFiniteZ < 0) {
         infinityZ = max(infinityZ, minFiniteZ * 1.1);
     }
-    sum += float2(infinityZ,infinityZ*infinityZ)*infinityWeight;
+    sum += float2(infinityZ, infinityZ * infinityZ) * infinityWeight;
     result = sum;
 }
 
