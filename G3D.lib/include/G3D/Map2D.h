@@ -572,7 +572,7 @@ public:
 
 
     // Weighting polynomial http://paulbourke.net/texture_colour/imageprocess/
-    float R(float x) {
+    static float R(float x) {
         static const float coeff[4] = { 1.0f, -4.0f, 6.0f, -4.0f };
         float result = 0.0f;
         for (int j = 0; j < 4; ++j) {
