@@ -174,7 +174,7 @@ Color3 UniversalSurfel::finiteScatteringDensity
  const Vector3&    wo,
  const ExpressiveParameters& expressiveParameters) const {
 
-    static const float maxShininess = 8000;
+    static const float maxBlinnPhongExponent = 8000;
      
     if ((wi.dot(shadingNormal) < 0) || 
         (wo.dot(shadingNormal) < 0)) {
@@ -201,17 +201,18 @@ Color3 UniversalSurfel::finiteScatteringDensity
         const Vector3& w_h = (wi + wo).direction();
         const float cos_h = max(0.0f, w_h.dot(n));
         
-        const float s = min(blinnPhongExponent(), maxShininess);
+        const float s = min(blinnPhongExponent(), maxBlinnPhongExponent);
         
         F = schlickFresnel(glossyReflectionCoefficient, cos_i, smoothness);
         if (s == finf()) {
+            // Will be handled by the mirror case
             S = Color3::zero();
         } else {
             S = F * (powf(cos_h, s) * (s + 8.0f) * INV_8PI);
         }
     }
 
-    const Color3& D = (lambertianReflectivity * INV_PI) * (Color3(1.0f) - F) * boost;
+    const Color3& D = (lambertianReflectivity * INV_PI) * (Color3::one() - F) * boost;
 
     return S + D;
 }
