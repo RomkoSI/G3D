@@ -172,7 +172,7 @@ namespace G3D {
   \author Morgan McGuire, http://graphics.cs.williams.edu
  */
 template< typename Storage, 
-typename Compute = typename G3D::_internal::_GetComputeType<Storage>::Type>
+          typename Compute = typename G3D::_internal::_GetComputeType<Storage>::Type>
 class Map2D : public ReferenceCountedObject {
 
 //
@@ -266,8 +266,8 @@ public:
     */
     GMutex mutex;
 
-    static Ref create(int w = 0, int h = 0, WrapMode wrap = WrapMode::ERROR, int d = 1) {
-        return Ref(new Map2D(w, h, wrap, d));
+    static shared_ptr< Map2D<Storage, Compute> > create(int w = 0, int h = 0, WrapMode wrap = WrapMode::ERROR, int d = 1) {
+        return createShared< Map2D<Storage, Compute> >(w, h, wrap, d);
     }
 
     /** Resizes without clearing, leaving garbage.
