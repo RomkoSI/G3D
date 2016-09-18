@@ -204,7 +204,7 @@ Vector2 GFont::appendToPackedArray
 
     // Worst case number of characters to add
     const int n = int(s.length());
-    int oldVertexCount = vertexArray.size();
+    //int oldVertexCount = vertexArray.size();
     int newVertexCount = vertexArray.size() + n * 4;
     int nextIndexCount = indexArray.size()   + n * 6;
     if (vertexArray.capacity() < newVertexCount) {
