@@ -175,6 +175,10 @@ void Surfel::scatter
     // none of the impulses triggered sampling (note that r was
     // chosen on [0, prob], not [0, 1] above.
 
+    // The step below does not importance sample based on the BSDF itself, just
+    // based on the cosine.  We could use Russian Roulette, but it seems better
+    // to let subclass implementers decide if that is efficient for their BSDFs.
+    //
     // Choose a random outgoing direction, taking into account
     // projected area "cosine" weighting.  I.e., importance
     // sample the cosine factor.
@@ -187,15 +191,14 @@ void Surfel::scatter
     // Evaluate the BSDF for this pair of directions
     const Color3& density = finiteScatteringDensity(pathDirection, wi, wo, expressiveParameters);
         
-    // This step does not importance sample.  We could use Russian
-    // Roulette, but it seems better to let subclass implementers
-    // decide if that is efficient for their BSDFs.
 
     // Do not normalize by prob, because that would make BSDFs
     // with different net probability return the same weights.
     //
     // We don't need to cosine-weight here because we
     // sampled wo from a cosine distribution above.
+
+    // The weight is = probDensity(desiredDistribution, wo) / density(actualDistributionSampled, wo)
     if (transmissive()) {
         // Weigh by the cosine-weighted area of the sphere
         weight = density * 2.0 * pif();
