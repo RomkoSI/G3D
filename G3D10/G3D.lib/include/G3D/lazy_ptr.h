@@ -12,7 +12,6 @@
 #include "G3D/ReferenceCount.h"
 #include "G3D/GMutex.h"
 
-using std::function;
 using std::nullptr_t;
 
 namespace G3D {
@@ -41,11 +40,11 @@ private:
     class Proxy : public ReferenceCountedObject {
     public:
         mutable bool                    m_resolved;
-        const function<shared_ptr<T>()> m_resolve;
+        const std::function<shared_ptr<T>()> m_resolve;
         mutable shared_ptr<T>           m_object;
         mutable GMutex                  m_mutex;
 
-        Proxy(const function<shared_ptr<T>()>& resolve, const shared_ptr<T>& object, bool resolved) : 
+        Proxy(const std::function<shared_ptr<T>()>& resolve, const shared_ptr<T>& object, bool resolved) : 
             m_resolved(resolved), m_resolve(resolve), m_object(object) {}
 
         shared_ptr<T> resolve() const {
@@ -91,7 +90,7 @@ public:
     lazy_ptr(nullptr_t) {}
 
     /** Creates a lazy_ptr from a function that will create the object */
-    lazy_ptr(const function<shared_ptr<T> (void)>& resolve) : m_proxy(new Proxy(resolve, nullptr, false)) {}
+    lazy_ptr(const std::function<shared_ptr<T> (void)>& resolve) : m_proxy(new Proxy(resolve, nullptr, false)) {}
 
     /** Creates a lazy_ptr for an already-resolved object */
     lazy_ptr(const shared_ptr<T>& object) : m_proxy(new Proxy(nullptr, object, true)) {}
