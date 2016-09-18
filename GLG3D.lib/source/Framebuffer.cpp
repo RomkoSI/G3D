@@ -483,6 +483,7 @@ void Framebuffer::blitTo
     if (blitColor)   { flags |= GL_COLOR_BUFFER_BIT;   }
 
     debugAssertM(!(linearInterpolation && (blitDepth || blitStencil)), "if blit depth or stencil is enabled Nearest inpterpolation must be used");
+    #ifdef G3D_DEBUG
     if (notNull(dst)) {
         bool dstHasDepth = (dst->has(Framebuffer::DEPTH) || dst->has(Framebuffer::DEPTH_AND_STENCIL));
         bool hasDepth = (has(Framebuffer::DEPTH) || has(Framebuffer::DEPTH_AND_STENCIL));
@@ -492,6 +493,7 @@ void Framebuffer::blitTo
         debugAssertM((! blitStencil) || (hasStencil && dstHasStencil), "To perform a stencil blit both the source and destination Framebuffers must have a stencil buffer attached");
         debugAssertM((! blitColor) || (dst->has(Framebuffer::COLOR0) && has(Framebuffer::COLOR0)), "To perform a color blit both the source and destination Framebuffers must have a color buffer attached");
     }
+#   endif
     
     glBlitFramebuffer(0, invertY ? h : 0, w, invertY ? 0 : h, 0, 0, w, h, flags, linearInterpolation ? GL_LINEAR : GL_NEAREST);
     debugAssertGLOk();
