@@ -6,7 +6,7 @@ using namespace G3D;
 void testBicubic() {
     typedef Map2D<float, float> FloatMap;
 
-    FloatMap::Ref map = FloatMap::create(4, 4);
+    shared_ptr<FloatMap> map = FloatMap::create(4, 4);
 
     // Trivial cases; fit a linear function
     for (int x = 0; x < 4; ++x) {
