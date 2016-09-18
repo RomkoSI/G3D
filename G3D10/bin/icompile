@@ -346,7 +346,7 @@ def getLinkerOptions(state, allFiles):
 
             if verbosity >= TRACE:
                 if len(libs) > 1:
-                   print('#include "' + header + '" triggered links to ' + libs)
+                    print('#include "' + header + '" triggered links to ' + stri(libs))
                 elif len(libs) > 0:
                    print('#include "' + header + '" triggered a link to ' + libs[0])
 
