@@ -186,7 +186,6 @@ public:
     typedef Storage StorageType;
     typedef Compute ComputeType;
     typedef Map2D<Storage, Compute> Type;
-    typedef shared_ptr<Map2D> Ref;
 
 protected:
     
@@ -593,7 +592,7 @@ public:
         const float fx = x - floor(x);
         const float fy = y - floor(y);
 
-        Compute result;
+        Compute result= Compute(ZERO);
         for (int m = -1; m <= 2; ++m) {
             for (int n = -1; n <= 2; ++n) {
                 result += get(ix + m, iy + n, WrapMode::CLAMP) * R(float(m) - fx) * R(fy - float(n));
