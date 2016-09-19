@@ -553,7 +553,7 @@ public:
 
     /** Does not change storage if the map is NULL */
     inline void setStorage(ImageStorage s) const {
-		m_map->setStorage(s);
+        if (notNull(m_map)) { m_map->setStorage(s); }
     }
 
     /** Says nothing about the alpha channel */
