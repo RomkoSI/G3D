@@ -175,6 +175,8 @@ Color3 UniversalSurfel::finiteScatteringDensity
  const ExpressiveParameters& expressiveParameters) const {
 
     static const float maxBlinnPhongExponent = 8000;
+    const Vector3& n = shadingNormal;
+    const float cos_o = wo.dot(n);
      
     if ((wi.dot(shadingNormal) < 0) || 
         (wo.dot(shadingNormal) < 0)) {
@@ -183,8 +185,6 @@ Color3 UniversalSurfel::finiteScatteringDensity
         return Color3::zero();
     }
      
-    const Vector3& n = shadingNormal;
-    const float cos_i = fabs(wi.dot(n));
     
     static const float INV_8PI = 1.0f / (8.0f * pif());
     static const float INV_PI  = 1.0f / pif();
@@ -192,7 +192,10 @@ Color3 UniversalSurfel::finiteScatteringDensity
     // Base boost solely off Lambertian term
     const float boost = expressiveParameters.boost(lambertianReflectivity);
 
-    Color3 G(Color3::zero());
+    // Glossy term
+    Color3 f_G(Color3::zero());
+
+    // Fresnel reflection coefficient
     Color3 F(Color3::zero());
     if ((smoothness != 0.0f) && (glossyReflectionCoefficient.nonZero())) {
         // Glossy
@@ -203,19 +206,18 @@ Color3 UniversalSurfel::finiteScatteringDensity
         
         const float exponent = min(blinnPhongExponent(), maxBlinnPhongExponent);
         
-        // Fresnel is the same whether we pass cos_i or cos_o; we already have cos_i handy.
-        F = schlickFresnel(glossyReflectionCoefficient, cos_i, smoothness);
+        F = schlickFresnel(glossyReflectionCoefficient, cos_o, smoothness);
         if (exponent == finf()) {
             // Will be handled by the mirror case
-            G = Color3::zero();
+            f_G = Color3::zero();
         } else {
-            G = F * (powf(cos_h, exponent) * (exponent + 8.0f) * INV_8PI);
+            f_G = F * (powf(cos_h, exponent) * (exponent + 8.0f) * INV_8PI);
         }
     }
 
-    const Color3& D = (lambertianReflectivity * INV_PI) * (Color3::one() - F) * boost;
+    const Color3& f_L = lambertianReflectivity * (Color3::one() - F) * (boost * INV_PI);
 
-    return G + D;
+    return f_L + f_G;
 }
 
 

@@ -40,6 +40,7 @@ public:
     */
     Color3          lambertianReflectivity;
 
+    /** F0, the Fresnel reflection coefficient at normal incidence */
     Color3          glossyReflectionCoefficient;
         
     Color3          transmissionCoefficient;
