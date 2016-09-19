@@ -184,7 +184,11 @@ Color3 UniversalSurfel::finiteScatteringDensity
         // finite density transmission.
         return Color3::zero();
     }
-     
+
+    debugAssert(n.isUnit());
+    debugAssert(wo.isUnit());
+    debugAssert(wi.isUnit());
+    debugAssert(smoothness >= 0.0f && smoothness <= 1.0f);
     
     static const float INV_8PI = 1.0f / (8.0f * pif());
     static const float INV_PI  = 1.0f / pif();
