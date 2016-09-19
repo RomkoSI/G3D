@@ -519,6 +519,9 @@ public:
         automatically.
     */
     Color sample(const Vector2& pos) const {
+        if (isNull(m_map)) {
+            return Color::zero();
+        }
 		debugAssertM(notNull(m_map), "Tried to sample a component without a map");
         const shared_ptr<Image>& im = m_map->image();
         return handleTextureEncoding(im->bilinear(pos * Vector2(float(im->width()), float(im->height()))), m_map->texture());
