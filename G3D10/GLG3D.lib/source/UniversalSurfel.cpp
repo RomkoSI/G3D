@@ -192,7 +192,7 @@ Color3 UniversalSurfel::finiteScatteringDensity
     // Base boost solely off Lambertian term
     const float boost = expressiveParameters.boost(lambertianReflectivity);
 
-    Color3 S(Color3::zero());
+    Color3 G(Color3::zero());
     Color3 F(Color3::zero());
     if ((smoothness != 0.0f) && (glossyReflectionCoefficient.nonZero())) {
         // Glossy
@@ -201,20 +201,21 @@ Color3 UniversalSurfel::finiteScatteringDensity
         const Vector3& w_h = (wi + wo).direction();
         const float cos_h = max(0.0f, w_h.dot(n));
         
-        const float s = min(blinnPhongExponent(), maxBlinnPhongExponent);
+        const float exponent = min(blinnPhongExponent(), maxBlinnPhongExponent);
         
+        // Fresnel is the same whether we pass cos_i or cos_o; we already have cos_i handy.
         F = schlickFresnel(glossyReflectionCoefficient, cos_i, smoothness);
-        if (s == finf()) {
+        if (exponent == finf()) {
             // Will be handled by the mirror case
-            S = Color3::zero();
+            G = Color3::zero();
         } else {
-            S = F * (powf(cos_h, s) * (s + 8.0f) * INV_8PI);
+            G = F * (powf(cos_h, exponent) * (exponent + 8.0f) * INV_8PI);
         }
     }
 
     const Color3& D = (lambertianReflectivity * INV_PI) * (Color3::one() - F) * boost;
 
-    return S + D;
+    return G + D;
 }
 
 
