@@ -191,7 +191,6 @@ void Surfel::scatter
     // Evaluate the BSDF for this pair of directions
     const Color3& density = finiteScatteringDensity(pathDirection, wi, wo, expressiveParameters);
         
-
     // Do not normalize by prob, because that would make BSDFs
     // with different net probability return the same weights.
     //
@@ -208,10 +207,11 @@ void Surfel::scatter
     }
 
     if (russianRoulette) {
-        // For Russian roulette, normalize by the a priori
+        // For Russian roulette, if we successfully made it to this point without
+        // rejecting the photon, normalize by the a priori
         // scattering probability, unless it is greater than 1.0 due to
         // non-physical boost (if it is greater than 1.0, there was zero
-        // chance of absorption)
+        // chance of absorption). 
         if (prob < 1.0f) {
             weight /= prob;
         }
