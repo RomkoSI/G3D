@@ -320,4 +320,15 @@ Color3 UniversalSurfel::probabilityOfScattering
     }
 }
 
+
+void UniversalSurfel::sampleFinite
+   (PathDirection      pathDirection,
+    const Vector3&     wi,
+    Random&            rng,
+    const ExpressiveParameters& expressiveParameters,
+    Color3&            weight,
+    Vector3&           wo) const {
+    Surfel::sampleFinite(pathDirection, wi, rng, expressiveParameters, weight, wo);
+}
+
 } // namespace

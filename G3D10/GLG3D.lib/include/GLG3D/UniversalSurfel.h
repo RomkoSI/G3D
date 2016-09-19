@@ -26,6 +26,14 @@ class CPUVertexArray;
  \sa UniversalMaterial
 */
 class UniversalSurfel : public Surfel {
+protected:
+    virtual void sampleFinite
+        (PathDirection      pathDirection,
+         const Vector3&     wi,
+         Random&            rng,
+         const ExpressiveParameters& expressiveParameters,
+         Color3&            weight,
+         Vector3&           wo) const override;
 public:
 
     /** \f$ \rho_\mathrm{L} \f$
