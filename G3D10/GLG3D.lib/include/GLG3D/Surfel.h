@@ -421,23 +421,25 @@ that compensates for the way that the the sampling process is
 performed.
 
 <ul>
-<li> For photons, call: <code>scatter(PathDirection::SOURCE_TO_EYE, wi, ..., wo)</code></li>
-<li> For backwards rays, call: <code>scatter(PathDirection::EYE_TO_SOURCE, wo, ..., wi)</code></li>
+<li> For forward rays (e.g., photon tracing), call: <code>scatter(PathDirection::SOURCE_TO_EYE, wi, ..., wo)</code></li>
+<li> For backwards rays (e.g., path tracing), call: <code>scatter(PathDirection::EYE_TO_SOURCE, wo, ..., wi)</code></li>
 </ul>
 
-The following description is for the PathDirection::SOURCE_TO_EYE
-case.  The description of the backwards case is the same, but with \a
-wi and \a wo swapped.  Note that for a non-transmissive surface the
+The following description is for the PathDirection::SOURCE_TO_EYE (photon mapping)
+case.  <b>If you are Whitted ray tracing or path tracing, the description is the same, but with \a
+wi and \a wo swapped</b>.  For a non-transmissive surface the
 function is symmetric and gives the same result regardless of \a
-pathDirection.
-           
+pathDirection. For a transmissive (specifically, refractive transmissive) surface,
+the radiance value will change at the interface along a path because the projected
+area of the path changes.
+
 Sets \a wo to the outgoing photon direction and \a
 weight to a statistical energy compensation factor on the
-scattered radiance.  
+scattered radiance (i.e., the number you want to scale recursively-computed radiance by, including
+the BSDF and cosine factor). That is, \a weight = d\hat{\omega_\mathrm{o}} = $\frac{f( \hat{\omega_\mathrm{i}}, \hat{\omega_\mathrm{o}}) \cdot |\hat{\omega_\mathrm{o}} \cdot \hat{n}| \cdot 4 \pi}{p(\hat{\omega_\mathrm{i}}, \hat{\omega_\mathrm{o}})}$
+where $p(\hat{\omega_\mathrm{i}}, \hat{\omega_\mathrm{o}})$ is the actual probability distribution that was sampled. \a weight has units of steradians.
 
 If the photon was absorbed, then \a wo will be Vector3::nan().
-
-This method is useful for photon and bidirectional path tracing.
 
 <b>Details:</b><br/>
 Given \a wi, samples \a wo from a PDF proportional to 
