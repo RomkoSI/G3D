@@ -99,6 +99,40 @@ Color3 Surfel::finiteScatteringDensity
 }
 
 
+void Surfel::sampleFinite
+   (PathDirection      pathDirection,
+    const Vector3&     wi,
+    Random&            rng,
+    const ExpressiveParameters& expressiveParameters,
+    Color3&            weight,
+    Vector3&           wo) const {
+
+    // The step below does not importance sample based on the BSDF itself, just
+    // based on the cosine.  We could use Russian Roulette, but it seems better
+    // to let subclass implementers decide if that is efficient for their BSDFs.
+    //
+    // Choose a random outgoing direction, taking into account
+    // projected area "cosine" weighting.  I.e., importance
+    // sample the cosine factor.
+    float wt = 0.0f;
+    if (transmissive()) {
+        wo = Vector3::cosSphereRandom(shadingNormal, rng);
+        // wt = 1 / ( 1/2pi) = normalize the PDF of the cosine lobe
+        wt = 2.0f * pif(); // intentionally factored out the 1/|wo . n| factor
+    } else {
+        wo = Vector3::cosHemiRandom(shadingNormal, rng);
+        // wt = 1 / ( 1/pi) = normalize the PDF of the cosine lobe
+        wt = pif(); // intentionally factored out the 1/|wo . n| factor
+    }        
+
+    // Evaluate the BSDF for this pair of directions. We don't multiply by |wo . n| because we've
+    // already cancelled that term from the denominator of wt
+    const Color3& bsdfDensity = finiteScatteringDensity(pathDirection, wi, wo, expressiveParameters);        
+
+    weight = wt * bsdfDensity;
+}
+
+
 float Surfel::ignore = 0.0;
 void Surfel::scatter
    (PathDirection    pathDirection,
@@ -174,37 +208,8 @@ void Surfel::scatter
     // be non-zero because the BSDF itself is non-zero and
     // none of the impulses triggered sampling (note that r was
     // chosen on [0, prob], not [0, 1] above.
-
-    // The step below does not importance sample based on the BSDF itself, just
-    // based on the cosine.  We could use Russian Roulette, but it seems better
-    // to let subclass implementers decide if that is efficient for their BSDFs.
-    //
-    // Choose a random outgoing direction, taking into account
-    // projected area "cosine" weighting.  I.e., importance
-    // sample the cosine factor.
-    if (transmissive()) {
-        wo = Vector3::cosSphereRandom(shadingNormal, rng);
-    } else {
-        wo = Vector3::cosHemiRandom(shadingNormal, rng);
-    }
-        
-    // Evaluate the BSDF for this pair of directions
-    const Color3& density = finiteScatteringDensity(pathDirection, wi, wo, expressiveParameters);
-        
-    // Do not normalize by prob, because that would make BSDFs
-    // with different net probability return the same weights.
-    //
-    // We don't need to cosine-weight here because we
-    // sampled wo from a cosine distribution above.
-
-    // The weight is = probDensity(desiredDistribution, wo) / density(actualDistributionSampled, wo)
-    if (transmissive()) {
-        // Weigh by the cosine-weighted area of the sphere
-        weight = density * 2.0 * pif();
-    } else {
-        // Weigh by the cosine-weighted area of the hemisphere
-        weight = density * pif();
-    }
+    
+    sampleFinite(pathDirection, wi, rng, expressiveParameters, weight, wo);
 
     if (russianRoulette) {
         // For Russian roulette, if we successfully made it to this point without
@@ -217,7 +222,7 @@ void Surfel::scatter
         }
     }
 
-    probabilityHint = float(density.average() * 1e-3);
+    probabilityHint = float(weight.average() * 1e-3);
 }
 
 
