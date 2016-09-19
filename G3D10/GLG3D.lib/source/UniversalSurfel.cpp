@@ -178,8 +178,8 @@ Color3 UniversalSurfel::finiteScatteringDensity
     const Vector3& n = shadingNormal;
     const float cos_o = wo.dot(n);
      
-    if ((wi.dot(shadingNormal) < 0) || 
-        (wo.dot(shadingNormal) < 0)) {
+    if ((wi.dot(n) < 0) || 
+        (wo.dot(n) < 0)) {
         // All transmission is by impulse, so there is no
         // finite density transmission.
         return Color3::zero();
@@ -220,6 +220,9 @@ Color3 UniversalSurfel::finiteScatteringDensity
     }
 
     const Color3& f_L = lambertianReflectivity * (Color3::one() - F) * (boost * INV_PI);
+
+    debugAssert(f_L.min() >= 0.0f);
+    debugAssert(f_G.min() >= 0.0f);
 
     return f_L + f_G;
 }
