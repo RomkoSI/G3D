@@ -554,7 +554,8 @@ Examples:
 	     w      = Vector3::cosHemiRandom(n);
 
                            g(w)                          /  h(w)   
-      weight = ( abs(w.dot(n)) / pif() )                 / (abs(w.dot(n)) / pif())
+      weight = ( abs(w.dot(n)) * f(w) )                  / (abs(w.dot(n)) * 2 / (2*pif()))
+      weight = ( abs(w.dot(n)) / pif() )                 / (abs(w.dot(n)) * 2 / (2*pif()))
       weight = Color3::one();
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -564,7 +565,9 @@ Examples:
 	     w      = Vector3::hemiRandom(n);
 
                            g(w)                          /  h(w)   
-      weight = abs(w.dot(n)) * (Color3::one() / pif()) / (1.0 / (2.0f * pif()));
+      weight = abs(w.dot(n)) * f(w))                     / (1.0 / (2.0f * pif()));
+      weight = abs(w.dot(n)) * (Color3::one() / pif())   / (1.0 / (2.0f * pif()));
+      weight = abs(w.dot(n)) * 2.0f;
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -573,7 +576,9 @@ Examples:
 	     w      = Vector3::random();
 
                            g(w)                          /  h(w)   
+      weight = abs(w.dot(n)) * f(w)                      / (1.0 / (4.0f * pif()));
       weight = abs(w.dot(n)) * (Color3::one() / pif()) * max(0, sign(w.dot(n))) / (1.0 / (4.0f * pif()));
+      weight = abs(w.dot(n)) * max(0, sign(w.dot(n))) * 4.0f;
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
    There are of course a limitless number of ways of implementing the scattering.
