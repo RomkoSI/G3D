@@ -522,7 +522,62 @@ sampling the entire sphere, returning no \a weight for samples inside
 the material, and then increasing the weight of the samples that do
 reflect to compensate.  Thus it is desirable to optimize the
 implementation in subclasses where possible.
-    */
+
+
+
+----------------------------------------------------
+
+Consider this in the context of Monte Carlo integration of 
+\f$ \int_{\mathbf{S}^2} L(X, \hat{\omega}) f(\hat{\omega}, \hat{\omega}') |\hat{\omega} \cdot \hat{n}| d\hat{\omega} \f$.
+For that integral, choose \f$ k \f$ samples and weight as described below, and then 
+multiply each by the corresponding \f$ L(X, \hat{\omega}) / k \f$ and sum.
+
+(This is single importance sampling based on scattering. it gives good convergence
+when \f$ L(X, \hat{\omega}) \f$ is uniform, and is often the best we can do and is at least correct
+otherwise.)
+
+
+Let `h(w)` be the PDF we're actually sampling to produce an output vector
+Let `g(w) = f(w, w') |w.dot(n)|`.  [Note: `g()` is *not* a PDF; just the arbitrary integrand]
+
+The function produces two outputs:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+w = sample with chosen with respect to pdf h(w)
+weight = g(w) / h(w)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Examples:
+   let `f() = 1 / pi()f`  [perfect lambertian]	
+
+   Valid Implementation #1: (noise minimizing)
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	     w      = Vector3::cosHemiRandom(n);
+
+                           g(w)                          /  h(w)   
+      weight = ( abs(w.dot(n)) / pif() )                 / (abs(w.dot(n)) / pif())
+      weight = Color3::one();
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+   Valid Implementation #2:
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	     w      = Vector3::hemiRandom(n);
+
+                           g(w)                          /  h(w)   
+      weight = abs(w.dot(n)) * (Color3::one() / pif()) / (1.0 / (2.0f * pif()));
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+   Valid Implementation #3:
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	     w      = Vector3::random();
+
+                           g(w)                          /  h(w)   
+      weight = abs(w.dot(n)) * (Color3::one() / pif()) * max(0, sign(w.dot(n))) / (1.0 / (4.0f * pif()));
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   There are of course a limitless number of ways of implementing the scattering.
+ */
     virtual void scatter
     (PathDirection    pathDirection,
      const Vector3&   wi,
