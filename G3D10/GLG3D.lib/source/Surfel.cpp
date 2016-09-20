@@ -107,10 +107,6 @@ void Surfel::sampleFinite
     Color3&            weight,
     Vector3&           wo) const {
 
-    // Evaluate the BSDF for this pair of directions. We don't multiply by |wo . n| because we've
-    // already cancelled that term from the denominator of wt
-    const Color3& f = finiteScatteringDensity(pathDirection, wi, wo, expressiveParameters);        
-
     // The step below does not importance sample based on the BSDF itself, just
     // based on the cosine.  We could use Russian Roulette, but it seems better
     // to let subclass implementers decide if that is efficient for their BSDFs.
@@ -118,19 +114,26 @@ void Surfel::sampleFinite
     // Choose a random outgoing direction, taking into account
     // projected area "cosine" weighting.  I.e., importance
     // sample the cosine factor.
+
+    float wt = 0.0f;
     if (transmissive()) {
         wo = Vector3::cosSphereRandom(shadingNormal, rng);
         //       (f*cos) / (2*cos * 1/4pi)
         // There is a 2*cos in the denominator instead of just cos
         // because h(w) is a PDF and has to be normalized.
-        weight = f * (2.0f * pif());
+        wt = (2.0f * pif());
     } else {
         wo = Vector3::cosHemiRandom(shadingNormal, rng);
         //       (f*cos) / (2*cos * 1/2pi)
         // There is a 2*cos in the denominator instead of just cos
         // because h(w) is a PDF and has to be normalized.
-        weight = f * pif();
+        wt = pif();
     }
+
+    // Evaluate the BSDF for this pair of directions. We don't multiply by |wo . n| because we've
+    // already cancelled that term from the denominator of wt
+    const Color3& f = finiteScatteringDensity(pathDirection, wi, wo, expressiveParameters);        
+    weight = f * wt;
 }
 
 
