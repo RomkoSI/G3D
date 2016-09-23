@@ -78,7 +78,7 @@ UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex,
     // TODO: support other types of bump map besides normal
     if (bumpMap && !tangentX.isNaN() && !tangentY.isNaN()) {
         const CFrame& tangentSpace = Matrix3::fromColumns(tangentX, tangentY, interpolatedNormal);
-        Image4::Ref normalMap = bumpMap->normalBumpMap()->image();
+        const shared_ptr<Image4>& normalMap = bumpMap->normalBumpMap()->image();
         Vector2int32 mappedTexCoords(texCoord * Vector2(float(normalMap->width()), float(normalMap->height())));
 
         tangentSpaceNormal = Vector3(normalMap->get(mappedTexCoords.x, mappedTexCoords.y).rgb() * Color3(2.0f) + Color3(-1.0f));

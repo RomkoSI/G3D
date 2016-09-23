@@ -195,42 +195,42 @@ public:
     /** 
         \brief Impulses in the BSDF.
 
-        This contains three inline-allocated elements to support reflection,
-        refraction, and retro-reflection without heap allocation. */
-    typedef SmallArray<Impulse, 3> ImpulseArray;
+        This contains three inline-allocated elements to support reflection and
+        refraction without heap allocation. */
+    typedef SmallArray<Impulse, 2> ImpulseArray;
 
     /** For debugging purposes only. */
-    String            name;
+    String                  name;
     
     /** Point in world space at the geometric center of
         this surfel. */ 
-    Point3            position;
+    Point3                  position;
 
     /** Point in world space at the geometric center of
         this surfel in the previously rendered frame of animation.
         Useful for computing velocity. */
-    Point3            prevPosition;
+    Point3                  prevPosition;
 
     /** The normal to the true underlying geometry of the patch that
         was sampled (e.g., the face normal).  This is often useful for ray bumping. 
 
         Always a unit vector.
     */
-    Vector3           geometricNormal;
+    Vector3                 geometricNormal;
 
     /** The normal to the patch for shading purposes, i.e., after
         normal mapping.  e.g., the interpolated vertex normal
         or normal-mapped normal.
 
         Always a unit vector.*/
-    Vector3           shadingNormal;
+    Vector3                 shadingNormal;
 
     /** Primary tangent vector for use in shading anisotropic surfaces.  
        This is the tangent space after normal mapping has been applied.*/
-    Vector3           shadingTangent1;
+    Vector3                 shadingTangent1;
 
     /** Secondary shading tangent. \see shadingTangent1 */
-    Vector3           shadingTangent2;
+    Vector3                 shadingTangent2;
     
     /** Complex refractive index for each side of the interface.  
 
@@ -250,16 +250,16 @@ public:
         samples isn't enough to produce meaningful chromatic
         dispersion anyway.
     */
-    float             etaPos;
+    float                   etaPos;
 
     /** \copydoc etaPos */
-    Color3            kappaPos;
+    Color3                  kappaPos;
 
     /** \copydoc etaPos */
-    float             etaNeg;
+    float                   etaNeg;
 
     /** \copydoc etaPos */
-    Color3            kappaNeg;
+    Color3                  kappaNeg;
 
     /** The material that generated this Surfel. May be NULL */
     shared_ptr<Material>    material;
@@ -271,13 +271,13 @@ public:
     struct Source {
         /** Index of this primitive in the source object (interpretation depends on the object type). 
          For TriTree, use this with TriTree:operator[] as a primitive index.*/
-        int      index;
+        int                 index;
 
         /** Barycentric coordinate corresponding to vertex 1 (NOT vertex 0) */
-        float    u;
+        float               u;
 
         /** Barycentric coordinate corresponding to vertex 2 */
-        float    v;
+        float               v;
 
         Source() : index(-1), u(0), v(0) {}
         Source(int i, float u, float v) : index(i), u(u), v(v) {}

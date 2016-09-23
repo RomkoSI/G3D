@@ -21,6 +21,16 @@ private:
     int                 m_maxBounces;
     int                 m_raysPerPixel;
 
+    bool                m_debugColoredSky = false;
+    bool                m_debugNormals    = false;
+
+    bool                m_showReticle     = 
+#       ifdef G3D_DEBUG
+            true;
+#       else
+            false;
+#       endif
+
     World*              m_world;
     
     /** Allocated by expose and render */
