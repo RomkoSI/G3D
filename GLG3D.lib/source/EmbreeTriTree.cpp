@@ -246,9 +246,10 @@ void EmbreeTriTree::FilterAdapter::rtcFilterFuncN
                     RTCRayN_v(ray, N, r)      = v;
                     RTCRayN_tfar(ray, N, r)   = RTCHitN_t(potentialHit, N, r);
                     RTCRayN_instID(ray, N, r) = RTCHitN_instID(potentialHit, N, r);
-                    RTCRayN_Ng_x(ray, N, r)   = normal.x;
-                    RTCRayN_Ng_y(ray, N, r)   = normal.y;
-                    RTCRayN_Ng_z(ray, N, r)   = normal.z;
+                    // Embree's normals are backwards compared to G3D's CCW
+                    RTCRayN_Ng_x(ray, N, r)   = -normal.x;
+                    RTCRayN_Ng_y(ray, N, r)   = -normal.y;
+                    RTCRayN_Ng_z(ray, N, r)   = -normal.z;
                 }
             }
         } // if

@@ -46,8 +46,10 @@ void App::onInit() {
 
     GApp::loadScene(
         //"G3D Transparency Test");
+//        "Refraction Test");
+        "G3D Sports Car");
         //"G3D Cornell Box");
-        "Real Time Ray Trace");
+        //"Real Time Ray Trace");
 
     makeGUI();
 
@@ -60,10 +62,23 @@ void App::makeGUI() {
     shared_ptr<GuiWindow> window = GuiWindow::create("Controls", debugWindow->theme(), Rect2D::xywh(0, 0, 0, 0), GuiTheme::TOOL_WINDOW_STYLE);
     GuiPane* pane = window->pane();
     pane->addLabel("Use WASD keys + right mouse to move");
-    pane->addButton("Render High Res.", this, &App::onRender);
+
+    pane->addButton("Render High Quality", [this]() { onRender(); })->setWidth(200);
 
     pane->addNumberBox("Rays per pixel", &m_raysPerPixel, "", GuiTheme::LINEAR_SLIDER, 1, 16, 1);
     pane->addNumberBox("Max bounces", &m_maxBounces, "", GuiTheme::LINEAR_SLIDER, 1, 16, 1);
+
+    GuiPane* debugging = pane->addPane("Debug Controls");
+    debugging->moveBy(0, 5);
+
+    debugging->addLabel("(Useful with breakpoints)");
+    debugging->addCheckBox("Show reticle", &m_showReticle);
+    debugging->addCheckBox("Visualize normals", &m_debugNormals);    
+    debugging->addCheckBox("Rainbow sky", &m_debugColoredSky);
+    debugging->addButton("Cast Center Ray", [this](){
+        trace(m_currentImage->width() / 2, m_currentImage->height() / 2, Random::threadCommon());
+    })->setWidth(200);
+
     window->pack();
 
     window->setVisible(true);
@@ -96,12 +111,16 @@ void App::onCleanup() {
 
 
 Radiance3 App::rayTrace(const Ray& ray, World* world, Random& rng, int bounce) {
-    Radiance3 radiance = Radiance3::zero();
-    const float BUMP_DISTANCE = 0.0005f;
+    Radiance3 L_o = Radiance3::zero();
+    const float BUMP_DISTANCE = 0.001f;
 
     const shared_ptr<Surfel>& surfel = world->intersect(ray);
 
     if (notNull(surfel)) {
+        if (m_debugNormals) {
+            return Radiance3(surfel->shadingNormal) * 0.5f + Radiance3(0.5f);
+        }
+
         // Shade this point (direct illumination)
         for (int L = 0; L < world->lightArray.size(); ++L) {
             const shared_ptr<Light>& light = world->lightArray[L];
@@ -115,19 +134,19 @@ Radiance3 App::rayTrace(const Ray& ray, World* world, Random& rng, int bounce) {
 
                     const Biradiance3& B_i = light->biradiance(surfel->position);
 
-                    radiance +=
+                    L_o +=
                         surfel->finiteScatteringDensity(w_i, -ray.direction()) *
                         B_i *
                         max(0.0f, w_i.dot(surfel->shadingNormal));
 
-                    debugAssertM(radiance.isFinite(), "Non-finite radiance in L_direct");
+                    debugAssertM(L_o.isFinite(), "Non-finite radiance in L_direct");
                 }
             }
         }
 
         // Indirect illumination
         // Ambient
-        radiance += surfel->reflectivity(rng) * world->ambient;
+        L_o += surfel->reflectivity(rng) * world->ambient;
 
         // Specular
         if (bounce < m_maxBounces) {
@@ -137,20 +156,24 @@ Radiance3 App::rayTrace(const Ray& ray, World* world, Random& rng, int bounce) {
 
             for (int i = 0; i < impulseArray.size(); ++i) {
                 const Surfel::Impulse& impulse = impulseArray[i];
-                // Bump along normal *in the outgoing ray direction*.
+                // Bump along normal *in the outgoing ray's hemisphere*.
                 const Vector3& offset = surfel->geometricNormal * sign(impulse.direction.dot(surfel->geometricNormal)) * BUMP_DISTANCE;
                 const Ray& secondaryRay = Ray::fromOriginAndDirection(surfel->position + offset, impulse.direction);
                 debugAssert(secondaryRay.direction().isFinite());
-                radiance += rayTrace(secondaryRay, world, rng, bounce + 1) * impulse.magnitude;
-                debugAssert(radiance.isFinite());
+                L_o += rayTrace(secondaryRay, world, rng, bounce + 1) * impulse.magnitude;
+                debugAssert(L_o.isFinite());
             }
         }
     } else {
         // Hit the sky
-        radiance = world->ambient;
+        if (m_debugColoredSky) {
+            L_o = Color3(ray.direction()) * 0.5f + Color3(0.5f);
+        } else {
+            L_o = world->ambient;
+        }
     }
 
-    return radiance;
+    return L_o;
 }
 
 
@@ -179,7 +202,7 @@ void App::onRender() {
 
 
 void App::trace(int x, int y, Random& rng) {
-    Radiance3 sum = Color3::black();
+    Radiance3 sum = Radiance3::zero();
 
     if (m_currentRays == 1) {
         sum = rayTrace(m_debugCamera->worldRay(x + 0.5f, y + 0.5f, m_currentImage->rect2DBounds()), m_world, rng);
@@ -205,6 +228,24 @@ void App::rayTraceImage(float scale, int numRays) {
     Thread::runConcurrently(Point2int32(0, 0), Point2int32(width, height), [&](Point2int32 coord) {
         trace(coord.x, coord.y, Random::threadCommon());
     });
+
+    if (m_showReticle) {
+        // Draw a cross to identify the center pixel that is used for debug rays
+        const int centerX = m_currentImage->width() / 2;
+        const int centerY = m_currentImage->height() / 2;
+
+        for (int d = -7; d <= +7; ++d) {
+            if (abs(d) > 2) {
+                m_currentImage->set(centerX + d, centerY - 1, Color3::white());
+                m_currentImage->set(centerX + d, centerY, Color3::black());
+                m_currentImage->set(centerX + d, centerY + 1, Color3::white());
+
+                m_currentImage->set(centerX - 1, centerY + d, Color3::white());
+                m_currentImage->set(centerX, centerY + d, Color3::black());
+                m_currentImage->set(centerX + 1, centerY + d, Color3::white());
+            }
+        }
+    }
 
     // Post-process
     const shared_ptr<Texture>& src = Texture::fromImage("Source", m_currentImage);
