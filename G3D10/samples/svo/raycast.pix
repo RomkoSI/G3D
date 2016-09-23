@@ -195,7 +195,7 @@ void svoTraceCone
 #ifdef GBUFFER_CHANNEL_svo_GLOSSY
 			sampleStruct.glossy *= invAlpha;
 
-			float glossyExponent = unpackGlossyExponent(sampleStruct.glossy.a);
+			float glossyExponent = smoothnessToBlinnPhongExponent(sampleStruct.glossy.a);
 			//newCol.rgb += sampleStruct.glossy.rgb * computeGlossyEnvironmentMapLighting(w_m, (sampleStruct.glossy.a == 1.0), glossyExponent) / ((glossyExponent + 8.0) / (8.0 * pi));
 			newCol.rgb += 0.02 * computeGlossyEnvironmentMapLighting(w_m, (sampleStruct.glossy.a == 1.0), glossyExponent);
 #endif

@@ -148,7 +148,7 @@ UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex,
 
 
 float UniversalSurfel::blinnPhongExponent() const {
-    return UniversalBSDF::unpackGlossyExponent(smoothness);
+    return UniversalBSDF::smoothnessToBlinnPhongExponent(smoothness);
 }
 
 
@@ -240,19 +240,13 @@ void UniversalSurfel::getImpulses
     debugAssert(wi.isUnit());
     debugAssert(n.isUnit());
 
-    Color3 F;
-
-    // Track whether the Fresnel coefficient is initialized
-    bool Finit = false;
-
-    ////////////////////////////////////////////////////////////////////////////////
-
     // If there is mirror reflection
     if (glossyReflectionCoefficient.nonZero() && (smoothness == 1.0f)) {
-        // Cosine of the angle of incidence, for computing F
+        // Cosine of the angle of incidence, for computing F for mirror reflection.
+        // We can only compute this for mirror reflection because wi.dot(n) = wo.dot(n)
+        // in that case.
         const float cos_i = max(0.001f, wi.dot(n));
-        F = schlickFresnel(glossyReflectionCoefficient, cos_i, 1.0f);
-        Finit = true;
+        Color3 F = schlickFresnel(glossyReflectionCoefficient, cos_i, 1.0f);
             
         // Mirror                
         Impulse& imp     = impulseArray.next();
@@ -260,33 +254,23 @@ void UniversalSurfel::getImpulses
         imp.magnitude    = F;
     }
     
-    // TODO: transmit should be conditioned on lambertian as well as glossy
-
-    ////////////////////////////////////////////////////////////////////////////////
-
-    // TODO: a constant transmit is not consistent with the extinction coefficient model--
-    // let the caller choose.
-
+    // If there is transmission
     if (transmissionCoefficient.nonZero()) {
         // Fresnel transmissive coefficient
-        Color3 F_t;
+        // Cosine of the angle of incidence, for computing F for mirror reflection
+        const float cos_i = max(0.001f, wi.dot(n));
+        Color3 F = schlickFresnel(glossyReflectionCoefficient, cos_i, 1.0f);
 
-        if (Finit) {
-            F_t = (Color3::one() - F);
-        } else {
-            // Cosine of the angle of incidence, for computing F
-            const float cos_i = max(0.001f, wi.dot(n));
-            // F = lerp(0, 1, pow5(1.0f - cos_i)) = pow5(1.0f - cos_i)
-            // F_t = 1 - F
-            F_t.r = F_t.g = F_t.b = 1.0f - pow5(1.0f - cos_i);
-        }
+        Color3 F_t = Color3::one() - F;
 
         // Sample transmissive
         const Color3& T0 = transmissionCoefficient;
+
+        // TODO: transmit should be conditioned on lambertian as well as glossy,
+        // although in practice we almost never have transmissive materials with
+        // lambertian reflection
         const Color3& p_transmit  = F_t * T0;
        
-        // Disabled; interpolated normals can be arbitrarily far out
-        //debugAssertM(w_i.dot(n) >= -0.001, format("w_i dot n = %f", w_i.dot(n)));
         Impulse& imp     = impulseArray.next();
 
         imp.magnitude    = p_transmit;
@@ -320,8 +304,6 @@ Color3 UniversalSurfel::probabilityOfScattering
 
     if (glossyReflectionCoefficient.isZero() && transmissionCoefficient.isZero()) {
         // No Fresnel term, so trivial to compute
-
-        // Base boost solely off Lambertian term
         const float boost = expressiveParameters.boost(lambertianReflectivity);
         return lambertianReflectivity * boost;
     } else {

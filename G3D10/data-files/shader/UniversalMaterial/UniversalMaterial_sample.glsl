@@ -39,13 +39,19 @@ struct UniversalMaterialSample {
     Radiance3       lightMapRadiance;
 
     /** In world space */
-    Vector3         shadingNormal;
+    Vector3         geometricNormal;
 
     /** In world space */
+    Vector3         shadingNormal;
+
+    /** In world space. May be bent away from shadingNormal for anisotropic surfaces. */
     Vector3         glossyShadingNormal;
 
     /** Tangent space normal */
     Vector3         tsNormal;
+
+    /** In world space */
+    Point3          position;
 };
 
 /** 
@@ -59,6 +65,7 @@ struct UniversalMaterialSample {
 #foreach (dim, n) in (2D, 2)
 UniversalMaterialSample sampleUniversalMaterial$(dim)
    (UniversalMaterial$(dim)     material,
+    Point3                      position,
     Point$(n)                   texCoord,
     Point$(n)                   lightmapCoord,
     Vector3                     tan_X, 
@@ -69,7 +76,7 @@ UniversalMaterialSample sampleUniversalMaterial$(dim)
     const bool                  discardIfZeroCoverage,
     const bool                  discardIfFullCoverage,
     Color4                      vertexColor,
-    const AlphaFilter             alphaFilter,
+    const AlphaFilter           alphaFilter,
     const int                   parallaxSteps,
     const bool                  hasNormalBumpMap,
     const bool                  hasVertexColor,
@@ -79,6 +86,8 @@ UniversalMaterialSample sampleUniversalMaterial$(dim)
     const int                   numLightMapDirections) {
 
     UniversalMaterialSample smpl;
+
+    smpl.position = position;
 
     const vec3 BLACK = vec3(0.0, 0.0, 0.0);
     Point$(n) offsetTexCoord;

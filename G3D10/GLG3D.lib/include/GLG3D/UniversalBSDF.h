@@ -104,7 +104,7 @@ F_r(\vec{\omega}_i) ~ \delta(\vec{\omega}_o, \vec{\omega}_m) ~/ ~(\vec{\omega}_i
 
    \f{eqnarray}
        \nonumber \vec{\omega}_h &=& \langle \vec{\omega}_i + \vec{\omega}_o \rangle\\
-       \nonumber s &=& \mbox{\texttt{unpackGlossyExponent}}(\sigma)\\
+       \nonumber s &=& \mbox{\texttt{smoothnessToBlinnPhongExponent}}(\sigma)\\
        \nonumber \vec{\omega}_m &=& 2 (\vec{\omega}_i \cdot \vec{n}) \vec{n} - \vec{\omega}_i\\
        \nonumber \vec{\omega}_t &=& -\frac{\eta_i}{\eta_t}(\vec{\omega}_i - (\vec{\omega}_i \cdot \vec{n}) \vec{n}) - \vec{n} \sqrt{1-\left( \frac{\eta_i}{\eta_t} \right)^2(1 - \vec{\omega}_i \cdot \vec{n})^2}\\
        \nonumber F_t(\vec{\omega}_i) &=& 1 - F_r(\vec{\omega}_i)\\
@@ -293,14 +293,13 @@ public:
     /** Maps a G3D engine smoothness value to a Blinn-Phong exponent.
         Note that 0 = no glossy and 1 = mirror are handled specially by many shaders.
      */
-    static inline float unpackGlossyExponent(float g3dSmoothness) {
+    static inline float smoothnessToBlinnPhongExponent(float g3dSmoothness) {
         // From Graphics Codex [smthnss]
         const float academicRoughness = square(1.0f - g3dSmoothness);
 
         // From http://simonstechblog.blogspot.com/2011/12/microfacet-brdf.html
         const float blinnPhongExponent = 2.0f / square(academicRoughness) - 2.0f;
         return blinnPhongExponent;
-        // return square((e * 255.0 - 1.0) * (1.0 / 253.0)) * 8192.0f + 0.5f;
     }
 
     /** Maps a Blinn-Phong exponent to G3D engine smoothness */

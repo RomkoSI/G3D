@@ -254,10 +254,10 @@ vec3 schlickFresnel(in vec3 F0, in float cos_i, float smoothness) {
     return (F0.r + F0.g + F0.b > 0.0) ? mix(F0, vec3(1.0), 0.9 * (0.02 + smoothness * 0.98) * pow5(1.0 - max(0.0, cos_i))) : F0;
 }
 
-/** Matches UniversalBSDF::unpackGlossyExponent.
+/** Matches UniversalBSDF::smoothnessToBlinnPhongExponent.
     Maps smoothness [0, 1] to Blinn-Phong exponent [0, infinity].
 */
-float unpackGlossyExponent(in float g3dSmoothness) {
+float smoothnessToBlinnPhongExponent(in float g3dSmoothness) {
     // From Graphics Codex [smthnss]
     float academicRoughness = square(1.0 - min(g3dSmoothness, 254.0 / 255.0));
 

@@ -57,7 +57,7 @@ void main() {
     // Glossy coefficient in BSDF (this code unpacks
     // G3D::UniversalBSDF's encoding)
     Color4  F0 = texelFetch(gbuffer_GLOSSY_buffer, C, 0);
-    float glossyExponent = unpackGlossyExponent(F0.a);
+    float glossyExponent = smoothnessToBlinnPhongExponent(F0.a);
 
     float cos_o = dot(wsN, w_o);
     Color3 F = schlickFresnel(F0.rgb, max(0.0, cos_o), F0.a);
