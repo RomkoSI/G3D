@@ -1,4 +1,4 @@
-#version 410 // -*- c++ -*-
+#version 410 or 410// -*- c++ -*-
 /** \file DefaultRenderer_deferredShade.pix */
 #ifdef GL_ARB_texture_query_lod
 #extension GL_ARB_texture_query_lod : enable

@@ -54,6 +54,31 @@ struct UniversalMaterialSample {
     Point3          position;
 };
 
+
+Color3 evaluateMniversalMaterialBSDF(UniversalMaterialSample surfel, Vector3 w_i, Vector3 w_o) {
+    Vector3 n = surfel.glossyShadingNormal;
+    float glossyExponent = smoothnessToBlinnPhongExponent(surfel.smoothness);
+    
+    // Incoming reflection vector
+    float cos_o = dot(surfel.glossyShadingNormal, w_o);
+    Vector3 w_mi = normalize(surfel.glossyShadingNormal * (2.0 * cos_o) - w_o);
+
+    Vector3 w_h = normalize(w_i + w_o);
+
+    // Note that dot(w_h, w_i) == dot(w_h, w_o)
+    Color3 F = schlickFresnel(surfel.fresnelReflectionAtNormalIncidence, max(0.001, dot(w_h, w_i)), surfel.smoothness);
+
+    float inPositiveHemisphere = step(0.0, dot(w_i, n)) * step(0.0, dot(w_o, n));
+
+    Color3 f_L = (1.0 - F) * surfel.lambertianReflectivity * invPi * inPositiveHemisphere;
+    Color3 f_G = F * pow(max(0.0, dot(w_h, n)), glossyExponent) * (glossyExponent + 8.0) * inv8Pi * inPositiveHemisphere;
+
+    // TODO: Transmission
+    Color3 f_T = Color3(0);
+
+    return f_L + f_G + f_T;
+}
+
 /** 
 
   \param tsEye Tangent space unit outgoing vector, w_o, used for parallax mapping

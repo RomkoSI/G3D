@@ -11,7 +11,7 @@
 // Some constants
 const float pi          = 3.1415927;
 const float invPi       = 1.0 / pi;
-const float inv8pi      = 1.0 / (8.0 * pi);
+const float inv8Pi      = 1.0 / (8.0 * pi);
 
 const float meters      = 1.0;
 const float centimeters = 0.01;
