@@ -49,7 +49,7 @@ Color3 computeLambertianEnvironmentMapLighting(Vector3 wsN) {
   environmentMap$(i)_buffer
   environmentMap$(i)_scale
 */
-Color3 computeGlossyEnvironmentMapLighting(Vector3 wsR, bool isMirror, float glossyExponent) {
+Color3 computeGlossyEnvironmentMapLighting(Vector3 wsR, bool isMirror, float glossyExponent, const bool allowMIPMap) {
     
     Color3 E_glossyAmbient = Color3(0.0);
 
@@ -59,7 +59,9 @@ Color3 computeGlossyEnvironmentMapLighting(Vector3 wsR, bool isMirror, float glo
     {
         float MIPlevel = isMirror ? 0.0 : (environmentMap$(e)_glossyMIPConstant + MIPshift);
 #       if ((__VERSION__ >= 400) || defined(GL_ARB_texture_query_lod)) && (G3D_SHADER_STAGE == G3D_FRAGMENT_SHADER)
-            MIPlevel = max(MIPlevel, textureQueryLod(environmentMap$(e)_buffer, wsR).y);
+            if (allowMIPMap) {
+                MIPlevel = max(MIPlevel, textureQueryLod(environmentMap$(e)_buffer, wsR).y);
+            }
 #       endif
         E_glossyAmbient += 
 #           if defined(environmentMap$(e)_notNull)

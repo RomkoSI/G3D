@@ -94,14 +94,12 @@ void main() {
         Color3 glossyColor = F * (glossyExponent * (1.0 / (8.0 * pi)) + invPi);    
 
         Color3 lambertianAmbient = computeLambertianEnvironmentMapLighting(surfel.shadingNormal);
-        Color3 glossyAmbient     = computeGlossyEnvironmentMapLighting(w_mi, (surfel.smoothness == 1.0), glossyExponent);
+        Color3 glossyAmbient     = computeGlossyEnvironmentMapLighting(w_mi, (surfel.smoothness == 1.0), glossyExponent, false);
 
-        L_scatteredIndirect = lambertianAmbient * lambertianColor + glossyAmbient * F;
+        L_scatteredIndirect = (lambertianAmbient * lambertianColor + glossyAmbient * F) * invPi;
     }
 
-    // TODO: Remove the pi term here is a correction for backwards compatability to G3D 10.0, which
-    // had everything brighter by pi
-    Radiance3 L_scatteredDirect = computeDirectLighting(surfel, w_o, 1.0) * pi;
+    Radiance3 L_scatteredDirect = computeDirectLighting(surfel, w_o, 1.0);
 
     float AO =
 #       ifdef ambientOcclusion_notNull
@@ -115,5 +113,7 @@ void main() {
     const float aoInfluenceOnDirectIllumination = 0.65;
     float directAO = lerp(1.0, AO, aoInfluenceOnDirectIllumination);
 
-    result = surfel.emissive + L_scatteredDirect * directAO + L_scatteredIndirect * AO;
+    // TODO: The pi term here is a correction for backwards compatability to G3D 10.0, which
+    // had everything brighter by pi
+    result = (surfel.emissive * invPi + L_scatteredDirect * directAO + L_scatteredIndirect * AO) * pi;
 }
