@@ -1,8 +1,8 @@
 #ifndef UniversalMaterial_sample_glsl
 #define UniversalMaterial_sample_glsl
 
-#include <UniversalMaterial/UniversalMaterial.glsl>
 #include <g3dmath.glsl>
+#include <UniversalMaterial/UniversalMaterial.glsl>
 #include <BumpMap/BumpMap.glsl>
 #include <lightMap.glsl>
 #include <AlphaFilter.glsl>
@@ -55,7 +55,7 @@ struct UniversalMaterialSample {
 };
 
 
-Color3 evaluateMniversalMaterialBSDF(UniversalMaterialSample surfel, Vector3 w_i, Vector3 w_o) {
+Color3 evaluateUniversalMaterialBSDF(UniversalMaterialSample surfel, Vector3 w_i, Vector3 w_o) {
     Vector3 n = surfel.glossyShadingNormal;
     float glossyExponent = smoothnessToBlinnPhongExponent(surfel.smoothness);
     
