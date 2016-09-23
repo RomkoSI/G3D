@@ -1,4 +1,4 @@
-#version 410 // -*- c++ -*-
+#version 410 or 420// -*- c++ -*-
 
 /**
   \file UniversalSurface/UniversalSurface_render.pix
@@ -227,7 +227,7 @@ void main() {
 
         // Take out the normalization factor from the exponent, since that is a normalization
         // of the cosine lobe which does not appear for environment lighting
-        E_glossyAmbient += computeGlossyEnvironmentMapLighting(w_mi, (materialSample.smoothness == 1.0), glossyExponent) / ((glossyExponent + 8.0) / (8.0 * pi));
+        E_glossyAmbient += computeGlossyEnvironmentMapLighting(w_mi, (materialSample.smoothness == 1.0), glossyExponent, false) / ((glossyExponent + 8.0) / (8.0 * pi));
     }
        
     Color3 E_lambertian = Color3(0.0);
