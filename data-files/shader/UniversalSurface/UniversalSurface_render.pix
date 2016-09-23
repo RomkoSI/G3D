@@ -171,14 +171,11 @@ float2 sampleNeighborAO(vec2 offset, float myZ, vec3 clipInfo) {
 void main() {    
     vec3 wsEyePos = g3d_CameraToWorldMatrix[3].xyz;
 
-    // Eye vector
-    vec3 wsE = normalize(wsEyePos - wsPosition);
     // or... (tangentToWorld * vec4(tsE, 0.0)).xyz;
     const bool discardIfFullCoverage = (UNBLENDED_PASS == 0);
     const bool discardIfZeroCoverage = true;
     UniversalMaterialSample materialSample = sampleUniversalMaterial2D(material, wsPosition, texCoord, lightMapCoord, tan_X, tan_Y, tan_Z, normalize(_tsE), backside, discardIfZeroCoverage, discardIfFullCoverage,
         vertexColor, ALPHA_HINT, PARALLAXSTEPS, bool(HAS_NORMAL_BUMP_MAP), bool(HAS_VERTEX_COLOR), bool(HAS_ALPHA), bool(HAS_TRANSMISSIVE), bool(HAS_EMISSIVE), NUM_LIGHTMAP_DIRECTIONS);
-    vec3 E_ambient = vec3(0.0);
 
 #   if UNBLENDED_PASS && HAS_TRANSMISSIVE && ! defined(REFRACTION)
         if (materialSample.transmissionCoefficient.r + materialSample.transmissionCoefficient.g + materialSample.transmissionCoefficient.b != 0) {
@@ -187,58 +184,16 @@ void main() {
         }
 #   endif
 
-#   if NUM_LIGHTMAP_DIRECTIONS == 0
-        E_ambient += computeLambertianEnvironmentMapLighting(materialSample.shadingNormal);
-#   elif NUM_LIGHTMAP_DIRECTIONS == 2
-#       error Illegal number of lightMap directions
-#   else
-        E_ambient += materialSample.lightMapRadiance;
-#   endif
-
-    const vec3 BLACK = vec3(0.0, 0.0, 0.0);
-    Color3 E_glossy = BLACK, E_glossyAmbient = BLACK;
-                
-    float glossyExponent = 1, glossyCoefficient = 0;
-    // We separate out the normal used for glossy reflection from the one used for shading in general
-    // to allow subclasses to easily compute anisotropic highlights
-    Color3 glossyColor;
-        
-    Color3 F = Color3(0);
-    Color3 lambertianCoefficient;
+    Color3 transmissionCoefficient;
+    vec3 w_o = normalize(wsEyePos - wsPosition);
     {        
-        float cos_o = dot(materialSample.glossyShadingNormal, wsE);
-        F = schlickFresnel(materialSample.fresnelReflectionAtNormalIncidence, max(0.0, cos_o), materialSample.smoothness);
-
-        // Modulate the lambertian color by the Fresnel factor; this
-        // ensures energy conservation at glancing angles under
-        // Fresnel effects.
-        lambertianCoefficient = (1.0 - F) * materialSample.lambertianReflectivity * invPi;
-
-        glossyExponent = smoothnessToBlinnPhongExponent(materialSample.smoothness);
-
-        // Energy-normalized coefficient needed for applying the BRDF glossy lobe.
-        // F alone is the wavelength-varying magnitude of reflection integrated over the hemisphere.
-        //
-        // G = F * (s_X + 8) / (8 pi)
-        glossyColor = F * ((glossyExponent + 8.0) / (8.0 * pi));
-
-        // Mirror reflection vector
-        vec3 w_mi = normalize(materialSample.glossyShadingNormal * (2.0 * cos_o) - wsE);
-
-        // Take out the normalization factor from the exponent, since that is a normalization
-        // of the cosine lobe which does not appear for environment lighting
-        E_glossyAmbient += computeGlossyEnvironmentMapLighting(w_mi, (materialSample.smoothness == 1.0), glossyExponent, false) / ((glossyExponent + 8.0) / (8.0 * pi));
+        float cos_o = dot(materialSample.glossyShadingNormal, w_o);
+        Color3 F = schlickFresnel(materialSample.fresnelReflectionAtNormalIncidence, max(0.0, cos_o), materialSample.smoothness);
+        Color3 lambertianCoefficient = (1.0 - F) * materialSample.lambertianReflectivity * invPi;
+        transmissionCoefficient = materialSample.transmissionCoefficient * (Color3(1.0) - F) * (Color3(1.0) - lambertianCoefficient);
     }
-       
-    Color3 E_lambertian = Color3(0.0);
-    // The last argument just has to be any shader to make the code compile
-    computeDirectLighting(materialSample.shadingNormal, materialSample.glossyShadingNormal, wsE, tan_Z, backside, wsPosition, glossyExponent, E_lambertian, E_glossy, material.lambertian.sampler);
     
-    // Emission
-    Radiance3 L_o = materialSample.emissive;
-
-    Color3 transmissionCoefficient = materialSample.transmissionCoefficient * (Color3(1.0) - F) * (Color3(1.0) - lambertianCoefficient);
-
+    Radiance3 L_o = Radiance3(0);
     // This csNormal computation compiles away if not using refraction
     Vector3 csNormal = normalize(mat3(g3d_WorldToCameraMatrix) * materialSample.shadingNormal);
 #   if UNBLENDED_PASS && defined(REFRACTION)
@@ -305,9 +260,11 @@ void main() {
     const float aoInfluenceOnDirectIllumination = 0.65;
     float directAO = lerp(1.0, AO, aoInfluenceOnDirectIllumination);
     
+    Radiance3 L_scatteredDirect   = computeDirectLighting(materialSample, w_o, 1.0);
+    Radiance3 L_scatteredIndirect = computeIndirectLighting(materialSample, w_o, true, NUM_LIGHTMAP_DIRECTIONS);
+
     // Outgoing light
-    L_o += (E_lambertian * directAO + E_ambient       * AO) * lambertianCoefficient +
-           (E_glossy     * directAO + E_glossyAmbient * AO) * glossyColor;
+    L_o += materialSample.emissive + L_scatteredIndirect * AO + L_scatteredDirect * directAO;
 
     writePixel(L_o * materialSample.coverage, materialSample.coverage, transmissionCoefficient, materialSample.collimation,
 #       ifdef REFRACTION

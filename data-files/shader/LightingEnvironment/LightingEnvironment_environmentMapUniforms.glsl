@@ -2,9 +2,13 @@
 /** \file LightingEnvironment/LightingEnvironment_environmentMapUniforms.glsl */
 #ifndef LightingEnvironment_environmentMapUniforms_glsl
 #define LightingEnvironment_environmentMapUniforms_glsl
+
+#ifdef GL_ARB_texture_query_lod
 #extension GL_ARB_texture_query_lod : enable
+#endif
 
 #include <g3dmath.glsl>
+#include <UniversalMaterial/UniversalMaterial_sample.glsl>
 
 #expect NUM_ENVIRONMENT_MAPS "integer for number of environment maps to be blended"
 
@@ -71,7 +75,33 @@ Color3 computeGlossyEnvironmentMapLighting(Vector3 wsR, bool isMirror, float glo
     }
 #   endfor
 
-    return E_glossyAmbient * (1.0 / pi);
+    return E_glossyAmbient * invPi;
+}
+
+
+Radiance3 computeIndirectLighting(UniversalMaterialSample surfel, Vector3 w_o, const bool allowAutoMIP, const int numLightMapDirections) {
+    float glossyExponent = smoothnessToBlinnPhongExponent(surfel.smoothness);
+    
+    // Incoming reflection vector
+    float cos_o = dot(surfel.glossyShadingNormal, w_o);
+    Vector3 w_mi = normalize(surfel.glossyShadingNormal * (2.0 * cos_o) - w_o);
+
+    // For mirror reflection (which is the only thing we can use for the evt light), the
+    // half vector is the normal, so w_h . w_o == n . w_o 
+    Color3 F = schlickFresnel(surfel.fresnelReflectionAtNormalIncidence, max(0.0, cos_o), surfel.smoothness);
+
+    Radiance3 glossyAmbient = computeGlossyEnvironmentMapLighting(w_mi, (surfel.smoothness == 1.0), glossyExponent, allowAutoMIP);
+
+    Radiance3 lambertianAmbient;
+    if (numLightMapDirections == 0) {
+        lambertianAmbient = computeLambertianEnvironmentMapLighting(surfel.shadingNormal);
+    } else {
+        lambertianAmbient += surfel.lightMapRadiance;
+    }
+
+    Color3 lambertianColor = (1.0 - F) * surfel.lambertianReflectivity * invPi;
+
+    return lambertianAmbient * lambertianColor * (1 - F) + F * glossyAmbient;
 }
 
 #endif

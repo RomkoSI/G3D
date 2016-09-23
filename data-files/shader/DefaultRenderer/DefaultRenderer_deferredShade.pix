@@ -22,6 +22,7 @@ uniform_GBuffer(gbuffer_);
     
 out Color3 result;
 
+
 void main() {
     // Screen-space point being shaded
     ivec2 C = ivec2(gl_FragCoord.xy);
@@ -48,7 +49,7 @@ void main() {
     Vector3 w_o = normalize(gbuffer_camera_frame[3] - surfel.position);
 
 #   ifdef gbuffer_LAMBERTIAN_notNull    
-        surfel.lambertianReflectivity = texelFetch(gbuffer_LAMBERTIAN_buffer, C, 0).rgb * invPi;
+        surfel.lambertianReflectivity = texelFetch(gbuffer_LAMBERTIAN_buffer, C, 0).rgb;
 #   else
         surfel.lambertianReflectivity = Color3(0);
 #   endif
@@ -76,30 +77,11 @@ void main() {
 
     surfel.lightMapRadiance = Radiance3(0);
 
-    // Environment lighting
-    Radiance3 L_scatteredIndirect;
-    {
-        float glossyExponent = smoothnessToBlinnPhongExponent(surfel.smoothness);
-    
-        // Incoming reflection vector
-        float cos_o = dot(surfel.glossyShadingNormal, w_o);
-        Vector3 w_mi = normalize(surfel.glossyShadingNormal * (2.0 * cos_o) - w_o);
-
-        // For mirror reflection (which is the only thing we can use for the evt light), the
-        // half vector is the normal, so w_h . w_o == n . w_o 
-        Color3 F = schlickFresnel(surfel.fresnelReflectionAtNormalIncidence, max(0.0, cos_o), surfel.smoothness);
-        Color3 lambertianColor = (1.0 - F) * surfel.lambertianReflectivity;
-
-        // G = F * (s_X + 8) / (8 pi)
-        Color3 glossyColor = F * (glossyExponent * (1.0 / (8.0 * pi)) + invPi);    
-
-        Color3 lambertianAmbient = computeLambertianEnvironmentMapLighting(surfel.shadingNormal);
-        Color3 glossyAmbient     = computeGlossyEnvironmentMapLighting(w_mi, (surfel.smoothness == 1.0), glossyExponent, false);
-
-        L_scatteredIndirect = (lambertianAmbient * lambertianColor + glossyAmbient * F) * invPi;
-    }
+    // End reading surfel from G-buffer
+    ///////////////////////////////////////////////////////////////////////////
 
     Radiance3 L_scatteredDirect = computeDirectLighting(surfel, w_o, 1.0);
+    Radiance3 L_scatteredIndirect = computeIndirectLighting(surfel, w_o, false, 0);
 
     float AO =
 #       ifdef ambientOcclusion_notNull
@@ -113,7 +95,5 @@ void main() {
     const float aoInfluenceOnDirectIllumination = 0.65;
     float directAO = lerp(1.0, AO, aoInfluenceOnDirectIllumination);
 
-    // TODO: The pi term here is a correction for backwards compatability to G3D 10.0, which
-    // had everything brighter by pi
-    result = (surfel.emissive * invPi + L_scatteredDirect * directAO + L_scatteredIndirect * AO) * pi;
+    result = surfel.emissive + L_scatteredDirect * directAO + L_scatteredIndirect * AO;
 }

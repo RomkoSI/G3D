@@ -170,12 +170,9 @@ float spotLightFalloff
 }
 
 
-/** Computes attenuation due to backface or radial falloff.
-    \return vec2(subsurfacediffuse, surfaceglossy)  
-*/
-vec2 computeAttenuation
+/** Computes attenuation due to angle and radial falloff.*/
+float computeAttenuation
   (in vec3              n, 
-   in vec3              glossyN,
    in vec4              lightPosition, 
    in vec4              lightAttenuation, 
    in float             lightSoftnessConstant,
@@ -185,8 +182,6 @@ vec2 computeAttenuation
    in vec3              lightRightVector, 
    in bool              lightRectangular, 
    in float             lightRadius,
-   in vec3              tan_Z,
-   in float             backside,
    out vec3             w_i) {
     // Light vector
     w_i = lightPosition.xyz - wsPosition.xyz * lightPosition.w;
@@ -199,16 +194,14 @@ vec2 computeAttenuation
     // Directional light has no falloff
     attenuation += 1.0 - lightPosition.w;
 
-#   ifdef HAS_NORMAL_BUMP_MAP
+#   if 0 //HAS_NORMAL_BUMP_MAP
         // For a bump mapped surface, do not allow illumination on the back side even if the
         // displacement creates a light-facing surface, since it should be self-shadowed for any 
         // large polygon.
         attenuation *= float(dot(tan_Z.xyz, w_i) * backside > 0.0);
 #   endif
 
-    // Attenuation is modulated by the cosine of the angle of incidence, which may be different for the two surface
-    // normal vectors
-    return attenuation * max(vec2(dot(w_i, n), dot(w_i, glossyN)), 0.0);
+    return attenuation * max(dot(w_i, n), 0.0);
 }
 
 
@@ -216,20 +209,20 @@ void computeShading
    (in vec3             wsN,
     in vec3             wsGlossyN,
     in vec3             wsE, 
-    in vec2             attenuation, 
+    in float            attenuation, 
     in float            glossyExponent, 
     in vec3             lightColor, 
     inout vec3          I_lambertian,
     inout vec3          I_glossy, 
     in vec3             wsL) {
 
-    I_lambertian += attenuation[0] * lightColor;
+    I_lambertian += attenuation * lightColor;
 
     if (glossyExponent > 0.0) {
         // cosine of the angle between the normal and the half-vector
         vec3 wsH = normalize(wsL + wsE);
         float cos_h = max(dot(wsH, wsGlossyN), 0.0);
-        I_glossy += lightColor * (attenuation[1] * pow(cos_h, glossyExponent));
+        I_glossy += lightColor * (attenuation * pow(cos_h, glossyExponent));
     }
 }
 
@@ -276,9 +269,9 @@ void addLightContribution
         shadowCoord = light_shadowMap_MVP * vec4(adjustedWSPos, 1.0);
     }
 
-    vec2 attenuation = computeAttenuation(n, glossyN, light_position, light_attenuation, light_softnessConstant, wsPosition, light_look, light_upVector, light_rightVector, light_rectangular, light_radius, tan_Z, backside, w_i);
+    float attenuation = computeAttenuation(n, light_position, light_attenuation, light_softnessConstant, wsPosition, light_look, light_upVector, light_rightVector, light_rectangular, light_radius, w_i);
 
-    if (maxComponent(attenuation) >= attenuationThreshold) {
+    if (attenuation >= attenuationThreshold) {
         if (light_shadowMap_texture_notNull) {
 
             // Williams Shadow Map case
@@ -287,7 +280,7 @@ void addLightContribution
             // Note that the normal bias must be > shadowMapBias$(I) to prevent self-shadowing; we use 3x here so that most
             // glancing angles are OK.
             float visibility = shadowMapVisibility(light_look, light_position, light_attenuation, shadowCoord, light_shadowMap_texture_buffer, light_shadowMap_texture_invSize, false);
-            if (visibility * maxComponent(attenuation) <= attenuationThreshold) { return; }
+            if (visibility * attenuation <= attenuationThreshold) { return; }
 
             if (light_shadowMap_vsmTexture_notNull) {
                 vec4 cFrameZRow = vec4(light_look.xyz, -light_position.z);
@@ -299,7 +292,7 @@ void addLightContribution
             }
 
             attenuation *= visibility;
-            if (maxComponent(attenuation) <= attenuationThreshold) { return; }
+            if (attenuation <= attenuationThreshold) { return; }
         } 
 
         computeShading(n, glossyN, w_o, attenuation, glossyExponent, light_color, I_lambertian, I_glossy, w_i);
