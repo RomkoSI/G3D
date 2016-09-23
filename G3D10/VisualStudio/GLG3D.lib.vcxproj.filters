@@ -1404,5 +1404,11 @@
     <None Include="..\data-files\shader\AlphaFilter.glsl">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="..\..\data10\research\scene\sportsCar.Scene.Any">
+      <Filter>Scene Files</Filter>
+    </None>
+    <None Include="..\..\data10\research\scene\sportsCarWhite.Scene.Any">
+      <Filter>Scene Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

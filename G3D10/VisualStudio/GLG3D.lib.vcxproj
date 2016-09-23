@@ -440,6 +440,8 @@
     <None Include="..\..\data10\research\scene\sibenik.Scene.Any" />
     <None Include="..\..\data10\research\scene\sponzaFoggy.Scene.Any" />
     <None Include="..\..\data10\research\scene\sponzaStatue.Scene.Any" />
+    <None Include="..\..\data10\research\scene\sportsCar.Scene.Any" />
+    <None Include="..\..\data10\research\scene\sportsCarWhite.Scene.Any" />
     <None Include="..\..\data10\research\scene\transparencyTest.Scene.Any" />
     <None Include="..\..\data10\research\scene\triangle.Scene.Any" />
     <None Include="..\data-files\shader\AlphaFilter.glsl" />

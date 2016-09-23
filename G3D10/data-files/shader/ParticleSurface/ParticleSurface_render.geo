@@ -2,6 +2,14 @@
 #include <compatibility.glsl>
 #include <g3dmath.glsl>
 
+
+// needed to make the bump map code compile on AMD GPUs,
+// which don't eliminate the dead code before compiling it for
+// this GS profile
+#define dFdx(g) ((g) * 0.0)   
+#define dFdy(g) ((g) * 0.0)   
+#define discard
+
 layout(points) in;
 
 #define CONSTRUCT_CENTER_VERTEX 1
@@ -17,11 +25,6 @@ layout(points) in;
 #include <LightingEnvironment/LightingEnvironment_uniforms.glsl>
 #include <Light/Light.glsl>
 
-// needed to make the bump map code compile on AMD GPUs,
-// which don't eliminate the dead code before compiling it for
-// this GS profile
-#define dFdx(g) ((g) * 0.0)   
-#define dFdy(g) ((g) * 0.0)   
 
 #include <UniversalMaterial/UniversalMaterial.glsl>
 uniform UniversalMaterial2DArray material;
