@@ -170,26 +170,24 @@ static inline Color3 schlickFresnel(const Color3& F0, float cos_i, float smoothn
 
 
 Color3 UniversalSurfel::finiteScatteringDensity
-(const Vector3&    wi, 
- const Vector3&    wo,
+(const Vector3&    w_i, 
+ const Vector3&    w_o,
  const ExpressiveParameters& expressiveParameters) const {
+
+    debugAssert(shadingNormal.isUnit());
+    debugAssert(w_o.isUnit());
+    debugAssert(w_i.isUnit());
+    debugAssert((smoothness >= 0.0f) && (smoothness <= 1.0f));
 
     static const float maxBlinnPhongExponent = 8000;
     const Vector3& n = shadingNormal;
-    const float cos_o = wo.dot(n);
      
-    if ((wi.dot(n) < 0) || 
-        (wo.dot(n) < 0)) {
+    if ((w_i.dot(n) < 0) || (w_o.dot(n) < 0)) {
         // All transmission is by impulse, so there is no
         // finite density transmission.
         return Color3::zero();
     }
 
-    debugAssert(n.isUnit());
-    debugAssert(wo.isUnit());
-    debugAssert(wi.isUnit());
-    debugAssert(smoothness >= 0.0f && smoothness <= 1.0f);
-    
     static const float INV_8PI = 1.0f / (8.0f * pif());
     static const float INV_PI  = 1.0f / pif();
 
@@ -205,17 +203,16 @@ Color3 UniversalSurfel::finiteScatteringDensity
         // Glossy
 
         // Half-vector
-        const Vector3& w_h = (wi + wo).direction();
-        const float cos_h = max(0.0f, w_h.dot(n));
-        
-        const float exponent = min(blinnPhongExponent(), maxBlinnPhongExponent);
-        
-        F = schlickFresnel(glossyReflectionCoefficient, cos_o, smoothness);
-        if (exponent == finf()) {
-            // Will be handled by the mirror case
+        const Vector3& w_h = (w_i + w_o).direction();
+                
+        if (smoothness == 1.0f) {
+            // Will be handled by the mirror case. In this case, n = w_h
+            F = schlickFresnel(glossyReflectionCoefficient, max(0.001f, w_i.dot(n)), smoothness);
             f_G = Color3::zero();
         } else {
-            f_G = F * (powf(cos_h, exponent) * (exponent + 8.0f) * INV_8PI);
+            F = schlickFresnel(glossyReflectionCoefficient, max(0.001f, w_i.dot(w_h)), smoothness);
+            const float exponent = min(blinnPhongExponent(), maxBlinnPhongExponent);
+            f_G = F * ((powf(max(0.0f, w_h.dot(n)), exponent) * (exponent + 8.0f) * INV_8PI));
         }
     }
 
