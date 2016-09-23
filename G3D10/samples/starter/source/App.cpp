@@ -194,6 +194,12 @@ bool App::onEvent(const GEvent& event) {
     // if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == GKey::TAB)) { ... return true; }
     // if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == 'p')) { ... return true; }
 
+    if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == 'p')) { 
+        shared_ptr<DefaultRenderer> r = dynamic_pointer_cast<DefaultRenderer>(m_renderer);
+        r->setDeferredShading(! r->deferredShading());
+        return true; 
+    }
+
     return false;
 }
 
