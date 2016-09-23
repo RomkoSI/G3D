@@ -192,7 +192,7 @@ void main() {
 #       if defined(HAS_NORMAL_BUMP_MAP)
 	// normal variance -> glossy coefficient to resolve aliasing
 	if (GBUFFER_GLOBAL_VAR(gbuffer, GLOSSY) .a < 1.0) {
-		GBUFFER_GLOBAL_VAR(gbuffer, GLOSSY) .a = packGlossyExponent(computeToksvigGlossyExponent(unpackGlossyExponent(GBUFFER_GLOBAL_VAR(gbuffer, GLOSSY) .a), rawNormalLength));
+		GBUFFER_GLOBAL_VAR(gbuffer, GLOSSY) .a = packGlossyExponent(computeToksvigGlossyExponent(smoothnessToBlinnPhongExponent(GBUFFER_GLOBAL_VAR(gbuffer, GLOSSY) .a), rawNormalLength));
 	}
 #       endif
 #   endif

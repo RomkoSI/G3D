@@ -174,7 +174,7 @@ void main() {
        // No Lightmap support for deferred shading.
        vec2 lightMapCoord = vec2(0.0);
 
-       UniversalMaterialSample materialSample = sampleUniversalMaterial2D(material, texCoord, lightMapCoord, tan_X, tan_Y, tan_Z, normalize(_tsE), backside, discardIfZeroCoverage, discardIfFullCoverage,
+       UniversalMaterialSample materialSample = sampleUniversalMaterial2D(material, wsPosition, texCoord, lightMapCoord, tan_X, tan_Y, tan_Z, normalize(_tsE), backside, discardIfZeroCoverage, discardIfFullCoverage,
            vertexColor, ALPHA_HINT, PARALLAXSTEPS, bool(HAS_NORMAL_BUMP_MAP), bool(HAS_VERTEX_COLOR), bool(HAS_ALPHA), bool(HAS_TRANSMISSIVE), bool(HAS_EMISSIVE), NUM_LIGHTMAP_DIRECTIONS);
 
        vec3 wsN = materialSample.shadingNormal;
@@ -208,7 +208,7 @@ void main() {
 #       if HAS_NORMAL_BUMP_MAP
             // normal variance -> glossy coefficient to resolve aliasing
             if (GLOSSY.a < 1.0) {
-                GLOSSY.a = packGlossyExponent(computeToksvigGlossyExponent(unpackGlossyExponent(GLOSSY.a), rawNormalLength));
+                GLOSSY.a = packGlossyExponent(computeToksvigGlossyExponent(smoothnessToBlinnPhongExponent(GLOSSY.a), rawNormalLength));
             }
 #       endif
 */

@@ -396,7 +396,8 @@ public:
 
     /**
        Provided as a convenience helper method for implementers of scatter().
-       Allows programmatically swapping the directions.
+       Allows programmatically swapping the directions (which only matters for
+       refraction if the BSDF is reciprocal).
 
        - <code>finiteScatteringDensity(PathDirection::SOURCE_TO_EYE, wi, wo)</code> = \f$f_X(\hat{\omega_\mathrm{i}}, \hat{\omega_\mathrm{o}})\f$
        - <code>finiteScatteringDensity(PathDirection::EYE_TO_SOURCE, wo, wi)</code>= \f$f_X(\hat{\omega_\mathrm{o}}, \hat{\omega_\mathrm{i}})\f$
@@ -431,120 +432,66 @@ public:
 
 
     static float ignore;
+
     /** 
-\brief Computes the direction of a scattered photon and a \a weight
-that compensates for the way that the the sampling process is
-performed.
+     \brief Computes the direction of a scattered photon  
+     and a \a weight that compensates for the way that the the sampling process is
+     performed.
 
-<ul>
-<li> For forward rays (e.g., photon tracing), call: <code>scatter(PathDirection::SOURCE_TO_EYE, wi, ..., wo)</code></li>
-<li> For backwards rays (e.g., path tracing), call: <code>scatter(PathDirection::EYE_TO_SOURCE, wo, ..., wi)</code></li>
-</ul>
+     For use in Monte Carlo integration of the rendering equation, this computes
+     the cosine-weighted BSDF \f$ f(\hat{\omega}_i, \hat{\omega}_o) | \hat{\omega}_i \cdot \hat{n}| \f$ term.
 
-The following description is for the PathDirection::SOURCE_TO_EYE (photon mapping)
-case.  <b>If you are Whitted ray tracing or path tracing, the description is the same, but with \a
-wi and \a wo swapped</b>.  For a non-transmissive surface the
-function is symmetric and gives the same result regardless of \a
-pathDirection. For a transmissive (specifically, refractive transmissive) surface,
-the radiance value will change at the interface along a path because the projected
-area of the path changes.
+     The \a weight is needed to allow efficient computation of scattering
+     from BSDFs that have no computationally efficient method for exact
+     analytic sampling.  The caller should scale the radiance or power
+     transported by the \a weight. 
 
-Sets \a wo to the outgoing photon direction and \a
-weight to a statistical energy compensation factor on the
-scattered radiance (i.e., the number you want to scale recursively-computed radiance by, including
-the BSDF and cosine factor). That is, \a weight = d\hat{\omega_\mathrm{o}} = $\frac{f( \hat{\omega_\mathrm{i}}, \hat{\omega_\mathrm{o}}) \cdot |\hat{\omega_\mathrm{o}} \cdot \hat{n}| \cdot 4 \pi}{p(\hat{\omega_\mathrm{i}}, \hat{\omega_\mathrm{o}})}$
-where $p(\hat{\omega_\mathrm{i}}, \hat{\omega_\mathrm{o}})$ is the actual probability distribution that was sampled. \a weight has units of steradians.
+     - For forward rays (e.g., photon tracing), call: <code>scatter(PathDirection::SOURCE_TO_EYE, wi, ..., wo)</code></li>
+     - For backwards rays (e.g., path tracing), call: <code>scatter(PathDirection::EYE_TO_SOURCE, wo, ..., wi)</code></li>
 
-If the photon was absorbed, then \a wo will be Vector3::nan().
-
-<b>Details:</b><br/>
-Given \a wi, samples \a wo from a PDF proportional to 
-
-\f[ 
-\hat{\omega_\mathrm{i}} \to g( \hat{\omega_\mathrm{i}},  \hat{\omega_\mathrm{o}}) \cdot |\hat{\omega_\mathrm{o}} \cdot \hat{n}|,
-\f]
-
-where the shape of \f$g\f$ is ideally close to that of BSDF \f$f\f$.
-Note that this includes impulse scattering, i.e., the whole BSDF is
-considered for scattering and not just the finite portion.
-
-The \a weight is
-
-\f[
-\mathrm{weight} = \lim_{|\Gamma| \to 0~\mathrm{sr}, |\hat{\omega}_\mathrm{o} \in \Gamma|}
-                      \frac{~~~~\frac{\int_\Gamma f(\hat{\omega_\mathrm{i}}, \hat{h}) ~|\hat{h} \cdot \hat{n}| ~ d\hat{h}}{\int_{\mathbf{S}^2} f(\hat{\hat{\omega}_\mathrm{i}}, \hat{v})~ | \hat{v} \cdot \hat{n}|~ d\hat{v}}~~~~}                 
-                           {~~~~\frac{\int_\Gamma g(\hat{\omega_\mathrm{i}}, \hat{h})~|\hat{h}\cdot\hat{n}|~ d\hat{h}}{\int_{\mathbf{S}^2} g(\hat{\omega_\mathrm{i}}, \hat{v}) ~|\hat{v}\cdot\hat{n}|~d\hat{v}}~~~~} 
-\f]
-
-which is evaluated independently for each frequency (where frequency
-samples are modeled by color channels).  That is, the weight is the
-ratio of the normalized versions of the probability distribution
-functions at the location sampled, with the limit accomodating
-impulses.  By way of analogy, consider sampling with respect to the 1D PDF
-\f$g(w)\f$ below, when desiring samples distributed according to \f$f(w)\f$:
-
-\htmlonly 
-<center><img src="Surfel-weight.png"/></center>
-\endhtmlonly
-
-The sample taken was selected uniformly at random, when it should have been
-sampled half as frequently as the average sample.  We therefore would weigh its
-contribution by \f$f(w)/g(w) = 0.5 / 1.0 = 0.5\f$.
-
-Note that the weight might be zero even if the photon scatters, for
-example, a perfectly "red" photon striking a perfectly "green" surface
-would have a weight of zero.
-
-The \a weight is needed to allow efficient computation of scattering
-from BSDFs that have no computationally efficient method for exact
-analytic sampling.  The caller should scale the radiance or power
-transported by the \a weight.  The caller should discontinue tracing when
-that product is nearly zero.
-
-The \a probabilityHint is for use by photon mappers to decrease
-convergence time.  If the a priori probability density of scattering
-in this direction was infinity, it returns 1.0.  If the density was
-0.0, it returns 0.  For finite densities it scales between them.
-
-Note that because they are driven by the finite portion of the BSDF,
-weights returned must be non-negative and finite, but are not bounded.
-However, an efficient importance-sampling implementation will return
-weights close to 1.0.  In the best case, \f$f\f$ and \f$g\f$ differ by
-only a constant, so \f$ f() = k \cdot g()\f$ and \a weight = 1.
-  
-        
-The default implementation relies on getIncoming() and inefficient
-uniform (vs. importance) sampling against
-evaluateFiniteScatteringDensity().  For example, for a white
-Lambertian BSDF it will return \a weight = 0 half of the time and \a
-weight = 2 the rest of the time.  That is because it is randomly
-sampling the entire sphere, returning no \a weight for samples inside
-the material, and then increasing the weight of the samples that do
-reflect to compensate.  Thus it is desirable to optimize the
-implementation in subclasses where possible.
-
-
-
-----------------------------------------------------
-
-Consider this in the context of Monte Carlo integration of 
-\f$ \int_{\mathbf{S}^2} L(X, \hat{\omega}) f(\hat{\omega}, \hat{\omega}') |\hat{\omega} \cdot \hat{n}| d\hat{\omega} \f$.
-For that integral, choose \f$ k \f$ samples and weight as described below, and then 
-multiply each by the corresponding \f$ L(X, \hat{\omega}) / k \f$ and sum.
-
-(This is single importance sampling based on scattering. it gives good convergence
-when \f$ L(X, \hat{\omega}) \f$ is uniform, and is often the best we can do and is at least correct
-otherwise.)
-
-
-Let `h(w)` be the PDF we're actually sampling to produce an output vector
-Let `g(w) = f(w, w') |w.dot(n)|`.  [Note: `g()` is *not* a PDF; just the arbitrary integrand]
+        Let <code>h(w)</code> be the PDF that the implementation actually samples with respect to.
+        Let <code>g(w) = f(w_before, w_after) |w_after.dot(n)|</code>, the function that scatter
+        samples.  [Note: <code>g(w)</code> is *not* a PDF; just the terms from the integrand of the rendering equation]
 
 The function produces two outputs:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 w = sample with chosen with respect to pdf h(w)
 weight = g(w) / h(w)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Note that the weight might be zero even if the photon scatters, for
+    example, a perfectly "red" photon striking a perfectly "green" surface
+    would have a weight of zero.
+
+    The \a probabilityHint is for use by photon mappers to decrease
+    convergence time.  If the a priori probability density of scattering
+    in this direction was infinity, it returns 1.0.  If the density was
+    0.0, it returns 0.  For finite densities it scales between them.
+
+    If \a russianRoulette is true, then with probability proportional
+    to the initial weight paths will be terminated. Nonterminated paths
+    have weights increased proportionally to maintain the mean. This is
+    used for photon mapping.
+
+    Note that because they are driven by the finite portion of the BSDF,
+    weights returned must be non-negative and finite, but are not bounded.
+    However, an efficient importance-sampling implementation will return
+    weights close to 1.0. 
+        
+    The default implementation relies on getIncoming() and inefficient
+    cosine (vs. importance) sampling against
+    evaluateFiniteScatteringDensity().  Thus although it will work for
+    any evaluateFiniteScatteringDensity() implementation, it is desirable to optimize the
+    implementation of scatter() in subclasses where possible.
+
+    Consider this in the context of Monte Carlo integration of 
+    \f$ \int_{\mathbf{S}^2} L(X, \hat{\omega}) f(\hat{\omega}, \hat{\omega}') |\hat{\omega} \cdot \hat{n}| d\hat{\omega} \f$.
+    For that integral, choose \f$ k \f$ samples and weight as described below, and then 
+    multiply each by the corresponding \f$ L(X, \hat{\omega}) / k \f$ and sum.
+
+    (This is single importance sampling based on scattering. it gives good convergence
+    when \f$ L(X, \hat{\omega}) \f$ is uniform, and is often the best we can do and is at least correct
+    otherwise.)
 
 Examples:
    let `f() = 1 / pi()f`  [perfect lambertian]	
@@ -585,11 +532,11 @@ Examples:
  */
     virtual void scatter
     (PathDirection    pathDirection,
-     const Vector3&   wi,
+     const Vector3&   w_before,
      bool             russianRoulette,
      Random&          rng,
      Color3&          weight,
-     Vector3&         wo,
+     Vector3&         w_after,
      float&           probabilityHint = ignore,
      const ExpressiveParameters& expressiveParameters = ExpressiveParameters()) const;
 
