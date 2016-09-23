@@ -144,15 +144,15 @@ Radiance3 computeDirectLighting(UniversalMaterialSample surfel, Vector3 w_o, flo
     do {
         Vector3 w_i;
         // Radial falloff and spotlight term. Separate glossy and lambertian values are computed
-        float attenuation = computeAttenuation(surfel.shadingNormal, surfel.glossyShadingNormal, light$(I)_position,
+        float attenuation = computeAttenuation(surfel.shadingNormal, light$(I)_position,
             light$(I)_attenuation, light$(I)_softnessConstant, surfel.position, light$(I)_direction, light$(I)_up,
-            light$(I)_right, light$(I)_rectangular, light$(I)_radius, surfel.tsNormal, backside, w_i)[0];
+            light$(I)_right, light$(I)_rectangular, light$(I)_radius, w_i);
 
         // Abort attenuated lights
         if (attenuation <= attenuationThreshold) continue;
 #       ifdef light$(I)_shadowMap_notNull
         {
-            vec3 adjustedWSPos = surfel.position + w_o * (1.5 * light$(I)_shadowMap_bias) + surfel.tsNormal * (backside * 0.5 * light$(I)_shadowMap_bias);
+            vec3 adjustedWSPos = surfel.position + w_o * (1.5 * light$(I)_shadowMap_bias) + surfel.shadingNormal * (backside * 0.5 * light$(I)_shadowMap_bias);
             vec4 shadowCoord = light$(I)_shadowMap_MVP * vec4(adjustedWSPos, 1.0);
 
             // Williams Shadow Map case
