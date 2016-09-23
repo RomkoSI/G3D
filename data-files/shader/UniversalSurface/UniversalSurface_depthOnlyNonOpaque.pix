@@ -1,5 +1,4 @@
-#version 330 // -*- c++ -*-
-#include <compatibility.glsl>
+#version 410 or 420 // -*- c++ -*-
 /**
     \file UniversalSurface_depthOnlyNonOpaque.pix
     \author Michael Mara, http://www.illuminationcodified.com
@@ -11,10 +10,10 @@
  */
 
 #include <g3dmath.glsl>
-#include <Texture/Texture.glsl>
+#include <compatibility.glsl>
 #include <AlphaFilter.glsl>
-#include <UniversalMaterial/UniversalMaterial.glsl>
 #include <UniversalMaterial/UniversalMaterial_sample.glsl>
+
 
 #expect USE_DEPTH_PEEL
 #expect ALPHA_HINT
@@ -93,7 +92,7 @@ void main() {
 
     bool discardIfFullCoverage = (! ((HAS_TRANSMISSIVE != 0) && (STOCHASTIC != 0))) && (DISCARD_IF_NO_TRANSPARENCY != 0);
     bool discardIfZeroCoverage = true;
-    UniversalMaterialSample materialSample = sampleUniversalMaterial2D(material, texCoord, vec2(0), tan_X, tan_Y, tan_Z, normalize(_tsE), backside, discardIfZeroCoverage, discardIfFullCoverage,
+    UniversalMaterialSample materialSample = sampleUniversalMaterial2D(material, wsPosition, texCoord, vec2(0), tan_X, tan_Y, tan_Z, normalize(_tsE), backside, discardIfZeroCoverage, discardIfFullCoverage,
         vertexColor, ALPHA_HINT, PARALLAXSTEPS, bool(HAS_NORMAL_BUMP_MAP), bool(HAS_VERTEX_COLOR), bool(HAS_ALPHA), bool(HAS_TRANSMISSIVE), bool(HAS_EMISSIVE), NUM_LIGHTMAP_DIRECTIONS);
 
 #   if STOCHASTIC
