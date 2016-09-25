@@ -31,11 +31,12 @@ public:
 
     /** Gets all static triangles within this world-space sphere. */
     void staticIntersectSphere(const Sphere& sphere, Array<Tri>& triArray) const;
-    void staticIntersectBox(const AABox& box, Array<Tri>& triArray) const;
-    bool staticIntersectRay(const Ray& ray, Tri::Intersector& intersectCallback, float& distance) const;
 
-    const CPUVertexArray& getCPUVertexArrayOfCollisionTree() const {
-        return m_collisionTree.cpuVertexArray();
+    /** Gets all static triangles within this world-space box. */
+    void staticIntersectBox(const AABox& box, Array<Tri>& triArray) const;
+
+    const CPUVertexArray& vertexArrayOfCollisionTree() const {
+        return m_collisionTree.vertexArray();
     }
 
      Any toAny() const;

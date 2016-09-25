@@ -134,7 +134,7 @@ bool PlayerEntity::findFirstCollision
     for (int t = 0; t < triArray.size(); ++t) {
 
         const Tri& tri = triArray[t];
-        const CPUVertexArray& cpuVertexArray = ((PhysicsScene*)m_scene)->getCPUVertexArrayOfCollisionTree();
+        const CPUVertexArray& cpuVertexArray = ((PhysicsScene*)m_scene)->vertexArrayOfCollisionTree();
         Triangle triangle(tri.position(cpuVertexArray,0),tri.position(cpuVertexArray,1), tri.position(cpuVertexArray,2));
         Vector3 C;
         const float d = 

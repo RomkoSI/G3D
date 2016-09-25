@@ -64,7 +64,3 @@ void PhysicsScene::staticIntersectBox(const AABox& box, Array<Tri>& triArray) co
     m_collisionTree.intersectBox(box, triArray);
 }
 
-
-bool PhysicsScene::staticIntersectRay(const Ray& ray, Tri::Intersector& intersectCallback, float& distance) const {
-    return m_collisionTree.intersectRay(ray, intersectCallback, distance);
-}
