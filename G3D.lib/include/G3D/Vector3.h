@@ -388,19 +388,58 @@ public:
     */
     static Vector3 __fastcall cosHemiRandom(const Vector3& n, Random& r = Random::common());
 
-    static Vector3 __fastcall cosSphereRandom(const Vector3& n, Random& r = Random::common());
+    /** \brief Random unit vector, distributed proportional to \f$\max(\cos \theta,0)\f$.
 
-    /** \brief Random unit vector, distributed according to \f$\max(\cos^k \theta,0)\f$.
+        That is, so that the probability of \f$\vec{V}\f$ is proportional 
+        to \f$\max(\vec{w} \cdot \vec{v}, 0)\f$.  Useful in photon mapping for 
+        Lambertian scattering.
 
-        That is, so that the probability of \f$\vec{V}\f$ is
-        proportional to \f$\max((\vec{v} \cdot \vec{n})^k, 0)\f$.
-        Useful in photon mapping for glossy scattering.
-        
+        Distribution rendered by G3D::DirectionHistogram:
+        \image html vector3-coshemirandom.png
+
         \param n Unit vector at the center of the distribution.
 
-        \cite Ashikhmin and Shirley, An anisotropic Phong BRDF model, Journal of Graphics Tools, 2002
+        @cite Henrik Wann Jensen, Realistic Image Synthesis using Photon Mapping eqn 2.24
     */
-    static Vector3 __fastcall cosPowHemiRandom(const Vector3& n, const float k, Random& r = Random::common());
+    static void __fastcall cosHemiRandom(const Vector3& v, Random& rng, Vector3& w, float& pdfValue);
+
+    static Vector3 __fastcall cosSphereRandom(const Vector3& n, Random& r = Random::common());
+
+    /** \brief Random unit vector, distributed proportional to \f$\max(|\hat{\omega} \cdot \hat{v}|^k, 0)\f$.
+
+        \param k Power lobe
+        \param v Unit vector at the center of the distribution.
+
+        \cite Ashikhmin and Shirley, An anisotropic Phong BRDF model, Journal of Graphics Tools, 2002
+
+        \see cosPowHemiHemiRandom, hemiRandom, cosHemiRandom
+    */
+    static Vector3 __fastcall cosPowHemiRandom(const Vector3& v, const float k, Random& r = Random::common());
+
+    /** \brief Random unit vector, distributed proportional to \f$\max(|\hat{\omega} \cdot \hat{v}|^k, 0)\f$.
+
+        \param k Power lobe
+        \param v Unit vector at the center of the distribution.
+        \param w \f$ \hat{\omega} \f$
+        \param pdfValue The value of the cosPowHemiRandom pdf at w
+
+        \cite Ashikhmin and Shirley, An anisotropic Phong BRDF model, Journal of Graphics Tools, 2002
+
+        \see cosPowHemiHemiRandom, hemiRandom, cosHemiRandom
+    */
+    static void __fastcall cosPowHemiRandom(const Vector3& v, const float k, Random& r, Vector3& w, float& pdfValue);
+
+    /** \brief Random unit vector, distributed proportional to \f$\max(|\hat{\omega} \cdot \hat{v}|^k, 0) \cdot (\hat{\omega} \cdot \hat{n} \geq 0)\f$.
+
+        \param k Power lobe
+        \param v Unit vector at the center of the distribution.
+        \param n Unit vector defining the hemisphere to restrict the result vector to
+        \param w \f$ \hat{\omega} \f$
+        \param pdfValue The value of the cosPowHemiHemiRandom pdf at w
+
+        \see cosPowHemiRandom, hemiRandom, cosHemiRandom
+    */
+    static void __fastcall cosPowHemiHemiRandom(const Vector3& v, const Vector3& n, const float k, Random& r, Vector3& w, float& pdfValue);
 
     /**
      \brief Random vector distributed over the hemisphere about normal.
