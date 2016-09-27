@@ -352,9 +352,7 @@ void Vector3::cosPowHemiHemiRandom(const Vector3& v, const Vector3& n, const flo
 }
 
 
-void Vector3::cosHemiPlusCosPowHemiHemiRandom(const Vector3& v, const Vector3& n, const float k, float P_cos, float P_cosPow, Random& rng, Vector3& w, float& pdfValue) {
-    debugAssertM(G3D::fuzzyEq(P_cos + P_cosPow, 1.0f) && (P_cos >= 0.0f) && (P_cosPow >= 0.0f), "Probabilities must sum to 1.0");
-
+void Vector3::cosHemiPlusCosPowHemiHemiRandom(const Vector3& v, const Vector3& n, const float k, float P_cosPow, Random& rng, Vector3& w, float& pdfValue) {
     if (rng.uniform() < P_cosPow) {
         // Sample the power lobe about the reflection vector
         Vector3::cosPowHemiHemiRandom(v, n, k, rng, w, pdfValue);
@@ -362,7 +360,7 @@ void Vector3::cosHemiPlusCosPowHemiHemiRandom(const Vector3& v, const Vector3& n
     } else {
         // Sample the cosine lobe
         Vector3::cosHemiRandom(n, rng, w, pdfValue);
-        pdfValue *= P_cos;
+        pdfValue *= 1.0f - P_cosPow;
     }
 
 }
