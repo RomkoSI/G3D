@@ -352,6 +352,17 @@ void Vector3::cosPowHemiHemiRandom(const Vector3& v, const Vector3& n, const flo
 }
 
 
+void Vector3::hemiRandom(const Vector3& v, Random& rng, Vector3& w, float& pdfValue) {
+    rng.sphere(w.x, w.y, w.z);
+    
+    if (w.dot(v) < 0.0f) {
+        w = -w;
+    }
+
+    pdfValue = 1.0f / pif();
+}
+
+
 Vector3 Vector3::hemiRandom(const Vector3& normal, Random& r) {
     const Vector3& V = Vector3::random(r);
 
