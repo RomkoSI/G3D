@@ -257,6 +257,26 @@ Vector3 Vector3::cosHemiRandom(const Vector3& normal, Random& r) {
 }
 
 
+void Vector3::cosHemiRandom(const Vector3& v, Random& rng, Vector3& w, float& pdfValue) {
+    debugAssertM(v.isUnit(), "cosHemiRandom requires its argument to have unit length");
+
+    rng.cosHemi(w.x, w.y, w.z);
+
+    // Make a coordinate system
+    const Vector3& Z = v;
+
+    Vector3 X, Y;
+    v.getTangents(X, Y);
+
+    w = w.x * X +
+        w.y * Y +
+        w.z * Z;
+
+    pdfValue = v.dot(w) * (1.0f / pif());
+}
+
+
+
 Vector3 Vector3::cosSphereRandom(const Vector3& normal, Random& r) {
     debugAssertM(G3D::fuzzyEq(normal.length(), 1.0f), 
                  "cosSphereRandom requires its argument to have unit length");
@@ -277,23 +297,58 @@ Vector3 Vector3::cosSphereRandom(const Vector3& normal, Random& r) {
 }
 
 
-Vector3 Vector3::cosPowHemiRandom(const Vector3& normal, const float k, Random& r) {
-    debugAssertM(G3D::fuzzyEq(normal.length(), 1.0f), 
-                 "cosPowHemiRandom requires its argument to have unit length");
+Vector3 Vector3::cosPowHemiRandom(const Vector3& v, const float k, Random& r) {
+    debugAssertM(v.isUnit(), "cosPowHemiRandom requires its argument to have unit length");
 
     float x, y, z;
     r.cosPowHemi(k, x, y, z);
 
     // Make a coordinate system
-    const Vector3& Z = normal;
+    const Vector3& Z = v;
 
     Vector3 X, Y;
-    normal.getTangents(X, Y);
+    v.getTangents(X, Y);
 
     return 
         x * X +
         y * Y +
         z * Z;
+}
+
+
+void Vector3::cosPowHemiRandom(const Vector3& v, const float k, Random& r, Vector3& w, float& pdfValue) {
+    debugAssertM(v.isUnit(), "cosPowHemiRandom requires its argument to have unit length");
+
+    r.cosPowHemi(k, w.x, w.y, w.z);
+
+    // Make a coordinate system
+    const Vector3& Z = v;
+
+    Vector3 X, Y;
+    v.getTangents(X, Y);
+
+    w = w.x * X +
+        w.y * Y +
+        w.z * Z;
+
+    // Note: when k = 0, this is just 1/2pi [correctly uniform on the hemisphere]
+    //       when k = 1, this is cos/pi, which matches the cosine distribution
+    pdfValue = powf(v.dot(w), k) * (1.0f + k) / (2.0f * pif());
+}
+
+
+void Vector3::cosPowHemiHemiRandom(const Vector3& v, const Vector3& n, const float k, Random& rng, Vector3& w, float& pdfValue) {
+    debugAssertM(v.dot(n) >= 0.0f, "Sample vector was in the wrong hemisphere itself");
+    Vector3::cosPowHemiRandom(v, k, rng, w, pdfValue);
+
+    const float d = w.dot(n);
+    if (d < 0.0f) {
+        // Reflect w back to the positive hemisphere.
+        // We lose no energy because the pdf normalization 
+        // factor below assumed no hemisphere limitation.
+        w -= (2.0f * d) * n;
+        debugAssert(w.isUnit());
+    }
 }
 
 
