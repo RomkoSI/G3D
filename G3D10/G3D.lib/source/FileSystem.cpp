@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include "zip.h"
+#include <regex>
 #include "G3D/g3dfnmatch.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
@@ -1207,7 +1208,7 @@ String FilePath::makeLegalFilename(const String& f, size_t maxLength) {
     
     for (size_t i = 0; i < G3D::min(maxLength, f.size()); ++i) {
         const char c = f[i];
-        if (isLetter(c) || isDigit(c) || (c == '-') || (c == '+') || (c == '=') || (c == '(') || (c == ')')) {
+        if (isLetter(c) || isDigit(c) || (c == '-') || (c == '+') || (c == '=') || (c == '_') || (c == '.') || (c == '%') || (c == '~')) {
             tentative += c;
         } else {
             tentative += "_";

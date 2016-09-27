@@ -142,7 +142,7 @@ ScreenshotDialog::ScreenshotDialog(OSWindow* osWindow, const shared_ptr<GuiTheme
     tabPane->pack();
 
 
-    m_textureBox = rootPane->addTextureBox(NULL, shared_ptr<Texture>(), true, m_flip);
+    m_textureBox = rootPane->addTextureBox(nullptr, shared_ptr<Texture>(), true, m_flip);
     m_textureBox->setSize(256, 256 * min(3.0f, float(osWindow->height()) / osWindow->width()));
     m_textureBox->moveRightOf(tabPane);
     m_textureBox->moveBy(0, 18);

@@ -33,7 +33,6 @@ static bool __cdecl alphabeticalG3DLast(weak_ptr<Texture> const& elem1, weak_ptr
 }
 
 
-
 void TextureBrowserWindow::setTextureIndex(int index) {
     alwaysAssertM(index < m_textures.size(), "Texture and name list out of sync");
     shared_ptr<Texture> selectedTexture = m_textures[index].lock();
@@ -78,11 +77,12 @@ void TextureBrowserWindow::getTextureList(Array<String>& textureNames) {
     }
 }
 
+
 TextureBrowserWindow::TextureBrowserWindow
-   (const shared_ptr<GuiTheme>&           skin,
-    GApp* app) : 
+   (const shared_ptr<GuiTheme>&           theme,
+    GApp*                                 app) : 
     GuiWindow("Texture Browser", 
-              skin, 
+              theme, 
               Rect2D::xywh(5, 54, 200, 0),
               GuiTheme::FULL_DISAPPEARING_STYLE,
               GuiWindow::REMOVE_ON_CLOSE),
@@ -103,11 +103,12 @@ void TextureBrowserWindow::setManager(WidgetManager* manager) {
     GuiWindow::setManager(manager);
     if (manager) {
         // Move to the upper right
-        float osWindowWidth  = (float)manager->window()->width();
-        float osWindowHeight = (float)manager->window()->height();
+        const float osWindowWidth  = (float)manager->window()->width();
+        const float osWindowHeight = (float)manager->window()->height();
         setRect(Rect2D::xywh(osWindowWidth - rect().width(), osWindowHeight / 2, rect().width(), rect().height()));
     }
 }
+
 
 GuiTextureBox* TextureBrowserWindow::textureBox() {
     return m_textureBox;
