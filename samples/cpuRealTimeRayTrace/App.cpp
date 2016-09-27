@@ -46,10 +46,10 @@ void App::onInit() {
 
     GApp::loadScene(
         //"G3D Transparency Test");
-//        "Refraction Test");
-        "G3D Sports Car");
+        // "Refraction Test");
+        // "G3D Sports Car");
         //"G3D Cornell Box");
-        //"Real Time Ray Trace");
+        "Real Time Ray Trace");
 
     makeGUI();
 
