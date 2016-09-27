@@ -449,6 +449,16 @@ public:
      */
     static Vector3 __fastcall hemiRandom(const Vector3& normal, Random& r = Random::common());
 
+    /**
+     \brief Random vector distributed over the hemisphere about \a v.
+
+     \param pdfValue set to 1/pi on return, the value of a uniform PDF over the hemisphere.
+
+     Distribution rendered by G3D::DirectionHistogram:
+      \image html vector3-hemirandom.png
+     */
+    static void __fastcall hemiRandom(const Vector3& v, Random& r, Vector3& w, float& pdfValue);
+
     inline float sum() const {
         return x + y + z;
     }
