@@ -461,13 +461,12 @@ public:
 
       \param v The lobe about which to sample the cosine-power lobe (typically <code>w_o.reflectAbout(n)</code>)
       \param n The normal whose hemisphere each sub-PDF is restricted to, and the vector about which to sample the cosine lobe
-      \param P_c Probability of sampling the cosHemi lobe about n 
-      \param P_cp Probability of sampling the cosPowHemi lobe about the reflection vector
+      \param P_cosPow Probability of sampling the cosPowHemi lobe about the reflection vector (1 - P_cosPow is the probability of sampling the regular cosine lobe)
       \param k Exponent on the cosPowHemi lobe
 
       Assumes that P_cos + P_cosPow = 1.0
      */
-    static void __fastcall cosHemiPlusCosPowHemiHemiRandom(const Vector3& v, const Vector3& n, const float k, float P_cos, float P_cosPow, Random& rng, Vector3& w, float& pdfValue);
+    static void __fastcall cosHemiPlusCosPowHemiHemiRandom(const Vector3& v, const Vector3& n, const float k, float P_cosPow, Random& rng, Vector3& w, float& pdfValue);
 
 
     /**
