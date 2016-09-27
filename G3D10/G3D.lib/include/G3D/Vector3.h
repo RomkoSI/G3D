@@ -441,6 +441,12 @@ public:
     */
     static void __fastcall cosPowHemiHemiRandom(const Vector3& v, const Vector3& n, const float k, Random& r, Vector3& w, float& pdfValue);
 
+    /** 
+     Samples \a w from a pdf proportional to the spherical cap that lies within the cone about \a v whose apex half-angle has cosine \a cosHalfAngle,
+     while restricting w to the hemisphere about \a n.
+    */
+    static void __fastcall sphericalCapHemiRandom(const Vector3& v, const Vector3& n, const float cosHalfAngle, Random& r, Vector3& w, float& pdfValue);
+
     /**
      \brief Random vector distributed over the hemisphere about normal.
 

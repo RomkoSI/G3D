@@ -352,6 +352,43 @@ void Vector3::cosPowHemiHemiRandom(const Vector3& v, const Vector3& n, const flo
 }
 
 
+void Vector3::sphericalCapHemiRandom(const Vector3& v, const Vector3& n, const float cosHalfAngle, Random& rng, Vector3& w, float& pdfValue) {
+    // By Peter Shirley
+
+    // p(theta,phi) = 1/solid_angle
+    // phi = 2*PI*rand
+    // q(theta) = const*sin(theta)
+    // Q(theta) = -const*cos^(cos)_(0) = const*(1-cos)
+    // rand = const*(1-cos) = (1-cos)/(1-cos_max)
+    // 1-cos = (1-cos_max)*rand
+    // cos = 1 - (1-cos_max)*rand
+
+    const float solid_angle = 2.0f * pif() * (1.0f - cosHalfAngle);
+
+    // Build an orthonormal basis
+    const Vector3& Z = v.direction();
+    const Vector3& a = (fabs(Z.x) > 0.9f) ? Vector3::unitY() : Vector3::unitX();
+    const Vector3& Y = a.cross(Z).direction();
+    const Vector3& X = Z.cross(Y).direction(); 
+
+    const float cos_theta = 1.0f - (1.0f - cosHalfAngle) * rng.uniform();
+    const float sin_theta = sqrt(1.0f - square(cos_theta));
+    const float phi = 2.0f * pif() * rng.uniform();
+    w.x = cos(phi) * sin_theta;
+    w.y = (phi) * sin_theta;
+    w.z = cos_theta;
+
+    // Transform to the reflection vector's reference frame
+    w = w.x * X + w.y * Y + w.z * Z;
+
+    if (w.dot(n) < 0.0f) {
+        w = -w;
+    }
+
+    pdfValue = 1.0f / solid_angle;
+}
+
+
 void Vector3::hemiRandom(const Vector3& v, Random& rng, Vector3& w, float& pdfValue) {
     rng.sphere(w.x, w.y, w.z);
     
