@@ -456,6 +456,21 @@ public:
     static Vector3 __fastcall hemiRandom(const Vector3& normal, Random& r = Random::common());
 
     /**
+      Useful for sampling "lambertian + glossy" style BSDFs, even if they don't exactly
+      match this PDF.
+
+      \param v The lobe about which to sample the cosine-power lobe (typically <code>w_o.reflectAbout(n)</code>)
+      \param n The normal whose hemisphere each sub-PDF is restricted to, and the vector about which to sample the cosine lobe
+      \param P_c Probability of sampling the cosHemi lobe about n 
+      \param P_cp Probability of sampling the cosPowHemi lobe about the reflection vector
+      \param k Exponent on the cosPowHemi lobe
+
+      Assumes that P_cos + P_cosPow = 1.0
+     */
+    static void __fastcall cosHemiPlusCosPowHemiHemiRandom(const Vector3& v, const Vector3& n, const float k, float P_cos, float P_cosPow, Random& rng, Vector3& w, float& pdfValue);
+
+
+    /**
      \brief Random vector distributed over the hemisphere about \a v.
 
      \param pdfValue set to 1/pi on return, the value of a uniform PDF over the hemisphere.
