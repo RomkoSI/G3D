@@ -162,121 +162,86 @@ bool UniversalSurfel::transmissive() const {
 }
 
 
-/** Computes F_r, given the cosine of the angle of incidence and 
-    the reflectance at normal incidence. */
-static inline Color3 schlickFresnel(const Color3& F0, float cos_i, float smoothness) {
-    return UniversalBSDF::schlickFresnel(F0, cos_i, smoothness);
-}
-
-
 Color3 UniversalSurfel::finiteScatteringDensity
 (const Vector3&    w_i, 
  const Vector3&    w_o,
  const ExpressiveParameters& expressiveParameters) const {
+    // Fresnel reflection at normal incidence
+    const Color3& F_0 = glossyReflectionCoefficient;
 
-    debugAssert(shadingNormal.isUnit());
-    debugAssert(w_o.isUnit());
-    debugAssert(w_i.isUnit());
-    debugAssert((smoothness >= 0.0f) && (smoothness <= 1.0f));
+    // Lambertian reflectivity (conditioned on not glossy reflected)
+    const Color3& p_L = lambertianReflectivity * expressiveParameters.boost(lambertianReflectivity);
 
-    static const float maxBlinnPhongExponent = 8000;
+    // Surface normal
     const Vector3& n = shadingNormal;
-     
-    if ((w_i.dot(n) < 0) || (w_o.dot(n) < 0)) {
-        // All transmission is by impulse, so there is no
-        // finite density transmission.
-        return Color3::zero();
+
+    // Half vector
+    const Vector3& w_h = (w_i + w_o).directionOrZero();
+
+    // Frensel reflection coefficient for this angle. Ignore fresnel
+    // on surfaces that are magically set to zero reflectance.
+    const Color3& F =
+        F_0.nonZero() ?
+        UniversalBSDF::schlickFresnel(F_0, max(0.0f, w_h.dot(w_i)), smoothness) : Color3::zero();
+
+    // Lambertian term
+    Color3 result = (Color3::one() - F) * p_L / pif();
+
+    // Ignore mirror impulse's contribution, which is handled in getImpulses().
+    if (smoothness != 1.0f) {
+        // Normalized Blinn-Phong lobe
+        const float m = UniversalBSDF::smoothnessToBlinnPhongExponent(smoothness);
+        const float glossyLobe = pow(max(w_h.dot(n), 0.0f), m) *
+            (8.0f + m) / (8.0f * pif() * square(max(w_i.dot(n), w_o.dot(n))));
+        result += F * glossyLobe;
     }
 
-    static const float INV_8PI = 1.0f / (8.0f * pif());
-    static const float INV_PI  = 1.0f / pif();
-
-    // Base boost solely off Lambertian term
-    const float boost = expressiveParameters.boost(lambertianReflectivity);
-
-    // Glossy term
-    Color3 f_G(Color3::zero());
-
-    // Fresnel reflection coefficient
-    Color3 F(Color3::zero());
-    if ((smoothness != 0.0f) && (glossyReflectionCoefficient.nonZero())) {
-        // Glossy
-
-        // Half-vector
-        const Vector3& w_h = (w_i + w_o).direction();
-                
-        if (smoothness == 1.0f) {
-            // Will be handled by the mirror case. In this case, n = w_h
-            F = schlickFresnel(glossyReflectionCoefficient, max(0.001f, w_i.dot(n)), smoothness);
-            f_G = Color3::zero();
-        } else {
-            F = schlickFresnel(glossyReflectionCoefficient, max(0.001f, w_i.dot(w_h)), smoothness);
-            const float exponent = min(blinnPhongExponent(), maxBlinnPhongExponent);
-            f_G = F * ((powf(max(0.0f, w_h.dot(n)), exponent) * (exponent + 8.0f) * INV_8PI));
-        }
-    }
-
-    const Color3& f_L = lambertianReflectivity * (Color3::one() - F) * (boost * INV_PI);
-
-    debugAssert(f_L.min() >= 0.0f);
-    debugAssert(f_G.min() >= 0.0f);
-
-    return f_L + f_G;
+    return result;
 }
 
 
 void UniversalSurfel::getImpulses
 (PathDirection     direction,
- const Vector3&    wi,
+ const Vector3&    w_o,
  ImpulseArray&     impulseArray,
  const ExpressiveParameters& expressiveParameters) const {
 
     impulseArray.clear();
 
+    // Fresnel reflection at normal incidence
+    const Color3& F_0 = glossyReflectionCoefficient;
+
+    // Lambertian reflectivity (conditioned on not glossy reflected)
+    const Color3& p_L = lambertianReflectivity;
+
+    // Transmission (conditioned on not glossy or lambertian reflected)
+    const Color3& T = transmissionCoefficient;
+
+    // Surface normal
     const Vector3& n = shadingNormal;
-    debugAssert(wi.isUnit());
-    debugAssert(n.isUnit());
 
-    // If there is mirror reflection
-    if (glossyReflectionCoefficient.nonZero() && (smoothness == 1.0f)) {
-        // Cosine of the angle of incidence, for computing F for mirror reflection.
-        // We can only compute this for mirror reflection because wi.dot(n) = wo.dot(n)
-        // in that case.
-        const float cos_i = max(0.001f, wi.dot(n));
-        Color3 F = schlickFresnel(glossyReflectionCoefficient, cos_i, 1.0f);
-            
-        // Mirror                
-        Impulse& imp     = impulseArray.next();
-        imp.direction    = wi.reflectAbout(n);
-        imp.magnitude    = F;
+    // The half-vector IS the normal for mirror reflection purposes.
+    // Frensel reflection coefficient for this angle. Ignore fresnel
+    // on surfaces that are magically set to zero reflectance.
+    const Color3& F = F_0.nonZero() ? UniversalBSDF::schlickFresnel(F_0, max(0.0f, n.dot(w_o)), smoothness) : Color3::zero();
+
+    // Mirror reflection
+    if ((smoothness == 1.0f) && F_0.nonZero()) {
+        Surfel::Impulse& impulse = impulseArray.next();
+        impulse.direction = w_o.reflectAbout(n);
+        impulse.magnitude = F;
     }
-    
-    // If there is transmission
-    if (transmissionCoefficient.nonZero()) {
-        // Fresnel transmissive coefficient
-        // Cosine of the angle of incidence, for computing F for mirror reflection
-        const float cos_i = max(0.001f, wi.dot(n));
-        Color3 F = schlickFresnel(glossyReflectionCoefficient, cos_i, 1.0f);
 
-        Color3 F_t = Color3::one() - F;
+    // Transmission
+    const Color3& transmissionMagnitude = T * (Color3::one() - F) * (Color3::one() - (Color3::one() - F) * p_L);
+    if (transmissionMagnitude.nonZero()) {
+        const Vector3& transmissionDirection = (-w_o).refractionDirection(n, etaNeg, etaPos);
 
-        // Sample transmissive
-        const Color3& T0 = transmissionCoefficient;
-
-        // TODO: transmit should be conditioned on lambertian as well as glossy,
-        // although in practice we almost never have transmissive materials with
-        // lambertian reflection
-        const Color3& p_transmit  = F_t * T0;
-       
-        Impulse& imp     = impulseArray.next();
-
-        imp.magnitude    = p_transmit;
-        imp.direction    = (-wi).refractionDirection(n, etaNeg, etaPos);
-        if (imp.direction.isZero()) {
-            // Total internal refraction
-            impulseArray.popDiscard();
-        } else {
-            debugAssert(imp.direction.isUnit());
+        // Test for total internal reflection before applying this impulse
+        if (transmissionDirection.nonZero()) {
+            Surfel::Impulse& impulse = impulseArray.next();
+            impulse.direction = transmissionDirection;
+            impulse.magnitude = transmissionMagnitude;
         }
     }
 }
@@ -310,14 +275,34 @@ Color3 UniversalSurfel::probabilityOfScattering
 }
 
 
-void UniversalSurfel::sampleFinite
+void UniversalSurfel::sampleFiniteDirectionPDF
    (PathDirection      pathDirection,
-    const Vector3&     wi,
+    const Vector3&     w_o,
     Random&            rng,
     const ExpressiveParameters& expressiveParameters,
-    Color3&            weight,
-    Vector3&           wo) const {
-    Surfel::sampleFinite(pathDirection, wi, rng, expressiveParameters, weight, wo);
+    Vector3&           w_i,
+    float&             pdfValue) const {
+
+    // Surface normal
+    const Vector3& n = shadingNormal;
+
+    // Fresnel reflection at normal incidence
+    const Color3& F_0 = glossyReflectionCoefficient;
+
+    // Estimate the fresnel term coarsely, assuming mirror reflection. This is only used
+    // for estimating the relativeGlossyProbability for the pdf; error will only lead to
+    // noise, not bias in the result.
+    const Color3& F = F_0.nonZero() ? UniversalBSDF::schlickFresnel(F_0, max(0.0f, n.dot(w_o)), smoothness) : Color3::zero();
+
+    // Lambertian reflectivity (conditioned on not glossy reflected)
+    const Color3& p_L = lambertianReflectivity;
+
+    // Exponent for the cosine power lobe in the PDF that we're sampling. Rolling off
+    // slightly from pure Blinn-Phong appears to give faster convergence.
+    const float m = UniversalBSDF::smoothnessToBlinnPhongExponent(smoothness * 0.8f);
+
+    float relativeGlossyProbability = F_0.nonZero() ? F.average() / (F + (Color3::one() - F) * p_L).average() : 0.0f;
+    Vector3::cosHemiPlusCosPowHemiHemiRandom(w_o.reflectAbout(n), shadingNormal, m, relativeGlossyProbability, rng, w_i, pdfValue);
 }
 
 } // namespace
