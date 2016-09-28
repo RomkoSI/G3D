@@ -117,6 +117,10 @@ public:
         const CPUVertexArray&               vertexArray,
         ImageStorage                        newStorage = ImageStorage::COPY_TO_CPU);
 
+    virtual void setContents
+       (const shared_ptr<class Scene>&      scene, 
+        ImageStorage                        newStorage = ImageStorage::COPY_TO_CPU);
+
     /** Helper function that samples materials. The default implementation calls the intersectRay
         override that takes a Hit and then samples from it.
 
