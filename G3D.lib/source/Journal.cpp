@@ -196,7 +196,13 @@ void Journal::appendToFirstSection(const String& journalFilename, const String& 
                 }
             }
         }
+
+        if ((pos > 2) && (file[pos] == '\n') && (file[pos - 1] == 'n')) {
+            // Too many newlines, back up a bit
+            --pos;
+        }
     }
+
 
     combined = file.substr(0, pos) + text + "\n" + file.substr(pos);
 

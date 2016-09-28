@@ -27,13 +27,15 @@ class CPUVertexArray;
 */
 class UniversalSurfel : public Surfel {
 protected:
-    virtual void sampleFinite
-        (PathDirection      pathDirection,
-         const Vector3&     wi,
-         Random&            rng,
-         const ExpressiveParameters& expressiveParameters,
-         Color3&            weight,
-         Vector3&           wo) const override;
+
+    virtual void sampleFiniteDirectionPDF
+    (PathDirection      pathDirection,
+     const Vector3&     w_o,
+     Random&            rng,
+     const ExpressiveParameters& expressiveParameters,
+     Vector3&           w_i,
+     float&             pdfValue) const override;
+
 public:
 
     /** \f$ \rho_\mathrm{L} \f$
@@ -66,21 +68,17 @@ public:
     // and then protect all fields with accessors to allow precomputation
     bool            isTransmissive;
 
-    /** Zero = very rough, 1.0 = perfectly smooth (). Equivalent the
-      the \f$\alpha\f$ parameter of the Generalized Trowbridge-Reitz
+    /** Zero = very rough, 1.0 = perfectly smooth (mirror). Equivalent the
+      the \f$1 - \alpha\f$ parameter of the Generalized Trowbridge-Reitz
       microfacet BSDF (GTR/GGX).
+
+      Transmission is always perfectly smooth 
 
       \sa blinnPhongExponent
     */
     float           smoothness;
 
-
-    /** The glossy exponent in the Blinn-Phong BSDF.
-
-        \beta This will
-        become approximate in the future when UniversalSurfel
-        moves to the GTR2/GGX microfacet model.
-     */
+    /** An approximate glossy exponent in the Blinn-Phong BSDF for this BSDF. */
     float blinnPhongExponent() const;
 
     /** Allocates with System::malloc to avoid the performance

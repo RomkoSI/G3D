@@ -257,6 +257,22 @@ Vector3 Vector3::cosHemiRandom(const Vector3& normal, Random& r) {
 }
 
 
+void Vector3::cosSphereRandom(const Vector3& normal, Random& rng, Vector3& w, float& pdfValue) {
+    debugAssertM(normal.isUnit(), "cosSphereRandom requires its argument to have unit length");
+
+    rng.cosSphere(w.x, w.y, w.z);
+
+    // Make a coordinate system
+    const Vector3& Z = normal;
+
+    Vector3 X, Y;
+    normal.getTangents(X, Y);
+
+    w = w.x * X + w.y * Y + w.z * Z;
+    pdfValue = abs(normal.dot(w)) / (2.0f * pif());
+}
+
+
 void Vector3::cosHemiRandom(const Vector3& v, Random& rng, Vector3& w, float& pdfValue) {
     debugAssertM(v.isUnit(), "cosHemiRandom requires its argument to have unit length");
 
@@ -345,7 +361,7 @@ void Vector3::cosPowHemiHemiRandom(const Vector3& v, const Vector3& n, const flo
     if (d < 0.0f) {
         // Reflect w back to the positive hemisphere.
         // We lose no energy because the pdf normalization 
-        // factor below assumed no hemisphere limitation.
+        // factor assumed no hemisphere clipping to begin with.
         w -= (2.0f * d) * n;
         debugAssert(w.isUnit());
     }
@@ -362,7 +378,6 @@ void Vector3::cosHemiPlusCosPowHemiHemiRandom(const Vector3& v, const Vector3& n
         Vector3::cosHemiRandom(n, rng, w, pdfValue);
         pdfValue *= 1.0f - P_cosPow;
     }
-
 }
 
 

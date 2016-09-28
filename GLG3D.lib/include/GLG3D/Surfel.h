@@ -301,21 +301,21 @@ protected:
      const shared_ptr<Material>& material,
      const shared_ptr<Surface>& surface);
 
-    /** Called by the default implementation of scatter. 
-        Samples \f$ \hat{\omega}_o \f$ from some distribution \f$ p(\hat{\omega}_o) \f$ on the sphere. 
-        This is optimal if proportional to \f$ f(\hat{\omega}_i, \hat{\omega}_o) \cdot | \hat{\omega}_o \cdot \hat{n}| \f$,
-        but can be anything that is nonzero where $f$ is nonzero.
+    /** Called by the default implementation of scatter. Samples a directional PDF
+
+        Samples \f$ \hat{\omega}_i \f$ from some distribution \f$ p(\hat{\omega}_i) \f$ on the sphere. 
+        This is optimal if proportional to \f$ f^*(\hat{\omega}_i, \hat{\omega}_o) \cdot | \hat{\omega}_u \cdot \hat{n}| \f$,
+        where \f$ f^* \f$ is the finite portion of the BSDF (no impulses) but can be anything that is nonzero where \$f\$ is nonzero.
         
-        Returns \a wo = \f$ \hat{\omega}_o \f$ and 
-        \a weight = \f$ f(\hat{\omega}_i, \hat{\omega}_o) | \hat{\omega}_o \cdot \hat{n} | \cdot \int_{\mathbf{S}^2} p(\hat{\omega}_o) d\hat{\omega}_o }{ p(\hat{\omega}_o) } \f$
+        Returns \a w_i = \f$ \hat{\omega}_i \f$ and \a pdfValue = \f$ p(\hat{\omega}_i) \f$
         */
-    virtual void sampleFinite
+    virtual void sampleFiniteDirectionPDF
     (PathDirection      pathDirection,
-     const Vector3&     wi,
+     const Vector3&     w_o,
      Random&            rng,
      const ExpressiveParameters& expressiveParameters,
-     Color3&            weight,
-     Vector3&           wo) const;
+     Vector3&           w_i,
+     float&             pdfValue) const;
 
 public:
 

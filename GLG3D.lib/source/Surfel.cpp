@@ -99,54 +99,68 @@ Color3 Surfel::finiteScatteringDensity
 }
 
 
-void Surfel::sampleFinite
+void Surfel::sampleFiniteDirectionPDF
    (PathDirection      pathDirection,
-    const Vector3&     wi,
+    const Vector3&     w_o,
     Random&            rng,
     const ExpressiveParameters& expressiveParameters,
-    Color3&            weight,
-    Vector3&           wo) const {
+    Vector3&           w_i,
+    float&             pdfValue) const {
 
-    // The step below does not importance sample based on the BSDF itself, just
-    // based on the cosine.  We could use Russian Roulette, but it seems better
-    // to let subclass implementers decide if that is efficient for their BSDFs.
-    //
-    // Choose a random outgoing direction, taking into account
-    // projected area "cosine" weighting.  I.e., importance
-    // sample the cosine factor.
-
-    float wt = 0.0f;
     if (transmissive()) {
-        wo = Vector3::cosSphereRandom(shadingNormal, rng);
-        //       (f*cos) / (2*cos * 1/4pi)
-        // There is a 2*cos in the denominator instead of just cos
-        // because h(w) is a PDF and has to be normalized.
-        wt = (2.0f * pif());
+        Vector3::cosSphereRandom(shadingNormal, rng, w_i, pdfValue);
     } else {
-        wo = Vector3::cosHemiRandom(shadingNormal, rng);
-        //       (f*cos) / (2*cos * 1/2pi)
-        // There is a 2*cos in the denominator instead of just cos
-        // because h(w) is a PDF and has to be normalized.
-        wt = pif();
+        Vector3::cosHemiRandom(shadingNormal, rng, w_i, pdfValue);
     }
-
-    // Evaluate the BSDF for this pair of directions. We don't multiply by |wo . n| because we've
-    // already cancelled that term from the denominator of wt
-    const Color3& f = finiteScatteringDensity(pathDirection, wi, wo, expressiveParameters);        
-    weight = f * wt;
 }
 
 
 float Surfel::ignore = 0.0;
 void Surfel::scatter
    (PathDirection    pathDirection,
-    const Vector3&   wi,
+    const Vector3&   w_o,
     bool             russianRoulette,
     Random&          rng,
     Color3&          weight,
-    Vector3&         wo,
+    Vector3&         w_i,
     float&           probabilityHint,
     const ExpressiveParameters& expressiveParameters) const {
+
+    // TODO: Russian roulette
+
+    Surfel::ImpulseArray impulseArray;
+    getImpulses(pathDirection, w_o, impulseArray, expressiveParameters);
+
+    float impulseMagnitudeSum = 0.0f;
+    float r = rng.uniform();
+    for (int i = 0; i < impulseArray.size(); ++i) {
+        const Surfel::Impulse& impulse = impulseArray[i];
+        const float probabilityOfThisImpulse = impulse.magnitude.average();
+        r -= probabilityOfThisImpulse;
+        impulseMagnitudeSum += probabilityOfThisImpulse;
+        if (r <= 0.0f) {
+            w_i    = impulse.direction;
+            weight = impulse.magnitude / probabilityOfThisImpulse;
+            probabilityHint = probabilityOfThisImpulse;
+            return;
+        }
+    }
+
+    float pdfValue;
+    sampleFiniteDirectionPDF(pathDirection, w_o, rng, expressiveParameters, w_i, pdfValue);
+
+    // Took this branch with probability (1 - impulseMagnitudeSum)
+    pdfValue *= 1.0f - impulseMagnitudeSum;
+    if (pdfValue > 0.0f) {
+        weight = finiteScatteringDensity(pathDirection, w_o, w_i, expressiveParameters) * max(w_i.dot(shadingNormal), 0.0f) / pdfValue;
+    } else {
+        weight = Color3::zero();
+    }
+    probabilityHint = float(weight.average() * 1e-3f);
+}
+
+
+#if 0 // old code with russianRoulette support
 
     // Net probability of scattering
     const Color3& prob3 = probabilityOfScattering(pathDirection, wi, rng, expressiveParameters);
@@ -228,6 +242,7 @@ void Surfel::scatter
 
     probabilityHint = float(weight.average() * 1e-3);
 }
+#endif
 
 
 Color3 Surfel::probabilityOfScattering

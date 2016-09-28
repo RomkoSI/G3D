@@ -388,7 +388,7 @@ public:
     */
     static Vector3 __fastcall cosHemiRandom(const Vector3& n, Random& r = Random::common());
 
-    /** \brief Random unit vector, distributed proportional to \f$\max(\cos \theta,0)\f$.
+    /** \brief Random unit vector, distributed proportional to \f$\max(\hat{\omega} \cdot \hat{n},0)\f$.
 
         That is, so that the probability of \f$\vec{V}\f$ is proportional 
         to \f$\max(\vec{w} \cdot \vec{v}, 0)\f$.  Useful in photon mapping for 
@@ -404,6 +404,12 @@ public:
     static void __fastcall cosHemiRandom(const Vector3& v, Random& rng, Vector3& w, float& pdfValue);
 
     static Vector3 __fastcall cosSphereRandom(const Vector3& n, Random& r = Random::common());
+
+    /** \brief Random unit vector, distributed proportional to \f$ |\hat{\omega} \cdot \hat{n}|\f$.
+        \param n Unit vector at the center of the distribution.
+        @cite Henrik Wann Jensen, Realistic Image Synthesis using Photon Mapping eqn 2.24
+    */
+    static void __fastcall cosSphereRandom(const Vector3& n, Random& rng, Vector3& w, float& pdfValue);
 
     /** \brief Random unit vector, distributed proportional to \f$\max(|\hat{\omega} \cdot \hat{v}|^k, 0)\f$.
 
