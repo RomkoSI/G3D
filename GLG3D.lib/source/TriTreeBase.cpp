@@ -10,6 +10,7 @@
 #include "G3D/CollisionDetection.h"
 #include "GLG3D/TriTreeBase.h"
 #include "GLG3D/Surface.h"
+#include "GLG3D/Scene.h"
 
 namespace G3D {
 
@@ -21,6 +22,15 @@ void TriTreeBase::clear() {
 
 TriTreeBase::~TriTreeBase() {
     clear();
+}
+
+
+void TriTreeBase::setContents
+   (const shared_ptr<Scene>&            scene, 
+    ImageStorage                        newStorage) {
+    Array< shared_ptr<Surface> > surfaceArray;
+    scene->onPose(surfaceArray);
+    setContents(surfaceArray, newStorage);
 }
 
 
