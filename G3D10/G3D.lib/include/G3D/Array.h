@@ -1,11 +1,11 @@
 /** 
   \file Array.h
  
-  \maintainer Morgan McGuire, graphics3d.com
+  \maintainer Morgan McGuire
   \cite Portions written by Aaron Orenstein, a@orenstein.name
  
   \created 2001-03-11
-  \edited  2016-02-03
+  \edited  2016-09-27
 
   Copyright 2000-2016, Morgan McGuire, http://graphics.cs.williams.edu
   All rights reserved.
@@ -26,6 +26,7 @@
 #endif
 #include <vector>
 #include <algorithm>
+#include <initializer_list>
 
 #ifdef _MSC_VER
 #   include <new>
@@ -341,7 +342,7 @@ public:
        (*this)[4] = v4;
     }
 
-    /** Creates an array containing v0...v4. */
+    /** Creates an array containing v0...v5. */
     Array(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4, const T& v5) {
        init(6, MemoryManager::create());
        (*this)[0] = v0;
@@ -350,6 +351,15 @@ public:
        (*this)[3] = v3;
        (*this)[4] = v4;
        (*this)[5] = v5;
+    }
+
+    /** Creates an array containing any number of arguments using curly braces. For example,
+    
+        <code>Array<int>({5, 10, 3, 4, 1})</code>
+        */
+    Array(std::initializer_list<T> args) {
+       init(args.size(), MemoryManager::create());
+       std::copy(args.begin(), args.end(), getCArray());
     }
 
 
