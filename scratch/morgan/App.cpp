@@ -73,15 +73,23 @@ void App::onInit() {
     loadScene(
         //"Feature Test"
         //"G3D Sponza"
-        "G3D Cornell Box" // Load something simple
+        "G3D Whiteroom" // Load something simple
         //developerWindow->sceneEditorWindow->selectedSceneName()  // Load the first scene encountered 
         );
 
-
-	const shared_ptr<Image>& image = Image::create(1, 1, ImageFormat::RGB8());
-	const shared_ptr<Texture>& src = Texture::fromImage("Source", image);
-    shared_ptr<Texture> dst;
-    m_film->exposeAndRender(renderDevice, activeCamera()->filmSettings(), src, 0, 0, dst);
+    {
+        float pdfValue;
+        const Vector3 n = Vector3::unitY();
+        w_o = Vector3(1, 1, 0).direction();
+        w_mirror = w_o.reflectAbout(n);
+        pdf = std::make_shared<DirectionHistogram>(100, w_mirror);
+        const float m = 100;
+        for (int i = 0; i < 1000000; ++i) {
+            Vector3 w_i;
+            Vector3::cosHemiPlusCosPowHemiHemiRandom(w_mirror, n, m, 0.1f, Random::threadCommon(), w_i, pdfValue);
+            pdf->insert(w_i);
+        }
+    }
 }
 
 
@@ -141,6 +149,12 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
         drawDebugShapes();
         const shared_ptr<Entity>& selectedEntity = (notNull(developerWindow) && notNull(developerWindow->sceneEditorWindow)) ? developerWindow->sceneEditorWindow->selectedEntity() : shared_ptr<Entity>();
         scene()->visualize(rd, selectedEntity, allSurfaces, sceneVisualizationSettings(), activeCamera());
+
+        if (pdf) {
+            Draw::arrow(w_o * 2.0f, w_o * 0.25f, rd, Color3::orange(), 1.0f);
+            Draw::arrow(Point3::zero(), w_mirror * 2.0f, rd, Color3::blue(), 1.0f);
+            pdf->render(rd, Color3(0.5f, 1.0f, 1.0f) * 0.5f, Color3::white() * 0.9f);
+        }
 
         // Post-process special effects
         m_depthOfField->apply(rd, m_framebuffer->texture(0), m_framebuffer->texture(Framebuffer::DEPTH), activeCamera(), m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);

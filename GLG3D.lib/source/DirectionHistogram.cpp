@@ -233,7 +233,7 @@ void DirectionHistogram::render(
         for (int i = 0; i < m_meshVertex.size(); ++i) {
             s += m_bucket[i] * m_invArea[i];
         }
-        s = 300.0f / s;
+        s = 5.0f / sqrt(s);
 
         Array<Vector3> v;
         for (int i = 0; i < m_meshVertex.size(); ++i) {
@@ -247,17 +247,20 @@ void DirectionHistogram::render(
             slowMesh.makeVertex(v[m_meshIndex[i + 3]]);
         }
     }
+
     shared_ptr<Image> color = Image::create(1, 1, ImageFormat::RGBA8());
     color->setAll(Color4(solidColor));
 
     slowMesh.setTexture(Texture::fromImage("solidColor", color));
     slowMesh.render(rd);
-       
+    
+    rd->pushState();
     rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
     rd->setRenderMode(RenderDevice::RENDER_WIREFRAME);
     color->setAll(lineColor);
     slowMesh.setTexture(Texture::fromImage("solidColor", color));
     slowMesh.render(rd);
+    rd->popState();
 
 }
 
