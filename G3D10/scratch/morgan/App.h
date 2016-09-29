@@ -15,6 +15,11 @@ protected:
     /** Called from onInit */
     void makeGUI();
 
+    Vector3 w_o;
+    Vector3 w_mirror;
+    shared_ptr<DirectionHistogram> pdf;
+    shared_ptr<DirectionHistogram> bsdf;
+
 public:
     
     App(const GApp::Settings& settings = GApp::Settings());

@@ -27,10 +27,6 @@ class RenderDevice;
 /** \brief A histogram on the surface of a sphere.
     Useful for visualizing BSDFs. 
     
-    Requires <code>sphere.ifs</code> to be in the current 
-    directory or a location that System::findDataFile can 
-    find it.
-
     The histogram drawn is a smoothing of the actual distribution
     by a \f$ \cos^{sharp} \f$ filter to ensure that it is not 
     undersampled by the underlying histogram mesh and buckets.
@@ -38,7 +34,7 @@ class RenderDevice;
     Storage size is constant in the amount of data.  Input is 
     immediately inserted into a bucket and then discarded.
   */
-class DirectionHistogram {
+class DirectionHistogram : ReferenceCountedObject {
 private:
 
     int                 m_slices;
