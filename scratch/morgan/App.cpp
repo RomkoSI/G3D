@@ -77,6 +77,7 @@ void App::onInit() {
         //developerWindow->sceneEditorWindow->selectedSceneName()  // Load the first scene encountered 
         );
 
+    labelFont = GFont::fromFile(System::findDataFile("arial.fnt"));
     {
         float pdfValue;
         const Vector3 n = Vector3::unitY();
@@ -154,6 +155,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
             Draw::arrow(w_o * 2.0f, w_o * 0.25f, rd, Color3::orange(), 1.0f);
             Draw::arrow(Point3::zero(), w_mirror * 2.0f, rd, Color3::blue(), 1.0f);
             Draw::plane(Plane(Vector3::unitY(), Point3::zero()), rd, Color3::white() * 0.5f, Color3::white() * 0.2f);
+            labelFont->draw3DBillboard(rd, "pdf", Point3::unitY() * 2.0f, 0.3f);
             pdf->render(rd, Color3(0.5f, 1.0f, 1.0f) * 0.5f, Color3::white() * 0.9f);
         }
 

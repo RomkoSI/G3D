@@ -19,6 +19,7 @@ protected:
     Vector3 w_mirror;
     shared_ptr<DirectionHistogram> pdf;
     shared_ptr<DirectionHistogram> bsdf;
+    shared_ptr<GFont> labelFont;
 
 public:
     
