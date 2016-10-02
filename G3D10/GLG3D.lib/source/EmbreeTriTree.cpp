@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2016-09-14
-  \edited  2016-09-14
+  \edited  2016-10-01
 
   G3D Innovation Engine
   Copyright 2000-2016, Morgan McGuire.
@@ -12,7 +12,7 @@
 */
 #include "G3D/platform.h"
 
-#ifdef G3D_WINDOWS
+#if defined(G3D_WINDOWS) || defined(G3D_OSX)
 #include <xmmintrin.h> 
 #include <pmmintrin.h> 
 #include "GLG3D/EmbreeTriTree.h"
@@ -106,65 +106,64 @@ void EmbreeTriTree::rebuild() {
     // and allow atomic append.
     m_alphaTriangleArray.resize(m_triArray.size());
     m_opaqueTriangleArray.resize(m_triArray.size());
-	{
-		std::atomic<int> alphaCount = 0;
-		std::atomic<int> opaqueCount = 0;
-
-		const Tri* triCArray = m_triArray.getCArray();
-		tbb::parallel_for(tbb::blocked_range<size_t>(0, m_triArray.size(), 64), [&](const tbb::blocked_range<size_t>& r) {
-			const size_t start = r.begin();
-			const size_t end = r.end();
-			static const size_t NUM_LOCAL_PER_THREAD_TRIS = 64;
-
+    {
+        std::atomic<int> alphaCount(0), opaqueCount(0);
+        
+        const Tri* triCArray = m_triArray.getCArray();
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, m_triArray.size(), 64), [&](const tbb::blocked_range<size_t>& r) {
+                const size_t start = r.begin();
+                const size_t end = r.end();
+                static const size_t NUM_LOCAL_PER_THREAD_TRIS = 64;
+                
 			size_t numAlpha = 0;
 			size_t numOpaque = 0;
 			RTCTriangle local_alpha[NUM_LOCAL_PER_THREAD_TRIS];
 			RTCTriangle local_opaque[NUM_LOCAL_PER_THREAD_TRIS];
-
+                        
 			for (size_t t = start; t < end; ++t) {
-				const Tri& tri = triCArray[t];
-				// sort triangle into either the alpha or opaque queue
-				if (tri.hasPartialCoverage()) {
-					local_alpha[numAlpha++] = RTCTriangle(tri.index[0], tri.index[1], tri.index[2], int(t));
-                } else {
-					local_opaque[numOpaque++] = RTCTriangle(tri.index[0], tri.index[1], tri.index[2], int(t));
-                }
-
-				// flush local 'alpha' queue if needed
-				if (numAlpha == NUM_LOCAL_PER_THREAD_TRIS) {
-					const size_t index = (size_t)alphaCount.fetch_add((int)numAlpha);
-					memcpy(&m_alphaTriangleArray[index], local_alpha, sizeof(RTCTriangle)*numAlpha);
-					numAlpha = 0;
-				}
-
-				// flush local 'alpha' queue if needed
-				if (numOpaque == NUM_LOCAL_PER_THREAD_TRIS) {
-					const size_t index = (size_t)opaqueCount.fetch_add((int)numOpaque);
-					memcpy(&m_opaqueTriangleArray[index], local_opaque, sizeof(RTCTriangle)*numOpaque);
-					numOpaque = 0;
-				}
+                            const Tri& tri = triCArray[t];
+                            // sort triangle into either the alpha or opaque queue
+                            if (tri.hasPartialCoverage()) {
+                                local_alpha[numAlpha++] = RTCTriangle(tri.index[0], tri.index[1], tri.index[2], int(t));
+                            } else {
+                                local_opaque[numOpaque++] = RTCTriangle(tri.index[0], tri.index[1], tri.index[2], int(t));
+                            }
+                            
+                            // flush local 'alpha' queue if needed
+                            if (numAlpha == NUM_LOCAL_PER_THREAD_TRIS) {
+                                const size_t index = (size_t)alphaCount.fetch_add((int)numAlpha);
+                                memcpy(&m_alphaTriangleArray[index], local_alpha, sizeof(RTCTriangle)*numAlpha);
+                                numAlpha = 0;
+                            }
+                            
+                            // flush local 'alpha' queue if needed
+                            if (numOpaque == NUM_LOCAL_PER_THREAD_TRIS) {
+                                const size_t index = (size_t)opaqueCount.fetch_add((int)numOpaque);
+                                memcpy(&m_opaqueTriangleArray[index], local_opaque, sizeof(RTCTriangle)*numOpaque);
+                                numOpaque = 0;
+                            }
 			}
-
+                        
 			// flush all non-empty queues
 			if (numAlpha > 0) {
-				const size_t index = (size_t)alphaCount.fetch_add((int)numAlpha);
-				memcpy(&m_alphaTriangleArray[index], local_alpha, sizeof(RTCTriangle)*numAlpha);
-				numAlpha = 0;
+                            const size_t index = (size_t)alphaCount.fetch_add((int)numAlpha);
+                            memcpy(&m_alphaTriangleArray[index], local_alpha, sizeof(RTCTriangle)*numAlpha);
+                            numAlpha = 0;
 			}
-
+                        
 			if (numOpaque > 0) {
-				const size_t index = (size_t)opaqueCount.fetch_add((int)numOpaque);
-				memcpy(&m_opaqueTriangleArray[index], local_opaque, sizeof(RTCTriangle)*numOpaque);
-				numOpaque = 0;
+                            const size_t index = (size_t)opaqueCount.fetch_add((int)numOpaque);
+                            memcpy(&m_opaqueTriangleArray[index], local_opaque, sizeof(RTCTriangle)*numOpaque);
+                            numOpaque = 0;
 			}
-		});
-
+            });
+        
         // Shrink the size (but not capacity) to fit
         m_alphaTriangleArray.resize(alphaCount, false);
         m_opaqueTriangleArray.resize(opaqueCount, false);
-	}
-
-	timer.tock();
+    }
+    
+    timer.tock();
 
     m_opaqueGeomID = rtcNewTriangleMesh(m_scene, RTC_GEOMETRY_STATIC, m_opaqueTriangleArray.size(), m_vertexArray.size(), 1);
     if (m_opaqueTriangleArray.size() > 0) {
@@ -193,18 +192,18 @@ void EmbreeTriTree::rebuild() {
 EmbreeTriTree::FilterAdapter::FilterAdapter(IntersectRayOptions options) : options(options) { }
 
 void EmbreeTriTree::FilterAdapter::rtcFilterFuncN
-    (int*                        valid, 
-    void*                       userDataPtr, 
-    const RTCIntersectContext*  context,
-    RTCRayN*                    ray,
-    const RTCHitN*              potentialHit,
-    const size_t                N) {
-
+(int*                        valid, 
+ void*                       userDataPtr, 
+ const RTCIntersectContext*  context,
+ RTCRayN*                    ray,
+ const RTCHitN*              potentialHit,
+ const size_t                N) {
+    
     const FilterAdapter&    adapter     = *(FilterAdapter*)context->userRayExt;
     const EmbreeTriTree&    tree        = *(EmbreeTriTree*)userDataPtr;
     const CPUVertexArray&   vertexArray = tree.m_vertexArray;
 
-    for (int r = 0; r < N; ++r) {
+    for (int r = 0; size_t(r) < N; ++r) {
         // Ignore already-masked out rays
         if (valid[r] != -1) { continue; }
 
@@ -212,12 +211,12 @@ void EmbreeTriTree::FilterAdapter::rtcFilterFuncN
         const Vector3   normal     (-RTCHitN_Ng_x(potentialHit, N, r), -RTCHitN_Ng_y(potentialHit, N, r), -RTCHitN_Ng_z(potentialHit, N, r));
         const Vector3   direction  (RTCRayN_dir_x(ray, N, r), RTCRayN_dir_y(ray, N, r), RTCRayN_dir_z(ray, N, r));
         const int       primID     = RTCHitN_primID(potentialHit, N, r);
-#               ifdef G3D_DEBUG
+#       ifdef G3D_DEBUG
         {
             const int   geomID     = RTCHitN_geomID(potentialHit, N, r);
-            debugAssert(geomID == tree.m_alphaGeomID);
+            debugAssert(geomID == (int)tree.m_alphaGeomID);
         }
-#               endif
+#       endif
 
         const Tri&      tri        = tree.m_triArray[tree.m_alphaTriangleArray[primID].triIndex];
                 

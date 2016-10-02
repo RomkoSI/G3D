@@ -14,7 +14,7 @@
 
 #include "G3D/platform.h"
 
-#ifdef G3D_WINDOWS
+#if defined(G3D_WINDOWS) || defined(G3D_OSX)
 
 #include "GLG3D/TriTreeBase.h"
 
@@ -110,4 +110,4 @@ public:
 
 } // G3D
 
-#endif // Windows
+#endif // Windows or OS X

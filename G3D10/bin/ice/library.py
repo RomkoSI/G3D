@@ -113,6 +113,7 @@ if not isOSX:
     maybeFwk    = DYNAMIC
     maybeFFMPEG = []
     maybeFMOD = []
+    maybeEmbree = []
 else:
     maybeG3DX11 = []
     maybeGLFWX11 = []
@@ -121,9 +122,10 @@ else:
     maybeFwk    = FRAMEWORK
     maybeFFMPEG = ['FFMPEG-util', 'FFMPEG-codec', 'FFMPEG-format', 'FFMPEG-swscale']
     maybeFMOD   = ['FMOD']
+    maybeEmbree = ['embree']
 
 
-GLG3DDepend = ['G3D', 'OpenGL', 'GLU', 'glfw', 'assimp', 'glew', 'nfd'] + maybeFFMPEG + maybeAppleGL + maybeG3DX11 + maybeFMOD
+GLG3DDepend = ['G3D', 'OpenGL', 'GLU', 'glfw', 'assimp', 'glew', 'nfd'] + maybeFFMPEG + maybeAppleGL + maybeG3DX11 + maybeFMOD + maybeEmbree
 glfwDepend  = maybeGLFWX11 + maybeGLFWOSX
 
 # OS X frameworks are automatically ignored on linux
@@ -172,6 +174,7 @@ Library('qrencode',    STATIC,    'qrencode',   'qrencode', None,       None,   
 Library('irrKlang',    DYNAMIC,   'irrklang',   'irrklang', None,       None,    ['irrKlang.h'],   ['createIrrKlangDevice'],                      []),
 Library('ply',         STATIC,    'ply',        'ply',      None,       None,    ['ply.hpp'],      ['ply::ply_parser::parse'],                    []),
 Library('tbbmalloc',   DYNAMIC,   'tbbmalloc',  'tbbmalloc',None,       None,    ['tbb.h'],        [],                                            []),
+Library('embree',      DYNAMIC,   'embree',     'embree',   None,       None,    ['embree.h'],     [],                                            []),
 Library('tbb',         DYNAMIC,   'tbb',        'tbb',      None,       None,    ['tbb.h'],        [],                                            ['tbb'])]:
 #Library('Box2D',       STATIC, 'box2d','box2d', None,       None,    ['Box2D.h'],   [],  [])]:
     defineLibrary(lib)
@@ -191,7 +194,7 @@ def _makeLibOrder():
     # These control the linker order. 
     pairs = [('GLG3D', 'G3D'), ('G3D', 'Cocoa'), ('Cocoa', 'SDL'), ('SDL', 'OpenGL'), ('GLU', 'OpenGL'), ('GLG3D', 'glew'),
             ('GLG3D', 'GLU'), ('G3D', 'zlib'), ('G3D', 'zip'), ('G3D', 'freeimage'), ('Cocoa', 'pthread'), 
-            ('G3D', 'enet'),
+            ('G3D', 'enet'), ('embree', 'tbb'),
             ('Cocoa', 'zlib'), ('OpenGL', 'pthread'), ('Cocoa', 'Carbon'),
             ('FFMPEG-format', 'FFMPEG-codec'), ('FFMPEG-codec', 'FFMPEG-util'), ('FFMPEG-format', 'zlib'), 
             ('GLG3D', 'FFMPEG-format'), ('glfw', 'X11'), ('glfw', 'Xrandr'), ('glfw', 'Xi'), ('glfw', 'Xcursor'), ('G3D', 'X11'), ('GLG3D', 'glfw'), ('GLG3D', 'assimp'),

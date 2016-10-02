@@ -413,8 +413,8 @@ def libTarget():
         copyIfNewer('tbb/win64/lib/*', 'build/lib/')
         copyIfNewer('tbb/win64/bin/*', 'build/bin/')
 
-		# Embree is precompiled. The embree headers aren't needed
-		# by programs using G3D.
+        # Embree is precompiled. The embree headers aren't needed
+        # by programs using G3D.
         copyIfNewer('embree/win64/lib/*', 'build/lib/')
         copyIfNewer('embree/win64/bin/*', 'build/bin/')
 
@@ -432,6 +432,10 @@ def libTarget():
           copyIfNewer('tbb/osx/bin/*', 'build/bin/')
           copyIfNewer('fmod/bin-osx/libfmod.dylib', 'build/lib/')
           copyIfNewer('tbb/osx/bin/*', 'build/lib/')
+          # Embree is precompiled. The embree headers aren't needed
+          # by programs using G3D.
+          copyIfNewer('embree/osx/bin/*', 'build/bin/')
+          copyIfNewer('embree/osx/bin/*', 'build/lib/')
 
         if linux:
           copyIfNewer('tbb/linux/bin/*', 'build/bin/')
