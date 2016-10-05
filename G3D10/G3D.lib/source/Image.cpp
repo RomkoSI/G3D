@@ -908,12 +908,12 @@ Color4 Image::nearest(const Vector2& pos, WrapMode w) const {
 }
 
 
-Color4  Image::nearest(int x, int y, WrapMode w) const {
+Color4 Image::nearest(int x, int y, WrapMode w) const {
     return nearest(Point2((float)x, (float)y), w);
 }
 
 
-Color4  Image::bilinear(float x, float y, WrapMode wrap) const {
+Color4 Image::bilinear(float x, float y, WrapMode wrap) const {
 
     const int i = iFloor(x);
     const int j = iFloor(y);
