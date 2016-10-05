@@ -144,6 +144,7 @@
 	   <li> Minimized memory footprint of G3D::Ray </li>
        <li> G3D::Vector3::cosPowHemiHemiRandom</li>
        <li> G3D::Array::Array constructor that accepts initializer lists </li>
+       <li> G3D::Vector2uint16, G3D::Point2uint16</li>
       </ul>
     </p>
 

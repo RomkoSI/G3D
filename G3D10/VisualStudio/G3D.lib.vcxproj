@@ -245,6 +245,7 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
     <ClCompile Include="..\G3D.lib\source\Vector2.cpp" />
     <ClCompile Include="..\G3D.lib\source\Vector2int16.cpp" />
     <ClCompile Include="..\G3D.lib\source\Vector2int32.cpp" />
+    <ClCompile Include="..\G3D.lib\source\Vector2uint16.cpp" />
     <ClCompile Include="..\G3D.lib\source\Vector2uint32.cpp" />
     <ClCompile Include="..\G3D.lib\source\Vector2unorm16.cpp" />
     <ClCompile Include="..\G3D.lib\source\Vector3.cpp" />
@@ -417,6 +418,7 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
     <ClInclude Include="..\G3D.lib\include\G3D\Vector2.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Vector2int16.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Vector2int32.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\Vector2uint16.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Vector2uint32.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Vector2unorm16.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Vector3.h" />
