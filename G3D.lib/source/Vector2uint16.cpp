@@ -44,14 +44,14 @@ Vector2uint16& Vector2uint16::operator=(const Any& a) {
 
 Any Vector2uint16::toAny() const {
     Any any(Any::ARRAY, "Vector2uint16");
-    any.append(x, y);
+    any.append(int(x), int(y));
     return any;
 }
 
 
 Vector2uint16::Vector2uint16(const class Vector2& v) {
-    x = (int16)iFloor(v.x + 0.5);
-    y = (int16)iFloor(v.y + 0.5);
+    x = (uint16)iFloor(v.x + 0.5);
+    y = (uint16)iFloor(v.y + 0.5);
 }
 
 

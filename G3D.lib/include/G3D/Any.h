@@ -230,12 +230,12 @@ private:
 
     class Data {
     public:
-        /** ARRAY, TABLE, or STRING value only.  NULL otherwise. */
+        /** ARRAY, TABLE, or STRING value only.  nullptr otherwise. */
         union Value {
             String*                  s;
             Array<Any>*              a;
             AnyTable*                t;
-            inline Value() : s(NULL) {}
+            inline Value() : s(nullptr) {}
         };
 
         // Needed so that the destructor knows what is in Value
@@ -291,7 +291,7 @@ private:
 
         /** Clones the argument */
         static Data* create(const Data* d);
-        static Data* create(Type t, const char* b = NULL, char s = '\0', bool h = false);
+        static Data* create(Type t, const char* b = nullptr, char s = '\0', bool h = false);
 
         /** Free d, invoking its destructor and freeing the memory for
             the value. */
@@ -321,14 +321,14 @@ private:
 
     /** Decrements the reference count (if there is one).  If the
     reference count is zero after decrement, calls delete on @a m_data
-    and sets it to NULL.
+    and sets it to nullptr.
     */
     void dropReference();
 
     /** Allocate the Data object if it does not exist */
     void ensureData();
 
-    /** If m_data is not NULL, ensure that it has a unique reference
+    /** If m_data is not nullptr, ensure that it has a unique reference
         and contains a valid m_data.  This has a race condition if two
         threads are both trying to modify the same Any
         simultaneously.*/    
@@ -414,7 +414,7 @@ public:
     // On 64-bit linux int64 can be defined as long which causes a redefinition error.
 #   if defined(G3D_32Bit) || defined(_MSC_VER) || defined(G3D_OSX)
     /** NUMBER constructor */
-    explicit Any(int64 x) : m_type(NUMBER), m_simpleValue((double)x), m_data(NULL) {}
+    explicit Any(int64 x) : m_type(NUMBER), m_simpleValue((double)x), m_data(nullptr) {}
 #   endif
 
     /** NUMBER constructor */
@@ -446,7 +446,7 @@ public:
 
     /** Extensible constructor: call the toAny() method of any class. */
     template<class T>
-    explicit Any(const T& v) : m_type(NIL), m_data(NULL) {
+    explicit Any(const T& v) : m_type(NIL), m_data(nullptr) {
         *this = v.toAny();
     }
 
@@ -833,7 +833,7 @@ public:
     /** Assumes that Any(T) is well-defined, e.g., by T defining a
         T::toAny() method. */
     template<class T>
-    explicit Any(const Array<T>& array, const String& name = "") : m_type(ARRAY), m_data(NULL) {
+    explicit Any(const Array<T>& array, const String& name = "") : m_type(ARRAY), m_data(nullptr) {
         setName(name);
         resize(array.size());
         for (int i = 0; i < array.size(); ++i) {
