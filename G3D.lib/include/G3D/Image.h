@@ -259,9 +259,16 @@ public:
     void set(const Point2int32& pos, const Color3unorm8& color);
     void set(const Point2int32& pos, const Color1unorm8& color);
 
+    /** \sa set, nearestIncrement, bilinearIncrement */
     template <class ColorN>
     void increment(const Point2int32& pos, const ColorN& color) {
         set(pos, get<ColorN>(pos) + color);
+    }
+
+    /** \sa set, nearestIncrement, bilinearIncrement */
+    template <class ColorN>
+    void increment(const Point2int32& pos, const ColorN& color, WrapMode wrapMode) {
+        set(pos, get<ColorN>(pos, wrapMode) + color, wrapMode);
     }
 
     void setAll(const Color4& color);
@@ -393,16 +400,17 @@ public:
 
     /** 
       \brief Bilinear interpolation, in the style of OpenGL's
-      GL_LINEAR.
+      `GL_LINEAR`.
 
-      Needs to access elements from (floor(x), floor(y)) to (floor(x)
-      + 1, floor(y) + 1) and will use the wrap mode appropriately
-      (possibly generating out of bounds errors).
+      Needs to access elements from `(floor(x), floor(y))` to 
+      `(floor(x) + 1, floor(y) + 1)` and will use the wrap mode appropriately,
+      possibly generating out of bounds errors.
 
-      Guaranteed to match nearest(x, y) at integer locations.  
+      Guaranteed to match <code>nearest(x, y)</code> at integer locations.
+      That is, pixel centers are at integers.
 
       \sa nearest, get
-     */ 
+     */
     Color4 bilinear(float x, float y, WrapMode wrap = WrapMode::ERROR) const;
 
     /** 
@@ -410,6 +418,29 @@ public:
      */ 
     Color4 bilinear(const Point2& pos, WrapMode wrap = WrapMode::ERROR) const;
 
+    /**
+      \brief Increments values within the bilinear footprint according to their weights.
+
+      Needs to access elements from `(floor(x), floor(y))` to 
+      `(floor(x) + 1, floor(y) + 1)` and will use the wrap mode appropriately,
+      possibly generating out of bounds errors.
+
+      \param wrap Defaults to WrapMode::IGNORE
+      */
+    template <class ColorN>
+    void bilinearIncrement(const Point2& pos, const ColorN& color, WrapMode wrap = WrapMode::IGNORE) {
+        const int i = iFloor(pos.x);
+        const int j = iFloor(pos.y);
+    
+        const float fX = pos.x - i;
+        const float fY = pos.y - j;
+
+        increment<ColorN>(Point2int32(i + 0, j + 0), color * (1.0f - fX) * (1.0f - fY), wrap);
+        increment<ColorN>(Point2int32(i + 1, j + 0), color * fX * (1.0f - fY), wrap);
+
+        increment<ColorN>(Point2int32(i + 0, j + 1), color * (1.0f - fX) * fY, wrap);
+        increment<ColorN>(Point2int32(i + 1, j + 1), color * fX * fY, wrap);
+    }
 };
 
 } // namespace G3D
