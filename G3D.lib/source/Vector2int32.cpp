@@ -4,7 +4,7 @@
  @author Morgan McGuire, http://graphics.cs.williams.edu
   
  @created 2003-08-09
- @edited  2014-05-21
+ @edited  2016-10-05
  */
 
 #include "G3D/platform.h"
@@ -14,6 +14,7 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/Vector2int16.h"
+#include "G3D/Vector2uint16.h"
 #include "G3D/Any.h"
 
 namespace G3D {
@@ -36,6 +37,10 @@ Vector2int32::Vector2int32(const Any& any) {
 
 Vector2int32::Vector2int32(const class Vector2int16& v) : x(v.x), y(v.y) {
 }
+
+Vector2int32::Vector2int32(const class Vector2uint16& v) : x(v.x), y(v.y) {
+}
+
 
 Vector2int32::Vector2int32(const class Vector2& v) {
     x = (int32)iFloor(v.x + 0.5);

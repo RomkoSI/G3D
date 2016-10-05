@@ -43,6 +43,7 @@ public:
     explicit Vector2int32(const class Vector2& v);
     explicit Vector2int32(class BinaryInput& bi);
     Vector2int32(const class Vector2int16& v);
+    Vector2int32(const class Vector2uint16& v);
     Vector2int32(const class Any& a);
 
     inline G3D::int32& operator[] (int i) {
