@@ -269,7 +269,7 @@ void Vector3::cosSphereRandom(const Vector3& normal, Random& rng, Vector3& w, fl
     normal.getTangents(X, Y);
 
     w = w.x * X + w.y * Y + w.z * Z;
-    pdfValue = abs(normal.dot(w)) / (2.0f * pif());
+    pdfValue = fabsf(normal.dot(w)) / (2.0f * pif());
 }
 
 
