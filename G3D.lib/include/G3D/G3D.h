@@ -44,6 +44,7 @@
 #include "G3D/Vector2int32.h"
 #include "G3D/Vector2uint32.h"
 #include "G3D/Vector2int16.h"
+#include "G3D/Vector2uint16.h"
 #include "G3D/Vector2unorm16.h"
 #include "G3D/Vector3.h"
 #include "G3D/Vector3int16.h"
