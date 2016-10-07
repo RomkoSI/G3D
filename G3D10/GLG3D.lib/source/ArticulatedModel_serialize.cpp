@@ -3,12 +3,13 @@
 
  \author Morgan McGuire, http://graphics.cs.williams.edu
  \created 2011-07-18
- \edited  2016-03-16
+ \edited  2016-10-07
 
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 #include "GLG3D/ArticulatedModel.h"
+#include "G3D/XML.h"
 
 namespace G3D {
 
@@ -575,6 +576,44 @@ void ArticulatedModel::saveGeometryAsCode(const String& filename, bool compress)
     file.writeNewline();
 
     file.commit();
+}
+
+
+
+void ArticulatedModel::Specification::mitsubaToG3D(const class XML& mitsubaXML, ArticulatedModel::Specification& specification) {
+    // All <bsdf> nodes
+    Table<String, UniversalMaterial::Specification> materialTable;
+    
+    specification.stripMaterials = true;
+    specification.scale = 1.0f;
+
+    // for each bsdf node
+
+    // for each shape node:
+    const XML shape;
+    /*
+	<shape type="obj" >
+		<string name="filename" value="models/Mesh036.obj" />
+		<transform name="toWorld" >
+			<matrix value="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"/>
+		</transform>
+		<boolean name="faceNormals" value="true" />
+		<ref id="Transluscent" />
+	</shape>
+    */
+    if (shape.containsAttribute("type") && ((String)shape.attributeTable()["type"] == "obj")) {
+        // Read the filename and generate an addPart instruction
+        // TODO
+
+        // Read the toWorld transformation and generate a transformGeometry instruction (if it was not "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1")
+        // TODO
+
+        // read the ref id (which is the bsdf) and generate a setMaterial() instruction
+        // TODO
+
+        // if the bsdf node had type "two sided" in it, generate a setTwoSided() instruction
+    }
+
 }
 
 } // namespace G3D

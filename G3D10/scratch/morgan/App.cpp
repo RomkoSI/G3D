@@ -5,6 +5,14 @@
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
 G3D_START_AT_MAIN();
 
+void tungstenToG3D() {
+    const String sourceFilename = "C:/Users/morgan/Desktop/living-room-tungsten/scene.json";
+    Any any;
+    any.load(sourceFilename);
+
+}
+
+
 int main(int argc, const char* argv[]) {
     {
         G3DSpecification g3dSpec;
@@ -58,6 +66,14 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 void App::onInit() {
     GApp::onInit();
     setFrameDuration(1.0f / 120.0f);
+
+    {
+        ArticulatedModel::Specification s;
+        XML xml;
+        xml.load("C:/Users/morgan/Desktop/living-room-mitsuba/scene.xml");
+        ArticulatedModel::Specification::mitsubaToG3D(xml, s);
+        s.toAny().save("result.ArticulatedModel.Any");
+    }
 
     // Call setScene(shared_ptr<Scene>()) or setScene(MyScene::create()) to replace
     // the default scene here.

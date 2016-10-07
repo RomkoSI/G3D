@@ -3,7 +3,7 @@
 
  \author Morgan McGuire, http://graphics.cs.williams.edu, Michael Mara, http://illuminationcodified.com
  \created 2011-07-19
- \edited  2016-03-12
+ \edited  2016-10-12
 
   G3D Library http://g3d.cs.williams.edu
   Copyright 2000-2016, Morgan McGuire morgan@cs.williams.edu
@@ -525,6 +525,8 @@ Example:
             cachable(true) {}
 
         Specification(const Any& a);
+
+        static void mitsubaToG3D(const class XML& mitsubaXML, Specification& specification);
 
         size_t hashCode() const;
 
@@ -1069,8 +1071,9 @@ Example:
 
 protected:       
     
-    String                     m_name;
-    /* m_nextID is the ID of the next part or mesh to be added. Each mesh or part
+    String                          m_name;
+
+    /** m_nextID is the ID of the next part or mesh to be added. Each mesh or part
        when added is assigned a unique int id. Inorder to make sure that it is unique
        every time a mesh or part is added it is given m_nextID value and m_nextID is 
        incremented by one. */
@@ -1093,7 +1096,7 @@ protected:
 
     /**keeps track of the MTL files loaded from an OBJ
        only noneempty when loaded from an OBJ */
-    Array<String>              m_mtlArray;
+    Array<String>                   m_mtlArray;
 
     int getID() {
         ++m_nextID;
@@ -1132,7 +1135,7 @@ protected:
     void loadPLY2(const Specification& specification);
 
     void loadOFF(const Specification& specification);
-
+    
     void loadPLY(const Specification& specification);
 
     void load3DS(const Specification& specification);
@@ -1440,6 +1443,8 @@ public:
     /** Saves C++ code for generating the geometry of mesh[0] */
     void saveGeometryAsCode(const String& filename, bool compress = false);
 
+    /** Creates an ArticulatedModel::Specification */
+    static String mitsubaToG3DSpecification(const String& mitsubaXMLFilename);
 };
 
 }  // namespace G3D
