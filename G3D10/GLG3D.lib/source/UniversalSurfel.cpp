@@ -191,7 +191,8 @@ Color3 UniversalSurfel::finiteScatteringDensity
     if (smoothness != 1.0f) {
         // Normalized Blinn-Phong lobe
         const float m = UniversalBSDF::smoothnessToBlinnPhongExponent(smoothness);
-        const float glossyLobe = pow(max(w_h.dot(n), 0.0f), m) *
+        // Avoid 0^0
+        const float glossyLobe = pow(max(w_h.dot(n), 0.0f), max(m, 1e-6f)) *
             (8.0f + m) / (8.0f * pif() * square(max(w_i.dot(n), w_o.dot(n))));
         result += F * glossyLobe;
     }

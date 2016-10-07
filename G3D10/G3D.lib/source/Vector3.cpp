@@ -349,7 +349,7 @@ void Vector3::cosPowHemiRandom(const Vector3& v, const float k, Random& r, Vecto
 
     // Note: when k = 0, this is just 1/2pi [correctly uniform on the hemisphere]
     //       when k = 1, this is cos/pi, which matches the cosine distribution
-    pdfValue = powf(v.dot(w), k) * (1.0f + k) / (2.0f * pif());
+    pdfValue = powf(v.dot(w), std::max(k, 1e-6f)) * (1.0f + k) / (2.0f * pif());
 }
 
 

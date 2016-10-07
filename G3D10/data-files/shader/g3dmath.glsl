@@ -259,12 +259,10 @@ vec3 schlickFresnel(in vec3 F0, in float cos_i, float smoothness) {
 */
 float smoothnessToBlinnPhongExponent(in float g3dSmoothness) {
     // From Graphics Codex [smthnss]
-    float academicRoughness = square(1.0 - min(g3dSmoothness, 254.0 / 255.0));
+    float academicRoughness = square(1.0 - g3dSmoothness);
 
     // From http://simonstechblog.blogspot.com/2011/12/microfacet-brdf.html
-    float blinnPhongExponent = 2.0 / square(academicRoughness) - 2.0;
-    return blinnPhongExponent;
-    // return square((e * 255.0 - 1.0) * (1.0 / 253.0)) * 8192.0f + 0.5f;
+    return max(0.0, 2.0 / square(academicRoughness) - 2.0);
 }
 
 float packGlossyExponent(in float blinnPhongExponent) {    
