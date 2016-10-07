@@ -1102,6 +1102,7 @@ Rect2D GuiTheme::paneToClientBounds(const Rect2D& bounds, const GuiText& caption
                         bounds.wh() - m_pane[paneStyle].clientPad.wh() - captionSpace);
 }
 
+
 Rect2D GuiTheme::clientToPaneBounds(const Rect2D& bounds, const GuiText& caption, PaneStyle paneStyle) const {
     const Vector2 captionSpace(0, paneTopPadding(caption, paneStyle));
     return Rect2D::xywh(bounds.x0y0() - m_pane[paneStyle].clientPad.topLeft - captionSpace,
@@ -1116,8 +1117,8 @@ void GuiTheme::makeThemeFromSourceFiles(
   const String& coordsFile,
   const String& destFile) {
 
-    Image3Ref white = Image3::fromFile(FilePath::concat(sourceDir, whiteName));
-    Image3Ref black = Image3::fromFile(FilePath::concat(sourceDir, blackName));
+    shared_ptr<Image3> white = Image3::fromFile(FilePath::concat(sourceDir, whiteName));
+    shared_ptr<Image3> black = Image3::fromFile(FilePath::concat(sourceDir, blackName));
 
     shared_ptr<G3D::Image> outputImage = G3D::Image::create(white->width(), white->height(), ImageFormat::RGBA8());
 

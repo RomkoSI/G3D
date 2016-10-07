@@ -2073,8 +2073,9 @@ shared_ptr<Image4unorm8> Texture::toImage4unorm8() const {
     return im;
 }
 
-Image3Ref Texture::toImage3() const {    
-    Image3::Ref im = Image3::createEmpty(m_width, m_height, WrapMode::TILE, m_depth); 
+
+shared_ptr<Image3> Texture::toImage3() const {    
+    const shared_ptr<Image3>& im = Image3::createEmpty(m_width, m_height, WrapMode::TILE, m_depth); 
     getTexImage(im->getCArray(), ImageFormat::RGB32F());
     return im;
 }
