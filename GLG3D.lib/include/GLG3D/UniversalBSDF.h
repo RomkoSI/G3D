@@ -299,7 +299,7 @@ public:
 
         // From http://simonstechblog.blogspot.com/2011/12/microfacet-brdf.html
         const float blinnPhongExponent = 2.0f / square(academicRoughness) - 2.0f;
-        return blinnPhongExponent;
+        return max(0.0f, blinnPhongExponent);
     }
 
     /** Maps a Blinn-Phong exponent to G3D engine smoothness */

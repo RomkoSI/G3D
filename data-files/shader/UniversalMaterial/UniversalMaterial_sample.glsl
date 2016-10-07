@@ -57,7 +57,8 @@ struct UniversalMaterialSample {
 
 Color3 evaluateUniversalMaterialBSDF(UniversalMaterialSample surfel, Vector3 w_i, Vector3 w_o) {
     Vector3 n = surfel.glossyShadingNormal;
-    float glossyExponent = smoothnessToBlinnPhongExponent(surfel.smoothness);
+    // Cap infinities
+    float glossyExponent = min(1e5, smoothnessToBlinnPhongExponent(surfel.smoothness));
     
     // Incoming reflection vector
     float cos_o = dot(surfel.glossyShadingNormal, w_o);
@@ -71,7 +72,9 @@ Color3 evaluateUniversalMaterialBSDF(UniversalMaterialSample surfel, Vector3 w_i
     float inPositiveHemisphere = step(0.0, dot(w_i, n)) * step(0.0, dot(w_o, n));
 
     Color3 f_L = (1.0 - F) * surfel.lambertianReflectivity * invPi * inPositiveHemisphere;
-    Color3 f_G = F * pow(max(0.0, dot(w_h, n)), glossyExponent) * (glossyExponent + 8.0) * inv8Pi * inPositiveHemisphere;
+
+    // 0^0 = nan, so we max the exponent 
+    Color3 f_G = F * pow(max(0.0, dot(w_h, n)), max(glossyExponent, 1e-6)) * (glossyExponent + 8.0) * inv8Pi * inPositiveHemisphere;
 
     // TODO: Transmission
     Color3 f_T = Color3(0);

@@ -18,8 +18,8 @@ float UniversalBSDF::ignoreFloat;
 #define INV_8PI (0.0397887358f)
 
 
-UniversalBSDF::Ref UniversalBSDF::speedCreate(BinaryInput& b) {
-    UniversalBSDF::Ref s(new UniversalBSDF());
+shared_ptr<UniversalBSDF> UniversalBSDF::speedCreate(BinaryInput& b) {
+    shared_ptr<UniversalBSDF> s(new UniversalBSDF());
     
     SpeedLoad::readHeader(b, "UniversalBSDF");
 
