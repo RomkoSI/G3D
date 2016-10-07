@@ -67,17 +67,19 @@ Color3 evaluateUniversalMaterialBSDF(UniversalMaterialSample surfel, Vector3 w_i
     Vector3 w_h = normalize(w_i + w_o);
 
     // Note that dot(w_h, w_i) == dot(w_h, w_o)
-    Color3 F = schlickFresnel(surfel.fresnelReflectionAtNormalIncidence, max(0.001, dot(w_h, w_i)), surfel.smoothness);
+    Color3 F = (maxComponent(surfel.fresnelReflectionAtNormalIncidence) == 0.0) ?
+        Color3(0) :
+        schlickFresnel(surfel.fresnelReflectionAtNormalIncidence, max(0.001, dot(w_h, w_i)), surfel.smoothness);
 
     float inPositiveHemisphere = step(0.0, dot(w_i, n)) * step(0.0, dot(w_o, n));
 
     Color3 f_L = (1.0 - F) * surfel.lambertianReflectivity * invPi * inPositiveHemisphere;
 
     // 0^0 = nan, so we max the exponent 
-    Color3 f_G = F * pow(max(0.0, dot(w_h, n)), max(glossyExponent, 1e-6)) * (glossyExponent + 8.0) * inv8Pi * inPositiveHemisphere;
+    Color3 f_G = F * pow(max(0.0, dot(w_h, n)), max(glossyExponent, 1e-6)) * (glossyExponent + 8.0) / (8.0 * pi * square(max(0.0, max(dot(w_i, n), dot(w_o, n)))));
 
     // TODO: Transmission
-    Color3 f_T = Color3(0);
+    Color3 f_T = Color3(0);// ((1.0 - F) * surfel.lambertianReflectivity) * (1.0 - F) * Color3(0);
 
     return f_L + f_G + f_T;
 }
