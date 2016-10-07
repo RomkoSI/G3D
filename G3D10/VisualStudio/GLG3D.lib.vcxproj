@@ -467,6 +467,7 @@
     <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_downsampleNormal.pix" />
     <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_OIT_writePixel.glsl" />
     <None Include="..\data-files\shader\DefaultRenderer\DefaultRenderer_upsampleOIT.pix" />
+    <None Include="..\data-files\shader\deferredHelpers.glsl" />
     <None Include="..\data-files\shader\DepthOfField\DepthOfField_blur.pix" />
     <None Include="..\data-files\shader\DepthOfField\DepthOfField_circleOfConfusion.pix" />
     <None Include="..\data-files\shader\DepthOfField\DepthOfField_composite.pix" />
