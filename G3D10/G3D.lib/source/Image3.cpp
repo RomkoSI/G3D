@@ -26,8 +26,8 @@ Image3::Image3(int w, int h, WrapMode wrap, int depth) : Map2D<Color3, Color3>(w
 }
 
 
-Image3::Ref Image3::fromImage3unorm8(const shared_ptr<Image3unorm8>& im) {
-    Ref out = createEmpty(im->wrapMode());
+shared_ptr<Image3> Image3::fromImage3unorm8(const shared_ptr<Image3unorm8>& im) {
+    shared_ptr<Image3> out = createEmpty(im->wrapMode());
     out->resize(im->width(), im->height(), 1);
 
     int N = im->width() * im->height();
@@ -40,18 +40,18 @@ Image3::Ref Image3::fromImage3unorm8(const shared_ptr<Image3unorm8>& im) {
 }
 
 
-Image3::Ref Image3::createEmpty(int width, int height, WrapMode wrap, int depth) {
+shared_ptr<Image3> Image3::createEmpty(int width, int height, WrapMode wrap, int depth) {
     return shared_ptr<Image3>(new Image3(width, height, wrap, depth));
 }
 
 
-Image3::Ref Image3::createEmpty(WrapMode wrap) {
+shared_ptr<Image3> Image3::createEmpty(WrapMode wrap) {
     return createEmpty(0, 0, wrap, 1);
 }
 
 
-Image3::Ref Image3::fromFile(const String& filename, WrapMode wrap) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3> Image3::fromFile(const String& filename, WrapMode wrap) {
+    shared_ptr<Image3> out = createEmpty(wrap);
     out->load(filename);
     return out;
 }
@@ -92,43 +92,43 @@ void Image3::load(const String& filename) {
 }
 
 
-Image3::Ref Image3::fromArray(const class Color3unorm8* ptr, int w, int h, WrapMode wrap, int d) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3> Image3::fromArray(const class Color3unorm8* ptr, int w, int h, WrapMode wrap, int d) {
+    shared_ptr<Image3> out = createEmpty(wrap);
     out->copyArray(ptr, w, h, d);
     return out;
 }
 
 
-Image3::Ref Image3::fromArray(const class Color1* ptr, int w, int h, WrapMode wrap, int d) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3> Image3::fromArray(const class Color1* ptr, int w, int h, WrapMode wrap, int d) {
+    shared_ptr<Image3> out = createEmpty(wrap);
     out->copyArray(ptr, w, h, d);
     return out;
 }
 
 
-Image3::Ref Image3::fromArray(const class Color1unorm8* ptr, int w, int h, WrapMode wrap, int d) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3> Image3::fromArray(const class Color1unorm8* ptr, int w, int h, WrapMode wrap, int d) {
+    shared_ptr<Image3> out = createEmpty(wrap);
     out->copyArray(ptr, w, h, d);
     return out;
 }
 
 
-Image3::Ref Image3::fromArray(const class Color3* ptr, int w, int h, WrapMode wrap, int d) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3> Image3::fromArray(const class Color3* ptr, int w, int h, WrapMode wrap, int d) {
+    shared_ptr<Image3> out = createEmpty(wrap);
     out->copyArray(ptr, w, h, d);
     return out;
 }
 
 
-Image3::Ref Image3::fromArray(const class Color4unorm8* ptr, int w, int h, WrapMode wrap, int d) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3> Image3::fromArray(const class Color4unorm8* ptr, int w, int h, WrapMode wrap, int d) {
+    shared_ptr<Image3> out = createEmpty(wrap);
     out->copyArray(ptr, w, h, d);
     return out;
 }
 
 
-Image3::Ref Image3::fromArray(const class Color4* ptr, int w, int h, WrapMode wrap, int d) {
-    Ref out = createEmpty(wrap);
+shared_ptr<Image3> Image3::fromArray(const class Color4* ptr, int w, int h, WrapMode wrap, int d) {
+    shared_ptr<Image3> out = createEmpty(wrap);
     out->copyArray(ptr, w, h, d);
     return out;
 }

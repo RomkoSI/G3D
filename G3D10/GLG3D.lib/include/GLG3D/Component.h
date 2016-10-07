@@ -161,7 +161,7 @@ private:
     /** Overloads to allow conversion of Image3 and Image4 to uint8,
         since Component knows that there is only 8-bit data in the
         floats. */
-    static void speedSerialize(const Image3::Ref& im, const Color3& minValue, BinaryOutput& b) {
+    static void speedSerialize(const shared_ptr<Image3>& im, const Color3& minValue, BinaryOutput& b) {
         (void)minValue;
         // uint8x3
         b.writeUInt8('u');
@@ -194,7 +194,7 @@ private:
         Note that the im is never actually used, since we don't want
         to waste time converting to float!
     */
-    static void speedDeserialize(Image3::Ref& ignore, shared_ptr<Texture>& tex, const Color3& minValue, BinaryInput& b) {
+    static void speedDeserialize(shared_ptr<Image3>& ignore, shared_ptr<Texture>& tex, const Color3& minValue, BinaryInput& b) {
         (void)minValue;
 
         uint8 s = b.readUInt8();
