@@ -49,7 +49,7 @@ void main(void) {
         src += bloom * bloomStrengthScaled;
 #   endif
         
-    vec2 q = g3d_TexCoord.st; 
+    vec2 q = g3d_TexCoord.st;
     float vignette = pow(16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), 3.0 * vignetteSize);
 
     // Scale by parameters
