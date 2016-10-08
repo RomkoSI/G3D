@@ -119,6 +119,7 @@ template<class T> struct HashTrait< shared_ptr<T> > {
 };
 
 #include "G3D/Image.h"
+#include "G3D/CubeMap.h"
 #include "G3D/CollisionDetection.h"
 #include "G3D/Intersect.h"
 #include "G3D/Log.h"

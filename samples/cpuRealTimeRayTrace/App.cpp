@@ -49,7 +49,9 @@ void App::onInit() {
         // "Refraction Test");
         // "G3D Sports Car");
         //"G3D Cornell Box");
-        "Real Time Ray Trace");
+        "G3D Cubemap"
+        //"Real Time Ray Trace"
+    );
 
     makeGUI();
 
@@ -167,9 +169,9 @@ Radiance3 App::rayTrace(const Ray& ray, World* world, Random& rng, int bounce) {
     } else {
         // Hit the sky
         if (m_debugColoredSky) {
-            L_o = Color3(ray.direction()) * 0.5f + Color3(0.5f);
+            L_o = Radiance3(ray.direction()) * 0.5f + Color3(0.5f);
         } else {
-            L_o = world->ambient;
+            L_o = world->skyColor(ray.direction());
         }
     }
 
