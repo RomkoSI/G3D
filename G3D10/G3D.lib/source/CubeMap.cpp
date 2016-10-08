@@ -52,17 +52,18 @@ CubeMap::CubeMap
     //                              +X               -X               +Y              -Y              +Z               -Z 
     const int left[]      = {CubeFace::NEG_Z, CubeFace::POS_Z, CubeFace::POS_X, CubeFace::POS_X, CubeFace::POS_X, CubeFace::NEG_X};
     const int leftAxis[]  = {        U,                U,               V,               V,            U,                U       };
-    const int leftSign[]  = {        HI,               HI,              LO,              HI,           HI,               HI      };
+    const int leftSign[]  = {        LO,               LO,              HI,              HI,           LO,               LO      };
 
     //                              +X               -X               +Y              -Y              +Z               -Z 
     const int right[]     = {CubeFace::POS_Z, CubeFace::NEG_Z, CubeFace::NEG_X, CubeFace::NEG_X, CubeFace::NEG_X, CubeFace::POS_X};
     const int rightAxis[] = {        U,                U,               V,               V,            U,                U       };
-    const int rightSign[] = {        LO,               LO,              LO,              HI,           LO,               LO      };
+    const int rightSign[] = {        HI,               HI,              HI,              HI,           HI,               HI      };
 
+    // TODO: Top of +X and -Z are incorrect
     //                              +X               -X               +Y              -Y              +Z               -Z 
     const int top[]       = {CubeFace::POS_Y, CubeFace::POS_Y, CubeFace::NEG_Z, CubeFace::POS_Z, CubeFace::POS_Y, CubeFace::POS_Y};
     const int topAxis[]   = {        U,                U,               V,               V,            V,                V       };
-    const int topSign[]   = {        LO,               HI,              LO,              HI,           LO,               HI      };
+    const int topSign[]   = {        LO,               LO,              HI,              HI,           HI,               LO      };
 
     //                              +X               -X               +Y              -Y              +Z               -Z 
     const int bottom[]    = {CubeFace::NEG_Y, CubeFace::NEG_Y, CubeFace::POS_Z, CubeFace::NEG_Z, CubeFace::NEG_Y, CubeFace::NEG_Y};
@@ -86,7 +87,7 @@ CubeMap::CubeMap
         {
             const Image& src = *face[left[f]].get();
             const int fixedAxis     = leftAxis[f];
-            const int iterationAxis = leftAxis[f];
+            const int iterationAxis = (leftAxis[f] + 1) % 2;
             const int sign          = leftSign[f];
             Point2int32 P;
             P[fixedAxis] = (sign == HI) ? m_iSize - 1 : 0;
@@ -100,7 +101,7 @@ CubeMap::CubeMap
         {
             const Image& src = *face[right[f]].get();
             const int fixedAxis     = rightAxis[f];
-            const int iterationAxis = rightAxis[f];
+            const int iterationAxis = (rightAxis[f] + 1) % 2;
             const int sign          = rightSign[f];
             Point2int32 P;
             P[fixedAxis] = (sign == HI) ? m_iSize - 1 : 0;
@@ -114,7 +115,7 @@ CubeMap::CubeMap
         {
             const Image& src  = *face[top[f]].get();
             const int fixedAxis     = topAxis[f];
-            const int iterationAxis = topAxis[f];
+            const int iterationAxis = (topAxis[f] + 1) % 2;
             const int sign          = topSign[f];
             Point2int32 P;
             P[fixedAxis] = (sign == HI) ? m_iSize - 1 : 0;
@@ -128,12 +129,12 @@ CubeMap::CubeMap
         {
             const Image& src  = *face[bottom[f]].get();
             const int fixedAxis     = bottomAxis[f];
-            const int iterationAxis = bottomAxis[f];
+            const int iterationAxis = (bottomAxis[f] + 1) % 2;
             const int sign          = bottomSign[f];
             Point2int32 P;
             P[fixedAxis] = (sign == HI) ? m_iSize - 1 : 0;
             for (int i = 0; i < m_iSize; ++i) {
-                P[iterationAxis] = i;
+                P[iterationAxis] =  i;
                 dst.set(i + 1, m_iSize + 1, src.get<Color4>(P));
             }
         }
@@ -162,6 +163,8 @@ CubeMap::CubeMap
 
     m_fSize = float(m_iSize);
 
+    // For debugging wrapping
+    //for (int i = 0; i < 6; ++i) { m_faceArray[i].save(G3D::format("%d.png", i)); }
 }
 
 
