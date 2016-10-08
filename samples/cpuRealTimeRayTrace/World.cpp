@@ -15,15 +15,22 @@ void World::begin() {
 void World::insert(const shared_ptr<ArticulatedModel>& model, const CFrame& frame) {
     Array<shared_ptr<Surface> > posed;
     model->pose(posed, frame);
-    for (int i = 0; i < posed.size(); ++i) {
-        insert(posed[i]);
+    for (shared_ptr<Surface> surface : posed) {
+        insert(surface);
     }
 }
 
 
 void World::insert(const shared_ptr<Surface>& m) {
     debugAssert(m_mode == INSERT);
-    m_surfaceArray.append(m);
+
+    shared_ptr<SkyboxSurface> skybox = dynamic_pointer_cast<SkyboxSurface>(m);
+
+    if (notNull(skybox)) {
+        m_skybox = skybox->texture0()->toCubeMap();
+    } else {
+        m_surfaceArray.append(m);
+    }
 }
 
 

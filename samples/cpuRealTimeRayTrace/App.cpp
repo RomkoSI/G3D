@@ -263,20 +263,13 @@ void App::onAfterLoadScene(const Any& any, const String& sceneName) {
     m_world->clearScene();
     m_world->begin();
 
-    Array<shared_ptr<VisibleEntity>> entityArray;
-    scene()->getTypedEntityArray<VisibleEntity>(entityArray);
-
-    for (int i = 0; i < entityArray.length(); ++i) {
-        Array<shared_ptr<Surface>> surfaceArray;
-        entityArray[i]->onPose(surfaceArray);
-        for (int j = 0; j < surfaceArray.length(); ++j) {
-            m_world->insert(surfaceArray[j]);
-        }
+    Array<shared_ptr<Surface>> surfaceArray;
+    scene()->onPose(surfaceArray);
+    for (shared_ptr<Surface> surface : surfaceArray) {
+        m_world->insert(surface);
     }
 
-    Array<shared_ptr<Light>> lightArray;
-    scene()->getTypedEntityArray<Light>(lightArray);
-    m_world->lightArray = lightArray;
+    scene()->getTypedEntityArray<Light>(m_world->lightArray);
     m_world->end();
 
     m_forceRender = true;

@@ -124,28 +124,21 @@ const Vector3& Vector3::minFinite(){ static const Vector3 v(-FLT_MAX, -FLT_MAX, 
 const Vector3& Vector3::maxFinite(){ static const Vector3 v(FLT_MAX, FLT_MAX, FLT_MAX); return v; }
 
 Vector3::Axis Vector3::primaryAxis() const {
-    
-    Axis a = X_AXIS;
-
-    double nx = abs(x);
-    double ny = abs(y);
-    double nz = abs(z);
+    const float nx = fabsf(x);
+    const float ny = fabsf(y);
+    const float nz = fabsf(z);
 
     if (nx > ny) {
         if (nx > nz) {
-            a = X_AXIS;
+            return X_AXIS;
         } else {
-            a = Z_AXIS;
+            return Z_AXIS;
         }
+    } else if (ny > nz) {
+        return Y_AXIS;
     } else {
-        if (ny > nz) {
-            a = Y_AXIS;
-        } else {
-            a = Z_AXIS;
-        }
+        return Z_AXIS;
     }
-
-    return a;
 }
 
 
