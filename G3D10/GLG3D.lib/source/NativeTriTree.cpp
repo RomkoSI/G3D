@@ -873,7 +873,7 @@ void NativeTriTree::intersectRays
 		const size_t start = r.begin();
 		const size_t end   = r.end();
         for (size_t i = start; i < end; ++i) {
-			debugAssert(i < prays.size());
+            debugAssert(i < size_t(prays.size()));
             dst[i] = src[i];
         }
     });
