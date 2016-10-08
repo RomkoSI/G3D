@@ -157,6 +157,7 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
     <ClCompile Include="..\G3D.lib\source\CPUPixelTransferBuffer.cpp" />
     <ClCompile Include="..\G3D.lib\source\Crypto.cpp" />
     <ClCompile Include="..\G3D.lib\source\Crypto_md5.cpp" />
+    <ClCompile Include="..\G3D.lib\source\CubeMap.cpp" />
     <ClCompile Include="..\G3D.lib\source\Cylinder.cpp" />
     <ClCompile Include="..\G3D.lib\source\debugAssert.cpp" />
     <ClCompile Include="..\G3D.lib\source\enumclass.cpp" />
@@ -266,6 +267,7 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
     <ClInclude Include="..\G3D.lib\include\G3D\AreaMemoryManager.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Array.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\AtomicInt32.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\CubeMap.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\DepthFirstTreeBuilder.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\DepthReadMode.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\DoNotInitialize.h" />

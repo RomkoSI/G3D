@@ -5,19 +5,23 @@
  \edited  2016-05-01
  */
 #include "ArticulatedViewer.h"
+#include "App.h"
 
 shared_ptr<ArticulatedViewer::InstructionSurface>   ArticulatedViewer::m_instructions;
-shared_ptr<Surface>              ArticulatedViewer::m_skyboxSurface;
-shared_ptr<GFont>                ArticulatedViewer::m_font;
+shared_ptr<Surface>                                 ArticulatedViewer::m_skyboxSurface;
+shared_ptr<GFont>                                   ArticulatedViewer::m_font;
+
+extern App* app;
 
 // Useful for debugging material assignments
-static const bool mergeMaterials = false;
+// TODO: expose in the GUI
+static const bool mergeMaterials = true;
 
 ArticulatedViewer::ArticulatedViewer() :
     m_numFaces(0),
     m_numVertices(0),
-    m_selectedPart(NULL),
-    m_selectedMesh(NULL),
+    m_selectedPart(nullptr),
+    m_selectedMesh(nullptr),
     m_selectedTriangleIndex(0),
     m_time(0.0f) {
 
@@ -36,8 +40,8 @@ void ArticulatedViewer::onInit(const String& filename) {
 
     m_filename = filename;
 
-    m_selectedPart   = NULL;
-    m_selectedMesh   = NULL;
+    m_selectedPart   = nullptr;
+    m_selectedMesh   = nullptr;
     m_selectedTriangleIndex = -1;
     m_numFaces       = 0;
     m_numVertices    = 0;
@@ -83,6 +87,11 @@ void ArticulatedViewer::onInit(const String& filename) {
         // Prevent merging for material debugging
         if (! mergeMaterials) {
             any["meshMergeOpaqueClusterRadius"] = 0;
+        }
+
+        shared_ptr<DefaultRenderer> renderer = dynamic_pointer_cast<DefaultRenderer>(app->renderer());
+        if (notNull(renderer) && mergeMaterials && renderer->orderIndependentTransparency()) {
+            any["meshMergeTransmissiveClusterRadius"] = finf();
         }
 
         m_model = ArticulatedModel::create(any);
@@ -271,7 +280,7 @@ void ArticulatedViewer::onGraphics3D(RenderDevice* rd, App* app, const shared_pt
 
     //Surface::renderWireframe(rd, posed3D);
 
-    if (m_selectedMesh != NULL) {
+    if (notNull(m_selectedMesh)) {
         // Find the index array that matches the selected mesh and render it
         for (int p = 0; p < allSurfaces.size(); ++p) {
             const shared_ptr<UniversalSurface>& s = dynamic_pointer_cast<UniversalSurface>(allSurfaces[p]);
@@ -296,7 +305,7 @@ void ArticulatedViewer::onGraphics3D(RenderDevice* rd, App* app, const shared_pt
                  m_scale, m_offset.x, m_offset.y, m_offset.z);
     
     screenPrintf("Model Faces: %d,  Vertices: %d\n", m_numFaces, m_numVertices);
-    if (m_selectedPart != NULL) {
+    if (notNull(m_selectedPart)) {
         screenPrintf(" Selected Part `%s', Mesh `%s', Material `%s', cpuIndexArray[%d...%d]\n", 
                      m_selectedPart->name.c_str(), 
                      m_selectedMesh->name.c_str(), 
@@ -328,8 +337,8 @@ bool ArticulatedViewer::onEvent(const GEvent& e, App* app) {
         const Ray& ray = app->activeCamera()->worldRay(e.button.x, e.button.y, 
             app->renderDevice->viewport());
 
-        m_selectedPart = NULL;
-        m_selectedMesh = NULL;
+        m_selectedPart = nullptr;
+        m_selectedMesh = nullptr;
         m_selectedTriangleIndex = -1;
         Model::HitInfo hitInfo;
         float distance = finf();

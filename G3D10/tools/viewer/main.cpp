@@ -20,6 +20,8 @@
 
 G3D_START_AT_MAIN();
 
+App* app;
+
 int main(int argc, char** argv) {
     // Create the log file in the directory of the executable, not the data file
     Log::common(FilePath::concat(FilePath::parent(System::currentProgramFilename()), "log.txt"));
@@ -63,7 +65,10 @@ int main(int argc, char** argv) {
     logPrintf("Invoking App constructor\n");
 
     try {
-        return App(settings, filename).run();
+        app = new App(settings, filename);
+        const int r = app->run();
+        delete app;
+        return r;
     } catch (const FileNotFound& e) {
         logPrintf("Uncaught exception at main(): %s\n", e.message.c_str());
         alwaysAssertM(false, e.message);

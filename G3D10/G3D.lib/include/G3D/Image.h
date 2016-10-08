@@ -49,6 +49,7 @@ class PixelTransferBuffer;
 */
 class Image : public ReferenceCountedObject {
 public:
+    friend class CubeMap;
 
     /* Copied from FreeImage.h and must be kept in sync with FREE_IMAGE_FORMAT */
     enum ImageFileFormat {
@@ -103,7 +104,7 @@ public:
         String filename;
     };
 
-private:
+protected:
 
     fipImage*           m_image;
     const ImageFormat*  m_format;
@@ -111,16 +112,15 @@ private:
     /** Ensures that FreeImage is not initialized on multiple threads simultaneously. */
     static GMutex       s_freeImageMutex;
 
+    /** Initialize the FreeImage library on first use */
+    static void initFreeImage();
+
     Image();
 
     // Intentionally not implemented to prevent copy construction
     Image(const Image&);
     Image& operator=(const Image&);
 
-    /** Initialize the FreeImage library on first use */
-    static void initFreeImage();
-
-protected:
     // Weighting polynomial http://paulbourke.net/texture_colour/imageprocess/
     float R(float x) const {
         static const float coeff[4] = { 1.0f, -4.0f, 6.0f, -4.0f };

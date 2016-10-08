@@ -31,7 +31,7 @@ static const ImageFormat* determineImageFormat(const fipImage* image);
 static FREE_IMAGE_TYPE determineFreeImageType(const ImageFormat* imageFormat);
 
 Image::Image()
-    : m_image(NULL)
+    : m_image(nullptr)
     , m_format(ImageFormat::AUTO()) {
 
     // todo: if g3d ever has a global init, then this would move there to avoid deinitializing before program exit
@@ -108,7 +108,7 @@ shared_ptr<Image> Image::fromFile(const String& filename, const ImageFormat* ima
 
 
 shared_ptr<Image> Image::fromBinaryInput(BinaryInput& bi, const ImageFormat* imageFormat) {
-    shared_ptr<Image> img(new Image());
+    const shared_ptr<Image>& img = createShared<Image>();
     
     fipMemoryIO memoryIO(const_cast<uint8*>(bi.getCArray() + bi.getPosition()), static_cast<DWORD>(bi.getLength() - bi.getPosition()));
 
@@ -175,7 +175,7 @@ shared_ptr<Image> Image::fromPixelTransferBuffer(const shared_ptr<PixelTransferB
 
 
 void Image::convert(const ImageFormat* fmt) {
-    shared_ptr<PixelTransferBuffer> result = ImageConvert::convertBuffer(toPixelTransferBuffer(), fmt);
+    const shared_ptr<PixelTransferBuffer>& result = ImageConvert::convertBuffer(toPixelTransferBuffer(), fmt);
     if (notNull(result)) {
         set(result);
     } else {
