@@ -26,6 +26,7 @@ class Camera;
 class Model;
 class Skybox;
 class SceneVisualizationSettings;
+class CubeMap;
 
 /** \brief Base class for a scene graph.
 
@@ -245,6 +246,9 @@ public:
     
     /** Returns the default camera, set by defaultCamera = "name" in the Scene file. */
     const shared_ptr<Camera> defaultCamera() const;
+
+    /** Returns the first skybox encountered as a CubeMap, or nullptr if there is not one */
+    shared_ptr<CubeMap> skyboxAsCubeMap() const;
 
     /** Creates an Any representing this scene by updating the one
      from which it was loaded with the current Entity positions.  This

@@ -936,6 +936,33 @@ Color4 Image::bilinear(float x, float y, WrapMode wrap) const {
     return A.lerp(B, fY);
 }
 
+Color4 applyGamma(const Color4& c, float g) {
+    return Color4(c.rgb().pow(g), g);
+}
+
+Color4 Image::bilinearGamma(float x, float y, float gamma, WrapMode wrap) const {
+
+    const int i = iFloor(x);
+    const int j = iFloor(y);
+    
+    const float fX = x - i;
+    const float fY = y - j;
+
+    // Horizontal interpolation, first row
+    const Color4& t0 = applyGamma(get<Color4>(i, j, wrap), gamma);
+    const Color4& t1 = applyGamma(get<Color4>(i + 1, j, wrap), gamma);
+
+    // Horizontal interpolation, second row
+    const Color4& t2 = applyGamma(get<Color4>(i, j + 1, wrap), gamma);
+    const Color4& t3 = applyGamma(get<Color4>(i + 1, j + 1, wrap), gamma);
+
+    const Color4& A = t0.lerp(t1, fX);
+    const Color4& B = t2.lerp(t3, fX);
+
+    // Vertical interpolation
+    return A.lerp(B, fY);
+}
+
 
 Color4 Image::bilinear(const Vector2& pos, WrapMode wrap) const {
     return bilinear(pos.x, pos.y, wrap);

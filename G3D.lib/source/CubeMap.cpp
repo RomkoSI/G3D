@@ -17,17 +17,20 @@ namespace G3D {
 
 shared_ptr<CubeMap> CubeMap::create
    (const Array<shared_ptr<Image>>&     face,
+    float                               gamma,
     const Color4&                       readMultiplyFirst,
     const Color4&                       readAddSecond) {
 
-    return createShared<CubeMap>(face, readMultiplyFirst, readAddSecond);
+    return createShared<CubeMap>(face, gamma, readMultiplyFirst, readAddSecond);
 }
 
 
 CubeMap::CubeMap
    (const Array<shared_ptr<Image>>&     face, 
+    float                               gamma,
     const Color4&                       readMultiplyFirst,
     const Color4&                       readAddSecond) : 
+    m_gamma(gamma),
     m_readMultiplyFirst(readMultiplyFirst),
     m_readAddSecond(readAddSecond) {
 
@@ -188,14 +191,24 @@ Vector2 CubeMap::pixelCoord(const Vector3& vec, CubeFace& face) const {
 Color4 CubeMap::nearest(const Vector3& vec) const {
     CubeFace face;
     const Vector2& P = pixelCoord(vec, face);
-    return m_faceArray[face].nearest(P, WrapMode::CLAMP) * m_readMultiplyFirst + m_readAddSecond;
+    const Color4& color = m_faceArray[face].nearest(P, WrapMode::CLAMP);
+    if (m_gamma != 1.0f) {
+        return Color4(color.rgb().pow(m_gamma), color.a) * m_readMultiplyFirst + m_readAddSecond;
+    } else {
+        return color * m_readMultiplyFirst + m_readAddSecond;
+    }
 }
 
 
 Color4 CubeMap::bilinear(const Vector3& vec) const {
     CubeFace face;
     const Vector2& P = pixelCoord(vec, face);
-    return m_faceArray[face].bilinear(P, WrapMode::CLAMP) * m_readMultiplyFirst + m_readAddSecond;
+
+    if (m_gamma != 1.0f) {
+        return m_faceArray[face].bilinearGamma(P.x, P.y, m_gamma, WrapMode::CLAMP) * m_readMultiplyFirst + m_readAddSecond;
+    } else {
+        return m_faceArray[face].bilinear(P, WrapMode::CLAMP) * m_readMultiplyFirst + m_readAddSecond;
+    }
 }
 
 
