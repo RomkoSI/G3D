@@ -926,12 +926,9 @@ shared_ptr<Texture> Texture::fromFile
 
         Array < shared_ptr<Image> > images;
         images.resize(files.length());
-        ThreadSet threadSet;
-        for (int i = 0; i < files.size(); ++i) {
-            threadSet.insert(shared_ptr<ImageLoaderThread>(new ImageLoaderThread(files[i], images[i])));
-        }
-        threadSet.start(SpawnBehavior::USE_CURRENT_THREAD);
-        threadSet.waitForCompletion();
+        Thread::runConcurrently(0, images.size(), [&](int i) {
+            images[i] = Image::fromFile(files[i]);
+        });
 
         return Texture::fromPixelTransferBuffer(FilePath::base(filename[0]), Image::arrayToPixelTransferBuffer(images), desiredEncoding.format, dimension);
     }
@@ -974,24 +971,20 @@ shared_ptr<Texture> Texture::fromFile
                 G3D::format("Image not found: \"%s\" and GImage failed to throw an exception", realFilename[0].c_str()));
         }
     } else {
-        // Load each cube face on a different thread to overlap compute and I/O
-        ThreadSet threadSet;
-
-        for (int f = 0; f < numFaces; ++f) {
+        // Load each cube face on a different thread to overlap compute and I/O    
+        Thread::runConcurrently(0, numFaces, [&](int f) {
             if ((toLower(realFilename[f]) == "<white>") || realFilename[f].empty()) {
                 const shared_ptr<CPUPixelTransferBuffer>& buffer = CPUPixelTransferBuffer::create(1, 1, ImageFormat::RGBA8());
                 image[f] = Image::fromPixelTransferBuffer(buffer);
                 image[f]->set(Point2int32(0, 0), Color4unorm8::one());
             } else {
-                threadSet.insert(shared_ptr<ImageLoaderThread>(new ImageLoaderThread(realFilename[f], image[f])));
+                image[f] = Image::fromFile(realFilename[f]);
             }
-        }
-        threadSet.start(SpawnBehavior::USE_CURRENT_THREAD);
-        threadSet.waitForCompletion();
+        });
     }
 
     shared_ptr<PixelTransferBuffer> buffers[6];
-    for (int f = 0; f < numFaces; ++f) {
+    Thread::runConcurrently(0, numFaces, [&](int f) {
         //debugPrintf("Loading %s\n", realFilename[f].c_str());
         alwaysAssertM(image[f]->width() > 0,  "Image not found");
         alwaysAssertM(image[f]->height() > 0, "Image not found");
@@ -1006,12 +999,15 @@ shared_ptr<Texture> Texture::fromFile
             } else { 
                 debugAssertM(false, "Unsupported texture format on this machine");
             }
+        } else if ((image[f]->format() == ImageFormat::L8()) && (desiredEncoding.format->luminanceBits == 0)) {
+            // Not all drivers will convert L8 to RGB correctly, so we force it explicitly here
+            image[f]->convertToRGB8();
         }
 
         const shared_ptr<CPUPixelTransferBuffer>& b = image[f]->toPixelTransferBuffer();
         buffers[f] = b;
         array[f] = b->buffer();
-    }
+    }, (numFaces > 0));
 
     const shared_ptr<Texture>& t =
         fromMemory(FilePath::base(filename[0]), 
@@ -1090,7 +1086,7 @@ shared_ptr<Texture> Texture::fromTwoFiles
 
     array.resize(numFaces);
     for (int i = 0; i < numFaces; ++i) {
-        array[i] = NULL;
+        array[i] = nullptr;
     }
 
     // Parse the filename into a base name and extension
