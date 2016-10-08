@@ -7,8 +7,8 @@ namespace G3D {
 FilmSettings::FilmSettings() : 
     m_gamma(2.2f),
     m_sensitivity(1.0f),
-    m_bloomStrength(0.20f),
-    m_bloomRadiusFraction(0.009f),
+    m_bloomStrength(0.25f),
+    m_bloomRadiusFraction(0.015f),
     m_antialiasingEnabled(true),
     m_antialiasingFilterRadius(0),
     m_antialiasingHighQuality(true),
@@ -199,7 +199,7 @@ void FilmSettings::setCelluloidToneCurve() {
     m_toneCurve =
         Spline<float>(Any::parse(
             "Spline { "
-            "   control = ( 0, 0.0787234, 0.306383, 0.75532, 0.829787 ); "
+            "   control = ( 0, 0.0787234, 0.306383, 0.75532, 0.92); "
             "   extrapolationMode = LINEAR; "
             "   finalInterval = -1; "
             "   interpolationMode = CUBIC; "

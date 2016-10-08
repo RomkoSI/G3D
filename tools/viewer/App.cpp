@@ -49,9 +49,10 @@ void App::onInit() {
     developerWindow->setVisible(false);
     developerWindow->videoRecordDialog->setCaptureGui(false);
 
-    m_debugCamera->filmSettings().setBloomStrength(0.20f);
-    m_debugCamera->filmSettings().setBloomRadiusFraction(0.017f);
+    m_debugCamera->filmSettings().setBloomStrength(0.35f);
+    m_debugCamera->filmSettings().setBloomRadiusFraction(0.05f);
     m_debugCamera->filmSettings().setAntialiasingEnabled(true);
+    m_debugCamera->filmSettings().setAntialiasingHighQuality(true);
     m_debugCamera->filmSettings().setCelluloidToneCurve();
 
     if (! filename.empty()) {
@@ -61,11 +62,11 @@ void App::onInit() {
     lighting = shared_ptr<LightingEnvironment>(new LightingEnvironment());
     lighting->lightArray.clear();
     // The spot light is designed to just barely fit the 3D models.  Note that it has no attenuation
-    lighting->lightArray.append(Light::spotTarget("Light", Point3(40, 120, 80), Point3::zero(), 10 * units::degrees(), Power3(50.0f), 1, 0, 0, true, 8192));
+    lighting->lightArray.append(Light::spotTarget("Light", Point3(40, 120, 80), Point3::zero(), 10 * units::degrees(), Power3(45.0f), 1, 0, 0, true, 8192));
     lighting->lightArray.last()->shadowMap()->setBias(0.1f);
 
     Texture::Encoding e;
-    e.readMultiplyFirst = Color4(Color3(0.5f));
+    e.readMultiplyFirst = Color4(Color3(0.4f));
     e.format = ImageFormat::RGB32F();
 
     lighting->environmentMapArray.append(Texture::fromFile(System::findDataFile("uffizi/uffizi-*.exr"), e, Texture::DIM_CUBE_MAP));
