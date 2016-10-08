@@ -139,7 +139,26 @@ CubeMap::CubeMap
         }
     }
 
-    // TODO: copy corners
+    // Implement corners by averaging adjacent row and column in linear space and re-gamma encoding.
+    // This must run after the loop that sets border rows and columns.
+    for (int f = 0; f < 6; ++f) {
+        Image& img = m_faceArray[f];
+        Color4 a = img.get<Color4>(0, 1);
+        Color4 b = img.get<Color4>(1, 0);
+        img.set(0, 0, Color4(((a.rgb().pow(m_gamma) + b.rgb().pow(m_gamma)) * 0.5f).pow(1.0f / m_gamma), (a.a + b.a) * 0.5f));
+
+        a = img.get<Color4>(0, m_iSize);
+        b = img.get<Color4>(1, m_iSize + 1);
+        img.set(0, m_iSize + 1, Color4(((a.rgb().pow(m_gamma) + b.rgb().pow(m_gamma)) * 0.5f).pow(1.0f / m_gamma), (a.a + b.a) * 0.5f));
+
+        a = img.get<Color4>(m_iSize + 1, m_iSize);
+        b = img.get<Color4>(m_iSize, m_iSize + 1);
+        img.set(m_iSize + 1, m_iSize + 1, Color4(((a.rgb().pow(m_gamma) + b.rgb().pow(m_gamma)) * 0.5f).pow(1.0f / m_gamma), (a.a + b.a) * 0.5f));
+
+        a = img.get<Color4>(m_iSize + 1, 1);
+        b = img.get<Color4>(m_iSize, 0);
+        img.set(m_iSize + 1, 0, Color4(((a.rgb().pow(m_gamma) + b.rgb().pow(m_gamma)) * 0.5f).pow(1.0f / m_gamma), (a.a + b.a) * 0.5f));
+    }
 
     m_fSize = float(m_iSize);
 
