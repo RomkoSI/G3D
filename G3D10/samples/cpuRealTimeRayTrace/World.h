@@ -35,6 +35,10 @@ public:
     void clearScene();
     void end();
 
+    Radiance3 skyColor(const Vector3& v) const {
+        return m_skybox->bilinear(v).rgb();
+    }
+
     /**\brief Trace the ray into the scene and return the first
        surface hit.
 

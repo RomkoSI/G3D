@@ -69,7 +69,33 @@ Vector2 CubeMap::pixelCoord(const Vector3& vec, CubeFace& face) const {
     const Vector3::Axis uAxis = Vector3::Axis((faceAxis + 1) % 3);
     const Vector3::Axis vAxis = Vector3::Axis((faceAxis + 2) % 3);
 
-    const Vector2& texCoord = 0.5f * Vector2(vec[uAxis], vec[vAxis]) / fabsf(vec[faceAxis]) + Vector2(0.5f, 0.5f);
+    Vector2 texCoord = 0.5f * Vector2(vec[uAxis], vec[vAxis]) / fabsf(vec[faceAxis]) + Vector2(0.5f, 0.5f);
+
+    switch (face) {
+    case CubeFace::POS_X:
+        texCoord = Vector2(1.0f - texCoord.y, 1.0f - texCoord.x);
+        break;
+
+    case CubeFace::NEG_X:
+        texCoord = Vector2(texCoord.y, 1.0f - texCoord.x);
+        break;
+
+    case CubeFace::POS_Y:
+        texCoord = Vector2(texCoord.y, texCoord.x);
+        break;
+
+    case CubeFace::NEG_Y:
+        texCoord = Vector2(texCoord.y, 1.0f - texCoord.x);
+        break;
+
+    case CubeFace::POS_Z:
+        texCoord = Vector2(texCoord.x, 1.0f - texCoord.y);
+        break;
+
+    case CubeFace::NEG_Z:
+        texCoord = Vector2(1.0f - texCoord.x, 1.0f - texCoord.y);
+        break;
+    }
 
     return m_fSize * texCoord + Vector2::one();
 }
