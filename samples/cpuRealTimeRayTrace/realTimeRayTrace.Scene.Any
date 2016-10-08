@@ -133,6 +133,9 @@
             visible = true; 
         }; 
         
+        skybox = Skybox { 
+            texture = "cubemap/noonclouds/noonclouds_*.png"; 
+        }; 
     }; 
     
     lightingEnvironment = LightingEnvironment { 
