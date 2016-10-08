@@ -29,6 +29,7 @@
 #include "G3D/CPUPixelTransferBuffer.h"
 #include "GLG3D/GLPixelTransferBuffer.h"
 #include "G3D/format.h"
+#include "G3D/CubeMap.h"
 #include "GLG3D/GApp.h"
 #include "GLG3D/VideoRecordDialog.h"
 
@@ -999,7 +1000,7 @@ shared_ptr<Texture> Texture::fromFile
             } else { 
                 debugAssertM(false, "Unsupported texture format on this machine");
             }
-        } else if ((image[f]->format() == ImageFormat::L8()) && (desiredEncoding.format->luminanceBits == 0)) {
+        } else if ((image[f]->format() == ImageFormat::L8()) && notNull(desiredEncoding.format) && (desiredEncoding.format->luminanceBits == 0)) {
             // Not all drivers will convert L8 to RGB correctly, so we force it explicitly here
             image[f]->convertToRGB8();
         }
@@ -2115,16 +2116,28 @@ shared_ptr<Image1unorm8> Texture::toDepthImage1unorm8() const {
 
 
 shared_ptr<Image1> Texture::toImage1() const {
-    shared_ptr<Image1> im = Image1::createEmpty(m_width, m_height, WrapMode::TILE); 
+    const shared_ptr<Image1>& im = Image1::createEmpty(m_width, m_height, WrapMode::TILE); 
     getTexImage(im->getCArray(), ImageFormat::L32F());
     return im;
 }
 
 
 shared_ptr<Image1unorm8> Texture::toImage1unorm8() const {
-    shared_ptr<Image1unorm8> im = Image1unorm8::createEmpty(m_width, m_height, WrapMode::TILE); 
+    const shared_ptr<Image1unorm8>& im = Image1unorm8::createEmpty(m_width, m_height, WrapMode::TILE); 
     getTexImage(im->getCArray(), ImageFormat::R8());
     return im;
+}
+
+
+shared_ptr<CubeMap> Texture::toCubeMap() const {
+    Array<shared_ptr<Image>> faceImage;
+
+    faceImage.resize(6);
+    for (int f = 0; f < 6; ++f) {
+        faceImage[f] = toImage(ImageFormat::AUTO(), 0, CubeFace(f));
+    }
+
+    return CubeMap::create(faceImage, m_encoding.readMultiplyFirst, m_encoding.readAddSecond);
 }
 
 

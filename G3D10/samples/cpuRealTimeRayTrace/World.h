@@ -14,6 +14,7 @@ private:
     Array<shared_ptr<Surface> >     m_surfaceArray;
     TriTree                         m_triTree;
     CPUVertexArray                  m_cpuVertexArray;
+    shared_ptr<CubeMap>             m_skybox;
     enum Mode {TRACE, INSERT}       m_mode;
 
 public:

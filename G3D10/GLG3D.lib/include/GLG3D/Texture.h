@@ -4,11 +4,10 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2001-02-28
-  \edited  2016-05-16
+  \edited  2016-10-16
 */
 
-#ifndef GLG3D_Texture_h
-#define GLG3D_Texture_h
+#pragma once
 
 #include "G3D/ReferenceCount.h"
 #include "G3D/Array.h"
@@ -1300,6 +1299,8 @@ public:
     /** Returns a texture of 1024^2 RG16 uniformly distributed random vectors. This is automatically bound as g3d_uniformRandom in shaders that use it. */
     static shared_ptr<Texture> uniformRandom();
 
+    shared_ptr<class CubeMap> toCubeMap() const;
+
 private:
 
     void computeMinMaxMean();
@@ -1381,4 +1382,3 @@ template <> struct HashTrait<G3D::Texture::Specification> {
     static size_t hashCode(const G3D::Texture::Specification& key) { return key.hashCode(); }
 };
 
-#endif

@@ -16,18 +16,32 @@ namespace G3D {
 
 class Vector3;
 class Color4;
+class CubeFace;
 
 /** \brief A CPU seamless cube map. 
     \sa G3D:Image, G3D::Texture */
 class CubeMap : public ReferenceCountedObject {
 protected:
-    Image m_faceArray[6];
 
-    CubeMap(const Array<shared_ptr<Image>>& face);
+    Color4      m_readMultiplyFirst;
+    Color4      m_readAddSecond;
+
+    Image       m_faceArray[6];
+
+    /** Size before padding */
+    int         m_iSize;
+
+    /** Size before padding */
+    float       m_fSize;
+
+    CubeMap(const Array<shared_ptr<Image>>& face, const Color4& readMultiplyFirst, const Color4& readAddSecond);
+
+    /** Returns a pixel coordinate in m_faceArray[face] */
+    Vector2 pixelCoord(const Vector3& vec, CubeFace& face) const;
 
 public:
     /** \param face All faces must have the same dimensions. */
-    static shared_ptr<CubeMap> create(const Array<shared_ptr<Image>>& face);
+    static shared_ptr<CubeMap> create(const Array<shared_ptr<Image>>& face, const Color4& readMultiplyFirst = Color4::one(), const Color4& readAddSecond = Color4::zero());
     Color4 nearest(const Vector3& v) const;
     Color4 bilinear(const Vector3& v) const;
 
