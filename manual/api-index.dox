@@ -475,7 +475,7 @@ at the bottom.
         <a href="class_g3_d_1_1_image.html">Image</a>,
         \link G3D::PixelTransferBuffer PixelTransferBuffer\endlink,
         \link G3D::ImageConvert ImageConvert\endlink,
-        \link G3D::ImageFormat ImageFormat\endlink,
+        <a href="class_g3_d_1_1_image_format.html">ImageFormat</a>,
         \link G3D::Map2D Map2D\endlink,
         \link G3D::gaussian1D gaussian1D\endlink,
         \link G3D::VideoInput VideoInput\endlink,
