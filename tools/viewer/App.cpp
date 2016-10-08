@@ -7,7 +7,7 @@
  \author Eric Muller 09edm@williams.edu, Dan Fast 10dpf@williams.edu, Katie Creel 10kac_2@williams.edu
  
  \created 2007-05-31
- \edited  2014-10-03
+ \edited  2016-10-07
  */
 #include "App.h"
 #include "ArticulatedViewer.h"
@@ -23,7 +23,7 @@
 
 App::App(const GApp::Settings& settings, const G3D::String& file) :
     GApp(settings),
-    viewer(NULL),
+    viewer(nullptr),
     filename(file) {
 
     logPrintf("App()\n");
@@ -83,7 +83,7 @@ void App::onInit() {
     colorClear = Color3::white() * 0.9f;
 
     //modelController = ThirdPersonManipulator::create();
-    m_gbufferSpecification.encoding[GBuffer::Field::CS_POSITION_CHANGE].format = NULL;
+    m_gbufferSpecification.encoding[GBuffer::Field::CS_POSITION_CHANGE].format = nullptr;
     gbuffer()->setSpecification(m_gbufferSpecification);
 
     setViewer(filename);
@@ -94,12 +94,12 @@ void App::onInit() {
 
 void App::onCleanup() {
     delete viewer;
-    viewer = NULL;
+    viewer = nullptr;
 }
 
 
 bool App::onEvent(const GEvent& e) {
-    if (viewer != NULL) {
+    if (notNull(viewer)) {
         if (viewer->onEvent(e, this)) {
             // Viewer consumed the event
             return true;
@@ -130,9 +130,9 @@ bool App::onEvent(const GEvent& e) {
             for (int f = 0; f < 6; ++f) {
                 const CubeMapConvention::CubeMapInfo::Face& faceInfo = cubeMapInfo.face[f];
 
-                shared_ptr<Image> temp = Image::fromPixelTransferBuffer(output[f]->toPixelTransferBuffer(ImageFormat::RGB8()));
+                const shared_ptr<Image>& temp = Image::fromPixelTransferBuffer(output[f]->toPixelTransferBuffer(ImageFormat::RGB8()));
                 temp->flipVertical();
-                temp->rotateCW(toRadians(90.0) * (-faceInfo.rotations));
+                temp->rotateCW(toRadians(90.0f) * -faceInfo.rotations);
                 if (faceInfo.flipY) { temp->flipVertical();   }
                 if (faceInfo.flipX) { temp->flipHorizontal(); }
                 temp->save(format("cube-%s.png", faceInfo.suffix.c_str()));
@@ -164,7 +164,7 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
     // Make the camera spin when the debug controller is not active
     if (false) {
-        static float angle = 0;
+        static float angle = 0.0f;
         angle += (float)rdt;
         const float radius = 5.5f;
         m_debugCamera->setPosition(Vector3(cos(angle), 0, sin(angle)) * radius);
@@ -172,7 +172,7 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     }
 
     // let viewer sim with time step if needed
-    if (viewer != NULL) {
+    if (notNull(viewer)) {
         viewer->onSimulation(rdt, sdt, idt);
     }
 }
@@ -188,7 +188,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D) {
 		rd->clear(true, true, true);
 
 		// Render the file that is currently being viewed
-		if (viewer != NULL) {
+		if (notNull(viewer)) {
 			viewer->onGraphics3D(rd, this, localLighting, posed3D);
 		}
 
@@ -203,7 +203,7 @@ void App::onPose(Array<shared_ptr<Surface> >& posed3D, Array<shared_ptr<Surface2
     GApp::onPose(posed3D, posed2D);
 
     // Append any models to the arrays that you want to later be rendered by onGraphics()
-    if (viewer != NULL) {
+    if (notNull(viewer)) {
         viewer->onPose(posed3D, posed2D);
     }
 }
@@ -226,7 +226,7 @@ void App::setViewer(const G3D::String& newFilename) {
 
     //modelController->setFrame(CoordinateFrame(Matrix3::fromAxisAngle(Vector3(0,1,0), toRadians(180))));
     delete viewer;
-    viewer = NULL;
+    viewer = nullptr;
 
     if (filename == "<events>") {
         viewer = new EventViewer();
@@ -320,7 +320,7 @@ void App::setViewer(const G3D::String& newFilename) {
         }
     }
     
-    if (viewer != NULL) {
+    if (notNull(viewer)) {
         viewer->onInit(filename);
     }
     

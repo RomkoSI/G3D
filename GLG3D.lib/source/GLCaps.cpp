@@ -796,19 +796,19 @@ bool GLCaps::supportsG3D10(String& explanation) {
     int smajor = 1;
     int sminor = 0;
     
-    bool hasGLSL330 = false;
+    bool hasGLSL410 = false;
     if (glGetString(GL_SHADING_LANGUAGE_VERSION)) { 
         sscanf((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION), "%d.%d", &smajor, &sminor);
-        hasGLSL330 = ((smajor > 3) || (smajor == 3 && sminor >= 30));
+        hasGLSL410 = ((smajor > 4) || (smajor == 4 && sminor >= 10));
     }
     
-    supported = supported && hasGLSL330;
-    explanation += format("GLSL version 3.30                   %s - GLSL version on this driver is %d.%d\n",
-                          hasGLSL330 ? "yes" : "NO", smajor, sminor);
+    supported = supported && hasGLSL410;
+    explanation += format("GLSL version 4.10                   %s - GLSL version on this driver is %d.%d\n",
+                          hasGLSL410 ? "yes" : "NO", smajor, sminor);
     
-    if (major > 3 || (major == 3 && minor >= 3)) {
+    if (major > 4 || (major == 4 && minor >= 1)) {
         supported = true;
-        explanation += format("GPU Supports OpenGL 3.3 or later    yes - OpenGL version on this driver is %d.%d\n", major, minor);
+        explanation += format("GPU Supports OpenGL 4.1 or later    yes - OpenGL version on this driver is %d.%d\n", major, minor);
     } else {
         explanation += format("                                   OpenGL version on this driver is %d.%d\n", major, minor);
 #       define REQUIRE(ext, alt) \
