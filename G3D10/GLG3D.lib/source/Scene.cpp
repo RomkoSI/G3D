@@ -4,7 +4,7 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2010-01-01
-  \edited  2016-02-10
+  \edited  2016-10-10
 */
 
 #include "GLG3D/Scene.h"
@@ -13,6 +13,7 @@
 #include "G3D/FileSystem.h"
 #include "G3D/Log.h"
 #include "G3D/Ray.h"
+#include "G3D/CubeMap.h"
 #include "GLG3D/ArticulatedModel.h"
 #include "GLG3D/VisibleEntity.h"
 #include "GLG3D/ParticleSystem.h"
@@ -21,6 +22,7 @@
 #include "GLG3D/HeightfieldModel.h"
 #include "GLG3D/MarkerEntity.h"
 #include "GLG3D/Skybox.h"
+#include "GLG3D/SkyboxSurface.h"
 #include "GLG3D/ParticleSystemModel.h"
 #include "GLG3D/GFont.h"
 
@@ -755,5 +757,18 @@ void Scene::visualize(RenderDevice* rd, const shared_ptr<Entity>& selectedEntity
         m_entityArray[i]->visualize(rd, m_entityArray[i] == selectedEntity, settings, m_font, camera);
     }
 }
+
+
+shared_ptr<CubeMap> Scene::skyboxAsCubeMap() const {
+    if (isNull(m_skybox)) {
+        return nullptr;
+    }
+
+    Array<shared_ptr<Surface>> surfaceArray;
+    m_skybox->onPose(surfaceArray);
+
+    return dynamic_pointer_cast<SkyboxSurface>(surfaceArray[0])->texture0()->toCubeMap();
+}
+
 
 } // namespace G3D

@@ -146,6 +146,8 @@
        <li> G3D::Array::Array constructor that accepts initializer lists </li>
        <li> G3D::Vector2uint16, G3D::Point2uint16</li>
        <li> G3D::Image::increment, G3D::Image::bilinearIncrement </li>
+       <li> G3D::CubeMap</li>
+       <li> G3D::Scene::skyboxAsCubeMap</li>
       </ul>
     </p>
 

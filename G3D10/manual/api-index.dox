@@ -470,6 +470,7 @@ at the bottom.
         \link G3D::BumpMapPreprocess BumpMapPreprocess\endlink,
         \link G3D::CPUPixelTransferBuffer CPUPixelTransferBuffer\endlink,
         \link G3D::CubeFace CubeFace\endlink,
+        \link G3D::CubeMap CubeMap\endlink,
         \link G3D::CubeMapConvention CubeMapConvention\endlink,
         <a href="class_g3_d_1_1_image.html">Image</a>,
         \link G3D::PixelTransferBuffer PixelTransferBuffer\endlink,

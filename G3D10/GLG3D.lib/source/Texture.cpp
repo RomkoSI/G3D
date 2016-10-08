@@ -2137,7 +2137,10 @@ shared_ptr<CubeMap> Texture::toCubeMap() const {
         faceImage[f] = toImage(ImageFormat::AUTO(), 0, CubeFace(f));
     }
 
-    return CubeMap::create(faceImage, m_encoding.readMultiplyFirst, m_encoding.readAddSecond);
+    return CubeMap::create(faceImage,
+        (m_encoding.format->colorSpace == ImageFormat::COLOR_SPACE_SRGB) ? 2.1f : 1.0f,
+        m_encoding.readMultiplyFirst,
+        m_encoding.readAddSecond);
 }
 
 

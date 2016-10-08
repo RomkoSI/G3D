@@ -415,8 +415,13 @@ public:
 
     /** 
       \copydoc bilinear
+
+      \sa bilinearGamma
      */ 
     Color4 bilinear(const Point2& pos, WrapMode wrap = WrapMode::ERROR) const;
+
+    /** Bilinear interpolation, with gamma applied to RGB channels */
+    Color4 bilinearGamma(float x, float y, float gamma, WrapMode wrap = WrapMode::ERROR) const;
 
     /**
       \brief Increments values within the bilinear footprint according to their weights.
