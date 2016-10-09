@@ -69,7 +69,8 @@ void App::onInit() {
     developerWindow->cameraControlWindow->moveTo(Point2(developerWindow->cameraControlWindow->rect().x0(), 0));
     loadScene(
         //"G3D Sponza"
-        "G3D Cornell Box" // Load something simple
+        "G3D Particle Test"
+        //"G3D Cornell Box" // Load something simple
         //developerWindow->sceneEditorWindow->selectedSceneName()  // Load the first scene encountered 
         );
 }
