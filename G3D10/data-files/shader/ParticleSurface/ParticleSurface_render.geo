@@ -87,7 +87,11 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
 
         // Directional evt component from front
         float3 directionalEvt = textureLod(environmentMap$(i)_buffer, normal, 10).rgb;
-     //   L_in += (ambientEvt + directionalEvt) * 0.5 * environmentMap$(i)_readMultiplyFirst.rgb;
+
+        // Don't quite put full environment contribution in...particles don't receive AO even though they
+        // occlude one another, so they tend to get too bright under environment light (which then washes
+        // out direct light shadows)
+        L_in += (ambientEvt + directionalEvt) * 0.40 * environmentMap$(i)_readMultiplyFirst.rgb;
     }
 #   endfor
 
@@ -130,8 +134,9 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
             }
 #           endif
 
-            // Increase contrast by over-darkening shadows
-            attenuation *= visibility * visibility;
+            // Increase contrast by over-darkening shadows. This mostly only matters for
+            // the stochastic variance shadow mapping of self-shadows.
+            attenuation *= visibility * visibility * visibility;
             if (attenuation <= attenuationThreshold) continue;
         }
 #       endif
@@ -139,7 +144,7 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
 
         // Phase function:
         const float k = 0.5;
-        float brdf = mix(invPi, pow(max(-dot(w_i, w_o), 0.0), k * 50.0) * (k * 20.0 + 1.0) * inv8Pi, k) * pi;
+        float brdf = mix(1.0, pow(max(-dot(w_i, w_o), 0.0), k * 50.0) * (k * 20.0 + 1.0) * 0.125, k) ;
 
         L_in += attenuation * brdf * light$(I)_color;
     } while (false); // The do-while loop enables "continue" statements
