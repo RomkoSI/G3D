@@ -167,10 +167,6 @@ void ParticleSurface::renderHomogeneous
         lightingEnvironment.setShaderArgs(args);
 
         args.setUniform("depthBuffer", rd->framebuffer()->texture(Framebuffer::DEPTH), Sampler::video());
-        args.setUniform("directAlphaBoost", 2.0f);
-        args.setUniform("directValueBoost", 1.0f);
-        args.setUniform("directSaturationBoost", 1.0f);
-        args.setUniform("environmentSaturationBoost", 1.0f);
 
         args.setMacro("HAS_ALPHA", 1);
         args.setMacro("HAS_TRANSMISSIVE", 1);

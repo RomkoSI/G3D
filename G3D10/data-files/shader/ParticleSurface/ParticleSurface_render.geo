@@ -34,15 +34,6 @@ const float ENVIRONMENT_SCALE   = max(0.0, 1.0 - WRAP_SHADING_AMOUNT / 20.0);
 
 const int  RECEIVES_SHADOWS_MASK = 2;
 
-// Allow direct lights to go above their normal intensity--helps bring out volumetric shadows
-uniform float   directAlphaBoost;
-
-uniform float   directValueBoost;
-
-// Increases the saturation of all lighting
-uniform float   directSaturationBoost;
-uniform float   environmentSaturationBoost;
-
 uniform float2  textureGridSize;
 uniform float2  textureGridInvSize;
 
@@ -96,7 +87,7 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
 
         // Directional evt component from front
         float3 directionalEvt = textureLod(environmentMap$(i)_buffer, normal, 10).rgb;
-        L_in += boostSaturation((ambientEvt + directionalEvt) * 0.5, environmentSaturationBoost) * environmentMap$(i)_readMultiplyFirst.rgb;
+        L_in += (ambientEvt + directionalEvt) * 0.5 * environmentMap$(i)_readMultiplyFirst.rgb;
     }
 #   endfor
 
@@ -157,16 +148,13 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
                 } // receives shadows
 #           endif
 
-            float brdf = mix(1.0, pow(max(-dot(w_i, w_o), 0.0), forwardScatterStrength * 60.0) * (forwardScatterStrength * 60.0 + 1.0) / 4.0, forwardScatterStrength); 
+                
+            // Phase function:
+            const float k = 0.5;
+            float brdf = mix(invPi, pow(max(-dot(w_i, w_o), 0.0), k * 50.0) * (k * 20.0 + 1.0) * inv8Pi, k);
 
-            // TODO: Maybe need to divide by pi?
             brightness *= brdf;
 
-//            brightness *= directValueBoost;
-
-            // faux specular highlight at "bright" areas
-            //float satBoost = lerp(directSaturationBoost, min(directSaturationBoost, 0.75), clamp(pow(brightness * 0.2, 20.0), 0.0, 1.0));
-            // L_in += brightness * boostSaturation(light$(I)_color, satBoost);
             L_in += brightness * light$(I)_color;
         } // in spotlight
 
