@@ -71,8 +71,7 @@ float3 boostSaturation(float3 color, float boost) {
 Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost, Vector3 wsLookVector, bool receivesShadows) {
     float3 L_in = float3(0);
 
-    // Forward-scattering approximation. (lambertian) 0 <= k <= 1 (forward)
-    const float forwardScatterStrength = 0.75;
+    float environmentSaturationBoost = 1.25;
 
     // TODO: Could compute only from center vertex to reduce computation if desired
     Vector3 w_o    = normalize(g3d_CameraToWorldMatrix[3].xyz - wsPosition);
@@ -82,16 +81,16 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
     {
         // Uniform evt component
         // Sample the highest MIP-level to approximate Lambertian integration over the hemisphere
-        float3 ambientEvt = (textureLod(environmentMap$(i)_buffer, float3(1,1,1), 20).rgb + 
+        float3 ambientEvt = (textureLod(environmentMap$(i)_buffer, float3(1, 1, 1), 20).rgb + 
                              textureLod(environmentMap$(i)_buffer, float3(-1,-1,-1), 20).rgb) * 0.5;
 
         // Directional evt component from front
-        float3 directionalEvt = textureLod(environmentMap$(i)_buffer, normal, 10).rgb;
+        float3 directionalEvt = textureLod(environmentMap$(i)_buffer, normal, 9).rgb;
 
         // Don't quite put full environment contribution in...particles don't receive AO even though they
         // occlude one another, so they tend to get too bright under environment light (which then washes
         // out direct light shadows)
-        L_in += (ambientEvt + directionalEvt) * 0.40 * environmentMap$(i)_readMultiplyFirst.rgb;
+        L_in += boostSaturation(mix(ambientEvt, directionalEvt, 0.5), environmentSaturationBoost) * 0.90 * environmentMap$(i)_readMultiplyFirst.rgb;
     }
 #   endfor
 
