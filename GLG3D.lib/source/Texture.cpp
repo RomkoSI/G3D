@@ -68,7 +68,7 @@ static Vector3 oct_to_float32x3(Vector2 e) {
 static Vector2 float32x3_to_octn_precise(Vector3 v, const int n) {
     Vector2 s = float32x3_to_oct(v); // Remap to the square
 
-    // Each snorm’s max value interpreted as an integer,
+    // Each snormÂ’s max value interpreted as an integer,
     // e.g., 127.0 for snorm8
     const float M = float(1 << ((n / 2) - 1)) - 1.0f;
 
@@ -3246,35 +3246,36 @@ const char* Texture::toString(Dimension d) {
 #ifdef G3D_ENABLE_CUDA
 
 CUarray &Texture::cudaMap(unsigned int	usageflags){ //default should be: CU_GRAPHICS_REGISTER_FLAGS_NONE
-	//CU_GRAPHICS_REGISTER_FLAGS_SURFACE_LDST
-	//TODO: Unregister ressource in destructor.
-
-	if( m_cudaTextureResource != NULL && usageflags!=m_cudaUsageFlags){
-		cuGraphicsUnregisterResource(m_cudaTextureResource);
-	}
-
-	if( m_cudaTextureResource == NULL || usageflags!=m_cudaUsageFlags){
-		cuGraphicsGLRegisterImage(&m_cudaTextureResource, this->openGLID(), GL_TEXTURE_2D, usageflags );
-
-		m_cudaUsageFlags = usageflags;
-	}
-		
-	debugAssert(m_cudaIsMapped==false);
-
-	cuGraphicsMapResources (1, &m_cudaTextureResource, 0);
-	cuGraphicsSubResourceGetMappedArray ( &m_cudaTextureArray, m_cudaTextureResource, 0, 0);
-
-	m_cudaIsMapped = true;
-
-	return m_cudaTextureArray;
+    //CU_GRAPHICS_REGISTER_FLAGS_SURFACE_LDST
+    //TODO: Unregister ressource in destructor.
+    
+    if( m_cudaTextureResource != NULL && usageflags!=m_cudaUsageFlags){
+        cuGraphicsUnregisterResource(m_cudaTextureResource);
+    }
+    
+    if( m_cudaTextureResource == NULL || usageflags!=m_cudaUsageFlags){
+        cuGraphicsGLRegisterImage(&m_cudaTextureResource, this->openGLID(), GL_TEXTURE_2D, usageflags );
+        
+        m_cudaUsageFlags = usageflags;
+    }
+    
+    debugAssert(m_cudaIsMapped==false);
+    
+    cuGraphicsMapResources (1, &m_cudaTextureResource, 0);
+    cuGraphicsSubResourceGetMappedArray ( &m_cudaTextureArray, m_cudaTextureResource, 0, 0);
+    
+    m_cudaIsMapped = true;
+    
+    return m_cudaTextureArray;
 }
 
+
 void Texture::cudaUnmap(){
-	debugAssert(m_cudaIsMapped);
+    debugAssert(m_cudaIsMapped);
 
-	cuGraphicsUnmapResources(1, &m_cudaTextureResource, 0);
-
-	m_cudaIsMapped = false;
+    cuGraphicsUnmapResources(1, &m_cudaTextureResource, 0);
+    
+    m_cudaIsMapped = false;
 }
 
 #endif

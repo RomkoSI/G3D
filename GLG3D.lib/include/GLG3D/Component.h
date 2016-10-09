@@ -153,7 +153,7 @@ private:
 
             if (cpuWasNull) {
                 // Throw away the CPU image to conserve memory
-   	            m_cpuImage.reset();
+                m_cpuImage.reset();
             }
         }
     }
@@ -308,12 +308,11 @@ public:
      const shared_ptr<Texture>&                         tex) {
 
         if (isNull(im) && isNull(tex)) {
-	        return shared_ptr<MapComponent<Image> >();
-	    } else {
-	        return shared_ptr<MapComponent<Image> >(new MapComponent<Image>(im, tex));
-	    }
+            return shared_ptr<MapComponent<Image> >();
+        } else {
+            return shared_ptr<MapComponent<Image> >(new MapComponent<Image>(im, tex));
+        }
     }
-
 
     /** Largest value in each channel of the image */
     const typename Image::StorageType& max() const {
@@ -422,15 +421,15 @@ private:
     shared_ptr<MapComponent<Image> >  m_map;
 
     void init() {
-		if (notNull(m_map)) {
-			m_max  = Color(m_map->max());
-			m_min  = Color(m_map->min());
-			m_mean = Color(m_map->mean()); 
-		} else {
-			m_max  = Color::nan();
-			m_min  = Color::nan();
-			m_mean = Color::nan();
-		}
+        if (notNull(m_map)) {
+            m_max  = Color(m_map->max());
+            m_min  = Color(m_map->min());
+            m_mean = Color(m_map->mean()); 
+        } else {
+            m_max  = Color::nan();
+            m_min  = Color::nan();
+            m_mean = Color::nan();
+        }
     }
 
     static float alpha(const Color1& c) {
@@ -544,14 +543,14 @@ public:
 
     /** Causes the image to be created by downloading from GPU if necessary. */
     inline const shared_ptr<Image>& image() const {
-		static const shared_ptr<Image> nullTexture;
+        static const shared_ptr<Image> nullTexture;
         return notNull(m_map) ? m_map->image() : nullTexture;
     }
 
     /** Causes the texture to be created by uploading from CPU if necessary. */
     inline const shared_ptr<Texture>& texture() const {
-		static const shared_ptr<Texture> nullTexture;
-		return notNull(m_map) ? m_map->texture() : nullTexture;
+        static const shared_ptr<Texture> nullTexture;
+        return notNull(m_map) ? m_map->texture() : nullTexture;
     }
 
     /** Does not change storage if the map is NULL */

@@ -104,7 +104,7 @@ public:
 
         Table<String, double>   m_constantTable;
 
-        AlphaFilter               m_alphaFilter;
+        AlphaFilter             m_alphaFilter;
 
         Sampler                 m_sampler;
 
