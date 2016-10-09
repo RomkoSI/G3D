@@ -87,78 +87,62 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
 
         // Directional evt component from front
         float3 directionalEvt = textureLod(environmentMap$(i)_buffer, normal, 10).rgb;
-        L_in += (ambientEvt + directionalEvt) * 0.5 * environmentMap$(i)_readMultiplyFirst.rgb;
+     //   L_in += (ambientEvt + directionalEvt) * 0.5 * environmentMap$(i)_readMultiplyFirst.rgb;
     }
 #   endfor
 
-//    L_in *= ENVIRONMENT_SCALE;
     alphaBoost = 1.0;
 
 #   for (int I = 0; I < NUM_LIGHTS; ++I)
-    {
-        Vector3 w_i = light$(I)_position.xyz - wsPosition;
-        float  lightDistance = length(w_i);
-        w_i /= lightDistance;
+    do {
+        Vector3 w_i;
 
-        // Spot light falloff
-        float brightness = light$(I)_position.w * spotLightFalloff(w_i, light$(I)_direction, light$(I)_right, light$(I)_up, light$(I)_rectangular, light$(I)_attenuation.w, light$(I)_softnessConstant);
+        // For attenuation purposes, use normal = vector to light
+        float attenuation = computeAttenuation(normalize(light$(I)_position.xyz - wsPosition), light$(I)_position,
+            light$(I)_attenuation, light$(I)_softnessConstant, wsPosition, light$(I)_direction, light$(I)_up,
+            light$(I)_right, light$(I)_rectangular, light$(I)_radius, w_i);
 
-        // Directional light has no falloff
-        brightness += 1.0 - light$(I)_position.w;
+        // Abort attenuated lights
+        if (attenuation <= attenuationThreshold) continue;
+#       ifdef light$(I)_shadowMap_notNull
+        {
+            vec3 adjustedWSPos = wsPosition + w_o * (1.5 * light$(I)_shadowMap_bias) + normal * (0.5 * light$(I)_shadowMap_bias);
+            vec4 shadowCoord = light$(I)_shadowMap_MVP * vec4(adjustedWSPos, 1.0);
 
-        if (brightness > 0.0) {
-            brightness /= (4.0 * pi * dot(float3(1.0, lightDistance, lightDistance * lightDistance), light$(I)_attenuation.xyz));
+            // Williams Shadow Map case
 
-            // The light is the same as for any surface up to this point. Now add particle-specific effects
+            // "Normal offset shadow mapping" http://www.dissidentlogic.com/images/NormalOffsetShadows/GDC_Poster_NormalOffset.png
+            // Note that the normal bias must be > shadowMapBias$(I) to prevent self-shadowing; we use 3x here so that most
+            // glancing angles are OK.
+            float visibility = shadowMapVisibility(light$(I)_direction, light$(I)_position, light$(I)_attenuation, shadowCoord, light$(I)_shadowMap_buffer, light$(I)_shadowMap_invSize.xy, false);
 
-            // Heavily-biased wrap shading to create some directional variation
-            //float wrapShading = (dot(light$(I)_direction, normalize(normal * 1.1 + light$(I)_direction)) + WRAP_SHADING_AMOUNT) / (1.0 + WRAP_SHADING_AMOUNT);
+            // This line appears to miscompile on Radeon, causing everything to always be in shadow
+            //            if (visibility * attenuation <= attenuationThreshold) continue;
 
-            // Boost brightness when backlit
-            //float backlit = pow(max(0.0, -dot(light$(I)_direction, w_o)), 50.0) * 1.5;
+#           ifdef light$(I)_shadowMap_variance_notNull
+            {
+                vec4 cFrameZRow = vec4(light$(I)_direction.xyz, -light$(I)_position.z);
+                float lightSpaceZ = dot(cFrameZRow, vec4(adjustedWSPos, 1.0));
+                lightSpaceZ = -dot(light$(I)_direction.xyz, adjustedWSPos - light$(I)_position.xyz);
 
-            //brightness *= (wrapShading + backlit);
-
-            // Choose the normal for shading purposes to be towards the light
-            //computeDirectLighting(w_i, w_i, w_o, w_i, 1.0, wsCenterVertexOutput[0] + w_i * bias, float glossyExponent, inout Color3 E_lambertian, inout Color3 E_glossy) {
-
-#           if defined(light$(I)_shadowMap_notNull)
-                if (receivesShadows) {
-
-                    // Compute projected shadow coord.
-                    vec3 projShadowCoord = project(light$(I)_shadowMap_MVP * vec4(wsPosition + w_i * bias, 1.0));
-
-                    // From external shadows.  Could use fewer samples for more distant smoke or
-                    // average the value at the center
-                    float visibility = 
-                        (texture(light$(I)_shadowMap_buffer, projShadowCoord + vec3(vec2(+1.0, +1.0) * light$(I)_shadowMap_invSize.xy, 0.0)) +
-                         texture(light$(I)_shadowMap_buffer, projShadowCoord + vec3(vec2(+1.0, -1.0) * light$(I)_shadowMap_invSize.xy, 0.0)) +
-                         texture(light$(I)_shadowMap_buffer, projShadowCoord + vec3(vec2(-1.0, -1.0) * light$(I)_shadowMap_invSize.xy, 0.0)) +
-                         texture(light$(I)_shadowMap_buffer, projShadowCoord + vec3(vec2(-1.0, -1.0) * light$(I)_shadowMap_invSize.xy, 0.0))) / 4;
-                
-                    // Cubing visibility increases the self-shadowing effect (and the impact of 
-                    // stochastic transparent shadows on particles) to generally improve the 
-                    // appearance of particle systems.
-                    visibility *= visibility * visibility;
-
-                    // Boost the opacity of lit particles
-                    //alphaBoost = max(alphaBoost, directAlphaBoost * visibility);
-
-                    brightness *= visibility;
-                } // receives shadows
+                // Variance Shadow Map case
+                visibility = min(visibility, varianceShadowMapVisibility(shadowCoord, lightSpaceZ, light$(I)_shadowMap_variance_buffer, light$(I)_shadowMap_variance_lightBleedReduction));
+            }
 #           endif
 
-                
-            // Phase function:
-            const float k = 0.5;
-            float brdf = mix(invPi, pow(max(-dot(w_i, w_o), 0.0), k * 50.0) * (k * 20.0 + 1.0) * inv8Pi, k);
+            // Increase contrast by over-darkening shadows
+            attenuation *= visibility * visibility;
+            if (attenuation <= attenuationThreshold) continue;
+        }
+#       endif
 
-            brightness *= brdf;
 
-            L_in += brightness * light$(I)_color;
-        } // in spotlight
+        // Phase function:
+        const float k = 0.5;
+        float brdf = mix(invPi, pow(max(-dot(w_i, w_o), 0.0), k * 50.0) * (k * 20.0 + 1.0) * inv8Pi, k) * pi;
 
-    } // for
+        L_in += attenuation * brdf * light$(I)_color;
+    } while (false); // The do-while loop enables "continue" statements
 #   endfor
 
     return L_in;

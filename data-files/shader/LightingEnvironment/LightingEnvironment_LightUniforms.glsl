@@ -137,6 +137,7 @@ void computeDirectLighting(Vector3 n, Vector3 glossyN, Vector3 w_o, Vector3 n_fa
 }
 
 
+
 /** Uses all of the light$(I) global variables. */
 Radiance3 computeDirectLighting(UniversalMaterialSample surfel, Vector3 w_o, float backside) {
     Radiance3 L_scatteredDirect = Radiance3(0);
