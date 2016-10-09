@@ -251,7 +251,7 @@ float meanComponent(float a) {
     */
 // Must match GLG3D/UniversalBSDF.h
 vec3 schlickFresnel(in vec3 F0, in float cos_i, float smoothness) {
-    return (F0.r + F0.g + F0.b > 0.0) ? mix(F0, vec3(1.0), 0.9 * (0.02 + smoothness * 0.98) * pow5(1.0 - max(0.0, cos_i))) : F0;
+    return (F0.r + F0.g + F0.b > 0.0) ? mix(F0, vec3(1.0), 0.7 * (0.01 + smoothness * 0.99) * pow5(1.0 - max(0.0, cos_i))) : F0;
 }
 
 /** Matches UniversalBSDF::smoothnessToBlinnPhongExponent.
