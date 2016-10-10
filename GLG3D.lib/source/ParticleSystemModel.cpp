@@ -289,11 +289,12 @@ void ParticleSystemModel::Emitter::spawnParticles(ParticleSystem* system, int ne
     // a good location by rejection sampling after this many tries.
     const int MAX_NOISE_SAMPLING_TRIES = 20;
 
-    Random& rng = Random::common();
+    Random& rng = Random::threadCommon();
     Noise& noise = Noise::common();
     
     debugAssert(notNull(m_spawnShape));
 
+    // TODO: Use thread::runConcurrently if large
     for (int i = 0; i < newParticlesToEmit; ++i) {
         ParticleSystem::Particle particle;
         particle.emitterIndex = emitterIndex;
@@ -308,6 +309,8 @@ void ParticleSystemModel::Emitter::spawnParticles(ParticleSystem* system, int ne
                     const Array<Point3>& vertexArray = mesh->vertexArray();
                     const int i = rng.integer(0, indexArray.size() / 3 - 1) * 3;
                     particle.position = (vertexArray[indexArray[i]] + vertexArray[indexArray[i + 1]] + vertexArray[indexArray[i + 2]]) / 3.0f;
+
+                    // TODO: Compute normal!
                 }
                 break;
 
@@ -320,8 +323,18 @@ void ParticleSystemModel::Emitter::spawnParticles(ParticleSystem* system, int ne
                 break;
 
             case SpawnLocation::SURFACE:
-                m_spawnShape->getRandomSurfacePoint(particle.position);
+            {
+                Vector3 normal;
+                m_spawnShape->getRandomSurfacePoint(particle.position, normal, rng);
+                if (system->particlesAreInWorldSpace()) {
+                    normal = system->frame().normalToWorldSpace(normal);
+                }
+                particle.normal.x = uint8(255.0f * (normal.x * 0.5f + 0.5f));
+                particle.normal.y = uint8(255.0f * (normal.y * 0.5f + 0.5f));
+                particle.normal.z = uint8(255.0f * (normal.z * 0.5f + 0.5f));
+                particle.normal.w = 255;
                 break;
+            }
 
             case SpawnLocation::VOLUME:
                 particle.position = m_spawnShape->randomInteriorPoint();
@@ -329,7 +342,8 @@ void ParticleSystemModel::Emitter::spawnParticles(ParticleSystem* system, int ne
                     // For poorly formed meshes...or even good ones with really bad luck...
                     // sometimes randomInteriorPoint will fail. In this case, generate a surface
                     // point, which is technically "on the interior" still, just poorly distributed.
-                    m_spawnShape->getRandomSurfacePoint(particle.position);
+                    Vector3 ignore;
+                    m_spawnShape->getRandomSurfacePoint(particle.position, ignore, rng);
                 }
                 break;
             } // switch

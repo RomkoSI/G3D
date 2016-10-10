@@ -33,8 +33,9 @@ void ParticleSurface::getObjectSpaceBoundingSphere(Sphere& sphere, bool previous
 void ParticleSurface::sortAndUploadIndices(shared_ptr<ParticleSurface> particleSurface, const Vector3& csz) {
     ParticleSystem::s_sortArray.fastClear();
     
-    shared_ptr<ParticleSystem::Block> block = particleSurface->m_block;
-    shared_ptr<ParticleSystem> particleSystem = block->particleSystem.lock();
+    const shared_ptr<ParticleSystem::Block>& block = particleSurface->m_block;
+    const shared_ptr<ParticleSystem>& particleSystem = block->particleSystem.lock();
+
     for (int i = 0; i < particleSystem->m_particle.size(); ++i) {
         const ParticleSystem::Particle& particle = particleSystem->m_particle[i];
         CFrame cframe;
@@ -58,8 +59,8 @@ void ParticleSurface::sortAndUploadIndices(shared_ptr<ParticleSurface> particleS
     }
 
     if (needsReallocation) {
-        int numToAllocate = ParticleSystem::s_sortArray.size() * 2;
-        shared_ptr<VertexBuffer> vb = VertexBuffer::create(sizeof(int) * numToAllocate + 8);
+        const int numToAllocate = ParticleSystem::s_sortArray.size() * 2;
+        const shared_ptr<VertexBuffer>& vb = VertexBuffer::create(sizeof(int) * numToAllocate + 8);
         int ignored;
         pBuffer.indexStream = IndexStream(ignored, numToAllocate, vb);
     }
@@ -71,10 +72,12 @@ void ParticleSurface::sortAndUploadIndices(shared_ptr<ParticleSurface> particleS
     pBuffer.indexStream.update(sortedIndices);
 }
 
+
 void ParticleSurface::setShaderArgs(Args & args, const Array<shared_ptr<Surface>>& surfaceArray, const bool sorted, const Vector3& csz) {
     
     const ParticleSystem::ParticleBuffer& particleBuffer = ParticleSystem::s_particleBuffer;
     args.setAttributeArray("position", particleBuffer.position);
+    args.setAttributeArray("normal", particleBuffer.normal);
     args.setAttributeArray("shape", particleBuffer.shape);
     args.setAttributeArray("materialProperties", particleBuffer.materialProperties);
     args.setPrimitiveType(PrimitiveType::POINTS);
@@ -94,9 +97,8 @@ void ParticleSurface::setShaderArgs(Args & args, const Array<shared_ptr<Surface>
         //             Submit the consecutive vertex ranges for the visible surfaces using glMultiDrawArrays as GL_POINTS
         //             GS expands points to triangle strips (quad)
 
-        // TODO: Should we preallocate these arrays somewhere?
-        Array<int> offsets;
-        Array<int> counts;
+        static Array<int> offsets, counts;
+        offsets.fastClear(); counts.fastClear();
         for (const shared_ptr<Surface>& s : surfaceArray) {
             const shared_ptr<ParticleSurface>& surface = dynamic_pointer_cast<ParticleSurface>(s);
             debugAssert(notNull(surface));

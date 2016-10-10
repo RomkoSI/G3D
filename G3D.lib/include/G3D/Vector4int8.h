@@ -17,11 +17,48 @@
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
+#include "G3D/unorm8.h"
 
 namespace G3D {
 
 class Vector3;
 class Vector4;
+
+class Vector4uint8 {
+public:
+    G3D::uint8 x, y, z, w;
+
+    Vector4uint8() : x(0), y(0), z(0), w(0) {}
+
+    inline G3D::uint8& operator[] (int i) {
+        debugAssert(((unsigned int)i) <= 1);
+        return ((G3D::uint8*)this)[i];
+    }
+
+    inline const G3D::uint8& operator[] (int i) const {
+        debugAssert(((unsigned int)i) <= 1);
+        return ((G3D::uint8*)this)[i];
+    }
+};
+
+
+class Vector4unorm8 {
+public:
+    G3D::unorm8 x, y, z, w;
+
+    Vector4unorm8() : x(unorm8::zero()), y(unorm8::zero()), z(unorm8::zero()), w(unorm8::zero()) {}
+
+    inline G3D::unorm8& operator[] (int i) {
+        debugAssert(((unsigned int)i) <= 1);
+        return ((G3D::unorm8*)this)[i];
+    }
+
+    inline const G3D::unorm8& operator[] (int i) const {
+        debugAssert(((unsigned int)i) <= 1);
+        return ((G3D::unorm8*)this)[i];
+    }
+};
+
 
 /**
  Homogeneous vector stored efficiently in four signed int8s.

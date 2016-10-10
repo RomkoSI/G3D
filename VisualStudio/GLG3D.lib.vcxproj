@@ -429,6 +429,7 @@
     <None Include="..\..\data10\common\scene\sponzaWhite.Scene.Any" />
     <None Include="..\..\data10\game\scene\atcs.Scene.Any" />
     <None Include="..\..\data10\game\scene\beta.Scene.Any" />
+    <None Include="..\..\data10\research\scene\cloud.Scene.Any" />
     <None Include="..\..\data10\research\scene\cubemap.Scene.Any" />
     <None Include="..\..\data10\research\scene\heightfield.Scene.Any" />
     <None Include="..\..\data10\research\scene\minecraft.Scene.Any" />

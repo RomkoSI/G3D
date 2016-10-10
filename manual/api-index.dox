@@ -41,6 +41,7 @@ at the bottom.
     \link G3D::MeshShape MeshShape\endlink,
     \link G3D::PlaneShape PlaneShape\endlink,
     \link G3D::ParticleSurface ParticleSurface\endlink,
+    \link G3D::ParticleSystemModel ParticleSystemModel\endlink,
     \link G3D::PointShape PointShape\endlink,
     \link G3D::RayShape RayShape\endlink,
     \link G3D::SphereShape SphereShape\endlink, \link G3D::TriangleShape TriangleShape\endlink),

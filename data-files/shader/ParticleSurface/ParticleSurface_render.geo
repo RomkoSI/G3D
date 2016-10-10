@@ -44,6 +44,8 @@ layout(location = 0) in Point3       wsCenterVertexOutput[];
 layout(location = 1) in float3       shapeVertexOutput[];
 layout(location = 2) in int4         materialPropertiesVertexOutput[];
 layout(location = 3) in float        angleVertexOutput[];
+layout(location = 4) in Vector3      normalVertexOutput[];
+layout(location = 5) in float        normalWeightVertexOutput[];
 
 #include "ParticleSurface_helpers.glsl"
 out RenderGeometryOutputs geoOutputs;
@@ -68,7 +70,7 @@ float3 boostSaturation(float3 color, float boost) {
 }
 
 // Compute average lighting around each vertex
-Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost, Vector3 wsLookVector, bool receivesShadows) {
+Radiance3 computeLight(Point3 wsPosition, Vector3 normal, float normalConfidence, Vector3 wsLookVector, bool receivesShadows) {
     float3 L_in = float3(0);
 
     float environmentSaturationBoost = 1.25;
@@ -90,18 +92,17 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
         // Don't quite put full environment contribution in...particles don't receive AO even though they
         // occlude one another, so they tend to get too bright under environment light (which then washes
         // out direct light shadows)
-        L_in += boostSaturation(mix(ambientEvt, directionalEvt, 0.5), environmentSaturationBoost) * 0.90 * environmentMap$(i)_readMultiplyFirst.rgb;
+        L_in += boostSaturation(mix(ambientEvt, directionalEvt, 0.5 + normalConfidence * 0.4), environmentSaturationBoost + normalConfidence * 0.25) * 0.90 * environmentMap$(i)_readMultiplyFirst.rgb;
     }
 #   endfor
-
-    alphaBoost = 1.0;
 
 #   for (int I = 0; I < NUM_LIGHTS; ++I)
     do {
         Vector3 w_i;
 
         // For attenuation purposes, use normal = vector to light
-        float attenuation = computeAttenuation(normalize(light$(I)_position.xyz - wsPosition), light$(I)_position,
+        float attenuation = computeAttenuation(lerp(normalize(light$(I)_position.xyz - wsPosition), normal, normalConfidence),
+            light$(I)_position,
             light$(I)_attenuation, light$(I)_softnessConstant, wsPosition, light$(I)_direction, light$(I)_up,
             light$(I)_right, light$(I)_rectangular, light$(I)_radius, w_i);
 
@@ -140,10 +141,12 @@ Radiance3 computeLight(Point3 wsPosition, Vector3 normal, inout float alphaBoost
         }
 #       endif
 
+        // If there are per-billboard normals, then the lighting code above which assumes no cosine is too dark
+        attenuation *= (1.0 + normalConfidence * 0.7);
 
-        // Phase function:
+        // Phase function
         const float k = 0.5;
-        float brdf = mix(1.0, pow(max(-dot(w_i, w_o), 0.0), k * 50.0) * (k * 20.0 + 1.0) * 0.125, k) ;
+        float brdf = mix(1.0, pow(max(-dot(w_i, w_o), 0.0), k * 50.0) * (k * 20.0 + 1.0) * 0.125, k);
 
         L_in += attenuation * brdf * light$(I)_color;
     } while (false); // The do-while loop enables "continue" statements
@@ -156,12 +159,11 @@ float alpha = 0.0;
 
 
 /** Produce a vertex.  Note that x and y are compile-time constants, so most of this arithmetic compiles out. */
-void emit(float x, float y, Vector3 normal, Vector3 wsLook, bool receivesShadows, Vector2 csRight, Vector2 csUp, Vector3 wsRight, Vector3 wsUp) {
+void emit(float x, float y, Vector3 normal, float normalConfidence, Vector3 wsLook, bool receivesShadows, Vector2 csRight, Vector2 csUp, Vector3 wsRight, Vector3 wsUp) {
     Point3 wsPosition = wsCenterVertexOutput[0] + wsRight * x + wsUp * y;
 
-    float alphaBoost;
-    geoOutputs.color.rgb = computeLight(wsPosition, normal, alphaBoost, wsLook, receivesShadows);
-    geoOutputs.color.a   = min(1.0, alpha * alphaBoost);
+    geoOutputs.color.rgb = computeLight(wsPosition, normal, normalConfidence, wsLook, receivesShadows);
+    geoOutputs.color.a   = min(1.0, alpha);
     
     int texelWidth = materialPropertiesVertexOutput[0].y;
     geoOutputs.texCoord.xy = ((Point2(x, y) * 0.5) + Vector2(0.5, 0.5)) * float(texelWidth) * material.lambertian.invSize.xy;
@@ -189,7 +191,12 @@ void main() {
     Vector3 wsLook = g3d_CameraToWorldMatrix[2].xyz;
 
     // TODO: Bend normal for each vertex
-    Vector3 normal = normalize(g3d_CameraToWorldMatrix[3].xyz - wsCenterVertexOutput[0]);
+    Vector3 billboardNormal = normalize(g3d_CameraToWorldMatrix[3].xyz - wsCenterVertexOutput[0]);
+    Vector3 particleNormal  = normalVertexOutput[0];
+
+    // How much do we trust the particle normal?
+    float normalConfidence = normalWeightVertexOutput[0];
+    Vector3 normal  = lerp(billboardNormal, particleNormal, normalConfidence);
 
     // Fade out alpha as the billboard approaches the near plane
     float softParticleFadeRadius = radius * 3.0;
@@ -211,22 +218,22 @@ void main() {
     //
     //     ABCD       ABEDC AEC
 #   if CONSTRUCT_CENTER_VERTEX
-        emit(-1, -1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // A
-        emit(+1, -1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // B
-        emit( 0,  0, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // E
-        emit(+1, +1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // D
-        emit(-1, +1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // C
+        emit(-1, -1, normal, normalConfidence, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // A
+        emit(+1, -1, normal, normalConfidence, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // B
+        emit( 0,  0, normal, normalConfidence, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // E
+        emit(+1, +1, normal, normalConfidence, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // D
+        emit(-1, +1, normal, normalConfidence, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // C
         EndPrimitive();
 
-        emit(-1, -1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // A
-        emit( 0, 0,  normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // E
-        emit(-1, +1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // C
+        emit(-1, -1, normal, normalConfidence, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // A
+        emit( 0, 0,  normal, normalConfidence, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // E
+        emit(-1, +1, normal, normalConfidence, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // C
         EndPrimitive();
 #   else
-        emit(-1, -1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // A
-        emit(+1, -1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // B
-        emit(-1, +1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // C
-        emit(+1, +1, normal, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // D
+        emit(-1, -1, normal, normalConfidence, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // A
+        emit(+1, -1, normal, normalConfidence, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // B
+        emit(-1, +1, normal, normalConfidence, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // C
+        emit(+1, +1, normal, normalConfidence, wsLook, receivesShadows, csRight, csUp, wsRight, wsUp); // D
         EndPrimitive();
 #   endif
 }

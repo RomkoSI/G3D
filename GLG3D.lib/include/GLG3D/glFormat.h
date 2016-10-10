@@ -24,6 +24,7 @@
 #include "G3D/Vector3.h"
 #include "G3D/Vector3int16.h"
 #include "G3D/Vector3int32.h"
+#include "G3D/Vector4int8.h"
 #include "G3D/Vector4int16.h"
 #include "G3D/Vector4uint16.h"
 #include "G3D/Vector4int32.h"
@@ -127,6 +128,8 @@ DECLARE_GLFORMATOF( Vector3int32,  GL_INT,            false, false)
 DECLARE_GLFORMATOF( Vector4,       GL_FLOAT,          false, false)
 DECLARE_GLFORMATOF( Vector4int16,  GL_SHORT,          false, false)
 DECLARE_GLFORMATOF( Vector4uint16, GL_UNSIGNED_SHORT, false, false)
+DECLARE_GLFORMATOF( Vector4uint8,  GL_UNSIGNED_BYTE,  false, false)
+DECLARE_GLFORMATOF( Vector4unorm8, GL_UNSIGNED_BYTE,  false, true)
 DECLARE_GLFORMATOF( Vector4int8,   GL_BYTE,           false, false)
 DECLARE_GLFORMATOF( Vector4int32,  GL_INT,            false, false)
 

@@ -42,13 +42,14 @@ void ParticleSystem::ParticleBuffer::removeUnusedBlocks() {
 void ParticleSystem::ParticleBuffer::allocateVertexBuffer(const int newReserve) {
     vertexBuffer.reset();
 
-    const int gpuParticleSize = sizeof(Vector4) + sizeof(Vector3) + sizeof(Vector4uint16);
+    const int gpuParticleSize = sizeof(Vector4) + sizeof(Vector3) + sizeof(Vector4uint16) + sizeof(NormalDataType);
     const int padding = 8 * 3; // 8 bytes padding per AttributeArray
     vertexBuffer = VertexBuffer::create(gpuParticleSize * newReserve + padding);
 
-    position            = AttributeArray(Vector4(), newReserve, vertexBuffer);
-    shape               = AttributeArray(Vector3(), newReserve, vertexBuffer);
-    materialProperties  = AttributeArray(Vector4uint16(), newReserve, vertexBuffer);
+    position            = AttributeArray(Vector4(),        newReserve, vertexBuffer);
+    normal              = AttributeArray(NormalDataType(), newReserve, vertexBuffer);
+    shape               = AttributeArray(Vector3(),        newReserve, vertexBuffer);
+    materialProperties  = AttributeArray(Vector4uint16(),  newReserve, vertexBuffer);
 
     count = 0;
 }
@@ -61,6 +62,7 @@ void ParticleSystem::ParticleBuffer::compact(const int newReserveCount) {
     // memory alive.
     const shared_ptr<VertexBuffer>  oldVertexBuffer       = vertexBuffer;
     const AttributeArray            oldPosition           = position;
+    const AttributeArray            oldNormal             = normal;
     const AttributeArray            oldShape              = shape;
     const AttributeArray            oldMaterialProperties = materialProperties;
 
@@ -81,6 +83,7 @@ void ParticleSystem::ParticleBuffer::compact(const int newReserveCount) {
 
         // Copy the vertex ranges
         glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, (GLintptr)oldPosition.startAddress() + oldStartIndex * sizeof(Vector4),           (GLintptr)position.startAddress() + (block->startIndex * sizeof(Vector4)),           (GLsizeiptr)(block->count * sizeof(Vector4)));
+        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, (GLintptr)oldNormal.startAddress() + oldStartIndex * sizeof(NormalDataType),        (GLintptr)normal.startAddress() + (block->startIndex * sizeof(NormalDataType)),        (GLsizeiptr)(block->count * sizeof(NormalDataType)));
         glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, (GLintptr)oldShape.startAddress() + oldStartIndex * sizeof(Vector3),              (GLintptr)shape.startAddress() + (block->startIndex * sizeof(Vector3)),              (GLsizeiptr)(block->count * sizeof(Vector3)));
         glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, (GLintptr)oldMaterialProperties.startAddress() + oldStartIndex * sizeof(Vector4uint16), (GLintptr)materialProperties.startAddress() + (block->startIndex * sizeof(Vector4uint16)), (GLsizeiptr)(block->count * sizeof(Vector4uint16)));
         debugAssertGLOk();
@@ -146,14 +149,15 @@ shared_ptr<ParticleMaterial> ParticleMaterial::create(const UniversalMaterial::S
     return create(UniversalMaterial::create(material));
 }
 
+
 static shared_ptr<Texture> convertToTextureArray(const String& name, shared_ptr<Texture> tex) {
-    shared_ptr<Texture> result = Texture::createEmpty(name, tex->width(), tex->height(), 
-                                        tex->encoding(), Texture::DIM_2D_ARRAY, false, 1);
+    shared_ptr<Texture> result = Texture::createEmpty(name, tex->width(), tex->height(), tex->encoding(), Texture::DIM_2D_ARRAY, false, 1);
     
     Texture::copy(tex, result);
     result->generateMipMaps();
     return result;
 }
+
 
 static shared_ptr<Texture> layeredTextureConcatenate(
     const String& name,
@@ -165,20 +169,22 @@ static shared_ptr<Texture> layeredTextureConcatenate(
 
     int width   = max(previousLayers->width(), newLayer->width());
     int height  = max(previousLayers->height(), newLayer->height());
-    // TODO: Handle different texture formats?
-    shared_ptr<Texture> result = Texture::createEmpty(name, width, height, 
-        newLayer->encoding(), Texture::DIM_2D_ARRAY, false, numLayers);
+    // TODO: Handle different texture formats
+    shared_ptr<Texture> result = Texture::createEmpty(name, width, height, newLayer->encoding(), Texture::DIM_2D_ARRAY, false, numLayers);
 
     for (int i = 0; i < numLayers - 1; ++i) {
         int prevLayerIndex = min(i, previousLayers->depth() - 1);
         Texture::copy(previousLayers, result, 0, 0, 1.0f, Vector2int16(0, 0), 
             CubeFace::POS_X, CubeFace::POS_X, NULL, false, prevLayerIndex, i);
     }
+
     Texture::copy(newLayer, result, 0, 0, 1.0f, Vector2int16(0, 0),
         CubeFace::POS_X, CubeFace::POS_X, NULL, false, 0, numLayers - 1);
     result->generateMipMaps();
+
     return result;
 }
+
 
 int ParticleMaterial::insertMaterial(shared_ptr<UniversalMaterial> newMaterial) {
     alwaysAssertM(isNull(newMaterial->bump()), "We do not yet support bump-mapped particles");
@@ -202,8 +208,6 @@ int ParticleMaterial::insertMaterial(shared_ptr<UniversalMaterial> newMaterial) 
         UniversalMaterial::Specification settings;
         settings.setAlphaHint(AlphaFilter::BLEND);
         //settings.setBump                  TODO: support
-        //settings.setConstant              TODO: remove
-        //settings.setCustomShaderPrefix    TODO: remove
         settings.setEmissive(convertToTextureArray(emissiveName, emissive));
         //settings.setEta
         settings.setGlossy(convertToTextureArray(glossyName, glossy));
@@ -231,8 +235,6 @@ int ParticleMaterial::insertMaterial(shared_ptr<UniversalMaterial> newMaterial) 
         UniversalMaterial::Specification settings;
         settings.setAlphaHint(AlphaFilter::BLEND);
         //settings.setBump                  TODO: support
-        //settings.setConstant              TODO: remove
-        //settings.setCustomShaderPrefix    TODO: remove
         settings.setEmissive(layeredTextureConcatenate(emissiveName, currentEmissive, emissive, numLayers));
         //settings.setEta
         settings.setGlossy(layeredTextureConcatenate(glossyName, currentGlossy, glossy, numLayers));
@@ -246,6 +248,7 @@ int ParticleMaterial::insertMaterial(shared_ptr<UniversalMaterial> newMaterial) 
     }
     return layerIndex;
 }
+
 
 shared_ptr<ParticleMaterial> ParticleMaterial::create(const shared_ptr<UniversalMaterial>& material) {
     debugAssertM(material->bsdf()->lambertian().texture()->width() ==
@@ -434,18 +437,21 @@ void ParticleSystem::init() {
         }
 
         if (numParticlesToEmit > 0) {
-            emitter->spawnParticles(this, numParticlesToEmit, m_scene->time(), m_scene->time() - m_initTime, 0.0f, e);
-    
+            emitter->spawnParticles(this, numParticlesToEmit, m_scene->time(), m_scene->time() - m_initTime, 0.0f, e);    
 
-            // For faces and vertices, fix up locations
+            // For faces and vertices on the initial spawn, ensure uniform distribution
             switch (emitter->specification().location) {
             case ParticleSystemModel::Emitter::SpawnLocation::VERTICES:
             {
-                // Copy the original array
+                // Copy the original array so that we can permute it
                 Array<Point3> vertexArray = dynamic_pointer_cast<MeshShape>(emitter->m_spawnShape)->vertexArray();
                 vertexArray.randomize(m_rng);
                 for (int i = 0; i < numParticlesToEmit; ++i) {
-                    m_particle[m_particle.size() - i - 1].position = vertexArray[i];
+                    Point3& position = m_particle[m_particle.size() - i - 1].position;
+                    position = vertexArray[i];
+                    if (m_particlesAreInWorldSpace) {
+                        position = m_frame.pointToWorldSpace(position);
+                    }
                 }
                 break;
             }
@@ -466,13 +472,18 @@ void ParticleSystem::init() {
                 }
                 centroid.randomize(m_rng);
                 for (int i = 0; i < numParticlesToEmit; ++i) {
-                    m_particle[m_particle.size() - i - 1].position = centroid[i];
+                    Point3& position = m_particle[m_particle.size() - i - 1].position;
+                    position = centroid[i];
+                    if (m_particlesAreInWorldSpace) {
+                        position = m_frame.pointToWorldSpace(position);
+                    }
                 }
                 break;
             }
 
             default:;
             } // switch
+
         } // if numParticlesToEmit > 0
     } // for
 }
@@ -515,9 +526,8 @@ void ParticleSystem::onPose(Array<shared_ptr<Surface>>& surfaceArray) {
     if (m_particle.size() == 0 || visible() == false) {
         return;
     }
-
     
-    shared_ptr<ParticleSurface> surface = ParticleSurface::create(dynamic_pointer_cast<Entity>(shared_from_this()));
+    const shared_ptr<ParticleSurface> surface = ParticleSurface::create(dynamic_pointer_cast<Entity>(shared_from_this()));
     surface->m_preferLowResolutionTransparency = s_preferLowResolutionTransparency;
     surface->m_block = m_block;
 #   ifdef G3D_DEBUG
@@ -537,9 +547,7 @@ void ParticleSystem::onPose(Array<shared_ptr<Surface>>& surfaceArray) {
         // Always allocate more space than needed to allow growing.
         const int desiredBlockSize = max(100, m_particle.size() * 2);
 
-        surface->m_block = s_particleBuffer.alloc(dynamic_pointer_cast<ParticleSystem>(shared_from_this()), 
-                                                    surface,
-                                                    desiredBlockSize);
+        surface->m_block = s_particleBuffer.alloc(dynamic_pointer_cast<ParticleSystem>(shared_from_this()), surface, desiredBlockSize);
         m_block = surface->m_block;
         
     }
@@ -553,6 +561,8 @@ void ParticleSystem::onPose(Array<shared_ptr<Surface>>& surfaceArray) {
     // and thus need to do pointer arithmetic to access all 3 at the same time.
     uint8* mappedVertexBuffer = (uint8*)s_particleBuffer.position.mapBuffer(GL_WRITE_ONLY) - (intptr_t)s_particleBuffer.position.startAddress();
     Vector4*        positionPtr             = (Vector4*)        (mappedVertexBuffer + (intptr_t)s_particleBuffer.position.startAddress()) 
+                                                + surface->m_block->startIndex;
+    NormalDataType*   normalPtr               = (NormalDataType*)    (mappedVertexBuffer + (intptr_t)s_particleBuffer.normal.startAddress()) 
                                                 + surface->m_block->startIndex;
     Vector3*        shapePtr                = (Vector3*)        (mappedVertexBuffer + (intptr_t)s_particleBuffer.shape.startAddress()) 
                                                 + surface->m_block->startIndex;
@@ -568,15 +578,26 @@ void ParticleSystem::onPose(Array<shared_ptr<Surface>>& surfaceArray) {
         flags |= ParticleBuffer::RECEIVES_SHADOWS;
     }
 
+    // TODO: Use thread::runConcurrently for these copies
     if (m_particlesAreInWorldSpace) {
         for (int p = 0; p < m_particle.size(); ++p) {
             const Particle& particle = m_particle[p];
             positionPtr[p] = (const Vector4&)particle.position;
+            normalPtr[p] = particle.normal;
         } 
     } else {
         for (int p = 0; p < m_particle.size(); ++p) {
             const Particle& particle = m_particle[p];
             positionPtr[p] = Vector4(m_frame.pointToWorldSpace(particle.position), particle.angle);
+
+            // Transform from object to world space
+            if (particle.normal[3] > 0) {
+                const Vector3& normal = m_frame.normalToWorldSpace(Vector3(particle.normal[0], particle.normal[1], particle.normal[2]) * 2.0f - Vector3(1.0f, 1.0f, 1.0f));
+                for (int i = 0; i < 3; ++i) {
+                    normalPtr[p][i] = uint8(255.0f * (normal[i] * 0.5f + 0.5f));
+                }
+                normalPtr[p].w = particle.normal.w;
+            }
         } 
     }
 
@@ -587,7 +608,8 @@ void ParticleSystem::onPose(Array<shared_ptr<Surface>>& surfaceArray) {
         const shared_ptr<ParticleMaterial>& material = particle.material;
         materialPropertiesPtr[p] = Vector4uint16(material->m_textureIndex, material->m_texelWidth, flags, particle.userdataInt);
     }
-    // We only mapped the buffer via .position
+
+    // We only mapped the buffer via .position, so unmap the whole thing by the sam variable
     s_particleBuffer.position.unmapBuffer();
 
     surface->m_block->count = m_particle.size();

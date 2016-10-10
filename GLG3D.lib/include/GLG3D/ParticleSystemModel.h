@@ -56,7 +56,8 @@ public:
            /** All faces are treated as equal probability for spawn locations. Only available for a mesh shape. */
            FACES,
          
-           /** All faces are treated as a single surface with uniform probability with respect to area  */
+           /** All faces are treated as a single surface with uniform probability with respect to area. 
+               Spawning surface particles sets their normals based on the surface normal. */
            SURFACE,
 
            VOLUME
