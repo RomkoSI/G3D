@@ -91,7 +91,8 @@ void main() {
         const int stride = diffusionStridePixels;
 
         // Kernel radius
-        int R = int(min(sqrt(diffusion2), maxDiffusionPixels) / float(stride)) * stride;        float weightSum = 0;
+        int R = int(min(sqrt(diffusion2), maxDiffusionPixels) / float(stride)) * stride;
+        float weightSum = 0;
 
         for (Point2 q = Point2(-R); q.x <= R; q.x += stride) {
             for (q.y = -R; q.y <= R; q.y += stride) {
