@@ -114,21 +114,12 @@ void writePixel
     for a full explanation and derivation.*/
     coverage *= 1.0 - (transmissionCoefficient.r + transmissionCoefficient.g + transmissionCoefficient.b) * (1.0 / 3.0);
 
-    // Intermediate terms to be cubed
-    float tmp = 1.0 - gl_FragCoord.z * 0.99;
+    // Alternative weighting functions:
+    //float tmp = 2.0 * max(1.0 + csPosition.z / 200.0, 0.0); tmp *= tmp * 1e3;
 
-    // Enable if you want more discrimination between lots of transparent surfaces, e.g., for CAD. Risks underflow on individual surfaces in the general case.   
-    // tmp *= tmp * tmp;
-
-    /* If a lot of the scene is close to the far plane (e.g., you know that you have a really close far plane for CAD 
-       or a scene with distant mountains and glass castles in fog), then gl_FragCoord.z does not
-       provide enough discrimination. You can add this term to compensate:
-   
-       tmp /= sqrt(abs(csZ));
-
-       Only used for the car engine scene in the paper, where the far plane is at 2m. 
-    */
-
+    // Looks better on clouds
+    float tmp = 1.0 - gl_FragCoord.z * 0.99; tmp *= tmp * tmp * 1e4;
+    
     /*
       If you're running out of compositing range and overflowing to inf, multiply the upper bound (3e2) by a small
       constant. Note that R11G11B10F has no "inf" and maps all floating point specials to NaN, so you won't actually
@@ -136,10 +127,8 @@ void writePixel
       */
 
     // Weight function tuned for the general case. Used for all images in the paper
-    float w = clamp(coverage * tmp * tmp * tmp * 1e3, 1e-2, 3e2 * 0.2);
+    float w = clamp(coverage * tmp, 1e-3, 3e2 * 0.5);
     
-    // Alternative weighting that gives better discrimination for lots of partial-coverage edges (e.g., foliage)
-    // float w = clamp(tmp * 1e3, 1e-2, 3e2 * 0.1);*/
 
     _accum = vec4(premultipliedReflectionAndEmission, coverage) * w;
 

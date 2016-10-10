@@ -20,6 +20,7 @@
 #include "G3D/enumclass.h"
 #include "G3D/Cylinder.h"
 #include "G3D/Spline.h"
+#include "G3D/Vector4int8.h"
 #include "G3D/enumclass.h"
 #include "G3D/Vector3.h"
 #include "G3D/WeakCache.h"
@@ -130,6 +131,9 @@ public:
     friend class ParticleSurface;
     friend class ParticleSystemModel::Emitter;
 
+    // TODO: change to Vector4uint8 or similar
+    typedef Vector4 NormalDataType;
+
     /** Particle-specific forces that can be shared between ParticleSystem instances. */
     class PhysicsEnvironment : public ReferenceCountedObject {
     public:
@@ -213,6 +217,9 @@ public:
         /** Mapped to the GPU as a texture layer index. */
         shared_ptr<ParticleMaterial> material;
 
+        /** Scaled and biased normal, where the 4th element is the signficiance: 0 = ignore */
+        NormalDataType            normal;
+
         /** Arbitrary data visible in the shader as additional attributes. */
         uint16                  userdataInt;
 
@@ -238,7 +245,8 @@ public:
             dragCoefficient(0.5f),
             userdataInt(0),
             emitterIndex(0)
-        {}
+        {
+        }
     };
 
 protected:
@@ -300,6 +308,11 @@ protected:
             Entity expressive rendering flags (e.g.: casts shadows, receives shadows), and
             userdataInt in GL_UNSIGNED_SHORT x 4 format  */
         AttributeArray              materialProperties;
+
+        /** GL_UNSIGNED_BYTE x 4. The fourth component indicates how much it should be used
+            vs. the billboard normal for shading purposes (we could use the magnitude of the normal,
+            but we need the fourth component for alignment anyway). */
+        AttributeArray              normal;
 
         /** Only used for sorted transparency. Recomputed for each draw call based on a depth sort. GL_UNSIGNED_INT */
         IndexStream                 indexStream;
