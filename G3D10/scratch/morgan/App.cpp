@@ -70,9 +70,18 @@ void App::onInit() {
         s.toAny().save("result.ArticulatedModel.Any");
     }
 
-    const String filename = System::findDataFile("image/testImage.png");
+    /*
+    const String filename = System::findDataFile("image/testimage.png");
     shared_ptr<Texture> texture = Texture::fromFile(filename, ImageFormat::SRGB8(), Texture::DIM_2D, false);
-//    shared_ptr<Image3>  image3 = texture->toImage3();
+    shared_ptr<Image3>  image3  = texture->toImage3();
+    shared_ptr<Image>   image   = Image::fromFile(filename);
+
+    for (int x = 0; x < image3->width(); ++x) {
+        Color3 c3 = image3->get(x, 0);
+        Color3 c  = image->get<Color3>(x, 0);
+        debugPrintf("%f %f %f        %f %f %f\n", c3.r, c3.g, c3.b,   c.r, c.g, c.b);
+    }
+    */
 
     
     showRenderingStats      = true;
