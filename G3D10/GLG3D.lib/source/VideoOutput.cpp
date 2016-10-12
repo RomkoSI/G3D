@@ -4,6 +4,7 @@
  */
 
 #include "G3D/platform.h"
+#include "G3D/Log.h"
 #include "G3D/Image.h"
 #include "G3D/CPUPixelTransferBuffer.h"
 #include "GLG3D/VideoOutput.h"
@@ -163,6 +164,11 @@ VideoOutput::~VideoOutput() {
 #endif
 }
 
+static void ffmpegLogger(void*, int, const char* fmt, va_list args) {
+#ifdef G3D_DEBUG
+    Log::common()->vprintf(fmt, args);
+#endif
+}
 
 void VideoOutput::initialize(const String& filename, const Settings& settings) {
     // helper for exiting VideoOutput construction (exceptions caught by static ref creator)
@@ -172,6 +178,8 @@ void VideoOutput::initialize(const String& filename, const Settings& settings) {
     debugAssert(settings.height > 0);
     debugAssert(settings.fps > 0);
 #ifndef G3D_NO_FFMPEG
+	av_log_set_callback(ffmpegLogger);
+
     // initialize list of available muxers/demuxers and codecs in ffmpeg
     av_register_all();
 
