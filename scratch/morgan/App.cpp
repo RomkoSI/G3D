@@ -9,7 +9,6 @@ void tungstenToG3D() {
     const String sourceFilename = "C:/Users/morgan/Desktop/living-room-tungsten/scene.json";
     Any any;
     any.load(sourceFilename);
-
 }
 
 
@@ -48,10 +47,6 @@ int main(int argc, const char* argv[]) {
     settings.renderer.deferredShading = true;
     settings.renderer.orderIndependentTransparency = true;
 
-/*    String originalDeclaration = "A B C D http://foo E F G\n H I J\n";
-    const std::string declarationWithoutSingleLineComments(std::regex_replace(originalDeclaration.c_str(), std::regex("//.*\\n"), "\\n"));
-    debugPrintf("%s\n", declarationWithoutSingleLineComments.c_str());
-    return 0;*/
     return App(settings).run();
 }
 
@@ -67,7 +62,7 @@ void App::onInit() {
     GApp::onInit();
     setFrameDuration(1.0f / 120.0f);
 
-    {
+    if (false) {
         ArticulatedModel::Specification s;
         XML xml;
         xml.load("C:/Users/morgan/Desktop/living-room-mitsuba/scene.xml");
@@ -75,12 +70,12 @@ void App::onInit() {
         s.toAny().save("result.ArticulatedModel.Any");
     }
 
-    // Call setScene(shared_ptr<Scene>()) or setScene(MyScene::create()) to replace
-    // the default scene here.
+    const String filename = System::findDataFile("image/testImage.png");
+    shared_ptr<Texture> texture = Texture::fromFile(filename, ImageFormat::SRGB8(), Texture::DIM_2D, false);
+//    shared_ptr<Image3>  image3 = texture->toImage3();
+
     
     showRenderingStats      = true;
-
-
     makeGUI();
     // For higher-quality screenshots:
     // developerWindow->videoRecordDialog->setScreenShotFormat("PNG");
