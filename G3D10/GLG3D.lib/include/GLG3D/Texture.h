@@ -1090,21 +1090,12 @@ private:
     template<class I> friend class MapComponent;
 
     shared_ptr<Image4> toImage4() const;
-    
-    /** Extracts the data as ImageFormat::RGBA8.@deprecated */
-    shared_ptr<Image4unorm8> toImage4unorm8() const;
-    
+        
     /** Extracts the data as ImageFormat::RGB32F. @deprecated */
-    shared_ptr<Image3> toImage3() const;
-    
-    /** Extracts the data as ImageFormat::RGB8. @deprecated */
-    shared_ptr<Image3unorm8> toImage3unorm8() const;
+    shared_ptr<Image3> toImage3() const;    
     
     /** Extracts the data as ImageFormat::L32F.   @deprecated */
-    shared_ptr<Image1> toImage1() const;
-    
-    /** Extracts the data as ImageFormat::L8. @deprecated */
-    shared_ptr<Image1unorm8> toImage1unorm8() const;
+    shared_ptr<Image1> toImage1() const;    
     
     /** Extracts the data as ImageFormat::DEPTH32F. @deprecated */
     shared_ptr<Image1> toDepthImage1() const;
@@ -1123,22 +1114,7 @@ private:
     inline void getImage(shared_ptr<Image1>& im) const {
         im = toImage1();
     }
-
-    /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. @deprecated */
-    inline void getImage(shared_ptr<Image4unorm8>& im) const {
-        im = toImage4unorm8();
-    }
-
-    /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. @deprecated */
-    inline void getImage(shared_ptr<Image3unorm8>& im) const {
-        im = toImage3unorm8();
-    }
-
-    /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. @deprecated */
-    inline void getImage(shared_ptr<Image1unorm8>& im) const {
-        im = toImage1unorm8();
-    }
-
+    
 public:
 
     /** If this texture was loaded from an uncompressed format in memory or disk (and not rendered to), 

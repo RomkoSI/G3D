@@ -2064,23 +2064,9 @@ shared_ptr<Image4> Texture::toImage4() const {
 }
 
 
-shared_ptr<Image4unorm8> Texture::toImage4unorm8() const {
-    const shared_ptr<Image4unorm8>& im = Image4unorm8::createEmpty(m_width, m_height, WrapMode::TILE); 
-    getTexImage(im->getCArray(), ImageFormat::RGBA8());
-    return im;
-}
-
-
 shared_ptr<Image3> Texture::toImage3() const {    
     const shared_ptr<Image3>& im = Image3::createEmpty(m_width, m_height, WrapMode::TILE, m_depth); 
     getTexImage(im->getCArray(), ImageFormat::RGB32F());
-    return im;
-}
-
-
-Image3unorm8Ref Texture::toImage3unorm8() const {    
-    shared_ptr<Image3unorm8> im = Image3unorm8::createEmpty(m_width, m_height, WrapMode::TILE); 
-    getTexImage(im->getCArray(), ImageFormat::RGB8());
     return im;
 }
 
@@ -2118,13 +2104,6 @@ shared_ptr<Image1unorm8> Texture::toDepthImage1unorm8() const {
 shared_ptr<Image1> Texture::toImage1() const {
     const shared_ptr<Image1>& im = Image1::createEmpty(m_width, m_height, WrapMode::TILE); 
     getTexImage(im->getCArray(), ImageFormat::L32F());
-    return im;
-}
-
-
-shared_ptr<Image1unorm8> Texture::toImage1unorm8() const {
-    const shared_ptr<Image1unorm8>& im = Image1unorm8::createEmpty(m_width, m_height, WrapMode::TILE); 
-    getTexImage(im->getCArray(), ImageFormat::R8());
     return im;
 }
 
