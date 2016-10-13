@@ -18,6 +18,7 @@
 namespace G3D {
 
 void UniversalSurfel::sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) {
+    return;
     source.index = triIndex;
     source.u = u;
     source.v = v;
@@ -72,8 +73,6 @@ void UniversalSurfel::sample(const Tri& tri, float u, float v, int triIndex, con
         kappaPos = bsdf->extinctionReflect();
         kappaNeg = bsdf->extinctionTransmit();
     }    
-
-    name = uMaterial->name();
 
     const shared_ptr<BumpMap>& bumpMap = uMaterial->bump();
 
