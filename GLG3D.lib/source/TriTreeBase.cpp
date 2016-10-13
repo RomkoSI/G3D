@@ -142,9 +142,24 @@ void TriTreeBase::intersectRays
     Array<Hit> hits;
     results.resize(rays.size());
     intersectRays(rays, hits, options);
-    Thread::runConcurrently(0, rays.size(), [&](int i) {
-        sample(hits[i], results[i]);
+
+    const Hit* pHit = hits.getCArray();
+    shared_ptr<Surfel>* pSurfel = results.getCArray();
+    const Tri* pTri = m_triArray.getCArray();
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, hits.size(), 128), [&](const tbb::blocked_range<size_t>& r) {
+		const size_t start = r.begin();
+		const size_t end   = r.end();
+		for (size_t i = start; i < end; ++i) {
+            const Hit& hit = pHit[i];
+            if (hit.triIndex != Hit::NONE) {
+                pTri[hit.triIndex].sample(hit.u, hit.v, hit.triIndex, m_vertexArray, hit.backface, pSurfel[i]);
+            } else {
+                pSurfel[i] = nullptr;
+            }
+        }
     });
+
 }
 
 

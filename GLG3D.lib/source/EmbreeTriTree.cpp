@@ -121,27 +121,27 @@ void EmbreeTriTree::rebuild() {
 			RTCTriangle local_opaque[NUM_LOCAL_PER_THREAD_TRIS];
                         
 			for (size_t t = start; t < end; ++t) {
-                            const Tri& tri = triCArray[t];
-                            // sort triangle into either the alpha or opaque queue
-                            if (tri.hasPartialCoverage()) {
-                                local_alpha[numAlpha++] = RTCTriangle(tri.index[0], tri.index[1], tri.index[2], int(t));
-                            } else {
-                                local_opaque[numOpaque++] = RTCTriangle(tri.index[0], tri.index[1], tri.index[2], int(t));
-                            }
+                const Tri& tri = triCArray[t];
+                // sort triangle into either the alpha or opaque queue
+                if (tri.hasPartialCoverage()) {
+                    local_alpha[numAlpha++] = RTCTriangle(tri.index[0], tri.index[1], tri.index[2], int(t));
+                } else {
+                    local_opaque[numOpaque++] = RTCTriangle(tri.index[0], tri.index[1], tri.index[2], int(t));
+                }
                             
-                            // flush local 'alpha' queue if needed
-                            if (numAlpha == NUM_LOCAL_PER_THREAD_TRIS) {
-                                const size_t index = (size_t)alphaCount.fetch_add((int)numAlpha);
-                                memcpy(&m_alphaTriangleArray[index], local_alpha, sizeof(RTCTriangle)*numAlpha);
-                                numAlpha = 0;
-                            }
+                // flush local 'alpha' queue if needed
+                if (numAlpha == NUM_LOCAL_PER_THREAD_TRIS) {
+                    const size_t index = (size_t)alphaCount.fetch_add((int)numAlpha);
+                    memcpy(&m_alphaTriangleArray[index], local_alpha, sizeof(RTCTriangle)*numAlpha);
+                    numAlpha = 0;
+                }
                             
-                            // flush local 'alpha' queue if needed
-                            if (numOpaque == NUM_LOCAL_PER_THREAD_TRIS) {
-                                const size_t index = (size_t)opaqueCount.fetch_add((int)numOpaque);
-                                memcpy(&m_opaqueTriangleArray[index], local_opaque, sizeof(RTCTriangle)*numOpaque);
-                                numOpaque = 0;
-                            }
+                // flush local 'alpha' queue if needed
+                if (numOpaque == NUM_LOCAL_PER_THREAD_TRIS) {
+                    const size_t index = (size_t)opaqueCount.fetch_add((int)numOpaque);
+                    memcpy(&m_opaqueTriangleArray[index], local_opaque, sizeof(RTCTriangle)*numOpaque);
+                    numOpaque = 0;
+                }
 			}
                         
 			// flush all non-empty queues
@@ -156,7 +156,7 @@ void EmbreeTriTree::rebuild() {
                             memcpy(&m_opaqueTriangleArray[index], local_opaque, sizeof(RTCTriangle)*numOpaque);
                             numOpaque = 0;
 			}
-            });
+        });
         
         // Shrink the size (but not capacity) to fit
         m_alphaTriangleArray.resize(alphaCount, false);

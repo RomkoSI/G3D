@@ -146,8 +146,15 @@ void App::onInit() {
     });
 
     timer.tick();
-    Thread::runConcurrently(0, hitBuffer.size(), [&](int i) {
-        m_triTree.sample(hitBuffer[i], surfelBuffer[i]);
+    const TriTree::Hit* pHit = hitBuffer.getCArray();
+    shared_ptr<Surfel>* pSurfel = surfelBuffer.getCArray();
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, hitBuffer.size(), 128), [&](const tbb::blocked_range<size_t>& r) {
+		const size_t start = r.begin();
+		const size_t end   = r.end();
+		for (size_t i = start; i < end; ++i) {
+            m_triTree.sample(pHit[i], pSurfel[i]);
+        }
     });
     timer.tock();
     debugPrintf("Construct surfels: %f ms\n", timer.elapsedTime() / units::milliseconds());
