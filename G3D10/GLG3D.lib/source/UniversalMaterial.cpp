@@ -24,7 +24,13 @@
 namespace G3D {    
 
 void UniversalMaterial::sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside, shared_ptr<Surfel>& surfel) const {
-    surfel = std::make_shared<UniversalSurfel>(tri, u, v, triIndex, vertexArray, backside);
+    const shared_ptr<UniversalSurfel>& universalSurfel = dynamic_pointer_cast<UniversalSurfel>(surfel);
+    if (universalSurfel) {
+        // Reuse the existing surfel
+        universalSurfel->sample(tri, u, v, triIndex, vertexArray, backside);
+    } else {
+        surfel = std::make_shared<UniversalSurfel>(tri, u, v, triIndex, vertexArray, backside);
+    }
 }
 
 

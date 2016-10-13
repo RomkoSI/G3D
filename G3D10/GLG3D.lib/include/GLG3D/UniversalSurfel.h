@@ -84,7 +84,9 @@ public:
     /** Allocates with System::malloc to avoid the performance
         overhead of creating lots of small heap objects using
         the standard library %<code>malloc</code>. 
-     */
+
+        This is actually not used by make_shared, which is the common case.
+      */
     static void* operator new(size_t size) {
         return System::malloc(size);
     }
@@ -99,7 +101,11 @@ public:
         return std::make_shared<UniversalSurfel>();
     }
 
-    UniversalSurfel(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside);
+    void sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside);
+
+    UniversalSurfel(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) {
+        sample(tri, u, v, triIndex, vertexArray, backside);
+    }
 
     virtual Radiance3 emittedRadiance(const Vector3& wo) const override;
     

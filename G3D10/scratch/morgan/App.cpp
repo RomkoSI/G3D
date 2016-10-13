@@ -140,8 +140,12 @@ void App::onInit() {
     timer.tock();
     debugPrintf("Cast primary rays: %f ms\n", timer.elapsedTime() / units::milliseconds());
 
+    // Preallocate the UniversalSurfels
+    Thread::runConcurrently(0, hitBuffer.size(), [&](int i) {
+        m_triTree.sample(hitBuffer[i], surfelBuffer[i]);
+    });
+
     timer.tick();
-    m_triTree.sample(hitBuffer[0], surfelBuffer[0]);
     Thread::runConcurrently(0, hitBuffer.size(), [&](int i) {
         m_triTree.sample(hitBuffer[i], surfelBuffer[i]);
     });
