@@ -222,7 +222,7 @@ public:
     
     Triangle toTriangle(const CPUVertexArray& vertexArray) const;
 
-    shared_ptr<Surfel> sample(float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backface) const;
+    void sample(float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backface, shared_ptr<Surfel>& surfel) const;
 
     /** Set the storage on all Materials in the array */
     static void setStorage(const Array<Tri>& triArray, ImageStorage newStorage);

@@ -414,7 +414,7 @@ protected:
 
     String                      m_macros;
 
-    AlphaFilter                   m_alphaFilter;
+    AlphaFilter                 m_alphaFilter;
 
     Sampler                     m_sampler;
 
@@ -665,7 +665,7 @@ public:
         return m_mirrorHint;
     }
 
-    virtual shared_ptr<Surfel> sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) const override;
+    virtual void sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside, shared_ptr<Surfel>& surfel) const override;
 };
 
 }

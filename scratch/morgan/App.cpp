@@ -118,25 +118,35 @@ void App::onInit() {
 
     Stopwatch timer;
     const int w = 640, h = 400;
-    const Rect2D viewport = Rect2D::xywh(0, 0, w, h);
+    const Rect2D viewport = Rect2D::xywh(0.0f, 0.0f, float(w), float(h));
     const shared_ptr<Camera>& camera = activeCamera();
     Array<Ray> rayBuffer;
     Array<shared_ptr<Surfel>> surfelBuffer;
     rayBuffer.resize(w * h);
     surfelBuffer.resize(rayBuffer.size());
+
     timer.tick();
     Thread::runConcurrently(Point2int32(0, 0), Point2int32(w, h), [&](Point2int32 P) {
         rayBuffer[P.x + P.y * w] = camera->worldRay(P.x + 0.5f, P.y + 0.5f, viewport);
     });
     timer.tock();
+
     debugPrintf("Generate %d rays: %f ms\n", rayBuffer.size(), timer.elapsedTime() / units::milliseconds());
     Array<TriTree::Hit> hitBuffer;
     hitBuffer.resize(rayBuffer.size());
+
     timer.tick();
-//    m_triTree.intersectRays(rayBuffer, surfelBuffer, TriTreeBase::COHERENT_RAY_HINT);
     m_triTree.intersectRays(rayBuffer, hitBuffer, TriTreeBase::COHERENT_RAY_HINT);
     timer.tock();
     debugPrintf("Cast primary rays: %f ms\n", timer.elapsedTime() / units::milliseconds());
+
+    timer.tick();
+    m_triTree.sample(hitBuffer[0], surfelBuffer[0]);
+    Thread::runConcurrently(0, hitBuffer.size(), [&](int i) {
+        m_triTree.sample(hitBuffer[i], surfelBuffer[i]);
+    });
+    timer.tock();
+    debugPrintf("Construct surfels: %f ms\n", timer.elapsedTime() / units::milliseconds());
 }
 
 

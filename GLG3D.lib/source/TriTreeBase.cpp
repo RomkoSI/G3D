@@ -78,7 +78,9 @@ shared_ptr<Surfel> TriTreeBase::intersectRay
  
     Hit hit;
     if (intersectRay(ray, hit, options)) {
-        return m_triArray[hit.triIndex].sample(hit.u, hit.v, hit.triIndex, m_vertexArray, hit.backface);
+        shared_ptr<Surfel> surfel;
+        m_triArray[hit.triIndex].sample(hit.u, hit.v, hit.triIndex, m_vertexArray, hit.backface, surfel);
+        return surfel;
     } else {
         return nullptr;
     }
@@ -123,11 +125,11 @@ void TriTreeBase::intersectSphere
 }
 
 
-shared_ptr<Surfel> TriTreeBase::sample(const Hit& hit) const {
+void TriTreeBase::sample(const Hit& hit, shared_ptr<Surfel>& surfel) const {
     if (hit.triIndex != Hit::NONE) {
-        return m_triArray[hit.triIndex].sample(hit.u, hit.v, hit.triIndex, m_vertexArray, hit.backface);
+        m_triArray[hit.triIndex].sample(hit.u, hit.v, hit.triIndex, m_vertexArray, hit.backface, surfel);
     } else {
-        return nullptr;
+        surfel = nullptr;
     }
 }
 
@@ -141,7 +143,7 @@ void TriTreeBase::intersectRays
     results.resize(rays.size());
     intersectRays(rays, hits, options);
     Thread::runConcurrently(0, rays.size(), [&](int i) {
-        results[i] = sample(hits[i]);
+        sample(hits[i], results[i]);
     });
 }
 
@@ -155,7 +157,7 @@ void TriTreeBase::intersectRays
     results.resize(rays.size());
     intersectRays(rays, hits, options);
     Thread::runConcurrently(0, rays.size(), [&](int i) {
-        results[i] = hits[i].triIndex != Hit::NONE;
+        results[i] = (hits[i].triIndex != Hit::NONE);
     });
 }
 

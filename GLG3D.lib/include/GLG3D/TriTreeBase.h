@@ -173,7 +173,7 @@ public:
         (const Sphere&                      sphere,
          Array<Tri>&                        triArray) const;
 
-    virtual shared_ptr<Surfel> sample(const Hit& hit) const;
+    virtual void sample(const Hit& hit, shared_ptr<Surfel>& surfel) const;
 };
 
 } // G3D
