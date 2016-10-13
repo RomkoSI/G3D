@@ -114,8 +114,10 @@ bool Tri::intersectionAlphaTest(const CPUVertexArray& vertexArray, float u, floa
 void Tri::sample(float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backface, shared_ptr<Surfel>& surfel) const {
     // Avoid using the material() helper method because we don't want to increment the material's 
     // shared_ptr counter, which requires an atomic (incrementing the surfel's one is unavoidable)
-    const shared_ptr<UniversalSurface>& surface = dynamic_pointer_cast<UniversalSurface>(m_data);
-    if (notNull(surface)) {
+    //
+    // Avoid the atomic increment cost of a dynamic_ptr_cast, since we know the object can't be colleted during this call
+    const UniversalSurface* surface = dynamic_cast<const UniversalSurface*>(m_data.get());
+    if (surface) {
         // Most common case
         surface->material()->sample(*this, u, v, triIndex, vertexArray, backface, surfel);
     } else {

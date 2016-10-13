@@ -49,8 +49,8 @@ void App::onInit() {
         // "Refraction Test");
         // "G3D Sports Car");
         //"G3D Cornell Box");
-        //"G3D Cubemap"
-        "Real Time Ray Trace"
+        "G3D Cubemap"
+        //"Real Time Ray Trace"
     );
 
     makeGUI();

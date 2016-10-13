@@ -24,7 +24,8 @@
 namespace G3D {    
 
 void UniversalMaterial::sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside, shared_ptr<Surfel>& surfel) const {
-    const shared_ptr<UniversalSurfel>& universalSurfel = dynamic_pointer_cast<UniversalSurfel>(surfel);
+    // Avoid the atomic increment cost of a dynamic_ptr_cast, since we know the object can't be colleted during this call
+    UniversalSurfel* universalSurfel = dynamic_cast<UniversalSurfel*>(surfel.get());
     if (universalSurfel) {
         // Reuse the existing surfel
         universalSurfel->sample(tri, u, v, triIndex, vertexArray, backside);

@@ -47,14 +47,18 @@ void UniversalSurfel::sample(const Tri& tri, float u, float v, int triIndex, con
         u * vert1.texCoord0 +
         v * vert2.texCoord0;
 
-    const shared_ptr<UniversalMaterial>& uMaterial = dynamic_pointer_cast<UniversalMaterial>(tri.material());
+    // The cast for material and extracting the surface
+    // are very expensive.
+    geometricNormal = tri.normal(vertexArray);
+
+    material = tri.material();
+
+    const UniversalMaterial* uMaterial = dynamic_cast<const UniversalMaterial*>(material.get());
     debugAssertM(notNull(uMaterial), "Triangle does not have a UniversalMaterial on it");
 
     surface = tri.surface();
-    const shared_ptr<UniversalBSDF>& bsdf = uMaterial->bsdf();
-    material = uMaterial;
-
-    geometricNormal = tri.normal(vertexArray);
+    const shared_ptr<UniversalBSDF>& bsdf = uMaterial->bsdf();    
+    const shared_ptr<BumpMap>& bumpMap = uMaterial->bump();
 
     if (backside) {
         // Swap the normal direction here before we compute values relative to it
@@ -72,8 +76,6 @@ void UniversalSurfel::sample(const Tri& tri, float u, float v, int triIndex, con
         kappaPos = bsdf->extinctionReflect();
         kappaNeg = bsdf->extinctionTransmit();
     }    
-
-    const shared_ptr<BumpMap>& bumpMap = uMaterial->bump();
 
     // TODO: support other types of bump map besides normal
     if (bumpMap && !tangentX.isNaN() && !tangentY.isNaN()) {
