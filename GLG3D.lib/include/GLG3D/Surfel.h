@@ -198,10 +198,7 @@ public:
         This contains three inline-allocated elements to support reflection and
         refraction without heap allocation. */
     typedef SmallArray<Impulse, 2> ImpulseArray;
-
-    /** For debugging purposes only. */
-    String                  name;
-    
+        
     /** Point in world space at the geometric center of
         this surfel. */ 
     Point3                  position;
@@ -286,8 +283,7 @@ public:
 protected:
 
     Surfel
-    (const String&     name,
-     const Point3&     position,
+    (const Point3&     position,
      const Point3&     prevPosition,
      const Vector3&    geometricNormal,
      const Vector3&    shadingNormal,

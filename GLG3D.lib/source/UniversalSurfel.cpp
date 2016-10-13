@@ -17,7 +17,7 @@
 
 namespace G3D {
 
-UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) {
+void UniversalSurfel::sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) {
     source.index = triIndex;
     source.u = u;
     source.v = v;
