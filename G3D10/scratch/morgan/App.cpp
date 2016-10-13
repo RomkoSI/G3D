@@ -93,24 +93,50 @@ void App::onInit() {
     loadScene(
         //"Feature Test"
         //"G3D Sponza"
-        "G3D Whiteroom" // Load something simple
+        "G3D Sponza (White)"
         //developerWindow->sceneEditorWindow->selectedSceneName()  // Load the first scene encountered 
         );
 
-    labelFont = GFont::fromFile(System::findDataFile("arial.fnt"));
-    {
-        float pdfValue;
-        const Vector3 n = Vector3::unitY();
-        w_o = Vector3(1, 1, 0).direction();
-        w_mirror = w_o.reflectAbout(n);
-        pdf = std::make_shared<DirectionHistogram>(100, w_mirror);
-        const float m = 100;
-        for (int i = 0; i < 1000000; ++i) {
-            Vector3 w_i;
-            Vector3::cosHemiPlusCosPowHemiHemiRandom(w_mirror, n, m, 0.1f, Random::threadCommon(), w_i, pdfValue);
-            pdf->insert(w_i);
+    if (false) {
+        labelFont = GFont::fromFile(System::findDataFile("arial.fnt"));
+        {
+            float pdfValue;
+            const Vector3 n = Vector3::unitY();
+            w_o = Vector3(1, 1, 0).direction();
+            w_mirror = w_o.reflectAbout(n);
+            pdf = std::make_shared<DirectionHistogram>(100, w_mirror);
+            const float m = 100;
+            for (int i = 0; i < 1000000; ++i) {
+                Vector3 w_i;
+                Vector3::cosHemiPlusCosPowHemiHemiRandom(w_mirror, n, m, 0.1f, Random::threadCommon(), w_i, pdfValue);
+                pdf->insert(w_i);
+            }
         }
     }
+
+    m_triTree.setContents(scene());
+
+    Stopwatch timer;
+    const int w = 640, h = 400;
+    const Rect2D viewport = Rect2D::xywh(0, 0, w, h);
+    const shared_ptr<Camera>& camera = activeCamera();
+    Array<Ray> rayBuffer;
+    Array<shared_ptr<Surfel>> surfelBuffer;
+    rayBuffer.resize(w * h);
+    surfelBuffer.resize(rayBuffer.size());
+    timer.tick();
+    Thread::runConcurrently(Point2int32(0, 0), Point2int32(w, h), [&](Point2int32 P) {
+        rayBuffer[P.x + P.y * w] = camera->worldRay(P.x + 0.5f, P.y + 0.5f, viewport);
+    });
+    timer.tock();
+    debugPrintf("Generate %d rays: %f ms\n", rayBuffer.size(), timer.elapsedTime() / units::milliseconds());
+    Array<TriTree::Hit> hitBuffer;
+    hitBuffer.resize(rayBuffer.size());
+    timer.tick();
+//    m_triTree.intersectRays(rayBuffer, surfelBuffer, TriTreeBase::COHERENT_RAY_HINT);
+    m_triTree.intersectRays(rayBuffer, hitBuffer, TriTreeBase::COHERENT_RAY_HINT);
+    timer.tock();
+    debugPrintf("Cast primary rays: %f ms\n", timer.elapsedTime() / units::milliseconds());
 }
 
 
@@ -120,13 +146,6 @@ void App::makeGUI() {
     debugWindow->setVisible(true);
     developerWindow->videoRecordDialog->setEnabled(true);
 
-    GuiPane* infoPane = debugPane->addPane("Info", GuiTheme::ORNATE_PANE_STYLE);
-    
-    // Example of how to add debugging controls
-    infoPane->addLabel("You can add GUI controls");
-    infoPane->addLabel("in App::onInit().");
-    infoPane->addButton("Exit", this, &App::endProgram);
-    infoPane->pack();
 
     // More examples of debugging GUI controls:
     // debugPane->addCheckBox("Use explicit checking", &explicitCheck);

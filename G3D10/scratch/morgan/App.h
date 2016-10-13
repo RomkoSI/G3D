@@ -12,6 +12,8 @@
 class App : public GApp {
 protected:
 
+    TriTree m_triTree;
+
     /** Called from onInit */
     void makeGUI();
 
