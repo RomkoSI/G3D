@@ -47,8 +47,7 @@ Any Surfel::ExpressiveParameters::toAny() const {
 
 
 Surfel::Surfel
-(const String& name,
- const Point3&     _pos,
+(const Point3&     _pos,
  const Point3&     _prevPos,
  const Vector3&    geometricNormal,
  const Vector3&    shadingNormal,
@@ -60,8 +59,7 @@ Surfel::Surfel
  const Color3&     kappaNeg,
  const Source&     source,
  const shared_ptr<Material>& material,
- const shared_ptr<Surface>& surface) : 
-    name(name),
+ const shared_ptr<Surface>& surface) :
     position(_pos),
     prevPosition(_prevPos),
     geometricNormal(geometricNormal),
