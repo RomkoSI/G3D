@@ -148,6 +148,7 @@ void App::onInit() {
     timer.tick();
     const TriTree::Hit* pHit = hitBuffer.getCArray();
     shared_ptr<Surfel>* pSurfel = surfelBuffer.getCArray();
+            m_triTree.sample(pHit[0], pSurfel[0]);
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, hitBuffer.size(), 128), [&](const tbb::blocked_range<size_t>& r) {
 		const size_t start = r.begin();

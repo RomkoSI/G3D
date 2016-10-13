@@ -41,6 +41,7 @@ class Surface;
 class Tri {
 private:
     friend class NativeTriTree;
+    friend class UniversalSurfel;
 
 	// Flags:
 	static const uint64 TWO_SIDED            = 1;
