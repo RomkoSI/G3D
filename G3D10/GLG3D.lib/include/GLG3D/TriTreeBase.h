@@ -148,6 +148,7 @@ public:
          Array<Hit>&                        results,
          IntersectRayOptions                options         = IntersectRayOptions(0)) const;
 
+    /** Values in results will be reused if already allocated, which can increase performance*/
     virtual void intersectRays
         (const Array<Ray>&                  rays,
          Array<shared_ptr<Surfel>>&         results,
@@ -173,7 +174,7 @@ public:
         (const Sphere&                      sphere,
          Array<Tri>&                        triArray) const;
 
-    virtual void sample(const Hit& hit, shared_ptr<Surfel>& surfel) const;
+    void sample(const Hit& hit, shared_ptr<Surfel>& surfel) const;
 };
 
 } // G3D
