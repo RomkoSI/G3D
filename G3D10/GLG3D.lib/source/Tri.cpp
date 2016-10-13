@@ -111,8 +111,21 @@ bool Tri::intersectionAlphaTest(const CPUVertexArray& vertexArray, float u, floa
 }
 
 
-shared_ptr<Surfel> Tri::sample(float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backface) const {
-    return material()->sample(*this, u, v, triIndex, vertexArray, backface);
+void Tri::sample(float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backface, shared_ptr<Surfel>& surfel) const {
+    // Avoid using the material() helper method because we don't want to increment the material's 
+    // shared_ptr counter, which requires an atomic (incrementing the surfel's one is unavoidable)
+    const shared_ptr<UniversalSurface>& surface = dynamic_pointer_cast<UniversalSurface>(m_data);
+    if (notNull(surface)) {
+        // Most common case
+        surface->material()->sample(*this, u, v, triIndex, vertexArray, backface, surfel);
+    } else {
+        const shared_ptr<Material>& material = dynamic_pointer_cast<Material>(m_data);
+        if (notNull(material)) {
+            material->sample(*this, u, v, triIndex, vertexArray, backface, surfel);
+        } else {
+            surfel = nullptr;
+        }
+    }
 }
 
 

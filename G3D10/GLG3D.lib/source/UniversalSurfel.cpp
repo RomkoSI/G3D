@@ -18,7 +18,9 @@
 namespace G3D {
 
 UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) {
-    this->source = Source(triIndex, u, v);
+    source.index = triIndex;
+    source.u = u;
+    source.v = v;
 
     const float w = 1.0f - u - v;
     const CPUVertexArray::Vertex& vert0 = tri.vertex(vertexArray, 0);
@@ -77,12 +79,12 @@ UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex,
 
     // TODO: support other types of bump map besides normal
     if (bumpMap && !tangentX.isNaN() && !tangentY.isNaN()) {
-        const CFrame& tangentSpace = Matrix3::fromColumns(tangentX, tangentY, interpolatedNormal);
+        const Matrix3& tangentSpace = Matrix3::fromColumns(tangentX, tangentY, interpolatedNormal);
         const shared_ptr<Image4>& normalMap = bumpMap->normalBumpMap()->image();
         Vector2int32 mappedTexCoords(texCoord * Vector2(float(normalMap->width()), float(normalMap->height())));
 
-        tangentSpaceNormal = Vector3(normalMap->get(mappedTexCoords.x, mappedTexCoords.y).rgb() * Color3(2.0f) + Color3(-1.0f));
-        shadingNormal = tangentSpace.normalToWorldSpace(tangentSpaceNormal).direction();
+        tangentSpaceNormal = Vector3(normalMap->get(mappedTexCoords.x, mappedTexCoords.y).rgb()) * 2.0f + Vector3(-1.0f, -1.0f, -1.0f);
+        shadingNormal = (tangentSpace * tangentSpaceNormal).direction();
 
         // "Shading tangents", or at least one tangent, is traditionally used in anisotropic
         // BSDFs. To combine this with bump-mapping we use Graham-Schmidt orthonormalization
@@ -92,7 +94,7 @@ UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex,
         // is parallel to a tangent vector, this will give nonsensical results.
         // TODO: handle the parallel case elegantly
         // TODO: Have G3D support anisotropic direction maps so we can apply this transformation
-        // to that instead of these tagents taken from texCoord directions
+        // to that instead of these tangents taken from texCoord directions
         // TODO: implement
         shadingTangent1 = tangentX;
         shadingTangent2 = tangentY;
@@ -110,7 +112,7 @@ UniversalSurfel::UniversalSurfel(const Tri& tri, float u, float v, int triIndex,
         shadingTangent1 = tangentSpace.normalToWorldSpace(tangentSpaceTangent1).direction();
         shadingTangent2 = tangentSpace.normalToWorldSpace(tangentSpaceTangent2).direction();*/
     } else {
-        tangentSpaceNormal = Vector3(0, 0, 1);
+        tangentSpaceNormal = Vector3::unitZ();
         shadingNormal   = interpolatedNormal;
         shadingTangent1 = tangentX;
         shadingTangent2 = tangentY;

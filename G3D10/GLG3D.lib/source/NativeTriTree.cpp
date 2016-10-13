@@ -847,7 +847,9 @@ shared_ptr<Surfel> NativeTriTree::intersectRay
  
     Hit hit;
     if (intersectRay(ray, hit, options)) {
-        return m_triArray[hit.triIndex].sample(hit.u, hit.v, hit.triIndex, m_vertexArray, hit.backface);
+        shared_ptr<Surfel> surfel;
+        m_triArray[hit.triIndex].sample(hit.u, hit.v, hit.triIndex, m_vertexArray, hit.backface, surfel);
+        return surfel;
     } else {
         return nullptr;
     }
