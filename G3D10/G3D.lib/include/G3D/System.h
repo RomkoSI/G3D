@@ -327,10 +327,12 @@ public:
         return instance().m_version;
     }
 
+    /** G3D library svn revision */
     static const int svnRevision() {
         return instance().m_svnRevision;
     }
 
+    /** Current repository svn revision */
     static const int svnWorkingCopyRevision() {
         return instance().m_svnWCRevision;
     }
