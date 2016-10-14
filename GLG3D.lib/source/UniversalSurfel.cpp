@@ -12,35 +12,41 @@
 #include "GLG3D/UniversalBSDF.h"
 #include "GLG3D/UniversalMaterial.h"
 #include "GLG3D/CPUVertexArray.h"
+#include "GLG3D/Surface.h"
 #include "GLG3D/Tri.h"
 #include <memory>
 
 namespace G3D {
 
-void UniversalSurfel::sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) {
+void UniversalSurfel::sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside, const UniversalMaterial* universalMaterial) {
     source.index = triIndex;
     source.u = u;
     source.v = v;
 
     const float w = 1.0f - u - v;
-    const CPUVertexArray::Vertex& vert0 = tri.vertex(vertexArray, 0);
-    const CPUVertexArray::Vertex& vert1 = tri.vertex(vertexArray, 1);
-    const CPUVertexArray::Vertex& vert2 = tri.vertex(vertexArray, 2);    
-  
+    const CPUVertexArray::Vertex* vertexArrayPtr = vertexArray.vertex.getCArray();
+    debugAssert((tri.index[0] < vertexArray.vertex.size()) &&
+                (tri.index[1] < vertexArray.vertex.size()) &&
+                (tri.index[1] < vertexArray.vertex.size()));
+
+    const CPUVertexArray::Vertex& vert0 = vertexArrayPtr[tri.index[0]];
+    const CPUVertexArray::Vertex& vert1 = vertexArrayPtr[tri.index[1]];
+    const CPUVertexArray::Vertex& vert2 = vertexArrayPtr[tri.index[2]];   
+
     Vector3 interpolatedNormal =
        (w * vert0.normal + 
         u * vert1.normal +
         v * vert2.normal).direction();
 
     const Vector3& tangentX  =   
-       (w * tri.tangent(vertexArray, 0) +
-        u * tri.tangent(vertexArray, 1) +
-        v * tri.tangent(vertexArray, 2)).direction();
+       (w * vert0.tangent.xyz() +
+        u * vert1.tangent.xyz() +
+        v * vert2.tangent.xyz()).direction();
 
     const Vector3& tangentY  =	
-       (w * tri.tangent2(vertexArray, 0) +
-        u * tri.tangent2(vertexArray, 1) +
-        v * tri.tangent2(vertexArray, 2)).direction();
+       ((w * vert0.tangent.w) * vert0.normal.cross(vert0.tangent.xyz()) +
+        (u * vert1.tangent.w) * vert1.normal.cross(vert1.tangent.xyz()) +
+        (v * vert2.tangent.w) * vert2.normal.cross(vert2.tangent.xyz())).direction();
 
     const Vector2& texCoord =
         w * vert0.texCoord0 +
@@ -50,15 +56,7 @@ void UniversalSurfel::sample(const Tri& tri, float u, float v, int triIndex, con
     // The cast for material and extracting the surface
     // are very expensive.
     geometricNormal = tri.normal(vertexArray);
-
-    material = tri.material();
-
-    const UniversalMaterial* uMaterial = dynamic_cast<const UniversalMaterial*>(material.get());
-    debugAssertM(notNull(uMaterial), "Triangle does not have a UniversalMaterial on it");
-
-    surface = tri.surface();
-    const shared_ptr<UniversalBSDF>& bsdf = uMaterial->bsdf();    
-    const shared_ptr<BumpMap>& bumpMap = uMaterial->bump();
+    const shared_ptr<UniversalBSDF>& bsdf = universalMaterial->bsdf();    
 
     if (backside) {
         // Swap the normal direction here before we compute values relative to it
@@ -77,11 +75,12 @@ void UniversalSurfel::sample(const Tri& tri, float u, float v, int triIndex, con
         kappaNeg = bsdf->extinctionTransmit();
     }    
 
+    const shared_ptr<BumpMap>& bumpMap = universalMaterial->bump();
     // TODO: support other types of bump map besides normal
     if (bumpMap && !tangentX.isNaN() && !tangentY.isNaN()) {
         const Matrix3& tangentSpace = Matrix3::fromColumns(tangentX, tangentY, interpolatedNormal);
         const shared_ptr<Image4>& normalMap = bumpMap->normalBumpMap()->image();
-        Vector2int32 mappedTexCoords(texCoord * Vector2(float(normalMap->width()), float(normalMap->height())));
+        const Vector2int32 mappedTexCoords(texCoord * Vector2(float(normalMap->width()), float(normalMap->height())));
 
         tangentSpaceNormal = Vector3(normalMap->get(mappedTexCoords.x, mappedTexCoords.y).rgb()) * 2.0f + Vector3(-1.0f, -1.0f, -1.0f);
         shadingNormal = (tangentSpace * tangentSpaceNormal).direction();
@@ -137,7 +136,7 @@ void UniversalSurfel::sample(const Tri& tri, float u, float v, int triIndex, con
     lambertianReflectivity = lambertianSample.rgb();
     coverage = lambertianSample.a;
 
-    emission = uMaterial->emissive().sample(texCoord);
+    emission = universalMaterial->emissive().sample(texCoord);
 
     const Color4& packG = bsdf->glossy().sample(texCoord);
     glossyReflectionCoefficient  = packG.rgb();
@@ -146,6 +145,9 @@ void UniversalSurfel::sample(const Tri& tri, float u, float v, int triIndex, con
     transmissionCoefficient = bsdf->transmissive().sample(texCoord);
 
     isTransmissive = transmissionCoefficient.nonZero() || (coverage < 1.0f);
+
+    material = universalMaterial;
+    surface  = dynamic_cast<const Surface*>(tri.m_data.get());
 }
 
 

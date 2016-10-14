@@ -258,11 +258,13 @@ public:
     /** \copydoc etaPos */
     Color3                  kappaNeg;
 
-    /** The material that generated this Surfel. May be NULL */
-    shared_ptr<Material>    material;
+    /** The material that generated this Surfel. May be NULL. This is a raw pointer
+        because incrementing a shared_ptr is expensive during material sampling. */
+    const Material*         material;
 
-    /** The surface that generated this Surfel. May be NULL */
-    shared_ptr<Surface>     surface;
+    /** The surface that generated this Surfel. May be NULL.This is a raw pointer
+        because incrementing a shared_ptr is expensive during material sampling.  */
+    const Surface*          surface;
 
     /** Mostly for debugging */
     struct Source {
@@ -294,8 +296,8 @@ protected:
      const float       etaNeg,
      const Color3&     kappaNeg,
      const Source&     source,
-     const shared_ptr<Material>& material,
-     const shared_ptr<Surface>& surface);
+     const Material*   material,
+     const Surface*    surface);
 
     /** Called by the default implementation of scatter. Samples a directional PDF
 
