@@ -10,7 +10,6 @@
  Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
-#include "G3D/svn_info.h"
 #include "G3D/svnutils.h"
 #include "GLG3D/ScreenshotDialog.h"
 #include "GLG3D/GuiPane.h"
@@ -18,6 +17,7 @@
 #include "G3D/FileSystem.h"
 #include "G3D/fileutils.h"
 #include "G3D/Journal.h"
+#include "G3D/System.h"
 #include <time.h>
 
 #ifdef G3D_WINDOWS
@@ -101,7 +101,7 @@ ScreenshotDialog::ScreenshotDialog(OSWindow* osWindow, const shared_ptr<GuiTheme
 
     journalPane->beginRow(); {
         static bool showG3DSVNRevision = true;
-        static int g3dRevision = SVN_REVISION_NUMBER;
+        static int g3dRevision = System::svnRevision();
         
         GuiControl* c = journalPane->addCheckBox("G3D SVN Revision", &showG3DSVNRevision);
         c->setWidth(150);
@@ -167,9 +167,10 @@ ScreenshotDialog::ScreenshotDialog(OSWindow* osWindow, const shared_ptr<GuiTheme
 
 
 String ScreenshotDialog::nextFilenameBase(const String& prefix) {
-    const String& g3dRevisionString = ((SVN_REVISION_NUMBER != 0) ? format("_g3d_r%d", SVN_REVISION_NUMBER) : "");
-    const int projectRevision = getSVNRepositoryRevision(FileSystem::currentDirectory());
-    const String& projectRevisionString = projectRevision < 0 ? "" : format("_r%d", projectRevision);
+    const int revisionNumber = System::svnRevision();
+    const String& g3dRevisionString = (revisionNumber != 0) ? format("_g3d_r%d", revisionNumber) : "";
+    const int workingCopyRevision = System::svnWorkingCopyRevision();
+    const String& projectRevisionString = workingCopyRevision > 0 ? format("_r%d", workingCopyRevision) : "";
     return generateFileNameBaseAnySuffix(prefix) + "_" + System::appName() + projectRevisionString + g3dRevisionString;
 }
 

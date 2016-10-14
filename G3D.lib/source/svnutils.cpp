@@ -137,7 +137,7 @@ int getSVNDirectoryRevision(const String& path) {
                 return (int)t.number();
             }
         }
-        return -1;
+        return 0;
 #   else
         const String& rawString = g3d_exec(("svnversion " + path).c_str());
         String input = rawString;
@@ -151,7 +151,7 @@ int getSVNDirectoryRevision(const String& path) {
         if (t.type() == Token::NUMBER) {
             return (int)t.number();
         }
-        return -1;
+        return 0;
 #   endif
 }
 
@@ -163,7 +163,7 @@ int getSVNDirectoryRevision(const String& path) {
     */
 int getSVNRepositoryRevision(const String& rawPath) {
     static Table<String, int> revisionTable;
-    int revisionNumber = -1;
+    int revisionNumber = 0;
     if (revisionTable.get(rawPath, revisionNumber)) {
         return revisionNumber;
     }
@@ -171,18 +171,18 @@ int getSVNRepositoryRevision(const String& rawPath) {
     // Heuristic: check the first 4 parent directories. If none of them are under revision control, give up
     for(int i = 0; i < 4; ++i) { 
         int newResult = getSVNDirectoryRevision(currentPath);
-        if (newResult >= 0) {
+        if (newResult > 0) {
             revisionNumber = newResult;
             break;
         }
         currentPath = maybeUpOneDirectory(currentPath);
     }
-    if (revisionNumber >= 0) {
+    if (revisionNumber > 0) {
         while(true) {
             currentPath = maybeUpOneDirectory(currentPath);
             int newResult = getSVNDirectoryRevision(currentPath);
             revisionNumber = iMax(revisionNumber, newResult);
-            if (newResult < 0) {
+            if (newResult == 0) {
                 break;
             }
         }
