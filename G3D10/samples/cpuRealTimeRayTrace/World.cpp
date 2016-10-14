@@ -15,7 +15,7 @@ void World::begin() {
 void World::insert(const shared_ptr<ArticulatedModel>& model, const CFrame& frame) {
     Array<shared_ptr<Surface> > posed;
     model->pose(posed, frame);
-    for (shared_ptr<Surface> surface : posed) {
+    for (const shared_ptr<Surface>& surface : posed) {
         insert(surface);
     }
 }
@@ -24,7 +24,7 @@ void World::insert(const shared_ptr<ArticulatedModel>& model, const CFrame& fram
 void World::insert(const shared_ptr<Surface>& m) {
     debugAssert(m_mode == INSERT);
 
-    shared_ptr<SkyboxSurface> skybox = dynamic_pointer_cast<SkyboxSurface>(m);
+    const shared_ptr<SkyboxSurface>& skybox = dynamic_pointer_cast<SkyboxSurface>(m);
 
     if (notNull(skybox)) {
         m_skybox = skybox->texture0()->toCubeMap();
