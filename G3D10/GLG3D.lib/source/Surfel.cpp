@@ -58,8 +58,8 @@ Surfel::Surfel
  const float       etaNeg,
  const Color3&     kappaNeg,
  const Source&     source,
- const shared_ptr<Material>& material,
- const shared_ptr<Surface>& surface) :
+ const Material*   material,
+ const Surface*    surface) :
     position(_pos),
     prevPosition(_prevPos),
     geometricNormal(geometricNormal),

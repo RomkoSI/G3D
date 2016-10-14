@@ -11,11 +11,11 @@
 #pragma once
 
 #include "G3D/platform.h"
+#include "GLG3D/Tri.h"
 #include "GLG3D/Surfel.h"
 
 namespace G3D {
 
-class Tri;
 class CPUVertexArray;
 
 /** 
@@ -101,10 +101,10 @@ public:
         return std::make_shared<UniversalSurfel>();
     }
 
-    void sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside);
+    void sample(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside, const class UniversalMaterial* universalMaterial);
 
     UniversalSurfel(const Tri& tri, float u, float v, int triIndex, const CPUVertexArray& vertexArray, bool backside) {
-        sample(tri, u, v, triIndex, vertexArray, backside);
+        sample(tri, u, v, triIndex, vertexArray, backside, dynamic_pointer_cast<UniversalMaterial>(tri.material()).get());
     }
 
     virtual Radiance3 emittedRadiance(const Vector3& wo) const override;

@@ -28,7 +28,7 @@ void UniversalMaterial::sample(const Tri& tri, float u, float v, int triIndex, c
     UniversalSurfel* universalSurfel = dynamic_cast<UniversalSurfel*>(surfel.get());
     if (universalSurfel) {
         // Reuse the existing surfel
-        universalSurfel->sample(tri, u, v, triIndex, vertexArray, backside);
+        universalSurfel->sample(tri, u, v, triIndex, vertexArray, backside, this);
     } else {
         surfel = std::make_shared<UniversalSurfel>(tri, u, v, triIndex, vertexArray, backside);
     }
