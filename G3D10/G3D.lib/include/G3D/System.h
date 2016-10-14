@@ -122,7 +122,10 @@ private:
     struct timeval m_start;
 #endif
 
-    String    m_version;
+    String      m_version;
+	int         m_svnRevision;
+    int         m_svnWCRevision;
+
     OutOfMemoryCallback m_outOfMemoryCallback;
 
 #ifdef G3D_OSX
@@ -322,6 +325,14 @@ public:
     /** G3D Version string */
     inline static const String& version() {
         return instance().m_version;
+    }
+
+    static const int svnRevision() {
+        return instance().m_svnRevision;
+    }
+
+    static const int svnWorkingCopyRevision() {
+        return instance().m_svnWCRevision;
     }
 
     /**

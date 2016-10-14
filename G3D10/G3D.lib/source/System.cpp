@@ -29,6 +29,8 @@
 #include "G3D/units.h"
 #include "G3D/FileSystem.h"
 #include "G3D/Array.h"
+#include "G3D/svn_info.h"
+#include "G3D/svnutils.h"
 #include <time.h>
 
 // Uncomment the following line to turn off G3D::System memory
@@ -86,6 +88,8 @@ static bool checkForCPUID();
 
 /** Called from init */
 static void getG3DVersion(String& s);
+static void getSvnRevision(int& revision);
+static void getSvnWorkingCopyRevision(int& revision);
 
 /** Called from init */
 static G3DEndian checkEndian();
@@ -142,7 +146,12 @@ void System::init() {
         m_initialized = true;
     }
 
+    // Build G3D version string
     getG3DVersion(m_version);
+
+    // Query g3d library and local repository working copy revision
+    getSvnRevision(m_svnRevision);
+    getSvnWorkingCopyRevision(m_svnWCRevision);
     
     m_machineEndian = checkEndian();
 
@@ -357,6 +366,14 @@ void getG3DVersion(String& s) {
     }
 
     s = cstr;
+}
+
+void getSvnRevision(int& revision) {
+    revision = SVN_REVISION_NUMBER;
+}
+
+void getSvnWorkingCopyRevision(int& revision) {
+    revision = getSVNRepositoryRevision(FileSystem::currentDirectory());
 }
 
 // Places where specific files were most recently found.  This is
