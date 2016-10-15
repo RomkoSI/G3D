@@ -26,7 +26,7 @@ int main(int argc, const char* argv[]) {
     settings.window.width               = 1280; settings.window.height       = 720;
     //settings.window.width             = 1920; settings.window.height       = 1080;
     // settings.window.width            = OSWindow::primaryDisplayWindowSize().x; settings.window.height = OSWindow::primaryDisplayWindowSize().y;
-    settings.window.fullScreen          = true;
+    settings.window.fullScreen          = false;
     settings.window.resizable           = ! settings.window.fullScreen;
     settings.window.framed              = ! settings.window.fullScreen;
 
