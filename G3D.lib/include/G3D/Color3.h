@@ -88,6 +88,12 @@ public:
         return *this;
     }
 
+    /** Converts an RGB color to sRGB */
+    Color3 RGBTosRGB() const;
+
+    /** Converts a sRGB color to RGB */
+    Color3 sRGBToRGB() const;
+
     /**
      Initialize from another color.
      */

@@ -23,6 +23,28 @@
 
 namespace G3D {
 
+Color3 Color3::RGBTosRGB() const {
+    const float threshold = 0.00304f;
+    if ((r <= threshold) && (g <= threshold) && (b <= threshold)) {
+        // Linear portion
+        return *this * 12.92f;
+    } else {
+        return this->pow(1.0f / 2.4f) * 1.055f - Color3(0.55f);
+    }
+}
+
+
+Color3 Color3::sRGBToRGB() const {
+    const float threshold = 0.03928;
+    if ((r <= threshold) && (g <= threshold) && (b <= threshold)) {
+        // Linear portion
+        return *this / 12.92f;
+    } else {
+        return ((*this + Color3(0.055f)) / 1.055f).pow(2.4f);
+    }
+}
+
+
 Color3& Color3::operator=(const Any& a) {
     *this = Color3(a);
     return *this;

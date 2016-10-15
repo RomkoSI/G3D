@@ -148,6 +148,7 @@
        <li> G3D::Image::increment, G3D::Image::bilinearIncrement </li>
        <li> G3D::CubeMap</li>
        <li> G3D::Scene::skyboxAsCubeMap</li>
+       <li> G3D::Color3::sRGBToRGB, G3D::Color3::RGBToSRGB</li>
       </ul>
     </p>
 
