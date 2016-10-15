@@ -200,8 +200,7 @@ public:
        the reflectance at normal incidence. Uses smoothness as a masking term
        to keep rough surfaces from having too much Fresnel*/
     static inline Color3 schlickFresnel(const Color3& F0, float cos_i, float smoothness) {
-        const float academicRoughness = square(1.0f - smoothness);
-        return (F0.r + F0.g + F0.b > 0.0f) ? lerp(F0, Color3(1.0f), 0.9f * (0.01f + (1.0f - academicRoughness) * 0.99f) * pow5(1.0f - cos_i)) : F0;
+        return (F0.r + F0.g + F0.b > 0.0f) ? lerp(F0, Color3(1.0f), 0.9f * pow5(square(smoothness) * (1.0f - max(0.0f, cos_i)))) : F0;
     }
 
     /** @brief Packed factors affecting the lambertian term.
