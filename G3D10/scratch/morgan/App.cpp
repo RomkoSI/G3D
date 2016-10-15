@@ -93,7 +93,8 @@ void App::onInit() {
     loadScene(
         //"Feature Test"
         //"G3D Sponza"
-        "G3D Sponza (White)"
+        "G3D Whiteroom"
+        //"G3D Sponza (White)"
         //developerWindow->sceneEditorWindow->selectedSceneName()  // Load the first scene encountered 
         );
 
@@ -114,51 +115,73 @@ void App::onInit() {
         }
     }
 
-    m_triTree.setContents(scene());
-
-    Stopwatch timer;
-    const int w = 640, h = 400;
-    const Rect2D viewport = Rect2D::xywh(0.0f, 0.0f, float(w), float(h));
-    const shared_ptr<Camera>& camera = activeCamera();
-    Array<Ray> rayBuffer;
-    Array<shared_ptr<Surfel>> surfelBuffer;
-    rayBuffer.resize(w * h);
-    surfelBuffer.resize(rayBuffer.size());
-
-    timer.tick();
-    Thread::runConcurrently(Point2int32(0, 0), Point2int32(w, h), [&](Point2int32 P) {
-        rayBuffer[P.x + P.y * w] = camera->worldRay(P.x + 0.5f, P.y + 0.5f, viewport);
-    });
-    timer.tock();
-
-    debugPrintf("Generate %d rays: %f ms\n", rayBuffer.size(), timer.elapsedTime() / units::milliseconds());
-    Array<TriTree::Hit> hitBuffer;
-    hitBuffer.resize(rayBuffer.size());
-
-    timer.tick();
-    m_triTree.intersectRays(rayBuffer, hitBuffer, TriTreeBase::COHERENT_RAY_HINT);
-    timer.tock();
-    debugPrintf("Cast primary rays: %f ms\n", timer.elapsedTime() / units::milliseconds());
-
-    // Preallocate the UniversalSurfels
-    Thread::runConcurrently(0, hitBuffer.size(), [&](int i) {
-        m_triTree.sample(hitBuffer[i], surfelBuffer[i]);
-    });
-
-    timer.tick();
-    const TriTree::Hit* pHit = hitBuffer.getCArray();
-    shared_ptr<Surfel>* pSurfel = surfelBuffer.getCArray();
-            m_triTree.sample(pHit[0], pSurfel[0]);
-
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, hitBuffer.size(), 128), [&](const tbb::blocked_range<size_t>& r) {
-		const size_t start = r.begin();
-		const size_t end   = r.end();
-		for (size_t i = start; i < end; ++i) {
-            m_triTree.sample(pHit[i], pSurfel[i]);
+    if (true) {
+        Array<Vector3>   directionBuffer;
+        Array<Radiance3> radianceBuffer;
+        shared_ptr<CubeMap> cubeMap = scene()->skyboxAsCubeMap();
+        radianceBuffer.resize(640 * 400);
+        directionBuffer.resize(radianceBuffer.size());
+        for (int i = 0; i < directionBuffer.size(); ++i) {
+            directionBuffer[i] = Vector3::random(Random::threadCommon());
         }
-    });
-    timer.tock();
-    debugPrintf("Construct surfels: %f ms\n", timer.elapsedTime() / units::milliseconds());
+
+        Stopwatch timer;
+        timer.tick();
+        Thread::runConcurrently(0, radianceBuffer.size(), [&](int i) {
+            radianceBuffer[i] = cubeMap->bilinear(directionBuffer[i]).rgb();
+        });
+        timer.tock();
+        debugPrintf("Sample %d cube map directions: %f ms\n", radianceBuffer.size(), timer.elapsedTime() / units::milliseconds());
+    }
+
+    if (false) {
+        // TriTree profiling
+        m_triTree.setContents(scene());
+
+        Stopwatch timer;
+        const int w = 640, h = 400;
+        const Rect2D viewport = Rect2D::xywh(0.0f, 0.0f, float(w), float(h));
+        const shared_ptr<Camera>& camera = activeCamera();
+        Array<Ray> rayBuffer;
+        Array<shared_ptr<Surfel>> surfelBuffer;
+        rayBuffer.resize(w * h);
+        surfelBuffer.resize(rayBuffer.size());
+
+        timer.tick();
+        Thread::runConcurrently(Point2int32(0, 0), Point2int32(w, h), [&](Point2int32 P) {
+            rayBuffer[P.x + P.y * w] = camera->worldRay(P.x + 0.5f, P.y + 0.5f, viewport);
+        });
+        timer.tock();
+
+        debugPrintf("Generate %d rays: %f ms\n", rayBuffer.size(), timer.elapsedTime() / units::milliseconds());
+        Array<TriTree::Hit> hitBuffer;
+        hitBuffer.resize(rayBuffer.size());
+
+        timer.tick();
+        m_triTree.intersectRays(rayBuffer, hitBuffer, TriTreeBase::COHERENT_RAY_HINT);
+        timer.tock();
+        debugPrintf("Cast primary rays: %f ms\n", timer.elapsedTime() / units::milliseconds());
+
+        // Preallocate the UniversalSurfels
+        Thread::runConcurrently(0, hitBuffer.size(), [&](int i) {
+            m_triTree.sample(hitBuffer[i], surfelBuffer[i]);
+        });
+
+        timer.tick();
+        const TriTree::Hit* pHit = hitBuffer.getCArray();
+        shared_ptr<Surfel>* pSurfel = surfelBuffer.getCArray();
+                m_triTree.sample(pHit[0], pSurfel[0]);
+
+	    tbb::parallel_for(tbb::blocked_range<size_t>(0, hitBuffer.size(), 128), [&](const tbb::blocked_range<size_t>& r) {
+		    const size_t start = r.begin();
+		    const size_t end   = r.end();
+		    for (size_t i = start; i < end; ++i) {
+                m_triTree.sample(pHit[i], pSurfel[i]);
+            }
+        });
+        timer.tock();
+        debugPrintf("Construct surfels: %f ms\n", timer.elapsedTime() / units::milliseconds());
+    }
 }
 
 

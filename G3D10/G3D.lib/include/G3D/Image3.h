@@ -21,12 +21,12 @@ namespace G3D {
  */
 class Image3 : public Map2D<Color3, Color3> {
 public:
-
+    friend class CubeMap;
     typedef Image3      Type;
 
 protected:
 
-    Image3(int w, int h, WrapMode wrap, int d);
+    Image3(int w = 1, int h = 1, WrapMode wrap = WrapMode::ERROR, int d = 1);
 
     void copyArray(const Color1* src, int w, int h, int d = 1);
     void copyArray(const Color3* src, int w, int h, int d = 1);

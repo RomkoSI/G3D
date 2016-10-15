@@ -7,8 +7,9 @@
  */
 
 #include "G3D/CubeMap.h"
-#include "G3D/Image.h"
+#include "G3D/Image3.h"
 #include "G3D/Vector3.h"
+#include "G3D/Color3.h"
 #include "G3D/Color4.h"
 #include "G3D/Thread.h"
 #include "G3D/CubeFace.h"
@@ -16,31 +17,24 @@
 namespace G3D {
 
 shared_ptr<CubeMap> CubeMap::create
-   (const Array<shared_ptr<Image>>&     face,
-    float                               gamma,
-    const Color4&                       readMultiplyFirst,
-    const Color4&                       readAddSecond) {
+   (const Array<shared_ptr<Image3>>&    face,
+    const Color3&                       readMultiplyFirst,
+    const Color3&                       readAddSecond) {
 
-    return createShared<CubeMap>(face, gamma, readMultiplyFirst, readAddSecond);
+    return createShared<CubeMap>(face, readMultiplyFirst, readAddSecond);
 }
 
 
 CubeMap::CubeMap
-   (const Array<shared_ptr<Image>>&     face, 
-    float                               gamma,
-    const Color4&                       readMultiplyFirst,
-    const Color4&                       readAddSecond) : 
-    m_gamma(gamma),
-    m_readMultiplyFirst(readMultiplyFirst),
-    m_readAddSecond(readAddSecond) {
+   (const Array<shared_ptr<Image3>>&    face,
+    const Color3&                       readMultiplyFirst,
+    const Color3&                       readAddSecond) {
 
     debugAssert(face.size() == 6);
-    const ImageFormat* format = face[0]->format();
     m_iSize = face[0]->width();
     for (int i = 0; i < face.size(); ++i) {
         debugAssertM((face[i]->width() == m_iSize) &&
-                     (face[i]->height() == m_iSize) &&
-                     (face[i]->format() == format),
+                     (face[i]->height() == m_iSize),
             "Cube maps must use square faces with the same format");
     }
 
@@ -73,19 +67,19 @@ CubeMap::CubeMap
     // Construct the source images
     for (int f = 0; f < 6; ++f) {
 
-        Image& dst = m_faceArray[f];
-        dst.setSize(m_iSize + 2, m_iSize + 2, format);
+        Image3& dst = m_faceArray[f];
+        dst.resize(m_iSize + 2, m_iSize + 2);
         // Copy the interior
         {
-            const Image& src = *face[f].get();
+            const Image3& src = *face[f].get();
             Thread::runConcurrently(Point2int32(0, 0), Point2int32(m_iSize, m_iSize), [&](Point2int32 P) {
-                dst.set(P + Point2int32(1, 1), src.get<Color4>(P));
+                dst.set(P.x + 1, P.y + 1, src.get(P.x, P.y) * readMultiplyFirst + readAddSecond);
             });
         }
 
         // Copy left edge
         {
-            const Image& src = *face[left[f]].get();
+            const Image3& src = *face[left[f]].get();
             const int fixedAxis     = leftAxis[f];
             const int iterationAxis = (leftAxis[f] + 1) % 2;
             const int sign          = leftSign[f];
@@ -93,13 +87,13 @@ CubeMap::CubeMap
             P[fixedAxis] = (sign == HI) ? m_iSize - 1 : 0;
             for (int i = 0; i < m_iSize; ++i) {
                 P[iterationAxis] = i;
-                dst.set(m_iSize + 1, i + 1, src.get<Color4>(P));
+                dst.set(m_iSize + 1, i + 1, src.get(P.x, P.y) * readMultiplyFirst + readAddSecond);
             }
         }
 
         // Copy right edge
         {
-            const Image& src = *face[right[f]].get();
+            const Image3& src = *face[right[f]].get();
             const int fixedAxis     = rightAxis[f];
             const int iterationAxis = (rightAxis[f] + 1) % 2;
             const int sign          = rightSign[f];
@@ -107,13 +101,13 @@ CubeMap::CubeMap
             P[fixedAxis] = (sign == HI) ? m_iSize - 1 : 0;
             for (int i = 0; i < m_iSize; ++i) {
                 P[iterationAxis] = i;
-                dst.set(0, i + 1, src.get<Color4>(P));
+                dst.set(0, i + 1, src.get(P.x, P.y) * readMultiplyFirst + readAddSecond);
             }
         }
 
         // Copy top edge
         {
-            const Image& src  = *face[top[f]].get();
+            const Image3& src  = *face[top[f]].get();
             const int fixedAxis     = topAxis[f];
             const int iterationAxis = (topAxis[f] + 1) % 2;
             const int sign          = topSign[f];
@@ -121,13 +115,13 @@ CubeMap::CubeMap
             P[fixedAxis] = (sign == HI) ? m_iSize - 1 : 0;
             for (int i = 0; i < m_iSize; ++i) {
                 P[iterationAxis] = i;
-                dst.set(i + 1, 0, src.get<Color4>(P));
+                dst.set(i + 1, 0, src.get(P.x, P.y) * readMultiplyFirst + readAddSecond);
             }
         }
 
         // Copy bottom edge
         {
-            const Image& src  = *face[bottom[f]].get();
+            const Image3& src  = *face[bottom[f]].get();
             const int fixedAxis     = bottomAxis[f];
             const int iterationAxis = (bottomAxis[f] + 1) % 2;
             const int sign          = bottomSign[f];
@@ -135,7 +129,7 @@ CubeMap::CubeMap
             P[fixedAxis] = (sign == HI) ? m_iSize - 1 : 0;
             for (int i = 0; i < m_iSize; ++i) {
                 P[iterationAxis] =  i;
-                dst.set(i + 1, m_iSize + 1, src.get<Color4>(P));
+                dst.set(i + 1, m_iSize + 1, src.get(P.x, P.y) * readMultiplyFirst + readAddSecond);
             }
         }
     }
@@ -143,22 +137,22 @@ CubeMap::CubeMap
     // Implement corners by averaging adjacent row and column in linear space and re-gamma encoding.
     // This must run after the loop that sets border rows and columns.
     for (int f = 0; f < 6; ++f) {
-        Image& img = m_faceArray[f];
-        Color4 a = img.get<Color4>(0, 1);
-        Color4 b = img.get<Color4>(1, 0);
-        img.set(0, 0, Color4(((a.rgb().pow(m_gamma) + b.rgb().pow(m_gamma)) * 0.5f).pow(1.0f / m_gamma), (a.a + b.a) * 0.5f));
+        Image3& img = m_faceArray[f];
+        Color3 a = img.get(0, 1);
+        Color3 b = img.get(1, 0);
+        img.set(0, 0, (a + b) * 0.5f);
 
-        a = img.get<Color4>(0, m_iSize);
-        b = img.get<Color4>(1, m_iSize + 1);
-        img.set(0, m_iSize + 1, Color4(((a.rgb().pow(m_gamma) + b.rgb().pow(m_gamma)) * 0.5f).pow(1.0f / m_gamma), (a.a + b.a) * 0.5f));
+        a = img.get(0, m_iSize);
+        b = img.get(1, m_iSize + 1);
+        img.set(0, m_iSize + 1, (a + b) * 0.5f);
 
-        a = img.get<Color4>(m_iSize + 1, m_iSize);
-        b = img.get<Color4>(m_iSize, m_iSize + 1);
-        img.set(m_iSize + 1, m_iSize + 1, Color4(((a.rgb().pow(m_gamma) + b.rgb().pow(m_gamma)) * 0.5f).pow(1.0f / m_gamma), (a.a + b.a) * 0.5f));
+        a = img.get(m_iSize + 1, m_iSize);
+        b = img.get(m_iSize, m_iSize + 1);
+        img.set(m_iSize + 1, m_iSize + 1, (a + b) * 0.5f);
 
-        a = img.get<Color4>(m_iSize + 1, 1);
-        b = img.get<Color4>(m_iSize, 0);
-        img.set(m_iSize + 1, 0, Color4(((a.rgb().pow(m_gamma) + b.rgb().pow(m_gamma)) * 0.5f).pow(1.0f / m_gamma), (a.a + b.a) * 0.5f));
+        a = img.get(m_iSize + 1, 1);
+        b = img.get(m_iSize, 0);
+        img.set(m_iSize + 1, 0, (a + b) * 0.5f);
     }
 
     m_fSize = float(m_iSize);
@@ -210,27 +204,17 @@ Vector2 CubeMap::pixelCoord(const Vector3& vec, CubeFace& face) const {
 }
 
 
-Color4 CubeMap::nearest(const Vector3& vec) const {
+Color3 CubeMap::nearest(const Vector3& vec) const {
     CubeFace face;
     const Vector2& P = pixelCoord(vec, face);
-    const Color4& color = m_faceArray[face].nearest(P, WrapMode::CLAMP);
-    if (m_gamma != 1.0f) {
-        return Color4(color.rgb().pow(m_gamma), color.a) * m_readMultiplyFirst + m_readAddSecond;
-    } else {
-        return color * m_readMultiplyFirst + m_readAddSecond;
-    }
+    return m_faceArray[face].nearest(P.x, P.y, WrapMode::CLAMP);
 }
 
 
-Color4 CubeMap::bilinear(const Vector3& vec) const {
+Color3 CubeMap::bilinear(const Vector3& vec) const {
     CubeFace face;
     const Vector2& P = pixelCoord(vec, face);
-
-    if (m_gamma != 1.0f) {
-        return m_faceArray[face].bilinearGamma(P.x, P.y, m_gamma, WrapMode::CLAMP) * m_readMultiplyFirst + m_readAddSecond;
-    } else {
-        return m_faceArray[face].bilinear(P, WrapMode::CLAMP) * m_readMultiplyFirst + m_readAddSecond;
-    }
+    return m_faceArray[face].bilinear(P, WrapMode::CLAMP);
 }
 
 

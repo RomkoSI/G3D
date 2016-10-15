@@ -10,12 +10,13 @@
 #include "G3D/platform.h"
 #include "G3D/ReferenceCount.h"
 #include "G3D/Array.h"
-#include "G3D/Image.h"
+#include "G3D/Image3.h"
 
 namespace G3D {
 
 class Vector3;
 class Color4;
+class Color3;
 class CubeFace;
 
 /** \brief A CPU seamless cube map. 
@@ -23,11 +24,7 @@ class CubeFace;
 class CubeMap : public ReferenceCountedObject {
 protected:
 
-    float       m_gamma;
-    Color4      m_readMultiplyFirst;
-    Color4      m_readAddSecond;
-
-    Image       m_faceArray[6];
+    Image3      m_faceArray[6];
 
     /** Size before padding */
     int         m_iSize;
@@ -35,7 +32,7 @@ protected:
     /** Size before padding */
     float       m_fSize;
 
-    CubeMap(const Array<shared_ptr<Image>>& face, float gamma, const Color4& readMultiplyFirst, const Color4& readAddSecond);
+    CubeMap(const Array<shared_ptr<Image3>>& face, const Color3& readMultiplyFirst, const Color3& readAddSecond);
 
     /** Returns a pixel coordinate in m_faceArray[face] */
     Vector2 pixelCoord(const Vector3& vec, CubeFace& face) const;
@@ -44,9 +41,9 @@ public:
     /** \param face All faces must have the same dimensions. 
         \param gamma Apply this gamma: L = p^gamma after reading back values (before bilinear interpolation, and before scale and bias)
       */
-    static shared_ptr<CubeMap> create(const Array<shared_ptr<Image>>& face, float gamma = 1.0f, const Color4& readMultiplyFirst = Color4::one(), const Color4& readAddSecond = Color4::zero());
-    Color4 nearest(const Vector3& v) const;
-    Color4 bilinear(const Vector3& v) const;
+    static shared_ptr<CubeMap> create(const Array<shared_ptr<Image3>>& face, const Color3& readMultiplyFirst = Color3::one(), const Color3& readAddSecond = Color3::zero());
+    Color3 nearest(const Vector3& v) const;
+    Color3 bilinear(const Vector3& v) const;
 
     /** The size of one face, in pixels, based on the input (not counting padding used for seamless cube mapping */
     int size() const;
