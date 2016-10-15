@@ -3030,8 +3030,7 @@ shared_ptr<GLPixelTransferBuffer> Texture::toPixelTransferBuffer(const ImageForm
     
     glBindBuffer(GL_PIXEL_PACK_BUFFER, buffer->glBufferID()); {
 
-        glBindTexture(openGLTextureTarget(), openGLID()); {
-        
+        glBindTexture(openGLTextureTarget(), openGLID()); {        
             GLenum target;
             if (isCubeMap()) { 
                 target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)face;
@@ -3042,7 +3041,7 @@ shared_ptr<GLPixelTransferBuffer> Texture::toPixelTransferBuffer(const ImageForm
 
             bool alignmentNeedsToChange;
             GLint oldPackAlignment;
-            GLint newPackAlignment = getPackAlignment((int)buffer->stride(), oldPackAlignment, alignmentNeedsToChange);
+            const GLint newPackAlignment = getPackAlignment((int)buffer->stride(), oldPackAlignment, alignmentNeedsToChange);
             if (alignmentNeedsToChange) {
                 glPixelStorei(GL_PACK_ALIGNMENT, newPackAlignment);   
             }
@@ -3059,9 +3058,14 @@ shared_ptr<GLPixelTransferBuffer> Texture::toPixelTransferBuffer(const ImageForm
 
     if (cpuSRGBConversion) {
         // Fix sRGB
-        // TODO
+        alwaysAssertM(outFormat == ImageFormat::RGB32F(), "CubeMap sRGB -> RGB conversion only supported for RGB32F format output");
+        Color3* ptr = (Color3*)buffer->mapReadWrite();
+        Thread::runConcurrently(0, buffer->size() / sizeof(Color3), [&](int i) {
+            ptr[i] = ptr[i].sRGBToRGB();
+        });
+        buffer->unmap();
+        ptr = nullptr;
     }
-
 
     return buffer;
 }
