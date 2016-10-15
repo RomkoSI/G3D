@@ -1091,8 +1091,8 @@ private:
 
     shared_ptr<Image4> toImage4() const;
         
-    /** Extracts the data as ImageFormat::RGB32F. @deprecated */
-    shared_ptr<Image3> toImage3() const;    
+    /** Extracts the data as ImageFormat::RGB32F. */
+    shared_ptr<Image3> toImage3(CubeFace face = CubeFace::POS_X, int mip = 0) const;    
     
     /** Extracts the data as ImageFormat::L32F.   @deprecated */
     shared_ptr<Image1> toImage1() const;    

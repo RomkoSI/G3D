@@ -2064,9 +2064,9 @@ shared_ptr<Image4> Texture::toImage4() const {
 }
 
 
-shared_ptr<Image3> Texture::toImage3() const {    
+shared_ptr<Image3> Texture::toImage3(CubeFace face, int mip) const {    
     const shared_ptr<Image3>& im = Image3::createEmpty(m_width, m_height, WrapMode::TILE, m_depth); 
-    getTexImage(im->getCArray(), ImageFormat::RGB32F());
+    getTexImage(im->getCArray(), ImageFormat::RGB32F(), face, mip);
     return im;
 }
 
@@ -2109,17 +2109,14 @@ shared_ptr<Image1> Texture::toImage1() const {
 
 
 shared_ptr<CubeMap> Texture::toCubeMap() const {
-    Array<shared_ptr<Image>> faceImage;
+    Array<shared_ptr<Image3>> faceImage;
 
     faceImage.resize(6);
     for (int f = 0; f < 6; ++f) {
-        faceImage[f] = toImage(ImageFormat::AUTO(), 0, CubeFace(f));
+        faceImage[f] = toImage3(CubeFace(f), 0);
     }
 
-    return CubeMap::create(faceImage,
-        (m_encoding.format->colorSpace == ImageFormat::COLOR_SPACE_SRGB) ? 2.1f : 1.0f,
-        m_encoding.readMultiplyFirst,
-        m_encoding.readAddSecond);
+    return CubeMap::create(faceImage, m_encoding.readMultiplyFirst.rgb(), m_encoding.readAddSecond.rgb());
 }
 
 
