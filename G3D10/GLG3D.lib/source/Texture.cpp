@@ -1908,7 +1908,7 @@ void Texture::copy
     }
 
     const shared_ptr<Framebuffer>& fbo = workingFramebuffer();
-    if (rd == NULL) {
+    if (isNull(rd)) {
         rd = RenderDevice::current;
     }
 
@@ -3002,7 +3002,11 @@ shared_ptr<GLPixelTransferBuffer> Texture::toPixelTransferBuffer(const ImageForm
     }
     debugAssertGLOk();
     alwaysAssertM( !isSRGBFormat(outFormat) || isSRGBFormat(format()), "glGetTexImage doesn't do sRGB conversion, so we need to first copy an RGB texture to sRGB on the GPU. However, this functionality is broken as of the time of writing this code");
-    if (isSRGBFormat(format()) && !isSRGBFormat(outFormat) ) { // Copy to non-srgb texture and read back.
+    
+    const bool cpuSRGBConversion = isSRGBFormat(format()) && !isSRGBFormat(outFormat) && (m_dimension == DIM_CUBE_MAP);
+
+    if (isSRGBFormat(format()) && !isSRGBFormat(outFormat) && ! cpuSRGBConversion) {
+        // Copy to non-srgb texture first, forcing OpenGL to perform the sRGB conversion in a pixel shader
         const shared_ptr<Texture>& temp = Texture::createEmpty("Temporary copy", m_width, m_height, outFormat, m_dimension, false, m_depth);
         Texture::copy(dynamic_pointer_cast<Texture>(const_cast<Texture*>(this)->shared_from_this()), temp);
         return temp->toPixelTransferBuffer(outFormat, mipLevel, face);
@@ -3022,7 +3026,7 @@ shared_ptr<GLPixelTransferBuffer> Texture::toPixelTransferBuffer(const ImageForm
     } else if (dimension() == DIM_2D_ARRAY) {
         mipDepth = depth();
     }
-    const shared_ptr<GLPixelTransferBuffer>& buffer = GLPixelTransferBuffer::create(width() >> mipLevel, height() >> mipLevel, outFormat, NULL, mipDepth, GL_STATIC_READ);
+    const shared_ptr<GLPixelTransferBuffer>& buffer = GLPixelTransferBuffer::create(width() >> mipLevel, height() >> mipLevel, outFormat, nullptr, mipDepth, GL_STATIC_READ);
     
     glBindBuffer(GL_PIXEL_PACK_BUFFER, buffer->glBufferID()); {
 
@@ -3052,7 +3056,13 @@ shared_ptr<GLPixelTransferBuffer> Texture::toPixelTransferBuffer(const ImageForm
         
     } glBindBuffer(GL_PIXEL_PACK_BUFFER, GL_NONE);
     debugAssertGLOk();
-    
+
+    if (cpuSRGBConversion) {
+        // Fix sRGB
+        // TODO
+    }
+
+
     return buffer;
 }
 

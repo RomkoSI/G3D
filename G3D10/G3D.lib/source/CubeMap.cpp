@@ -79,7 +79,7 @@ CubeMap::CubeMap
 
         // Copy left edge
         {
-            const Image3& src = *face[left[f]].get();
+            const Image3& src       = *face[left[f]].get();
             const int fixedAxis     = leftAxis[f];
             const int iterationAxis = (leftAxis[f] + 1) % 2;
             const int sign          = leftSign[f];
@@ -93,7 +93,7 @@ CubeMap::CubeMap
 
         // Copy right edge
         {
-            const Image3& src = *face[right[f]].get();
+            const Image3& src       = *face[right[f]].get();
             const int fixedAxis     = rightAxis[f];
             const int iterationAxis = (rightAxis[f] + 1) % 2;
             const int sign          = rightSign[f];
@@ -107,7 +107,7 @@ CubeMap::CubeMap
 
         // Copy top edge
         {
-            const Image3& src  = *face[top[f]].get();
+            const Image3& src       = *face[top[f]].get();
             const int fixedAxis     = topAxis[f];
             const int iterationAxis = (topAxis[f] + 1) % 2;
             const int sign          = topSign[f];
@@ -121,7 +121,7 @@ CubeMap::CubeMap
 
         // Copy bottom edge
         {
-            const Image3& src  = *face[bottom[f]].get();
+            const Image3& src       = *face[bottom[f]].get();
             const int fixedAxis     = bottomAxis[f];
             const int iterationAxis = (bottomAxis[f] + 1) % 2;
             const int sign          = bottomSign[f];
