@@ -27,6 +27,9 @@ extern "C" {
 
 namespace G3D {
 
+// helper used by VideoInput and VideoOutput to capture error logs from ffmpeg
+void initFFmpegLogger();
+
 shared_ptr<VideoInput> VideoInput::fromFile(const String& filename, const Settings& settings) {
     shared_ptr<VideoInput> vi(new VideoInput);
 
@@ -96,7 +99,10 @@ static const char* ffmpegError(int code);
 void VideoInput::initialize(const String& filename, const Settings& settings) {
     // helper for exiting VideoInput construction (exceptions caught by static ref creator)
     #define throwException(exp, msg) if (!(exp)) { throw String(msg); }
+
 #ifndef G3D_NO_FFMPEG
+    initFFmpegLogger();
+
     // initialize list of available muxers/demuxers and codecs in ffmpeg
     avcodec_register_all();
     av_register_all();
