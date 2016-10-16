@@ -29,6 +29,9 @@ namespace G3D {
 // conversion routine helper
 static PixelFormat ConvertImageFormatToPixelFormat(const ImageFormat* format);
 
+// helper used by VideoInput and VideoOutput to capture error logs from ffmpeg
+void initFFmpegLogger();
+
 VideoOutput::Settings::Settings(InternalCodecID c, int w, int h, float f, int customFourCC) :
     codec(c),
     fps(f),
@@ -164,12 +167,6 @@ VideoOutput::~VideoOutput() {
 #endif
 }
 
-static void ffmpegLogger(void*, int, const char* fmt, va_list args) {
-#ifdef G3D_DEBUG
-    Log::common()->vprintf(fmt, args);
-#endif
-}
-
 void VideoOutput::initialize(const String& filename, const Settings& settings) {
     // helper for exiting VideoOutput construction (exceptions caught by static ref creator)
     #define throwException(exp, msg) if (!(exp)) { throw String(msg); }
@@ -177,8 +174,9 @@ void VideoOutput::initialize(const String& filename, const Settings& settings) {
     debugAssert(settings.width > 0);
     debugAssert(settings.height > 0);
     debugAssert(settings.fps > 0);
+
 #ifndef G3D_NO_FFMPEG
-	av_log_set_callback(ffmpegLogger);
+    initFFmpegLogger();
 
     // initialize list of available muxers/demuxers and codecs in ffmpeg
     av_register_all();
@@ -672,6 +670,24 @@ static PixelFormat ConvertImageFormatToPixelFormat(const ImageFormat* format) {
     }
 #endif
 }
+
+#ifndef G3D_NO_FFMPEG
+static void ffmpegLogger(void*, int level, const char* fmt, va_list args) {
+    if (level <= AV_LOG_ERROR) {
+        Log::common()->print("[ffmpeg] ");
+        Log::common()->vprintf(fmt, args);
+    }
+}
+
+// helper used by VideoInput and VideoOutput to capture error logs from ffmpeg
+void initFFmpegLogger() {
+    static bool initialized = false;
+    if (!initialized) {
+        initialized = true;
+	    av_log_set_callback(ffmpegLogger);
+    }
+}
+#endif
 
 } // namespace G3D
 
