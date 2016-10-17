@@ -7,7 +7,6 @@
 #include <assert.h>
 #include <algorithm>
 #include "G3D/platform.h"
-
 #include "G3D/G3DAllocator.h"
 
 #define USE_SSE_MEMCPY 1
@@ -854,6 +853,7 @@ public:
     #define G3D_STRING_DESTRUCTOR ~string
 
 #elif !defined(G3D_64BIT) || !_MSC_VER
+    // Used on OS X and Linux
 
     // Faster
     typedef std::basic_string<char, std::char_traits<char>, G3DAllocator<char> >  String;
@@ -870,16 +870,15 @@ public:
 /** For use with default output arguments. The value is always undefined. */
 extern String ignoreString;
 
-
 } // namespace G3D
 
 #ifndef G3D_LINUX
 inline G3D::SSESmallString<64> operator+(const char* s1, const G3D::SSESmallString<64>& s2) {
-	return G3D::SSESmallString<64>(s1) + s2;
+    return G3D::SSESmallString<64>(s1) + s2;
 }
 
 inline G3D::SSESmallString<64> operator+(const char s1, const G3D::SSESmallString<64>& s2) {
-	return G3D::SSESmallString<64>(s1) + s2;
+    return G3D::SSESmallString<64>(s1) + s2;
 }
 #endif
 
@@ -888,11 +887,11 @@ inline G3D::SSESmallString<64> operator+(const char s1, const G3D::SSESmallStrin
 // For use with hash_map
 namespace stdext {
 inline
-	size_t hash_value(const G3D::SSESmallString<64>& _Str)
-	{	// hash string to size_t value
-	  return (::std::_Hash_seq((const unsigned char *)_Str.c_str(),
-		_Str.size() * sizeof (G3D::SSESmallString<64>::value_type)));
-	}
+size_t hash_value(const G3D::SSESmallString<64>& _Str) {
+    // hash string to size_t value
+    return (::std::_Hash_seq((const unsigned char *)_Str.c_str(),
+                             _Str.size() * sizeof (G3D::SSESmallString<64>::value_type)));
+}
 }
 #endif
 
