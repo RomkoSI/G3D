@@ -129,7 +129,7 @@ namespace _internal {
 
 
 #    define debugBreak() G3D::_internal::_releaseInputGrab_(); rawBreak(); G3D::_internal::_restoreInputGrab_();
-#    define debugAssert(exp) debugAssertM(exp, String("Debug assertion failure"))
+#    define debugAssert(exp) debugAssertM(exp, G3D::String("Debug assertion failure"))
 
     #ifdef G3D_DEBUG_NOGUI
         #define __debugPromptShowDialog__ false
@@ -140,7 +140,7 @@ namespace _internal {
     #define debugAssertM(exp, message) do { \
         if (!(exp)) { \
             G3D::_internal::_releaseInputGrab_(); \
-            if ((G3D::_internal::_debugHook != NULL) && \
+            if ((G3D::_internal::_debugHook != nullptr) && \
                 G3D::_internal::_debugHook((const char*)(#exp), message, __FILE__, __LINE__, __debugPromptShowDialog__)) { \
                  rawBreak(); \
             } \
