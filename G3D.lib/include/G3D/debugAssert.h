@@ -17,17 +17,15 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
   @created 2001-08-26
-  @edited  2006-01-12
 
- Copyright 2000-2006, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
 
-#ifndef G3D_DEBUGASSERT_H
-#define G3D_DEBUGASSERT_H
+#pragma once
 
-#include "G3D/G3DString.h"
 #include "G3D/platform.h"
+#include "G3D/G3DString.h"
 
 #include <cstdlib>
 
@@ -231,5 +229,3 @@ void _releaseInputGrab_();
 void _restoreInputGrab_();
 
 }; }; // namespace
-
-#endif
