@@ -271,15 +271,16 @@ void VideoRecordDialog::recordFrame(RenderDevice* rd) {
         }
 
         // Downsample (use bilinear for fast filtering
+        const bool wasFrameInverted = rd->invertY();
         rd->push2D(m_downsampleFBO);
         {
             const Vector2& halfPixelOffset = Vector2(0.5f, 0.5f) / m_downsampleDst->vector2Bounds();
-            Draw::rect2D(m_downsampleDst->rect2DBounds() + halfPixelOffset, rd, Color3::white(), m_downsampleSrc);
+            Draw::rect2D(m_downsampleDst->rect2DBounds() + halfPixelOffset, rd, Color3::white(), m_downsampleSrc, Sampler::video(), wasFrameInverted);
         }
         rd->pop2D();
 
         // Write downsampled texture to the video
-        m_video->append(m_downsampleDst, rd->invertY());
+        m_video->append(m_downsampleDst);
 
     } else {
         // Full-size: grab directly from the screen
