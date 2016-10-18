@@ -312,10 +312,10 @@ void VideoOutput::append(RenderDevice* rd, bool backbuffer) {
 
 
     // TODO: Optimize using GLPixelTransferBuffer and glReadPixels instead of screenshotPic
-    shared_ptr<Image> image = rd->screenshotPic(false, false);
+    shared_ptr<Image> image = rd->screenshotPic(false, true);
     rd->setReadBuffer(old);
     shared_ptr<CPUPixelTransferBuffer> imageBuffer = image->toPixelTransferBuffer();
-    encodeFrame(static_cast<const uint8*>(imageBuffer->buffer()), imageBuffer->format(), true);
+    encodeFrame(static_cast<const uint8*>(imageBuffer->buffer()), imageBuffer->format());
 }
 
 
