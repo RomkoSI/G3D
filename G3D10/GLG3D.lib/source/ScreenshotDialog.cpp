@@ -185,8 +185,9 @@ bool ScreenshotDialog::getFilename(String& filename, bool& addToSVN, const Strin
 
     if (ok) {
         filename = m_filename;
-        addToSVN = m_addToSVN;
+        addToSVN = m_addToSVN && (m_currentTab == JOURNAL_TAB);
     }
+
     return ok;
 }
 
