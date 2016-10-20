@@ -465,9 +465,11 @@ GLFWWindow* GLFWWindow::create(const OSWindow::Settings& settings){
     return window;
 }
 
+#if 0
 static String toString(const GLFWvidmode& mode) {
     return format("VidMode: %d Hz, (%dx%d), Bit depths (%d, %d, %d)", mode.refreshRate, mode.width, mode.height, mode.redBits, mode.greenBits, mode.blueBits);
 }
+#endif
 
 static GLFWvidmode findClosestVidMode(const GLFWvidmode* modes, int count, const OSWindow::Settings& settings) {
     Array<GLFWvidmode> vidModes;
@@ -588,7 +590,7 @@ GLFWWindow::GLFWWindow(const OSWindow::Settings& settings) : m_currentKeyMod(GKe
         const GLFWvidmode* modes = glfwGetVideoModes(monitor, &count);
         const GLFWvidmode& mode = findClosestVidMode(modes, count, settings);
 
-#       if 0 // TEMPORARY.
+#       if 0
         debugPrintf("Monitor modes available:\n");
         for (int i = 0; i < count; ++i) {
             debugPrintf("%s\n", toString(modes[i]).c_str());

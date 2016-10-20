@@ -25,9 +25,9 @@ void UniversalSurfel::sample(const Tri& tri, float u, float v, int triIndex, con
 
     const float w = 1.0f - u - v;
     const CPUVertexArray::Vertex* vertexArrayPtr = vertexArray.vertex.getCArray();
-    debugAssert((tri.index[0] < vertexArray.vertex.size()) &&
-                (tri.index[1] < vertexArray.vertex.size()) &&
-                (tri.index[1] < vertexArray.vertex.size()));
+    debugAssert((tri.index[0] < (uint32)vertexArray.vertex.size()) &&
+                (tri.index[1] < (uint32)vertexArray.vertex.size()) &&
+                (tri.index[1] < (uint32)vertexArray.vertex.size()));
 
     const CPUVertexArray::Vertex& vert0 = vertexArrayPtr[tri.index[0]];
     const CPUVertexArray::Vertex& vert1 = vertexArrayPtr[tri.index[1]];
