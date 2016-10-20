@@ -10,28 +10,28 @@
 #include "DeepGBufferRadiositySettings.h"
 DeepGBufferRadiositySettings::DeepGBufferRadiositySettings() : 
     enabled(true),
-    radius(1.0f),
-    bias(0.002f),
     numSamples(19),
-    edgeSharpness(1.0f),
+    radius(1.0f),
+    numBounces(1),
+    bias(0.002f),
+    useMipMaps(true),
     blurStepSize(1),
     blurRadius(6),
+    edgeSharpness(1.0f),
     monotonicallyDecreasingBilateralWeights(false),
     useDepthPeelBuffer(true),
     depthPeelSeparationHint(0.2f),
-    temporalFilterSettings(TemporalFilter::Settings()),
-    temporallyVarySamples(true),
     computePeeledLayer(false),
+    temporallyVarySamples(true),
+    temporalFilterSettings(TemporalFilter::Settings()),
+    propagationDamping(1.0f),
+    useTapNormal(true),
     unsaturatedBoost(1.0f),
     saturatedBoost(1.0f),
-    propagationDamping(1.0f),
-    useMipMaps(true),
-    numBounces(1),
-    useTapNormal(true),
     useOct16(false),
     minMipLevel(0),
     useHalfPrecisionColors(false),
-    computeGuardBandFraction(1.0f){    
+    computeGuardBandFraction(1.0f) { 
 }
 
     
