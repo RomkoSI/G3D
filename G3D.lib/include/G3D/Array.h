@@ -1095,19 +1095,19 @@ public:
      Finds an element and returns the iterator to it.  If the element
      isn't found then returns end().
      */
-	template<class S>
+    template<class S>
     Iterator find(const S& value) {
-        for (int i = 0; i < num; ++i) {
+        for (int i = 0; size_t(i) < num; ++i) {
             if (data[i] == value) {
                 return data + i;
             }
         }
         return end();
     }
-
-	template<class S>
+    
+    template<class S>
     ConstIterator find(const S& value) const {
-        for (int i = 0; i < num; ++i) {
+        for (int i = 0; size_t(i) < num; ++i) {
             if (data[i] == value) {
                 return data + i;
             }
