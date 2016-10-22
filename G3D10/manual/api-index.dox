@@ -34,6 +34,7 @@ at the bottom.
     \link G3D::ArticulatedModel ArticulatedModel\endlink,
     \link G3D::_BSPMAP::Map BSPMap\endlink,
     \link G3D::debugDraw debugDraw\endlink,
+    \link G3D::debugDrawLabel debugDrawLabel\endlink,
     \link G3D::GFont GFont\endlink,
     \link G3D::HeightfieldModel HeightfieldModel\endlink,
     \link G3D::Shape Shape\endlink (\link G3D::ArrowShape ArrowShape\endlink, \link G3D::AxesShape AxesShape\endlink,\link G3D::BoxShape BoxShape\endlink, 
