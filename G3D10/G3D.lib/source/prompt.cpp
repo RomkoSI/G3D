@@ -50,9 +50,15 @@ namespace _internal {
 class DialogTemplate {
 public:
 
-    DialogTemplate(LPCSTR caption, DWORD style, 
-                 int x, int y, int w, int h,
-                 LPCSTR font = NULL, WORD fontSize = 8) {
+    DialogTemplate
+       (LPCSTR      caption,
+        DWORD       style, 
+        int         x,
+        int         y,
+        int         w,
+        int         h,
+        LPCSTR      font = nullptr,
+        WORD        fontSize = 8) {
     
       usedBufferLength = sizeof(DLGTEMPLATE);
       totalBufferLength = usedBufferLength;
@@ -61,8 +67,8 @@ public:
 
       dialogTemplate->style = style;
         
-      if (font != NULL) {
-        dialogTemplate->style |= DS_SETFONT;
+      if (font != nullptr) {
+            dialogTemplate->style |= DS_SETFONT;
       }
         
       dialogTemplate->x     = (short)x;
@@ -81,11 +87,12 @@ public:
 
       AppendString(caption);
 
-      if (font != NULL) {
+      if (font != nullptr) {
           AppendData(&fontSize, sizeof(WORD));
           AppendString(font);
       }
-    }
+  }
+
 
   void AddComponent(LPCSTR type, LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id) {
 
@@ -114,65 +121,54 @@ public:
     }
 
 
-  void AddButton(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id) {
+    void AddButton(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id) {
 
-      AddStandardComponent(0x0080, caption, style, exStyle, x, y, w, h, id);
+        AddStandardComponent(0x0080, caption, style, exStyle, x, y, w, h, id);
 
-      WORD creationDataLength = 0;
-      AppendData(&creationDataLength, sizeof(WORD));
-
+        WORD creationDataLength = 0;
+        AppendData(&creationDataLength, sizeof(WORD));
     }
 
 
-  void AddEditBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id) {
-
-      AddStandardComponent(0x0081, caption, style, exStyle, x, y, w, h, id);
+    void AddEditBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id) {
+        AddStandardComponent(0x0081, caption, style, exStyle, x, y, w, h, id);
     
-      WORD creationDataLength = 0;
-      AppendData(&creationDataLength, sizeof(WORD));
-    
+        WORD creationDataLength = 0;
+        AppendData(&creationDataLength, sizeof(WORD));
     }
 
 
-  void AddStatic(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id) {
-
-      AddStandardComponent(0x0082, caption, style, exStyle, x, y, w, h, id);
+    void AddStatic(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id) {
+        AddStandardComponent(0x0082, caption, style, exStyle, x, y, w, h, id);
     
-      WORD creationDataLength = 0;
-      AppendData(&creationDataLength, sizeof(WORD));
-    
+        WORD creationDataLength = 0;
+        AppendData(&creationDataLength, sizeof(WORD));
     }
 
 
-  void AddListBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id) {
-
-      AddStandardComponent(0x0083, caption, style, exStyle, x, y, w, h, id);
+    void AddListBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id) {
+        AddStandardComponent(0x0083, caption, style, exStyle, x, y, w, h, id);
     
-      WORD creationDataLength = sizeof(WORD) + 5 * sizeof(WCHAR);
-      AppendData(&creationDataLength, sizeof(WORD));
+        WORD creationDataLength = sizeof(WORD) + 5 * sizeof(WCHAR);
+        AppendData(&creationDataLength, sizeof(WORD));
 
-      AppendString("TEST");
-    
+        AppendString("TEST");    
     }
     
 
-  void AddScrollBar(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id) {
-
-      AddStandardComponent(0x0084, caption, style, exStyle, x, y, w, h, id);
+    void AddScrollBar(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id) {
+        AddStandardComponent(0x0084, caption, style, exStyle, x, y, w, h, id);
     
-      WORD creationDataLength = 0;
-      AppendData(&creationDataLength, sizeof(WORD));
-    
+        WORD creationDataLength = 0;
+        AppendData(&creationDataLength, sizeof(WORD));    
     }
 
 
-  void AddComboBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id) {
-
-      AddStandardComponent(0x0085, caption, style, exStyle, x, y, w, h, id);
+    void AddComboBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id) {
+        AddStandardComponent(0x0085, caption, style, exStyle, x, y, w, h, id);
     
-      WORD creationDataLength = 0;
-      AppendData(&creationDataLength, sizeof(WORD));
-
+        WORD creationDataLength = 0;
+        AppendData(&creationDataLength, sizeof(WORD));
     }
 
 
@@ -194,7 +190,7 @@ public:
 protected:
 
   void AddStandardComponent(WORD type, LPCSTR caption, DWORD style, DWORD exStyle, 
-                            int x, int y, int w, int h, WORD id, LPSTR font = NULL, WORD fontSize = 8) {
+                            int x, int y, int w, int h, WORD id, LPSTR font = nullptr, WORD fontSize = 8) {
 
       DLGITEMTEMPLATE item;
 
@@ -223,7 +219,7 @@ protected:
 
       AppendString(caption);
 
-      if (font != NULL) {
+      if (font != nullptr) {
           AppendData(&fontSize, sizeof(WORD));
           AppendString(font);
       }
@@ -244,8 +240,8 @@ protected:
 
   }
 
-  void AppendString(LPCSTR string) {
 
+  void AppendString(LPCSTR string) {
       int length = MultiByteToWideChar(CP_ACP, 0, string, -1, NULL, 0);
 
       WCHAR* wideString = (WCHAR*)malloc(sizeof(WCHAR) * length);
@@ -253,8 +249,8 @@ protected:
 
       AppendData(wideString, length * sizeof(WCHAR));
       free(wideString);
-
   }
+
 
   void AppendData(const void* data, int dataLength) {
 
@@ -353,14 +349,14 @@ using namespace _internal;
 /**
  * Show a dialog prompt.
  */
-static int guiPrompt(
-    const char*         windowTitle,
+static int guiPrompt
+   (const char*         windowTitle,
     const char*         prompt,
     const char**        choice,
     int                 numChoices) {
 
-    int width = 340;
-    int height = 220;
+    const int width  = 620;
+    const int height = 280;
 
     const int buttonSpacing = 2;
     const int buttonWidth = 
