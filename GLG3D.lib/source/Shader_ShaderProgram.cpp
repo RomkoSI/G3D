@@ -36,46 +36,48 @@ static GLenum glShaderType(int s) {
 static void readAndAppendShaderLog(const char* glInfoLog, String& messages, const String& name, const Table<int, String>& indexToNameTable){
     int c = 0;
     // Copy the result to the output string
-    while (glInfoLog[c] != '\0') {       
+    while (glInfoLog[c] != '\0') { 
 
         // Copy until the next newline or end of string
         String line;
-        while (glInfoLog[c] != '\n' && glInfoLog[c] != '\r' && glInfoLog[c] != '\0') {
+        while ((glInfoLog[c] != '\n') && (glInfoLog[c] != '\r') && (glInfoLog[c] != '\0')) {
             line += glInfoLog[c];
             ++c;
         }
 
-        if (beginsWith(line, "ERROR: ")) {
-            // NVIDIA likes to preface messages with "ERROR: "; strip it off
-            line = line.substr(7);
-        }
-
-        TextInput::Settings settings;
-        settings.simpleFloatSpecials = false;
-        TextInput t(TextInput::FROM_STRING, line, settings);
-
-        if ((t.peek().extendedType() == Token::INTEGER_TYPE) || (t.peek().extendedType() == Token::HEX_INTEGER_TYPE)) {
-            // Now parse the file index into a file name
-            const int index = t.readInteger();
-            line = t.readUntilNewlineAsString();
-            line = indexToNameTable.get(index) + line;
-        } else {
-            line = ": " + line;
-        }
-
-        messages += line;
-        
-        if (glInfoLog[c] == '\r' && glInfoLog[c + 1] == '\n') {
+        if ((glInfoLog[c] == '\r') && (glInfoLog[c + 1] == '\n')) {
             // Windows newline
             c += 2;
-        } else if ((glInfoLog[c] == '\r' && glInfoLog[c + 1] != '\n') || // Dangling \r; treat it as a newline
-            glInfoLog[c] == '\n') {
+        } else if (((glInfoLog[c] == '\r') && (glInfoLog[c + 1] != '\n')) || // Dangling \r; treat it as a newline
+            (glInfoLog[c] == '\n')) {
             ++c;
         }
-       
-        messages += NEWLINE;
+
+        // Suppress warnings
+        if (! beginsWith(toLower(line), "warning") && ! endsWith(toLower(line), "no code generated")) {
+
+            if (beginsWith(line, "ERROR: ")) {
+                // NVIDIA likes to preface messages with "ERROR: "; strip it off
+                line = line.substr(7);
+            }
+
+            // Avoid creating an empty TextInput
+            if (! line.empty()) {
+                TextInput::Settings settings;
+                settings.simpleFloatSpecials = false;
+                TextInput t(TextInput::FROM_STRING, line, settings);
+
+                if ((t.peek().extendedType() == Token::INTEGER_TYPE) || (t.peek().extendedType() == Token::HEX_INTEGER_TYPE)) {
+                    // Now parse the file index into a file name
+                    const int index = t.readInteger();
+                    const String& filename = indexToNameTable.get(index);
+                    line = filename + t.readUntilNewlineAsString();
+                }
+            }
+
+            messages += line + NEWLINE;
+        }
     }
-    
 }
 
 
