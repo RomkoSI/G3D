@@ -142,6 +142,8 @@
     <ClCompile Include="..\GLG3D.lib\source\ArticulatedModel_STL.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\AttributeArray.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\AudioDevice.cpp" />
+    <ClCompile Include="..\GLG3D.lib\source\BilateralFilter.cpp" />
+    <ClCompile Include="..\GLG3D.lib\source\BilateralFilterSettings.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\BindlessTextureHandle.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\BSPMAP.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\BSPMAPLoad.cpp" />
@@ -285,6 +287,8 @@
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\ArticulatedModelSpecificationEditorDialog.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\AttributeArray.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\AudioDevice.h" />
+    <ClInclude Include="..\GLG3D.lib\include\GLG3D\BilateralFilter.h" />
+    <ClInclude Include="..\GLG3D.lib\include\GLG3D\BilateralFilterSettings.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\BindlessTextureHandle.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\BSPMAP.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\BufferTexture.h" />
