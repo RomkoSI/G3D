@@ -149,6 +149,7 @@
        <li> G3D::CubeMap</li>
        <li> G3D::Scene::skyboxAsCubeMap</li>
        <li> G3D::Color3::sRGBToRGB, G3D::Color3::RGBToSRGB</li>
+       <li> Added g3d_RunTime to shaders </li>
       </ul>
     </p>
 

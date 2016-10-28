@@ -734,6 +734,7 @@ bool Shader::g3dLoadTimePreprocessor(const String& dir, PreprocessedShaderSource
                 uniform mat4x3 g3d_WorldToCameraMatrix;
                 uniform mat4x3 g3d_CameraToWorldMatrix;
                 uniform float  g3d_SceneTime;
+                uniform float  g3d_RunTime;
                 uniform bool   g3d_InvertY;
                 uniform mat3   g3d_WorldToCameraNormalMatrix;
                 uniform mat4   g3d_ObjectToScreenMatrixTranspose;
