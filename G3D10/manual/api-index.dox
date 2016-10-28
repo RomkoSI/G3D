@@ -581,7 +581,7 @@ at the bottom.
         
      <LI><B>Utilities and Constants</B> &nbsp; &nbsp;
         \link G3D::AlphaFilter AlphaFilter\endlink,
-        \link G3D::DoNotInitialize DoNotInitialize\endlink,
+        \link DoNotInitialize DoNotInitialize\endlink,
         \link G3D::MirrorQuality MirrorQuality\endlink,
         \link G3D::PrimitiveType PrimitiveType\endlink,
         \link G3D::RefractionHint RefractionHint\endlink,   

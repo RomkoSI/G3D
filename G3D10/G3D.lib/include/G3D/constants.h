@@ -42,8 +42,7 @@ public:
 };
 
 
-/** \def RefractionHint
-   Values for UniversalSurface::GPUGeom::refractionHint. */
+/** Values for UniversalSurface::GPUGeom::refractionHint. */
 G3D_DECLARE_ENUM_CLASS(RefractionHint,
         /** No refraction; a translucent object will appear as if it had the same index of refraction
             as the surrounding medium and objects will be undistorted in the background. */
@@ -128,7 +127,7 @@ G3D_DECLARE_ENUM_CLASS(AlphaFilter,
         COVERAGE_MASK,
         
         /** Render surfaces with partial coverage from back to front,
-            using Porter and Duff's OVER operator.  This leaves the
+            using Porter and Duff&apos;s OVER operator.  This leaves the
             depth buffer inconsistent with the color buffer and
             requires a sort, but often gives the best appearance. 
             
