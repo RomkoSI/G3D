@@ -144,6 +144,7 @@
 #include "GLG3D/Renderer.h"
 #include "GLG3D/TemporalFilter.h"
 #include "GLG3D/BindlessTextureHandle.h"
+#include "GLG3D/BilateralFilter.h
 
 namespace G3D {
 

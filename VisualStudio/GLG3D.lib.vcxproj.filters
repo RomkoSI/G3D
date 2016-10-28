@@ -497,6 +497,12 @@
     <ClCompile Include="..\GLG3D.lib\source\EmbreeTriTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\GLG3D.lib\source\BilateralFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLG3D.lib\source\BilateralFilterSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\GLG3D.lib\source\directinput8.h">
@@ -908,6 +914,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\EmbreeTriTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLG3D.lib\include\GLG3D\BilateralFilterSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLG3D.lib\include\GLG3D\BilateralFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
