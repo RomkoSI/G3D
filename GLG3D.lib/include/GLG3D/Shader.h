@@ -184,6 +184,7 @@ namespace G3D {
         uniform bool   g3d_InvertY;
         uniform mat3   g3d_WorldToCameraNormalMatrix;
         uniform float  g3d_SceneTime; // GApp::lastGApp->scene()->time() if valid, otherwise time since first binding of this variable
+        uniform float  g3d_RunTime; // Wall-clock time since the first binding of this variable in any shader
 
         // Rect2D bounds from the draw call
         uniform vec2   g3d_FragCoordExtent; // Only if Args::setRect was invoked

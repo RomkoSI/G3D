@@ -983,6 +983,7 @@ G3D_DECLARE_SYMBOL(g3d_FragCoordExtent);
 G3D_DECLARE_SYMBOL(g3d_FragCoordMin);
 G3D_DECLARE_SYMBOL(g3d_FragCoordMax);
 G3D_DECLARE_SYMBOL(g3d_SceneTime);
+G3D_DECLARE_SYMBOL(g3d_RealTime);
 
 void Shader::bindG3DArgs(const shared_ptr<ShaderProgram>& p, RenderDevice* renderDevice, const Args& sourceArgs, int& maxModifiedTextureUnit) {
     const CoordinateFrame& o2w = renderDevice->objectToWorldMatrix();
@@ -1058,6 +1059,12 @@ void Shader::bindG3DArgs(const shared_ptr<ShaderProgram>& p, RenderDevice* rende
             time = (float)(System::time() - initTime);
         }
         ARG("g3d_SceneTime", time);
+    }
+
+    if (p->containsNonDummyUniform("g3d_RunTime")) {
+        static const RealTime initTime = System::time();
+        float time = (float)(System::time() - initTime);
+        ARG("g3d_RunTime", time);
     }
 
     if (sourceArgs.hasRect()) {
