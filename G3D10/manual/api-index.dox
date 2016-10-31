@@ -119,6 +119,7 @@ at the bottom.
   <LI><B>High-Level Rendering</B> &nbsp; &nbsp;
     \link G3D::AmbientOcclusion AmbientOcclusion\endlink,
     \link G3D::AmbientOcclusionSettings AmbientOcclusionSettings\endlink,
+    \link G3D::BilateralFilter BilateralFilter\endlink,
     \link G3D::DepthOfField DepthOfField\endlink,
     \link G3D::DepthOfFieldSettings DepthOfFieldSettings\endlink,
     \link G3D::DefaultRenderer DefaultRenderer\endlink,
