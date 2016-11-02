@@ -118,14 +118,14 @@ uses:
 ################################################################
 [DEBUG]
 
-compileoptions: -lXcursor
+compileoptions:
 
-linkoptions: -lXcursor
+linkoptions:
 
 ################################################################
 [RELEASE]
 
 compileoptions:
 
-linkoptions: -lXcursor
+linkoptions:
 
