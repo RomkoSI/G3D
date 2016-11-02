@@ -51,21 +51,17 @@ bool App::onEvent(const GEvent& e) {
 
 
 void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D) {
-    debugAssertGLOk();
     rd->swapBuffers();
-    debugAssertGLOk();
     rd->clear();
-    debugAssertGLOk();
-    Draw::axes(CoordinateFrame(Vector3(0, 0, 0)), rd);
-    debugAssertGLOk();
+    Draw::axes(Point3::zero(), rd);
 
     // Call to make the GApp show the output of debugDraw
     drawDebugShapes();
-    debugAssertGLOk();
 }
 
 
-void App::onGraphics2D(RenderDevice* rd, Array<Surface2D::Ref>& posed2D) {
-    // Render 2D objects like Widgets.  These do not receive tone mapping or gamma correction
-    Surface2D::sortAndRender(rd, posed2D);
+void App::onGraphics2D(RenderDevice* rd, Array<shared_ptr<Surface2D>>& surface2D) {
+    // Render 2D objects like Widgets.  These do not receive tone mapping, antialiasing, or
+    // gamma correction
+    Surface2D::sortAndRender(rd, surface2D);
 }
