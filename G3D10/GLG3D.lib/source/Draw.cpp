@@ -567,16 +567,16 @@ void Draw::axes
     float zS = (zc2D.w > 0) ? clamp(10 * zc2D.w * scale, .1f, 5.0f) : 0;
     renderDevice->push2D(); {
         SlowMesh slowMesh(PrimitiveType::LINES);
-        renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
+//        renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
         // X
-        slowMesh.setColor(xColor * 0.8f);
+        slowMesh.setColor(xColor);
         slowMesh.makeVertex(Vector2(-xx,  yy) * xS + x2D);
         slowMesh.makeVertex(Vector2( xx, -yy) * xS + x2D);
         slowMesh.makeVertex(Vector2( xx,  yy) * xS + x2D);
         slowMesh.makeVertex(Vector2(-xx, -yy) * xS + x2D);
 
         // Y
-        slowMesh.setColor(yColor * 0.8f);
+        slowMesh.setColor(yColor);
         slowMesh.makeVertex(Vector2(-xx,  yy) * yS + y2D);
         slowMesh.makeVertex(Vector2(  0,  0)  * yS + y2D);
         slowMesh.makeVertex(Vector2(  0,  0)  * yS + y2D);
@@ -585,7 +585,7 @@ void Draw::axes
         slowMesh.makeVertex(Vector2(  0,  0)  * yS + y2D);
 
         // Z
-        slowMesh.setColor(zColor * 0.8f);    
+        slowMesh.setColor(zColor);    
         slowMesh.makeVertex(Vector2( xx,  yy) * zS + z2D);
         slowMesh.makeVertex(Vector2(-xx,  yy) * zS + z2D);
         slowMesh.makeVertex(Vector2(-xx,  yy) * zS + z2D);
