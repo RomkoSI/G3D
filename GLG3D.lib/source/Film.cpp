@@ -24,7 +24,7 @@ Film::Film() {}
 
 
 shared_ptr<Film> Film::create() {
-    return shared_ptr<Film>(new Film());
+    return createShared<Film>();
 }
 
 
@@ -155,7 +155,7 @@ void Film::exposeAndRender(RenderDevice* rd, const FilmSettings& settings, const
     typedef SmallArray<Filter*, 6> FilterChain;
     FilterChain filterChain;
 
-    // Build the filter chain:
+    // Build the filter chain (in forward order):
     if (settings.effectsEnabled()) {
         filterChain.push(&m_compositeFilter);
 

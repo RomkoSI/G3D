@@ -28,9 +28,9 @@ uniform int2        guardBandSize;
 
 uniform sampler2D   toneCurve;
 
-in vec2 g3d_TexCoord;
+in vec2             g3d_TexCoord;
 
-out vec4 result;
+out vec4            result;
 
 // From https://www.shadertoy.com/view/4sf3D2
 float hash(vec2 p) {return fract(sin(p.x * 1e2 + p.y) * 1e5 + sin(p.y * 1e3) * 1e3); }
@@ -68,7 +68,7 @@ void main(void) {
     float m = max(max(src.r, src.g), src.b);
 
     // Normalized color when the maximum channel exceeds 1.0
-    src *= (1.0 / max(1.0, m));
+    src *= 1.0 / max(1.0, m);
 
     // Fade towards white when the max is brighter than 1.0 (like a light saber core)
     src = mix(src, vec3(1.0), saturate(pow3(0.25 * max(0.0, m - 1.0))));

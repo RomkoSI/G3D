@@ -11,8 +11,7 @@
 
  */
 
-#ifndef G3D_Film_h
-#define G3D_Film_h
+#pragma once
 
 #include "G3D/platform.h"
 #include "G3D/ReferenceCount.h"
@@ -47,7 +46,7 @@ namespace G3D {
    Film instance for each size of input for maximum performance.   
 */
 class Film : public ReferenceCountedObject {
-private:
+protected:
     
     /** Filters may cache state for performance, so each Film must have its own set. */
     class Filter : public ReferenceCountedObject {
@@ -175,4 +174,3 @@ public:
 };
 
 } // namespace
-#endif

@@ -25,11 +25,12 @@ Film::CompositeFilter::CompositeFilter() {
     m_postGammaFramebuffer  = Framebuffer::create("Film::m_postGammaFramebuffer");
 
     const bool generateMipMaps = false;
-    m_toneCurve             = Framebuffer::create(Texture::createEmpty("G3D::Film::m_toneCurve", 256, 1, 
-                                                                       GLCaps::supportsTexture(ImageFormat::R16F()) ?
-                                                                       ImageFormat::R16F() : 
-                                                                       (GLCaps::supportsTexture(ImageFormat::R32F()) ?
-                                                                        ImageFormat::R32F() : ImageFormat::RGBA16F()), Texture::DIM_2D, generateMipMaps));
+    m_toneCurve             = Framebuffer::create
+                (Texture::createEmpty("G3D::Film::m_toneCurve", 256, 1, 
+                GLCaps::supportsTexture(ImageFormat::R16F()) ?
+                ImageFormat::R16F() : 
+                (GLCaps::supportsTexture(ImageFormat::R32F()) ?
+                ImageFormat::R32F() : ImageFormat::RGBA16F()), Texture::DIM_2D, generateMipMaps));
 
     m_lastToneCurve = FilmSettings().toneCurve();
 
