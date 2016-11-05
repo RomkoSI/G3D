@@ -100,10 +100,10 @@ void writePixel
     float       etaRatio, 
     vec3        csPosition, 
     vec3        csNormal) {
-
+    
     // Perform this operation before modifying the coverage to account for transmission
     _modulate.rgb = coverage * (vec3(1.0) - transmissionCoefficient);
-    
+
     /* Modulate the net coverage for composition by the transmission. This does not affect the color channels of the
     transparent surface because the caller's BSDF model should have already taken into account if transmission modulates
     reflection. See:
@@ -119,6 +119,7 @@ void writePixel
 
     // Looks better on clouds
     float tmp = 1.0 - gl_FragCoord.z * 0.99; tmp *= tmp * tmp * 1e4;
+    tmp = clamp(tmp, 1e-3, 1.0);
     
     /*
       If you're running out of compositing range and overflowing to inf, multiply the upper bound (3e2) by a small
@@ -126,9 +127,8 @@ void writePixel
       see inf in the frame buffer.
       */
 
-    // Weight function tuned for the general case. Used for all images in the paper
-    float w = clamp(coverage * tmp, 1e-3, 3e2 * 0.5);
-    
+    // Weight function tuned for the general case
+    float w = clamp(coverage * tmp, 1e-3, 1.5e2);    
 
     _accum = vec4(premultipliedReflectionAndEmission, coverage) * w;
 
@@ -150,7 +150,7 @@ void writePixel
         const float k_1 = 0.1;
 
         /* Compute standard deviation */
-        _modulate.a = k_0 * coverage * (1.0 - collimation) * (1.0 - k_1 / (k_1 + csPosition.z - trueBackgroundCSZ)) / abs(csPosition.z);
+        _modulate.a = k_0 * coverage * (1.0 - collimation) * (1.0 - k_1 / (k_1 + csPosition.z - trueBackgroundCSZ)) / max(abs(csPosition.z), 1e-5);
         /* Convert to variance */
         _modulate.a *= _modulate.a;
 

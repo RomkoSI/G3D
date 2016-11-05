@@ -29,6 +29,5 @@ void main(void) {
 #       endif
         color;
 
-    writePixel(r.rgb * r.a, r.a, vec3(0), 0, 1, csPosition, vec3(0,0,1));
-
+    writePixel(r.rgb * r.a, r.a, vec3(0), 1, 1, csPosition, vec3(0, 0, 1));
 }
