@@ -3060,7 +3060,7 @@ shared_ptr<GLPixelTransferBuffer> Texture::toPixelTransferBuffer(const ImageForm
         // Fix sRGB
         alwaysAssertM(outFormat == ImageFormat::RGB32F(), "CubeMap sRGB -> RGB conversion only supported for RGB32F format output");
         Color3* ptr = (Color3*)buffer->mapReadWrite();
-        Thread::runConcurrently(0, buffer->size() / sizeof(Color3), [&](int i) {
+        Thread::runConcurrently(0, (int)buffer->size() / sizeof(Color3), [&](int i) {
             ptr[i] = ptr[i].sRGBToRGB();
         });
         buffer->unmap();
