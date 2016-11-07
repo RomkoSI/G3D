@@ -362,6 +362,7 @@ vec3 hammersleyCosHemi(uint i, const uint N) {
     P.z = sqrt(P.z);
     return P;
 }
+
 mat4x4 identity4x4() {
     return mat4x4(1,0,0,0,
                   0,1,0,0,
