@@ -1,5 +1,5 @@
-OpenVR 0.9.20 from
+OpenVR 1.0.3 from
 
 https://github.com/ValveSoftware/openvr
 
-pulled on 19 May 2016
+pulled on 14 Nov 2016
