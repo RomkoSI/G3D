@@ -4,14 +4,13 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  \created 2001-03-04
- \edited  2012-07-29
+ \edited  2016-11-20
 
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 
-#ifndef G3D_CFrame_h
-#define G3D_CFrame_h
+#pragma once
 
 #include "G3D/platform.h"
 #include "G3D/Vector3.h"
@@ -120,7 +119,16 @@ public:
      equivalent to Euler angles; they are known as Tait-Bryan
      rotations and are more convenient for intuitive positioning.*/
     static CoordinateFrame fromXYZYPRDegrees(float x, float y, float z, float yaw = 0.0f, float pitch = 0.0f, float roll = 0.0f);
-    
+
+    /** Uses G3D::Vector3::getTangents to compute a reference frame from a x-axis and optional origin. */
+    static CoordinateFrame fromXAxis(const Vector3& X, const Point3& origin = Point3::zero());
+
+    /** Uses G3D::Vector3::getTangents to compute a reference frame from a y-axis and optional origin. */
+    static CoordinateFrame fromYAxis(const Vector3& Y, const Point3& origin = Point3::zero());
+
+    /** Uses G3D::Vector3::getTangents to compute a reference frame from a z-axis and optional origin. */
+    static CoordinateFrame fromZAxis(const Vector3& Z, const Point3& origin = Point3::zero());
+
     CoordinateFrame(class BinaryInput& b);
 
     void deserialize(class BinaryInput& b);
@@ -352,5 +360,3 @@ public:
 typedef CoordinateFrame CFrame;
 
 } // namespace
-
-#endif
