@@ -666,23 +666,30 @@ void Scene::sortEntitiesByDependency() {
                         // Process each dependency
                         for (int d = 0; d < dependencies->size(); ++d) {
                             const String& parentName = (*dependencies)[d];
-                            shared_ptr<Entity> parent = this->entity(parentName);
-                            debugAssertM(notNull(parent), entity->name() + " depends on " + parentName + ", which does not exist.");
+                            const shared_ptr<Entity>& parent = this->entity(parentName);
+
+                            if (notNull(parent)) {
+                                debugAssertM(notNull(parent), entity->name() + " depends on " + parentName + ", which does not exist.");
                         
-                            VisitorState& parentState = visitorStateTable[parent.get()];
+                                VisitorState& parentState = visitorStateTable[parent.get()];
 
-                            debugAssertM(parentState != VISITING,
-                                String("Dependency cycle detected containing ") + entity->name() + " and " + parentName);
+                                debugAssertM(parentState != VISITING,
+                                    String("Dependency cycle detected containing ") + entity->name() + " and " + parentName);
 
-                            if (parentState == NOT_VISITED) {
-                                // Push the dependency on the stack so that it will be processed ahead of entity
-                                // that depends on it.  The parent may already be in the stack
-                                stack.push(parent);
+                                if (parentState == NOT_VISITED) {
+                                    // Push the dependency on the stack so that it will be processed ahead of entity
+                                    // that depends on it.  The parent may already be in the stack
+                                    stack.push(parent);
+                                } else {
+                                    // Do nothing, this parent was already processed and is in the
+                                    // entity array ahead of the child.
+                                    debugAssert(parentState == ALREADY_VISITED);
+                                }
                             } else {
-                                // Do nothing, this parent was already processed and is in the
-                                // entity array ahead of the child.
-                                debugAssert(parentState == ALREADY_VISITED);
-                            }
+#                               ifdef G3D_DEBUG
+                                    debugPrintf("%s", ("Warning: " + entity->name() + " depends on " + parentName + ", which does not exist.").c_str());
+#                               endif
+                            } // parent not null
                         }
 
                     } else {

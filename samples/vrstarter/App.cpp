@@ -98,7 +98,8 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
 }
 
 
-void App::onAfterLoadScene(const Any &any, const String &sceneName) {
+void App::onAfterLoadScene(const Any& any, const String &sceneName) {
+    super::onAfterLoadScene(any, sceneName);
     setActiveCamera(debugCamera());
 }
 

@@ -20,8 +20,7 @@ static shared_ptr<GFont> s_font;
 
 MarkerEntity::MarkerEntity() : m_color(Color3::white()) {}
 
-shared_ptr<MarkerEntity> MarkerEntity::create(const String& name) {
-    
+shared_ptr<MarkerEntity> MarkerEntity::create(const String& name) {    
     Any a(Any::TABLE);
     AnyTableReader reader(a);
     return dynamic_pointer_cast<MarkerEntity>(create(name, NULL, reader, ModelTable()));
