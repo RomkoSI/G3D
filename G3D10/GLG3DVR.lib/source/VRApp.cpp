@@ -230,16 +230,7 @@ static void getEyeTransformations
             headToWorldRowMajor4x3[r * 4 + c] = head.m[r][c];
         }
     }
-
-    /*
-    const float steamVRToRealWorldScale = 1.0f;
-    for (int r = 0; r < 3; ++r) {
-        ltEyeToHeadRowMajor4x3[r * 4 + 3] *= steamVRToRealWorldScale;
-        rtEyeToHeadRowMajor4x3[r * 4 + 3] *= steamVRToRealWorldScale;
-        headToWorldRowMajor4x3[r * 4 + 3] *= steamVRToRealWorldScale;
-    }
-    */
-
+    
     // Vive's near plane code is off by a factor of 2 according to G3D
     const vr::HmdMatrix44_t& ltProj = hmd->GetProjectionMatrix(vr::Eye_Left,  -nearPlaneZ * 2.0f, -farPlaneZ, vr::API_OpenGL);
     const vr::HmdMatrix44_t& rtProj = hmd->GetProjectionMatrix(vr::Eye_Right, -nearPlaneZ * 2.0f, -farPlaneZ, vr::API_OpenGL);
@@ -356,6 +347,25 @@ void VRApp::sampleTrackingData() {
                 // Add the entity to the scene
                 scene()->insert(controller);
             }
+        }
+    }
+
+    vr::VREvent_t vrEvent;
+    while (m_hmd->PollNextEvent(&vrEvent, sizeof(vrEvent))) {
+        switch (vrEvent.eventType) {
+            // Device 0 is the HMD (probably). Device 1 and 2 are the controllers (probably) on Vive.
+            // Button 32 = k_EButton_Axis0 is the large DPad/touch button on the Vive.
+        case vr::VREvent_ButtonPress:
+            debugPrintf("Device %d sent button %d press\n", vrEvent.trackedDeviceIndex, vrEvent.data.controller.button);
+            break;
+
+        case vr::VREvent_ButtonUnpress:
+            debugPrintf("Device %d sent button %d unpress\n", vrEvent.trackedDeviceIndex, vrEvent.data.controller.button);
+            break;
+
+        default:
+            // Ignore event
+            ;
         }
     }
 
@@ -709,7 +719,7 @@ void VRApp::onAfterLoadScene(const Any& any, const String& sceneName) {
     }
 
     // Find the ground
-    float groundDistance = inf();
+    float groundDistance = finf();
     if (notNull(scene()->intersect(Ray::fromOriginAndDirection(m_debugCamera->frame().translation, -Vector3::unitY()), groundDistance))) {
         m_debugCamera->setFrame(m_debugCamera->frame() - Vector3(0, groundDistance, 0));
     } else {
