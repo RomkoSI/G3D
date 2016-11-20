@@ -6,9 +6,9 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2001-06-02
- \edited  2012-09-29
+ \edited  2016-11-20
 
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 
@@ -31,6 +31,27 @@
 #include "G3D/Frustum.h"
 
 namespace G3D {
+
+CoordinateFrame CoordinateFrame::fromXAxis(const Vector3& X, const Point3& origin) {
+    Vector3 Y, Z;
+    X.getTangents(Y, Z);
+    return CFrame(Matrix3::fromColumns(X, Y, Z), origin);
+}
+
+
+CoordinateFrame CoordinateFrame::fromYAxis(const Vector3& Y, const Point3& origin) {
+    Vector3 X, Z;
+    Y.getTangents(Z, X);
+    return CFrame(Matrix3::fromColumns(X, Y, Z), origin);
+}
+
+
+CoordinateFrame CoordinateFrame::fromZAxis(const Vector3& Z, const Point3& origin) {
+    Vector3 X, Y;
+    Z.getTangents(X, Y);
+    return CFrame(Matrix3::fromColumns(X, Y, Z), origin);
+}
+
 
 String CoordinateFrame::toXYZYPRDegreesString() const {
     float x,y,z,yaw,pitch,roll;

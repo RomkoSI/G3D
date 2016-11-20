@@ -6,14 +6,13 @@
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2001-06-02
-  \edited  2013-09-25
+  \edited  2016-11-20
 
-  Copyright 2000-2015, Morgan McGuire.
+  Copyright 2000-2016, Morgan McGuire.
   All rights reserved.
  */
 
-#ifndef G3D_Vector3_h
-#define G3D_Vector3_h
+#pragma once
 
 #include "G3D/platform.h"
 #include "G3D/DoNotInitialize.h"
@@ -36,6 +35,8 @@ class Vector3int32;
 class Any;
 
 /**
+  3x1 or 1x3 vector using float32 representation. Typedefs use this class for Point as well.
+
   <B>Swizzles</B>
  Vector classes have swizzle operators, e.g. <CODE>v.xy()</CODE>, that
  allow selection of arbitrary sub-fields.  These cannot be used as write 
@@ -525,7 +526,6 @@ public:
         Y = this->cross(X);
     }
 
-
     // 2-char swizzles
 
     Vector2 xx() const;
@@ -920,4 +920,3 @@ template<> struct PositionTrait<class G3D::Vector3> {
 };
 
 
-#endif
