@@ -36,6 +36,25 @@ class MarkerEntity;
     is also free download for multiple platforms.
     
     You do *not* need to install the Oculus, SteamVR, or OpenVR SDKs--G3D includes the files that you need.
+
+    There are several MarkerEntity and reference frames at play for VR in order to attempt to model
+    the degrees of freedom for a tracked HMD while still minimizing the amount of code needed to make
+    a non-VR GApp subclass run as a VRGApp subclass. This API is in a very early state and subject to 
+    continous change.
+
+    The reference frames are:
+
+    - The "body" is the player's **feet**, or rather, the center of the floor in the tracked space. GApp::activeCamera() _before_ GApp::onGraphics() runs. This is the 
+      center of the tracked space. For seated and standing VR such as Oculus Rift, this probably is the actual
+      player's body. For nomad (walking) VR, this is effectively the center of the room. To
+      "teleport", move the body camera.
+    - VRApp::m_vrControllerArray Array of MarkerEntitys for tracked controllers ("wands") in VR. 
+      Their names are of the form "VR Controller %d". The first one has index 0 and is always the right hand.
+    - VRApp::m_eyeFrame transforms from body space to the camera used for rendering each eye.
+    - VRApp::m_vrHead is a child of the body. This is the tracked MarkerEntity for the player's HMD.
+    - VRApp::m_vrEyeCamera is the full camera for rendering each eye. It is a child of the m_vrHead.
+
+    \beta
 */
 class VRApp : public GApp {
 public:
@@ -152,6 +171,8 @@ protected:
 
     /** Net eye-to-body transform */
     CFrame                  m_previousEyeFrame[2];
+
+    /** Net eye-to-body transform */
     CFrame                  m_eyeFrame[2];
 
     SubmitToDisplayMode     m_vrSubmitToDisplayMode;
@@ -191,16 +212,16 @@ protected:
     Color4                  m_hudBackgroundColor;
 
     /** Tracks the position of the player's HMD, as determined from the eye cameras. Can be used
-        to attach other objects relative to the head. */
+        to attach other objects relative to the head. 
+        
+        \sa m_eyeFrame, m_previousEyeFrame, m_vrEyeCamera
+        */
     shared_ptr<MarkerEntity> m_vrHead;
-
-    /** The world space coordinate frame of the external tracking camera for the HMD 
     
-        \deprecated
-    */
-    CFrame                  m_externalCameraFrame;
-
-    /** Updated every frame */
+    /** Camera not visible to the normal scene graph that is updated every frame based on m_eyeFrame and m_vrHead.
+        The GApp::activeCamera() is bound to one of these during GApp::onGraphics. 
+        
+        \sa m_eyeFrame, m_vrHead */
     shared_ptr<Camera>      m_vrEyeCamera[2];
 
     Settings::VR            m_vrSettings;
@@ -236,14 +257,13 @@ public:
 
     virtual void onCleanup() override;
     
-    /** Latch tracking data:
+    /** Latch tracking data for:
 
-        m_trackedDevicePose
-        m_previousEyeFrame
-        m_eyeFrame
-        m_vrHead
-        m_vrEyeCamera
-        m_externalCameraFrame (deprecated)
+        - m_trackedDevicePose
+        - m_previousEyeFrame
+        - m_eyeFrame
+        - m_vrHead
+        - m_vrEyeCamera
     */
     virtual void sampleTrackingData();
 

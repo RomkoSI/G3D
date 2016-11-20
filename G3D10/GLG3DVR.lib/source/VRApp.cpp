@@ -12,6 +12,7 @@
 #include "GLG3D/GLCaps.h"
 #include "GLG3D/MarkerEntity.h"
 #include "GLG3DVR/VRApp.h"
+#include "G3D/Ray.h"
 
 namespace G3D {
 
@@ -166,6 +167,12 @@ void VRApp::onInit() {
     sampleTrackingData();
 }
 
+static CFrame toCFrame(const vr::HmdMatrix34_t& M) {
+    return CFrame(Matrix3(M.m[0][0], M.m[0][1], M.m[0][2],
+                          M.m[1][0], M.m[1][1], M.m[1][2],
+                          M.m[2][0], M.m[2][1], M.m[2][2]),
+                   Point3(M.m[0][3], M.m[1][3], M.m[2][3]));
+}
 
 /**
  Copied from G3D's minimalOpenVR.h
@@ -224,6 +231,15 @@ static void getEyeTransformations
         }
     }
 
+    /*
+    const float steamVRToRealWorldScale = 1.0f;
+    for (int r = 0; r < 3; ++r) {
+        ltEyeToHeadRowMajor4x3[r * 4 + 3] *= steamVRToRealWorldScale;
+        rtEyeToHeadRowMajor4x3[r * 4 + 3] *= steamVRToRealWorldScale;
+        headToWorldRowMajor4x3[r * 4 + 3] *= steamVRToRealWorldScale;
+    }
+    */
+
     // Vive's near plane code is off by a factor of 2 according to G3D
     const vr::HmdMatrix44_t& ltProj = hmd->GetProjectionMatrix(vr::Eye_Left,  -nearPlaneZ * 2.0f, -farPlaneZ, vr::API_OpenGL);
     const vr::HmdMatrix44_t& rtProj = hmd->GetProjectionMatrix(vr::Eye_Right, -nearPlaneZ * 2.0f, -farPlaneZ, vr::API_OpenGL);
@@ -246,13 +262,6 @@ static void getEyeTransformations
 
 }
 
-
-static CFrame toCFrame(const vr::HmdMatrix34_t& M) {
-    return CFrame(Matrix3(M.m[0][0], M.m[0][1], M.m[0][2],
-                          M.m[1][0], M.m[1][1], M.m[1][2],
-                          M.m[2][0], M.m[2][1], M.m[2][2]),
-                   Point3(M.m[0][3], M.m[1][3], M.m[2][3]));
-}
 
 void VRApp::sampleTrackingData() {
     debugAssert(notNull(m_hmd));
@@ -277,7 +286,7 @@ void VRApp::sampleTrackingData() {
         eyeToHeadRowMajor4x3[1],
         projectionMatrixRowMajor4x4[0], 
         projectionMatrixRowMajor4x4[1]);
-
+    
     const CFrame& headToBody = headToBodyRowMajor4x3.approxCoordinateFrame();
 
     for (int eye = 0; eye < numEyes(); ++eye) {
@@ -324,13 +333,14 @@ void VRApp::sampleTrackingData() {
     // Find the controllers (if any are present)
     int c = -1;
     for (int d = 0; d < vr::k_unMaxTrackedDeviceCount; ++d) {
-//      (m_trackedDevicePose[d].bPoseIsValid) 
         if (m_hmd->GetTrackedDeviceClass(d) == vr::TrackedDeviceClass_Controller) {
             ++c;
             bool justCreated = false;
 
             if (c >= m_vrControllerArray.size()) {
-                const Array<Box> osBoxArray(Box(Vector3(-0.05f, -0.005f, -0.09f), Vector3(0.05f, 0.005f, -0.09f)));
+                // Only runs the first time a controller is discovered
+                // Bounding box of a Vive generation 1 controller ("wand")
+                const Array<Box> osBoxArray(Box(Vector3(-0.055f, -0.04f, -0.05f), Vector3(0.055f, 0.04f, 0.15f)));
                 m_vrControllerArray.append(MarkerEntity::create(format("VR Controller %d", c), scene().get(), osBoxArray, Color3::white(), CFrame(), nullptr, true, false));
                 justCreated = true;
             }
@@ -340,14 +350,14 @@ void VRApp::sampleTrackingData() {
             if (! justCreated) {
                 controller->setPreviousFrame(controller->frame());
             }
-            controller->setFrame(toCFrame(m_trackedDevicePose[d].mDeviceToAbsoluteTracking));
+            controller->setFrame(maybeRemovePitchAndRoll(bodyCamera->frame()) * toCFrame(m_trackedDevicePose[d].mDeviceToAbsoluteTracking));
             if (justCreated) {
                 controller->setPreviousFrame(controller->frame());
+                // Add the entity to the scene
+                scene()->insert(controller);
             }
         }
     }
-
-    //    m_externalCameraFrame = m_vrHead->frame() * bodySpaceHead.inverse() * bodySpaceTracker;
 
     END_PROFILER_EVENT();
 }
@@ -378,9 +388,10 @@ void VRApp::onBeforeSimulation(RealTime& rdt, SimTime& sdt, SimTime& idt) {
         // head, but to yaw with explicit controls.
         float pitch, roll, ignore;
         m_eyeFrame[0].getXYZYPRRadians(ignore, ignore, ignore, ignore, pitch, roll);
+        pitch = -pitch;
         const shared_ptr<FirstPersonManipulator>& fpm = dynamic_pointer_cast<FirstPersonManipulator>(m_cameraManipulator);
         if (notNull(fpm)) {
-            fpm->setPitch(-pitch);
+            fpm->setPitch(pitch);
         }
     }
 }
@@ -388,6 +399,8 @@ void VRApp::onBeforeSimulation(RealTime& rdt, SimTime& sdt, SimTime& idt) {
 
 void VRApp::onGraphics(RenderDevice* rd, Array<shared_ptr<Surface> >& posed3D, Array<shared_ptr<Surface2D> >& posed2D) {
     debugAssertM(!renderDevice->swapBuffersAutomatically(), "VRApp subclasses must not swap buffers automatically.");
+    debugAssertM(notNull(scene()->entity(m_vrHead->name())), "VR Head entity not present in the scene. Did you override onAfterLoadScene() and forget to call VRApp::onAfterLoadScene()?");
+
     rd->pushState(); {
 
         debugAssert(notNull(activeCamera()));
@@ -694,6 +707,19 @@ void VRApp::onAfterLoadScene(const Any& any, const String& sceneName) {
     for (int c = 0; c < m_vrControllerArray.size(); ++c) {
         scene()->insert(m_vrControllerArray[c]);
     }
+
+    // Find the ground
+    float groundDistance = inf();
+    if (notNull(scene()->intersect(Ray::fromOriginAndDirection(m_debugCamera->frame().translation, -Vector3::unitY()), groundDistance))) {
+        m_debugCamera->setFrame(m_debugCamera->frame() - Vector3(0, groundDistance, 0));
+    } else {
+        // No ground, assume that the camera is Morgan's head height
+        const float scenePlayerHeight = 1.68f;
+        m_debugCamera->setFrame(m_debugCamera->frame() - Vector3(0, scenePlayerHeight, 0));
+    }
+    // Remove rotation so that world-space aligns with physical room space
+    m_debugCamera->setFrame(m_debugCamera->frame().translation);
+    m_debugController->setFrame(m_debugCamera->frame());
 }
 
 

@@ -57,7 +57,7 @@ void Entity::init
 
 
 void Entity::init
-   (const String&          name,
+   (const String&               name,
     Scene*                      scene,
     const CFrame&               frame,
     const shared_ptr<Track>&    track,

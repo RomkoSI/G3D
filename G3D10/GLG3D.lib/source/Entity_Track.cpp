@@ -75,7 +75,7 @@ class TrackEntityTrack : public Entity::Track {
 protected:
     friend class Entity::Track;
 
-    const String&      m_entityName;
+    const String            m_entityName;
     Scene*                  m_scene;
 
     TrackEntityTrack(const String& n, Scene* scene) : m_entityName(n), m_scene(scene) {}
@@ -83,7 +83,7 @@ protected:
 public:
 
     virtual CFrame computeFrame(SimTime time) const override {
-        shared_ptr<Entity> e = m_scene->entity(m_entityName);
+        const shared_ptr<Entity>& e = m_scene->entity(m_entityName);
         if (notNull(e)) {
             return e->frame();
         } else {
@@ -100,7 +100,7 @@ protected:
 
     shared_ptr<Entity::Track>      m_base;
     shared_ptr<Entity::Track>      m_target;
-    const Vector3               m_up;
+    const Vector3                  m_up;
 
     LookAtTrack(const shared_ptr<Entity::Track>& base, const shared_ptr<Entity::Track>& target, const Vector3& up) : 
         m_base(base), m_target(target), m_up(up) {}
