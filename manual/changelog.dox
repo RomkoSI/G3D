@@ -150,6 +150,7 @@
        <li> G3D::Scene::skyboxAsCubeMap</li>
        <li> G3D::Color3::sRGBToRGB, G3D::Color3::RGBToSRGB</li>
        <li> Added g3d_RunTime to shaders </li>
+       <li> Added G3D::CFrame::fromXAxis, G3D::CFrame::fromYAxis, G3D::CFrame::fromZAxis </li>
       </ul>
     </p>
 
