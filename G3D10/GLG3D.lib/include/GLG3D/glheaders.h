@@ -13,7 +13,7 @@
  All rights reserved.
 */
 
-#ifndef G3D_glHeaders_h
+#pragma once
 #define G3D_glHeaders_h
 
 #include "G3D/platform.h"
@@ -33,6 +33,10 @@
 // needed for OS X header
 #ifdef Status
 #undef Status
+
+#ifndef GL_VERSION_4_5
+#   error GLG3D Requires OpenGL 4.5 or later header files distributed with G3D. You probably have an old version of GLEW or GLUT in your include path.
 #endif
 
-#endif  // G3D_glHeaders_h
+#endif
+
