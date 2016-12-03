@@ -761,7 +761,7 @@ void UniversalSurface::render
         } else {
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
             // For AO inference
-            const Projection projection(rd->projectionMatrix());
+            const Projection projection(rd->projectionMatrix(), rd->viewport().wh());
             args.setUniform("clipInfo", projection.reconstructFromDepthClipInfo());
         }
         if (twoSided) {
@@ -783,7 +783,7 @@ void UniversalSurface::render
         if (m_gpuGeom->twoSided) { rd->setCullFace(CullFace::NONE); }
         if (! hasTransmission()) {
             // For AO inference
-            const Projection projection(rd->projectionMatrix());
+            const Projection projection(rd->projectionMatrix(), rd->viewport().wh());
             args.setUniform("clipInfo", projection.reconstructFromDepthClipInfo());
         }
         launchForwardShader(args);
