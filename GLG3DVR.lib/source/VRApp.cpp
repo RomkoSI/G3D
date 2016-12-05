@@ -62,30 +62,45 @@ VRApp::VRApp(const GApp::Settings& settings) :
 	    vr::EVRInitError eError = vr::VRInitError_None;
 	    m_hmd = vr::VR_Init(&eError, vr::VRApplication_Scene);
 
-	    if (eError != vr::VRInitError_None) {
-            throw vr::VR_GetVRInitErrorAsEnglishDescription(eError);
-	    }
     
-        if (isNull(m_hmd)) {
+        if (isNull(m_hmd) && (! m_vrSettings.emulateHMDIfMissing)) {
+            // Initialization failed with no fallback
             throw "No HMD";
         }
 
-        //get the proper resolution of the hmd
-        m_hmd->GetRecommendedRenderTargetSize(&hmdWidth, &hmdHeight);
+        /*
+        Maybe a way to provide a non-null HMD
+        if (isNull(m_hmd)) {
+            m_hmd = vr::VR_Init(&eError, vr::VRApplication_Utility);
+        }
+        */
 
-	    const String& driver = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_TrackingSystemName_String);
-	    const String& model  = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_ModelNumber_String);        
-	    const String& serial = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
-        const float   freq   = getHMDFloat(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_DisplayFrequency_Float);
-        logLazyPrintf("VRApp::m_hmd: %s '%s' #%s (%d x %d @ freq)\n", driver.c_str(), model.c_str(), serial.c_str(), hmdWidth, hmdHeight, freq);
+        if (notNull(m_hmd)) {            
+	        if (eError != vr::VRInitError_None) {
+                throw vr::VR_GetVRInitErrorAsEnglishDescription(eError);
+	        }
 
-        // Initialize the compositor
-        vr::IVRCompositor* compositor = vr::VRCompositor();
-	    if (! compositor) {
-            vr::VR_Shutdown();
-            m_hmd = nullptr;
-            throw "OpenVR Compositor initialization failed. See log file for details\n";
-	    }
+            // get the proper resolution of the hmd
+            m_hmd->GetRecommendedRenderTargetSize(&hmdWidth, &hmdHeight);        
+
+	        const String& driver = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_TrackingSystemName_String);
+	        const String& model  = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_ModelNumber_String);        
+	        const String& serial = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
+            const float   freq   = getHMDFloat(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_DisplayFrequency_Float);
+            logLazyPrintf("VRApp::m_hmd: %s '%s' #%s (%d x %d @ freq)\n", driver.c_str(), model.c_str(), serial.c_str(), hmdWidth, hmdHeight, freq);
+
+            // Initialize the compositor
+            vr::IVRCompositor* compositor = vr::VRCompositor();
+	        if (! compositor) {
+                vr::VR_Shutdown();
+                m_hmd = nullptr;
+                throw "OpenVR Compositor initialization failed. See log file for details\n";
+	        }
+        } else {
+            logLazyPrintf("VRApp using virtual HMD\n");
+            hmdWidth  = 1024;// TODO: Default to Vive values
+            hmdHeight = 1024;// TODO: Default to Vive values
+        }
     } catch (const String& error) {
         logLazyPrintf("OpenVR Initialization Error: %s\n", error.c_str());
     }
@@ -141,6 +156,7 @@ VRApp::VRApp(const GApp::Settings& settings) :
     m_vrHead = MarkerEntity::create("VRApp::m_vrHead");
     m_vrHead->setShouldBeSaved(false);
 
+    // Use slower motion to reduce discomfort
     m_debugController->setMoveRate(0.3f);
 }
 

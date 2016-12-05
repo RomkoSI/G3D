@@ -6,8 +6,7 @@
     All rights reserved.
 
 */
-#ifndef GLG3DVR_VRApp_h
-#define GLG3DVR_VRApp_h
+#pragma once
 
 #include "GLG3D/GApp.h"
 #include "GLG3D/Texture.h"
@@ -76,6 +75,19 @@ public:
             /** Defaults to false. Cannot be changed once VRApp is initialized. */
             DebugMirrorMode     debugMirrorMode;
 
+            /** If no HMD is present, should the system provide a virtual HMD for development
+                and debugging? If false and there
+                is no HMD, the system will throw an error. */
+            bool                emulateHMDIfMissing;
+
+            /** If no physical VR controller is present, should the system provide a
+                virtual one that is locked relative to the HMD? This is useful for
+                both development and deployment.
+                
+                If false and there is no physical controller, then there is no error--
+                tracking will simply report nothing. */
+            bool                emulateControllerIfMissing;
+
             /** Use pitch control from the HMD instead of from the m_cameraManipulator. Defaults to true.
             For walking simulators, we recommend m_trackingOverridesPitch = true.
             For driving or flight simulators, we recommend m_trackingOverridesPitch = false.
@@ -115,6 +127,8 @@ public:
             FrameName           hudSpace;
 
             VR(bool debugMirrorMode = DebugMirrorMode::NONE) : 
+                emulateHMDIfMissing(true),
+                emulateControllerIfMissing(true),
                 trackingOverridesPitch(true),
                 disablePostEffectsIfTooSlow(true),
                 debugMirrorMode(debugMirrorMode), 
@@ -270,7 +284,7 @@ public:
     /** Like swapBuffers for the m_hmd */
     virtual void submitHMDFrame(RenderDevice* rd);
 
-    /** Intentionally empty so that subclasses don't accidentally swap buffers. Simplifies upgrading existing apps to VRApps*/
+    /** Intentionally empty so that subclasses don't accidentally swap buffers. Simplifies upgrading existing apps to VRApps */
     virtual void swapBuffers() override;
 
     /** Resets some state and adds the VRApp::m_vrHead MarkerEntity to the scene. */
@@ -281,5 +295,3 @@ public:
 };
 
 } // namespace
-
-#endif
