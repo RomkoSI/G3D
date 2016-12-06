@@ -625,6 +625,8 @@ shared_ptr<ParticleSystemModel> ParticleSystem::particleSystemModel() const {
 
 
 void ParticleSystem::onSimulation(SimTime absoluteTime, SimTime deltaTime) {
+    VisibleEntity::onSimulation(absoluteTime, deltaTime);
+
     if (deltaTime > 0) {
         spawnParticles(absoluteTime, deltaTime);
 
