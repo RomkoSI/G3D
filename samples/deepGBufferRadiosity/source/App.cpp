@@ -374,7 +374,7 @@ void App::computeShadows(RenderDevice* rd, Array<shared_ptr<Surface> >& all, Lig
     RealTime lightingChangeTime = max(scene()->lastEditingTime(), max(scene()->lastLightChangeTime(), scene()->lastVisibleChangeTime()));
     if (lightingChangeTime > lastLightingChangeTime) {
         lastLightingChangeTime = lightingChangeTime;
-        Surface::renderShadowMaps(rd, environment.lightArray, all);
+        Light::renderShadowMaps(rd, environment.lightArray, all);
     }
     END_PROFILER_EVENT();
 }
