@@ -136,7 +136,7 @@ void ParseMTL::processCommand(TextInput& ti, const String& cmd) {
         }
         
         if (m_isCurrentMaterialDissolveSet) {
-            debugPrintf("Warning: file \"%s\" uses the \"d\" command to set the dissolve parameter of material \"%s\", but it was already set by a preceding \"d\" or \"Tr\" command.\n", ti.filename(), m_currentMaterial->name);
+            debugPrintf("Warning: file \"%s\" uses the \"d\" command to set the dissolve parameter of material \"%s\", but it was already set by a preceding \"d\" or \"Tr\" command.\n", ti.filename().c_str(), m_currentMaterial->name.c_str());
         }
         m_isCurrentMaterialDissolveSet = true;
 
@@ -145,7 +145,7 @@ void ParseMTL::processCommand(TextInput& ti, const String& cmd) {
         // Nonstandard 1 - alpha on range [0,1]
         
         if (m_isCurrentMaterialDissolveSet) {
-            debugPrintf("Warning: file \"%s\" uses the \"Tr\" command to set the dissolve parameter of material \"%s\", but it was already set by a preceding \"d\" or \"Tr\" command.\n", ti.filename(), m_currentMaterial->name);
+            debugPrintf("Warning: file \"%s\" uses the \"Tr\" command to set the dissolve parameter of material \"%s\", but it was already set by a preceding \"d\" or \"Tr\" command.\n", ti.filename().c_str(), m_currentMaterial->name.c_str());
         }
         m_isCurrentMaterialDissolveSet = true;
 
