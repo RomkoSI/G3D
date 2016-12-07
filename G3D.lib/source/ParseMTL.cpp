@@ -16,7 +16,7 @@
 
 namespace G3D {
 
-ParseMTL::ParseMTL() {
+ParseMTL::ParseMTL() : m_isCurrentMaterialDissolveSet(false) {
     // Always provide a default material
     materialTable.set("default", Material::create());
 }
@@ -72,6 +72,7 @@ void ParseMTL::parse(TextInput& ti, const String& basePath) {
         m_currentMaterial->Ks.constant = Color3(0.5f);
     }
 
+
     ti.popSettings();
 }
 
@@ -109,7 +110,6 @@ static void readMap(TextInput& ti, ParseMTL::Material::Field& field) {
     field.map = removeLeadingSlash(trimWhitespace(ti.readUntilNewlineAsString()));
 }
 
-
 void ParseMTL::processCommand(TextInput& ti, const String& cmd) {
 
     if (cmd == "newmtl") {
@@ -125,6 +125,7 @@ void ParseMTL::processCommand(TextInput& ti, const String& cmd) {
         m_currentMaterial->basePath = m_basePath;
         materialTable.set(m_currentMaterial->name, m_currentMaterial);
 
+        m_isCurrentMaterialDissolveSet = false;
     } else if (isNull(m_currentMaterial)) {
         logPrintf("Warning: encountered command with null material\n");
     } else if (cmd == "d") {
@@ -133,9 +134,21 @@ void ParseMTL::processCommand(TextInput& ti, const String& cmd) {
             // Optional "-halo" 
             ti.readSymbol();
         }
+        
+        if (m_isCurrentMaterialDissolveSet) {
+            debugPrintf("Warning: file \"%s\" uses the \"d\" command to set the dissolve parameter of material \"%s\", but it was already set by a preceding \"d\" or \"Tr\" command.\n", ti.filename(), m_currentMaterial->name);
+        }
+        m_isCurrentMaterialDissolveSet = true;
+
         m_currentMaterial->d = (float)ti.readNumber();
     } else if (cmd == "Tr") {
         // Nonstandard 1 - alpha on range [0,1]
+        
+        if (m_isCurrentMaterialDissolveSet) {
+            debugPrintf("Warning: file \"%s\" uses the \"Tr\" command to set the dissolve parameter of material \"%s\", but it was already set by a preceding \"d\" or \"Tr\" command.\n", ti.filename(), m_currentMaterial->name);
+        }
+        m_isCurrentMaterialDissolveSet = true;
+
         m_currentMaterial->d = 1.0f - (float)ti.readNumber();
     } else if (cmd == "Ns") {
         // Specular Exponent
