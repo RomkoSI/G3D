@@ -2,14 +2,13 @@
  \file   GLG3D/UniversalMaterial.h
  \author Morgan McGuire, http://graphics.cs.williams.edu
  \date   2008-08-10
- \edited 2016-07-05
+ \edited 2016-12-06
  
  G3D Innovation Engine
  Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
  */
-#ifndef GLG3D_UniversalMaterial_h
-#define GLG3D_UniversalMaterial_h
+#pragma once
 
 #include "G3D/platform.h"
 #include "G3D/enumclass.h"
@@ -333,6 +332,11 @@ Any component can be a Texture::Specification, Color3/Color4, or table of <code>
 
         /** Set the index of refraction. Not used unless transmissive is non-zero. */
         void setEta(float etaTransmit, float etaReflect);
+
+        void setExtinction(float extinctionTransmit, float extinctionReflect) {
+            m_extinctionTransmit = extinctionTransmit;
+            m_extinctionReflect  = extinctionReflect;
+        }
 
         /**
            The image is assumed to be in linear (R) space.
@@ -685,5 +689,3 @@ struct HashTrait<shared_ptr<G3D::UniversalMaterial> > {
         return reinterpret_cast<size_t>(key.get());
     }
 };
-
-#endif
