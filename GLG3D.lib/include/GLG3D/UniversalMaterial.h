@@ -333,7 +333,7 @@ Any component can be a Texture::Specification, Color3/Color4, or table of <code>
         /** Set the index of refraction. Not used unless transmissive is non-zero. */
         void setEta(float etaTransmit, float etaReflect);
 
-        void setExtinction(float extinctionTransmit, float extinctionReflect) {
+        void setExtinction(const Color3& extinctionTransmit, const Color3& extinctionReflect) {
             m_extinctionTransmit = extinctionTransmit;
             m_extinctionReflect  = extinctionReflect;
         }
