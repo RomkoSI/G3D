@@ -148,7 +148,8 @@ private:
 
     /** Process one line of an OBJ file */
     void processCommand(TextInput& ti, const String& cmd);
-
+    
+    bool m_isCurrentMaterialDissolveSet;
     shared_ptr<Material>        m_currentMaterial;
 
     /** Paths are interpreted relative to this */
