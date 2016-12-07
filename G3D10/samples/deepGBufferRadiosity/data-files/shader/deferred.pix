@@ -1,4 +1,4 @@
-#version 330 or 420 compatibility// -*- c++ -*-
+#version 410 or 420 compatibility// -*- c++ -*-
 #ifdef GL_ARB_texture_query_lod
 #extension GL_ARB_texture_query_lod : enable
 #endif
@@ -69,7 +69,7 @@ void main() {
     Vector3 w_mi = normalize(wsN * (2.0 * cos_o) - w_o);
 
     Color3 E_lambertianAmbient = computeLambertianEnvironmentMapLighting(wsN);
-    Color3 E_glossyAmbient     = computeGlossyEnvironmentMapLighting(w_mi, (F0.a == 1.0), glossyExponent) 
+    Color3 E_glossyAmbient     = computeGlossyEnvironmentMapLighting(w_mi, (F0.a == 1.0), glossyExponent, false) 
         * ((8.0 * pi) / (glossyExponent + 8.0));
 
     Color3 E_glossy            = Color3(0);
