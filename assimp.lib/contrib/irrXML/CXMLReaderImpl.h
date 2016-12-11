@@ -260,7 +260,7 @@ private:
 		{
 			char_type* p = start;
 			for(; p != end; ++p)
-				if (!isWhitespace(*p))
+				if (!isWhiteSpace(*p))
 					break;
 
 			if (p == end)
@@ -331,7 +331,7 @@ private:
 		const char_type* startName = P;
 
 		// find end of element
-		while(*P != L'>' && !isWhitespace(*P))
+		while(*P != L'>' && !isWhiteSpace(*P))
 			++P;
 
 		const char_type* endName = P;
@@ -339,7 +339,7 @@ private:
 		// find Attributes
 		while(*P != L'>')
 		{
-			if (isWhitespace(*P))
+			if (isWhiteSpace(*P))
 				++P;
 			else
 			{
@@ -350,7 +350,7 @@ private:
 					// read the attribute names
 					const char_type* attributeNameBegin = P;
 
-					while(!isWhitespace(*P) && *P != L'=')
+					while(!isWhiteSpace(*P) && *P != L'=')
 						++P;
 
 					const char_type* attributeNameEnd = P;
@@ -721,7 +721,7 @@ private:
 
 
 	//! returns true if a character is whitespace
-	inline bool isWhitespace(char_type c)
+	inline bool isWhiteSpace(char_type c)
 	{
 		return (c==' ' || c=='\t' || c=='\n' || c=='\r');
 	}
