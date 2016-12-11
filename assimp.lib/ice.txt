@@ -98,7 +98,7 @@
 
 compiler: %(defaultcompiler)s
 
-include: %(defaultinclude)s:code:contrib/cppunit-1.12.1/include:code/BoostWorkaround 
+include: %(defaultinclude)s:code:contrib/cppunit-1.12.1/include:code/BoostWorkaround:contrib/rapidjson/include:contrib/openddlparser/include:.
 
 library: %(defaultlibrary)s
 
