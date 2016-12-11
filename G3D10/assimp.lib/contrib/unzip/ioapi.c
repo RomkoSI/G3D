@@ -9,7 +9,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define ASSIMP_BUILD_NO_OWN_ZLIB
+
+// G3D Modification
+#include <assimp/defs.h>
+
 #	ifdef ASSIMP_BUILD_NO_OWN_ZLIB
 #		include <zlib.h>
 #	else
