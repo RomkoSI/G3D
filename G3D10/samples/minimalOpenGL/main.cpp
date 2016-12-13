@@ -153,6 +153,7 @@ int main(const int argc, const char* argv[]) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Shape::tangent), Shape::tangent, GL_STATIC_DRAW);
 
     const int numVertices = sizeof(Shape::position) / sizeof(Shape::position[0]);
+    (void)numVertices;
 
     GLuint indexBuffer = GL_NONE;
     glGenBuffers(1, &indexBuffer);

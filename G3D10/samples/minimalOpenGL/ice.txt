@@ -127,14 +127,14 @@ uses:
 ################################################################
 [DEBUG]
 
-compileoptions:
+compileoptions: -Wno-missing-braces
 
 linkoptions:
 
 ################################################################
 [RELEASE]
 
-compileoptions:
+compileoptions: -Wno-missing-braces
 
 linkoptions:
 

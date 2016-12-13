@@ -19,6 +19,8 @@
   All 3D math from http://graphicscodex.com
 */
 #pragma once
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-braces"
 
 #ifdef __APPLE__
 #   define _OSX
@@ -336,3 +338,5 @@ void loadBMP(const std::string& filename, int& width, int& height, int& channels
         }
     }
 }
+
+#pragma clang diagnostic pop
