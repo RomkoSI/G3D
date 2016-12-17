@@ -218,6 +218,7 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
     <ClCompile Include="..\G3D.lib\source\Plane.cpp" />
     <ClCompile Include="..\G3D.lib\source\PrecomputedRandom.cpp" />
     <ClCompile Include="..\G3D.lib\source\PrecomputedRay.cpp" />
+    <ClCompile Include="..\G3D.lib\source\PrefixTree.cpp" />
     <ClCompile Include="..\G3D.lib\source\Projection.cpp" />
     <ClCompile Include="..\G3D.lib\source\prompt.cpp" />
     <ClCompile Include="..\G3D.lib\source\Quat.cpp" />
@@ -285,6 +286,7 @@ call "$(ProjectDir)..\bin\copyifnewer" --exclusions "$(ProjectDir)..\$(ProjectNa
     <ClInclude Include="..\G3D.lib\include\G3D\ParseVOX.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\Pathfinder.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\PrecomputedRay.h" />
+    <ClInclude Include="..\G3D.lib\include\G3D\PrefixTree.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\SmallTable.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\svnutils.h" />
     <ClInclude Include="..\G3D.lib\include\G3D\svn_info.h" />
