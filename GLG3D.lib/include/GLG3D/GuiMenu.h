@@ -35,6 +35,8 @@ protected:
 
     /** The created labels for each menu item */
     Array<GuiControl*>              m_labelArray;
+    /** If m_labelArray[i] corresponds to a prefix tree internal node, m_hasChildren[i] is true */
+    Array<bool>                     m_hasChildren;
     Pointer<int>                    m_indexValue;
 
     /** Which of the two list values to use */
