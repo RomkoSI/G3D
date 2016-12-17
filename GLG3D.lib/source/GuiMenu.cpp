@@ -11,6 +11,7 @@
  All rights reserved.
 */
 #include "G3D/platform.h"
+#include "G3D/PrefixTree.h"
 #include "GLG3D/GuiMenu.h"
 #include "GLG3D/GuiWindow.h"
 #include "GLG3D/GuiPane.h"
@@ -62,7 +63,7 @@ void GuiMenu::init(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, const A
     const int windowHeight = RenderDevice::current->window()->height();
 
     m_innerScrollPane = pane()->addScrollPane(true, false, GuiTheme::BORDERLESS_SCROLL_PANE_STYLE);
-    m_innerScrollPane->setPosition(0,0);
+    m_innerScrollPane->setPosition(0, 0);
     m_innerScrollPane->setHeight(float(min(windowHeight, menuHeight(listPtr.size())) + GuiPane::CONTROL_PADDING));
     innerPane = m_innerScrollPane->viewPane();
     
@@ -79,6 +80,14 @@ void GuiMenu::init(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, const A
 
     pack();
     m_highlightIndex = *m_indexValue;
+
+    if (m_usePrefixTreeMenus) {
+        if (m_useStringList) {
+            m_prefixTree = PrefixTree::create(*m_stringListValue);
+        } else {
+            m_prefixTree = PrefixTree::create(*m_captionListValue);
+        }
+    }
 }
 
 

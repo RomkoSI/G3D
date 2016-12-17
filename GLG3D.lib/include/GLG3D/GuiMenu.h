@@ -8,8 +8,7 @@
  Copyright 2000-2017, Morgan McGuire morgan@casual-effects.com
  All rights reserved.
 */
-#ifndef G3D_GuiMenu_h
-#define G3D_GuiMenu_h
+#pragma once
 
 #include "G3D/Pointer.h"
 #include "G3D/Array.h"
@@ -18,6 +17,7 @@
 
 namespace G3D {
 
+class PrefixTree;
 class GuiPane;
 class GuiScrollPane;
 
@@ -50,6 +50,9 @@ protected:
     int                             m_highlightIndex;
 
     bool                            m_usePrefixTreeMenus;
+
+    /** Non-null only if m_usePrefixTreeMenus == true */
+    shared_ptr<PrefixTree>          m_prefixTree;
     
     GuiMenu(const shared_ptr<GuiTheme>& theme, const Rect2D& rect, Array<GuiText>* listPtr, const Pointer<int>& indexValue, bool usePrefixTreeMenus);
     GuiMenu(const shared_ptr<GuiTheme>& theme, const Rect2D& rect, Array<String>* listPtr, const Pointer<int>& indexValue, bool usePrefixTreeMenus);
@@ -88,4 +91,3 @@ public:
 };
 
 }
-#endif
