@@ -4,7 +4,7 @@
  \created
  \edited  
 
- Copyright 2000-2015, Morgan McGuire, http://graphics.cs.williams.edu
+ Copyright 2000-2017, Morgan McGuire morgan@casual-effects.com
  All rights reserved.
  */
 #include "GLG3D/GuiPane.h"
@@ -13,19 +13,19 @@
 
 namespace G3D {
 
-    static const float MIN_WINDOW_SIZE = 100;
+static const float MIN_WINDOW_SIZE = 100;
 
 GuiScrollPane::GuiScrollPane(GuiContainer* parent, bool verticalScroll, bool horizontalScroll, GuiTheme::ScrollPaneStyle style) : 
     GuiContainer(parent, ""), m_style(style), horizontalEnabled(horizontalScroll), verticalEnabled(verticalScroll) {
     
-    m_viewPane            = new GuiPane(this, "", m_rect, GuiTheme::NO_PANE_STYLE);
+    m_viewPane          = new GuiPane(this, "", m_rect, GuiTheme::NO_PANE_STYLE);
 
-    m_verticalScrollBar = NULL;
+    m_verticalScrollBar = nullptr;
     if(verticalEnabled) {
         m_verticalScrollBar   = new GuiScrollBar(this, &m_verticalOffset, 0, m_rect.height(), true, this);
     }
 
-    m_horizontalScrollBar = NULL;
+    m_horizontalScrollBar = nullptr;
     if(horizontalEnabled) {
         m_horizontalScrollBar = new GuiScrollBar(this, &m_horizontalOffset, 0, m_rect.width(), false, this);
     }
@@ -58,7 +58,7 @@ void GuiScrollPane::setRect(const Rect2D& rect) {
 
     float horizontalEnabledOffset = horizontalEnabled ? scrollBarWidth : 0;
 
-   if (m_viewPane->rect().width() < m_rect.width() - verticalEnabledOffset) {
+    if (m_viewPane->rect().width() < m_rect.width() - verticalEnabledOffset) {
         horizontalEnabledOffset = 0;
     }
 
@@ -66,17 +66,20 @@ void GuiScrollPane::setRect(const Rect2D& rect) {
         verticalEnabledOffset = 0;
     }
 
-    m_rect = rect; Rect2D::xywh(rect.x0() - verticalEnabledOffset, rect.y0() - horizontalEnabledOffset, rect.width() + verticalEnabledOffset, rect.width() + horizontalEnabledOffset);
+    m_rect = rect; 
+    //Rect2D::xywh(rect.x0() - verticalEnabledOffset, rect.y0() - horizontalEnabledOffset, rect.width() + verticalEnabledOffset, rect.width() + horizontalEnabledOffset);
     m_clientRect = m_rect;
     if (verticalEnabled) {
         m_verticalScrollBar->setRect(Rect2D::xywh(m_rect.width() - scrollBarWidth, borderWidth, scrollBarWidth, m_rect.height() - scrollBarDimesionsBump() - horizontalEnabledOffset));
         m_verticalScrollBar->setExtent(m_rect.height() - horizontalEnabledOffset);
     }
+
     if (horizontalEnabled) {
         m_horizontalScrollBar->setRect(Rect2D::xywh(borderWidth, m_rect.height() - scrollBarWidth, m_rect.width() - scrollBarDimesionsBump() - verticalEnabledOffset, scrollBarWidth));
         m_horizontalScrollBar->setExtent(m_rect.width() - verticalEnabledOffset);
-     }
+    }
 }
+
 
 void GuiScrollPane::pack() {
     float scrollBarWidth = theme()->scrollBarWidth();
@@ -88,11 +91,12 @@ void GuiScrollPane::pack() {
             setWidth(viewRect.width() + scrollBarWidth + borderDimensionsBump());
         }
     }
+
     if (horizontalEnabled) {
-        if(viewRect.height() < m_rect.height() && viewRect.height() > MIN_WINDOW_SIZE) {
+        if (viewRect.height() < m_rect.height() && viewRect.height() > MIN_WINDOW_SIZE) {
             setHeight(viewRect.height() + scrollBarWidth + borderDimensionsBump());
         }
-     }
+    }
 }
 
 
@@ -131,6 +135,7 @@ void GuiScrollPane::render(RenderDevice* rd, const shared_ptr<GuiTheme>& theme, 
         m_horizontalScrollBar->setExtent(m_rect.width() - borderDimensions - horizontalEnabledOffset);
         m_horizontalScrollBar->setMax(m_viewPane->rect().width());
     }
+
     theme->pushClientRect(m_rect); {
         if (m_style == GuiTheme::BORDERED_SCROLL_PANE_STYLE) {
             theme->renderTextBoxBorder(Rect2D::xywh(0, 0, m_rect.width() - verticalEnabledOffset, m_rect.height() - horizontalEnabledOffset), m_enabled && ancestorsEnabled, false);

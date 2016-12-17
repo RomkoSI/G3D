@@ -6,7 +6,7 @@
   \created 2007-06-01
   \edited  2013-04-08
 
- Copyright 2000-2016, Morgan McGuire.
+ Copyright 2000-2017, Morgan McGuire morgan@casual-effects.com
  All rights reserved.
 */
 
@@ -47,8 +47,8 @@ shared_ptr<DeveloperWindow> DeveloperWindow::create
      bool*                                      showText,
      const String&                              screenshotPrefix) {
 
-    return shared_ptr<DeveloperWindow>(new DeveloperWindow(app, manualManipulator, trackManipulator, cameraManipulator,
-                               camera, scene, film, theme, console, debugVisible, showStats, showText, screenshotPrefix));
+    return createShared<DeveloperWindow>(app, manualManipulator, trackManipulator, cameraManipulator,
+               camera, scene, film, theme, console, debugVisible, showStats, showText, screenshotPrefix);
 }
 
 
@@ -66,7 +66,7 @@ DeveloperWindow::DeveloperWindow
      bool*                                      showStats,
      bool*                                      showText,
      const String&                              screenshotPrefix) :
-    GuiWindow("Developer (F11)", theme, Rect2D::xywh(600, 80, 0, 0), GuiTheme::TOOL_WINDOW_STYLE, HIDE_ON_CLOSE),
+    GuiWindow("Developer (F11)", theme, Rect2D::xywh(0, 80, 0, 0), GuiTheme::TOOL_WINDOW_STYLE, HIDE_ON_CLOSE),
     m_textureBrowserButton(),
     m_textureBrowserWindow(),
     m_texturePopUpWindow(),
@@ -78,7 +78,7 @@ DeveloperWindow::DeveloperWindow
     cameraControlWindow = CameraControlWindow::create(manualManipulator, trackManipulator, cameraManipulator,
                                                       debugCamera, film, theme);
 
-    cameraControlWindow->moveTo(Point2(app->window()->width() - cameraControlWindow->rect().width(), 0));
+    cameraControlWindow->moveTo(Point2(0, 140));
 
     videoRecordDialog = VideoRecordDialog::create(theme, screenshotPrefix, app);
 
@@ -94,7 +94,7 @@ DeveloperWindow::DeveloperWindow
     // For texture windows
     m_app      = app;
     m_theme    = theme;
-    m_menu     = shared_ptr<GuiMenu>();
+    m_menu     = nullptr;
 
     GuiPane* root = pane();
 
@@ -102,22 +102,22 @@ DeveloperWindow::DeveloperWindow
     Vector2 buttonSize(iconSize, iconSize);
 
     const shared_ptr<IconSet>& iconSet = IconSet::fromFile(System::findDataFile("icon/tango.icn"));
-    GuiText cameraIcon(iconSet->get("22x22/devices/camera-photo.png"));
-    GuiText movieIcon(iconSet->get("22x22/categories/applications-multimedia.png"));
-    GuiText consoleIcon(iconSet->get("22x22/apps/utilities-terminal.png"));
-    GuiText statsIcon(iconSet->get("22x22/apps/utilities-system-monitor.png"));
-    GuiText debugIcon(iconSet->get("22x22/categories/preferences-desktop.png"));
-    GuiText sceneIcon(iconSet->get("22x22/categories/preferences-system.png"));
-    GuiText textIcon(iconSet->get("22x22/mimetypes/text-x-generic.png"));
-    GuiText textureBrowserIcon(iconSet->get("22x22/actions/window-new.png"));
-    GuiText profilerIcon(iconSet->get("22x22/actions/appointment-new.png"));
+    const GuiText cameraIcon(iconSet->get("22x22/devices/camera-photo.png"));
+    const GuiText movieIcon(iconSet->get("22x22/categories/applications-multimedia.png"));
+    const GuiText consoleIcon(iconSet->get("22x22/apps/utilities-terminal.png"));
+    const GuiText statsIcon(iconSet->get("22x22/apps/utilities-system-monitor.png"));
+    const GuiText debugIcon(iconSet->get("22x22/categories/preferences-desktop.png"));
+    const GuiText sceneIcon(iconSet->get("22x22/categories/preferences-system.png"));
+    const GuiText textIcon(iconSet->get("22x22/mimetypes/text-x-generic.png"));
+    const GuiText textureBrowserIcon(iconSet->get("22x22/actions/window-new.png"));
+    const GuiText profilerIcon(iconSet->get("22x22/actions/appointment-new.png"));
 
-    Pointer<bool> ptr = Pointer<bool>((shared_ptr<GuiWindow>)cameraControlWindow, &GuiWindow::visible, &GuiWindow::setVisible);
+    const Pointer<bool>& ptr = Pointer<bool>((shared_ptr<GuiWindow>)cameraControlWindow, &GuiWindow::visible, &GuiWindow::setVisible);
     GuiControl* cameraButton = root->addCheckBox(cameraIcon, ptr, GuiTheme::TOOL_CHECK_BOX_STYLE);
     cameraButton->setSize(buttonSize);
     cameraButton->setPosition(0, 0);
 
-    Pointer<bool> ptr2 = Pointer<bool>((shared_ptr<GuiWindow>)videoRecordDialog, &GuiWindow::visible, &GuiWindow::setVisible);
+    const Pointer<bool>& ptr2 = Pointer<bool>((shared_ptr<GuiWindow>)videoRecordDialog, &GuiWindow::visible, &GuiWindow::setVisible);
     GuiControl* movieButton = root->addCheckBox(movieIcon, ptr2, GuiTheme::TOOL_CHECK_BOX_STYLE);
     movieButton->setSize(buttonSize);
 
@@ -178,7 +178,7 @@ void DeveloperWindow::setManager(WidgetManager* manager) {
 
     // Move to the lower left
     Vector2 osWindowSize = manager->window()->clientRect().wh();
-    setRect(Rect2D::xywh(osWindowSize - rect().wh(), rect().wh()));
+    setRect(Rect2D::xywh(Point2(0, osWindowSize.y - rect().height()), rect().wh()));
 }
 
 
@@ -221,7 +221,6 @@ void DeveloperWindow::texturePopUp() {
     // We purposefully recreate m_menu every time, because textureNames can change between calls
     m_menu = GuiMenu::create(m_theme, &textureNames, &m_textureIndex);
     m_menu->setManager(m_manager);
-
 
     m_menu->pack();
     m_menu->show(m_manager, this, m_textureBrowserButton, Vector2(window()->width() - m_menu->rect().width(), 0.0), false, GuiControl::Callback(this, &DeveloperWindow::makeNewTexturePane));

@@ -5,7 +5,7 @@
  @edited  20104-01-11
 
  G3D Library http://g3d.cs.williams.edu
- Copyright 2001-2014, Morgan McGuire, http://graphics.cs.williams.edu
+ Copyright 2000-2017, Morgan McGuire morgan@casual-effects.com
  All rights reserved.
 */
 #ifndef G3D_GuiMenu_h
@@ -24,6 +24,7 @@ class GuiScrollPane;
 /**A special "popup" window that hides itself when it loses focus.
    Used by GuiDropDownList for the popup and can be used to build context menus. */
 class GuiMenu : public GuiWindow {
+friend class GuiDropDownList;
 protected:
 
     GuiControl::Callback            m_actionCallback;
@@ -31,7 +32,8 @@ protected:
 
     Array<String>*                  m_stringListValue;
     Array<GuiText>*                 m_captionListValue;
-    /** The created labels */
+
+    /** The created labels for each menu item */
     Array<GuiControl*>              m_labelArray;
     Pointer<int>                    m_indexValue;
 
@@ -46,7 +48,7 @@ protected:
 
     /** Mouse is over this option */
     int                             m_highlightIndex;
-
+    
     GuiMenu(const shared_ptr<GuiTheme>& theme, const Rect2D& rect, Array<GuiText>* listPtr, const Pointer<int>& indexValue);
     GuiMenu(const shared_ptr<GuiTheme>& theme, const Rect2D& rect, Array<String>* listPtr, const Pointer<int>& indexValue);
 
@@ -59,6 +61,9 @@ protected:
     void init(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, const Array<GuiText>& listPtr, const Pointer<int>& indexValue);
 
 public:
+    /** A submenu. If the child is not null, then this window will not close. */
+    shared_ptr<GuiMenu>             m_child; // TODO make protected, friend GuiPrefixDropdownLsit
+    shared_ptr<GuiMenu>             m_parent;
 
     static shared_ptr<GuiMenu> create(const shared_ptr<GuiTheme>& theme, Array<GuiText>* listPtr, const Pointer<int>& indexValue);
     
@@ -68,7 +73,12 @@ public:
 
     virtual void render(RenderDevice* rd) const override;
 
+    /** Called from render to draw chevrons and highlighting before child content. */
+    virtual void renderDecorations(RenderDevice* rd) const;
+   
     void hide();
+
+    const Rect2D& labelRect(int i) { return m_labelArray[i]->clickRect(); }
 
     /** \param superior The window from which the menu is being created. */
     virtual void show(WidgetManager* manager, GuiWindow* superior, GuiControl* eventSource, const Vector2& position, bool modal = false, const GuiControl::Callback& actionCallback = GuiControl::Callback());

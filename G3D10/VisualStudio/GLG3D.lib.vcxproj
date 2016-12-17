@@ -198,6 +198,7 @@
     <ClCompile Include="..\GLG3D.lib\source\GuiLabel.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\GuiMenu.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\GuiPane.cpp" />
+    <ClCompile Include="..\GLG3D.lib\source\GuiPrefixDropDownList.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\GuiRadioButton.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\GuiScrollBar.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\GuiScrollPane.cpp" />
@@ -335,12 +336,14 @@
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiCheckBox.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiContainer.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiControl.h" />
+    <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiDropDownList.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiFrameBox.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiFunctionBox.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiLabel.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiMenu.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiNumberBox.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiPane.h" />
+    <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiPrefixDropDownList.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiRadioButton.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiScrollBar.h" />
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiScrollPane.h" />

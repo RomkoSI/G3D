@@ -8,8 +8,7 @@
  Copyright 2000-2015, Morgan McGuire, http://graphics.cs.williams.edu
  All rights reserved.
 */
-#ifndef G3D_GuiPane_h
-#define G3D_GuiPane_h
+#pragma once
 
 #include "G3D/G3DString.h"
 #include <limits.h>
@@ -28,6 +27,7 @@
 #include "GLG3D/GuiButton.h"
 #include "GLG3D/GuiNumberBox.h"
 #include "GLG3D/GuiDropDownList.h"
+#include "GLG3D/GuiPrefixDropDownList.h"
 #include "GLG3D/GuiFunctionBox.h"
 #include "GLG3D/GuiTextureBox.h"
 #include "GLG3D/GuiScrollPane.h"
@@ -281,17 +281,16 @@ public:
                    reinterpret_cast<void (Class::*)(int)>(setMethod)))
       </pre>
      */
-    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<String>& list, const Pointer<int>& indexPointer = NULL, const GuiControl::Callback& actionCallback = GuiControl::Callback());
-    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<GuiText>& list = Array<GuiText>(), const Pointer<int>& indexPointer = NULL, const GuiControl::Callback& actionCallback = GuiControl::Callback());
+    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<String>& list, const Pointer<int>& indexPointer = nullptr, const GuiControl::Callback& actionCallback = GuiControl::Callback(), bool usePrefixTreeMenus = false);
+    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<GuiText>& list = Array<GuiText>(), const Pointer<int>& indexPointer = nullptr, const GuiControl::Callback& actionCallback = GuiControl::Callback(), bool usePrefixTreeMenus = false);
 
-    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<String>& list, const Pointer<int>& indexPointer, std::function<void(void)> callbackFunction) {
-        return addDropDownList(caption, list, indexPointer, GuiControl::Callback(callbackFunction));
+    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<String>& list, const Pointer<int>& indexPointer, std::function<void(void)> callbackFunction, bool usePrefixTreeMenus = false) {
+        return addDropDownList(caption, list, indexPointer, GuiControl::Callback(callbackFunction), usePrefixTreeMenus);
     }
 
-    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<GuiText>& list, const Pointer<int>& indexPointer, std::function<void(void)> callbackFunction) {
-        return addDropDownList(caption, list, indexPointer, GuiControl::Callback(callbackFunction));
-    }
-    
+    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<GuiText>& list, const Pointer<int>& indexPointer, std::function<void(void)> callbackFunction, bool usePrefixTreeMenus = false) {
+        return addDropDownList(caption, list, indexPointer, GuiControl::Callback(callbackFunction), usePrefixTreeMenus);
+    }    
 
     /**
        Example:
@@ -574,5 +573,3 @@ public:
 };
 
 }
-
-#endif

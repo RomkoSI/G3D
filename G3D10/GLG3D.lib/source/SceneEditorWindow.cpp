@@ -1,6 +1,6 @@
 /**
  G3D Library http://g3d.cs.williams.edu
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2017, Morgan McGuire morgan@casual-effects.com
  All rights reserved.
 */
 
@@ -207,7 +207,7 @@ shared_ptr<SceneEditorWindow> SceneEditorWindow::create
 
 
 SceneEditorWindow::SceneEditorWindow(GApp* app, shared_ptr<Scene> scene, shared_ptr<GuiTheme> theme) : 
-    GuiWindow("Scene Editor", theme, Rect2D::xywh(0,0,100,100), GuiTheme::TOOL_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE),
+    GuiWindow("Scene Editor", theme, Rect2D::xywh(0, 0, 100, 100), GuiTheme::TOOL_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE),
     m_scene(scene),
     m_app(app),
     m_selectionInfo(),
@@ -268,13 +268,12 @@ void SceneEditorWindow::checkForChanges() {
         // Update the Camera list in the GUI
         m_cameraDropDownList->clear();
         m_cameraDropDownList->append(m_app->debugCamera()->name());
-        for (int i = 0; i < nameList.size(); ++i) {
-            // Is this a camera?
-            shared_ptr<Camera> camera = m_scene->typedEntity<Camera>(nameList[i]);
+        for (const String& cameraName : nameList) {
+            const shared_ptr<Camera>& camera = m_scene->typedEntity<Camera>(cameraName);
             if (notNull(camera)) {
-                m_cameraDropDownList->append(nameList[i]);
+                m_cameraDropDownList->append(cameraName);
             }
-        } // For each camera
+        }
 
         // Preserve selection
         if (notNull(m_app->activeCamera()) && m_cameraDropDownList->containsValue(m_app->activeCamera()->name())) {
@@ -306,7 +305,7 @@ void SceneEditorWindow::checkForChanges() {
 
 
 void SceneEditorWindow::setManager(WidgetManager* m) {
-    if ((m == NULL) && (manager() != NULL)) {
+    if (notNull(m) && notNull(manager())) {
         // Remove controls from old manager
         manager()->remove(m_manipulator);
         if (notNull(m_popupSplineEditor)) {
@@ -316,7 +315,7 @@ void SceneEditorWindow::setManager(WidgetManager* m) {
 
     GuiWindow::setManager(m);
     
-    if (m != NULL) {
+    if (notNull(m)) {
         m->add(m_manipulator);
         if (notNull(m_popupSplineEditor)) {
             m->add(m_popupSplineEditor);
@@ -344,10 +343,10 @@ void SceneEditorWindow::makeGUI(GApp* app) {
     m_manipulator->setEnabled(false);
 
     GuiPane* editorPane = pane();
-    shared_ptr<IconSet> iconSet = IconSet::fromFile(System::findDataFile("tango.icn"));
-    shared_ptr<GFont> iconFont = GFont::fromFile(System::findDataFile("icon.fnt"));
+    const shared_ptr<IconSet>& iconSet = IconSet::fromFile(System::findDataFile("tango.icn"));
+    const shared_ptr<GFont>&   iconFont = GFont::fromFile(System::findDataFile("icon.fnt"));
     
-    m_sceneDropDownList = editorPane->addDropDownList("Scene", Scene::sceneNames(), NULL, GuiControl::Callback(this, &SceneEditorWindow::loadSceneCallback));
+    m_sceneDropDownList = editorPane->addDropDownList("Scene", Scene::sceneNames(), nullptr, GuiControl::Callback(this, &SceneEditorWindow::loadSceneCallback), true);
     m_sceneDropDownList->moveBy(-3, -3);
     m_sceneDropDownList->setWidth(s_defaultWindowSize.x - 57);
     m_sceneDropDownList->setCaptionWidth(44);
@@ -366,13 +365,12 @@ void SceneEditorWindow::makeGUI(GApp* app) {
     m_sceneLockBox->setSize(27, 21);
 
     editorPane->beginRow(); {
-        m_cameraDropDownList = editorPane->addDropDownList("Camera", Array<String>(app->debugCamera()->name()), NULL, GuiControl::Callback(this, &SceneEditorWindow::changeCameraCallback));
+        m_cameraDropDownList = editorPane->addDropDownList("Camera", Array<String>(app->debugCamera()->name()), nullptr, GuiControl::Callback(this, &SceneEditorWindow::changeCameraCallback), true);
         m_cameraDropDownList->moveBy(-3, -1);
         m_cameraDropDownList->setWidth(s_defaultWindowSize.x - 57);
         m_cameraDropDownList->setCaptionWidth(44);
     } editorPane->endRow();
-
-
+    
     // Time controls
     editorPane->beginRow(); {
         GuiLabel* label = editorPane->addLabel("Time");

@@ -20,15 +20,16 @@ GuiDropDownList::GuiDropDownList
  const Pointer<int>&                   indexValue, 
  const Array<GuiText>&                 listValue,
  const Pointer<Array<String> >&        listValuePtr,
- const GuiControl::Callback&           actionCallback) :
+ const GuiControl::Callback&           actionCallback,
+ bool                                  usePrefixTreeMenus) :
  GuiControl(parent, caption), 
     m_indexValue(indexValue.isNull() ? Pointer<int>(&m_myInt) : indexValue),
     m_myInt(0),
     m_listValuePtr(listValuePtr),
     m_listValue(listValue),
     m_selecting(false),
-    m_actionCallback(actionCallback) {
-
+    m_actionCallback(actionCallback),
+    m_usePrefixTreeMenus(usePrefixTreeMenus) {
 }
 
 

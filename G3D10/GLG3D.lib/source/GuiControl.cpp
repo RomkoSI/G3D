@@ -5,6 +5,8 @@
 
  \created 2007-06-01
  \edited  2011-05-10
+ Copyright 2000-2017, Morgan McGuire morgan@casual-effects.com
+ All rights reserved.
  */
 
 #include "G3D/platform.h"
@@ -43,7 +45,7 @@ Point2 GuiControl::toOSWindowCoords(const Point2& v) const {
 
     const GuiContainer* current = m_parent;
 
-    while (current != NULL) {
+    while (notNull(current)) {
         result += current->m_rect.x0y0();
         current = current->m_parent;
     }

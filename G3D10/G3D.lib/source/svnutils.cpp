@@ -46,7 +46,134 @@ static String maybeUpOneDirectory(const String& directory) {
 }
 
 
+/** Read output from the child process's pipe for STDOUT.
+ *  Stop when there is no more data.
+ */
+String ReadFromPipe(HANDLE& pipe) { 
+    const int BUFSIZE = 4096;
+    DWORD dwRead; 
+    CHAR chBuf[BUFSIZE]; 
+    BOOL bSuccess = FALSE;
+
+    String result;
+    for (;;) {
+        debugPrintf("Reading from child pipe...\n");
+        bSuccess = ReadFile( pipe, chBuf, BUFSIZE, &dwRead, NULL);
+        if( ! bSuccess || dwRead == 0 ) break; 
+        
+        result.append(chBuf, dwRead);
+        debugPrintf("Read from child pipe: '%s'\n", result.c_str());
+    }
+    debugPrintf("Read full string from child pipe: '%s'\n", result.c_str());
+
+    return result;
+} 
+
+void CreateChildProcess(LPWSTR& cmd, HANDLE& err, HANDLE& out, HANDLE& in) {
+    BOOL bSuccess = FALSE; 
+ 
+    // Set up members of the PROCESS_INFORMATION structure.  
+    PROCESS_INFORMATION piProcInfo; 
+    ZeroMemory( &piProcInfo, sizeof(PROCESS_INFORMATION) );
+ 
+    // Set up members of the STARTUPINFO structure. 
+    // This structure specifies the STDIN and STDOUT handles for redirection. 
+    STARTUPINFO siStartInfo;
+    ZeroMemory( &siStartInfo, sizeof(STARTUPINFO) );
+    siStartInfo.cb = sizeof(STARTUPINFO);
+    siStartInfo.hStdError = &err;
+    siStartInfo.hStdOutput = &out;
+    siStartInfo.hStdInput = &in;
+    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+ 
+    // Create the child process. 
+    bSuccess = CreateProcess(
+        NULL,
+        cmd,           // command line 
+        NULL,          // process security attributes 
+        NULL,          // primary thread security attributes 
+        TRUE,          // handles are inherited 
+        NULL,             // creation flags 
+        NULL,          // use parent's environment 
+        NULL,          // use parent's current directory 
+        &siStartInfo,  // STARTUPINFO pointer 
+        &piProcInfo    // receives PROCESS_INFORMATION 
+    );  
+   
+    // If an error occurs, exit the application. 
+    if (!bSuccess) {
+        alwaysAssertM(false, "Failed to create child process.");
+    } else {
+        // Close handles to the child process and its primary thread.
+        // Some applications might keep these handles to monitor the status
+        // of the child process, for example.
+        CloseHandle(piProcInfo.hProcess);
+        CloseHandle(piProcInfo.hThread);
+    }
+}
+
 static String g3d_exec(const char* cmd) {
+#ifdef SOMETHING_THAT_IS_DEFINITELY_NOT_DEFINED
+    HANDLE childInRead = NULL;
+    HANDLE childInWrite = NULL;
+    HANDLE childOutRead = NULL;
+    HANDLE childOutWrite = NULL;
+
+    SECURITY_ATTRIBUTES saAttr; 
+ 
+    // Set the bInheritHandle flag so pipe handles are inherited. 
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES); 
+    saAttr.bInheritHandle = TRUE; 
+    saAttr.lpSecurityDescriptor = NULL; 
+
+    // Create a pipe for the child process's STDOUT.
+    if (!CreatePipe(&childOutRead, &childOutWrite, &saAttr, 0)) {
+        alwaysAssertM(false, "Couldn't create a stdout pipe for child process.");
+    }
+
+    // Ensure the read handle to the pipe for STDOUT is not inherited.
+    if (!SetHandleInformation(childOutRead, HANDLE_FLAG_INHERIT, 0)) {
+        alwaysAssertM(false, "Couldn't set stdout handle information for child process.");
+    }
+
+    // Create a pipe for the child process's STDIN. 
+    if (! CreatePipe(&childInRead, &childInWrite, &saAttr, 0)) 
+        alwaysAssertM(false, "Couldn't create a stdin pipe for child process.");
+
+    // Ensure the write handle to the pipe for STDIN is not inherited.
+    if ( ! SetHandleInformation(childInWrite, HANDLE_FLAG_INHERIT, 0) )
+        alwaysAssertM(false, "Couldn't set stdin handle information for child process.");
+
+  
+    // Adapted from http://stackoverflow.com/a/19717944
+    // Convert command string to Windows string
+    debugPrintf("running command '%s'\n", cmd);
+    wchar_t* wString = new wchar_t[4096];
+    MultiByteToWideChar(CP_ACP, 0, cmd, -1, wString, 4096);
+    
+    CreateChildProcess(wString, childOutWrite, childOutWrite, childInRead);
+
+    // We don't need to write anything, so close the input write handle
+    if (!CloseHandle(childInWrite)) {
+        alwaysAssertM(false, "Failed to close child process stdin write handle.");
+    }
+
+    // Actually read output from child process
+    String result = ReadFromPipe(childOutRead);
+    
+    // Clean up
+    if (!CloseHandle(childOutWrite)) {
+        alwaysAssertM(false, "Failed to close child process stdout write handle.");
+    }
+    if (!CloseHandle(childOutRead)) {
+        alwaysAssertM(false, "Failed to close child process child stdout read handle.");
+    }
+    if (!CloseHandle(childInRead)) {
+        alwaysAssertM(false, "Failed to close child process stdin read handle.");
+    }    
+
+    return result;
+#else
     FILE* pipe = g3d_popen(cmd, "r");
     if (!pipe) { return "ERROR"; }
     char buffer[128];
@@ -61,6 +188,7 @@ static String g3d_exec(const char* cmd) {
     g3d_pclose(pipe);
     pipe = nullptr;
     return result;
+#endif
 }
 
 

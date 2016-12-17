@@ -7,7 +7,7 @@
  \edited  2013-08-20
 
  G3D Library http://g3d.cs.williams.edu
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2017, Morgan McGuire morgan@casual-effects.com
  All rights reserved.
  */
 

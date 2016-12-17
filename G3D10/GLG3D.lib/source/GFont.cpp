@@ -91,7 +91,7 @@ shared_ptr<GFont> GFont::fromFile(const String& filename) {
         return shared_ptr<GFont>();
     }
 
-    String key = filenameBaseExt(filename);
+    const String& key = filenameBaseExt(filename);
     shared_ptr<GFont> font = _internal::fontCache()[key];
     if (isNull(font)) {
         BinaryInput b(filename, G3D_LITTLE_ENDIAN, true);
