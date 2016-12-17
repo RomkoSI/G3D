@@ -219,7 +219,7 @@ void DeveloperWindow::texturePopUp() {
     m_texturePopUpWindow = GuiWindow::create("", m_theme, Rect2D::xywh(rect().x0y0()  - Vector2(0, 250), Vector2(0, 250)), GuiTheme::NO_WINDOW_STYLE);
 
     // We purposefully recreate m_menu every time, because textureNames can change between calls
-    m_menu = GuiMenu::create(m_theme, &textureNames, &m_textureIndex);
+    m_menu = GuiMenu::create(m_theme, &textureNames, &m_textureIndex, true);
     m_menu->setManager(m_manager);
 
     m_menu->pack();
