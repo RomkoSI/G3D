@@ -6,7 +6,7 @@
  \edited  2014-07-23
 
  G3D Library http://g3d.cs.williams.edu
- Copyright 2000-2015, Morgan McGuire morgan@cs.williams.edu
+ Copyright 2000-2017, Morgan McGuire morgan@casual-effects.com
  All rights reserved.
  Use permitted under the BSD license
  */

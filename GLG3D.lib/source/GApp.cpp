@@ -497,23 +497,23 @@ void GApp::createDeveloperHUD() {
     const shared_ptr<UprightSplineManipulator>& splineManipulator = UprightSplineManipulator::create(m_debugCamera);
     addWidget(splineManipulator);
 
-    shared_ptr<GFont>      arialFont   = GFont::fromFile(System::findDataFile("arial.fnt"));
-    shared_ptr<GuiTheme>   theme       = GuiTheme::fromFile(System::findDataFile("osx-10.7.gtm"), arialFont);
+    const shared_ptr<GFont>&      arialFont = GFont::fromFile(System::findDataFile("arial.fnt"));
+    const shared_ptr<GuiTheme>&   theme     = GuiTheme::fromFile(System::findDataFile("osx-10.7.gtm"), arialFont);
 
     developerWindow = DeveloperWindow::create
-        (this,
-            m_debugController,
-            splineManipulator,
-            Pointer<shared_ptr<Manipulator> >(this, &GApp::cameraManipulator, &GApp::setCameraManipulator),
-            m_debugCamera,
-            scene(),
-            m_film,
-            theme,
-            console,
-            Pointer<bool>(debugWindow, &GuiWindow::visible, &GuiWindow::setVisible),
-            &showRenderingStats,
-            &showDebugText,
-            m_settings.screenshotDirectory);
+       (this,
+        m_debugController,
+        splineManipulator,
+        Pointer<shared_ptr<Manipulator> >(this, &GApp::cameraManipulator, &GApp::setCameraManipulator),
+        m_debugCamera,
+        scene(),
+        m_film,
+        theme,
+        console,
+        Pointer<bool>(debugWindow, &GuiWindow::visible, &GuiWindow::setVisible),
+        &showRenderingStats,
+        &showDebugText,
+        m_settings.screenshotDirectory);
 
     addWidget(developerWindow);
 }

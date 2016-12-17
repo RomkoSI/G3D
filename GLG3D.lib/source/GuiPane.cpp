@@ -8,6 +8,7 @@
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiPane.h"
+#include "GLG3D/GuiPrefixDropDownList.h"
 #include "GLG3D/GuiWindow.h"
 #include "GLG3D/GuiLabel.h"
 #include "GLG3D/GuiButton.h"
@@ -191,23 +192,25 @@ GuiDropDownList* GuiPane::addDropDownList
 (const GuiText&                 caption, 
  const Array<String>&           list,
  const Pointer<int>&            pointer,
- const GuiControl::Callback&    actionCallback) {
+ const GuiControl::Callback&    actionCallback,
+ bool                           usePrefixTreeMenus) {
 
     Array<GuiText> c;
     c.resize(list.size());
     for (int i = 0; i < c.size(); ++i) {
         c[i] = list[i];
     }
-    return addDropDownList(caption, c, pointer, actionCallback);
+    return addDropDownList(caption, c, pointer, actionCallback, usePrefixTreeMenus);
 }
 
 
 GuiDropDownList* GuiPane::addDropDownList
-(const GuiText& caption, 
- const Array<GuiText>& list,
- const Pointer<int>& pointer,
- const GuiControl::Callback& actionCallback) {
-    return addControl(new GuiDropDownList(this, caption, pointer, list, NULL, actionCallback));
+(const GuiText&                 caption, 
+ const Array<GuiText>&          list,
+ const Pointer<int>&            pointer,
+ const GuiControl::Callback&    actionCallback,
+ bool                           usePrefixTreeMenus) {
+    return addControl(new GuiDropDownList(this, caption, pointer, list, nullptr, actionCallback, usePrefixTreeMenus));
 }
 
 

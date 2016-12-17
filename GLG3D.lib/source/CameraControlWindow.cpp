@@ -6,7 +6,8 @@
   \created 2007-06-01
   \edited  2013-07-25
 
- Copyright 2000-2015, Morgan McGuire.
+ G3D Library http://g3d.cs.williams.edu
+ Copyright 2000-2017, Morgan McGuire morgan@casual-effects.com
  All rights reserved.
  */
 #include "G3D/platform.h"
@@ -89,8 +90,8 @@ CameraControlWindow::CameraControlWindow
     m_cameraManipulator(cameraManipulator),
     m_manualManipulator(manualManipulator),
     m_trackManipulator(trackManipulator),
-    m_drawerButton(NULL),
-    m_drawerButtonPane(NULL),
+    m_drawerButton(nullptr),
+    m_drawerButtonPane(nullptr),
     m_expanded(false)
 {
     const int tabCaptionSize = 11;
@@ -103,8 +104,8 @@ CameraControlWindow::CameraControlWindow
 
     const char* CLIPBOARD = "\xA4";
     float h = 20;
-    shared_ptr<GFont> iconFont = GFont::fromFile(System::findDataFile("icon.fnt"));
-    shared_ptr<GFont> greekFont = GFont::fromFile(System::findDataFile("greek.fnt"));
+    const shared_ptr<GFont>& iconFont = GFont::fromFile(System::findDataFile("icon.fnt"));
+    const shared_ptr<GFont>& greekFont = GFont::fromFile(System::findDataFile("greek.fnt"));
 
     GuiFrameBox* cframeBox = pane->addFrameBox(Pointer<CFrame>(this, &CameraControlWindow::cameraFrame, &CameraControlWindow::setCameraFrame));
     cframeBox->moveBy(-2, -2);
@@ -451,7 +452,7 @@ void CameraControlWindow::setManager(WidgetManager* manager) {
     if (manager) {
         // Move to the upper right
         float osWindowWidth = (float)manager->window()->width();
-        setRect(Rect2D::xywh(osWindowWidth - rect().width(), 40, rect().width(), rect().height()));
+        setRect(Rect2D::xywh(0, 140, rect().width(), rect().height()));
     }
 }
 

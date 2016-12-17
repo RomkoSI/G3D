@@ -4,7 +4,8 @@
  \created 2010-03-01
  \edited  2011-08-29
 
- Copyright 2000-2015, Morgan McGuire, http://graphics.cs.williams.edu
+ G3D Library http://g3d.cs.williams.edu
+ Copyright 2000-2017, Morgan McGuire morgan@casual-effects.com
  All rights reserved.
 */
 #ifndef GLG3D_GuiTabPane_h

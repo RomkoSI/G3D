@@ -5,11 +5,10 @@
  \edited  2014-08-16
 
  G3D Library http://g3d.cs.williams.edu
- Copyright 2000-2015, Morgan McGuire morgan@cs.williams.edu
+ Copyright 2000-2017, Morgan McGuire morgan@casual-effects.com
  All rights reserved.
 */
-#ifndef G3D_GuiDropDownList_h
-#define G3D_GuiDropDownList_h
+#pragma once
 
 #include "G3D/Pointer.h"
 #include "G3D/Array.h"
@@ -35,7 +34,7 @@ class GuiDropDownList : public GuiControl {
 protected:
 
     /** Pop-up list menu; call menu() to create this. */
-    shared_ptr<GuiMenu>                    m_menu;
+    shared_ptr<GuiMenu>             m_menu;
     
     shared_ptr<GuiMenu> menu();
 
@@ -55,6 +54,8 @@ protected:
 
     GuiControl::Callback            m_actionCallback;
 
+    bool                            m_usePrefixTreeMenus;
+
     virtual bool onEvent(const GEvent& event) override;
    
     /** Makes the menu appear */
@@ -69,7 +70,8 @@ public:
         const Pointer<int>&         indexValue,
         const Array<GuiText>&       listValue,
         const Pointer< Array<String> >&  listValuePtr,
-        const GuiControl::Callback& actionCallback);
+        const GuiControl::Callback& actionCallback,
+        bool                        usePrefixTreeMenus);
        
     /** Called by GuiPane **/
     virtual void render(RenderDevice* rd, const shared_ptr<GuiTheme>& theme, bool ancestorsEnabled) const override;
@@ -134,5 +136,3 @@ public:
 };
 
 } // G3D
-
-#endif

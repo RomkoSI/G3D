@@ -1,12 +1,12 @@
 /**
  \file GLG3D/GuiScrollPane.cpp
 
- Copyright 2000-2015, Morgan McGuire, http://graphics.cs.williams.edu
+ G3D Library http://g3d.cs.williams.edu
+ Copyright 2000-2017, Morgan McGuire morgan@casual-effects.com
  All rights reserved.
  */
 
-#ifndef GLG3D_GuiScrollPane_h
-#define GLG3D_GuiScrollPane_h
+#pragma once
 
 #include "GLG3D/GuiScrollBar.h"
 #include "G3D/platform.h"
@@ -18,11 +18,10 @@ namespace G3D {
 
 class GuiPane;
 
-    /**
-    A conventional pane with scroll bars that allow the
-    user to determine which part of the pane to view.
-    **/
-
+/**
+A conventional pane with scroll bars that allow the
+user to determine which part of the pane to view.
+**/
 class GuiScrollPane : public GuiContainer {
 protected:
     
@@ -82,8 +81,7 @@ public:
     Vector2 paneOffset() const {
         return Vector2(m_horizontalOffset, m_verticalOffset);
     }
+
 };
 
 }
-
-#endif

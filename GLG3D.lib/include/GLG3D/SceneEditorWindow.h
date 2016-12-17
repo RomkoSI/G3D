@@ -4,6 +4,7 @@
 #include "G3D/platform.h"
 #include "G3D/ReferenceCount.h"
 #include "G3D/PhysicsFrameSpline.h"
+#include "GLG3D/GuiPrefixDropDownList.h"
 #include "GLG3D/GuiWindow.h"
 #include "GLG3D/ArticulatedModel.h"
 #include "GLG3D/SceneVisualizationSettings.h"
