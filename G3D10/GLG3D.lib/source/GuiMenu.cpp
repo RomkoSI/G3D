@@ -59,11 +59,11 @@ GuiMenu::GuiMenu(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, Array<Gui
 
 
 void GuiMenu::init(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, const Array<GuiText>& listPtr, const Pointer<int>& indexValue) {
-    if (m_usePrefixTreeMenus) {
-        alwaysAssertM(! m_useStringList, "Cannot create a prefix tree menu from a GuiText array");
-        m_prefixTree = PrefixTree::create(*m_stringListValue);
-        // TODO: instead of making my own GUI, create my immediate child, which is the root menu
-    }
+    //if (m_usePrefixTreeMenus) {
+    //    alwaysAssertM(! m_useStringList, "Cannot create a prefix tree menu from a GuiText array");
+    //    m_prefixTree = PrefixTree::create(*m_stringListValue);
+    //    // TODO: instead of making my own GUI, create my immediate child, which is the root menu
+    //}
 
     GuiPane* innerPane;
     const int windowHeight = RenderDevice::current->window()->height();
