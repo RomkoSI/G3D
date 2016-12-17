@@ -201,9 +201,11 @@ void GuiPrefixDropDownList::setRect(const Rect2D& rect) {
      m_clickRect = theme()->dropDownListToClickBounds(rect, m_captionWidth);
 }
 
+
 const GuiText& GuiPrefixDropDownList::selectedValue() const {
     return m_selectedValue;
 }
+
 
 void GuiPrefixDropDownList::setList(const Array<GuiText>& c) {
     m_menuHead.reset();
@@ -214,6 +216,7 @@ void GuiPrefixDropDownList::setList(const Array<GuiText>& c) {
     }
 }
 
+
 void GuiPrefixDropDownList::setList(const Array<String>& c) {
     m_menuHead.reset();
     
@@ -223,11 +226,13 @@ void GuiPrefixDropDownList::setList(const Array<String>& c) {
     }
 }
 
+
 void GuiPrefixDropDownList::clear() {
     // TODO test
     m_menuHead.reset();
     m_prefixTree = PrefixTree::create();
 }
+
 
 void GuiPrefixDropDownList::appendValue(const GuiText& c) {
     m_prefixTree->insert(c);

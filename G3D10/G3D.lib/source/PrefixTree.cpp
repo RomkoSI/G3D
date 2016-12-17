@@ -3,10 +3,11 @@
 namespace G3D {
     
 PrefixTree::PrefixTree(const String& s) : m_value(s) {}
+
 PrefixTree::~PrefixTree() {}
 
 bool PrefixTree::canHaveChildren() {
-    return m_children.size() > 0 || m_value == "";
+    return (m_children.size() > 0) || m_value.empty();
 }
 
 const shared_ptr<PrefixTree> PrefixTree::childNodeWithPrefix(const String& s) {
@@ -18,8 +19,10 @@ const shared_ptr<PrefixTree> PrefixTree::childNodeWithPrefix(const String& s) {
     return nullptr;
 }
 
+
 void PrefixTree::insert(const String& s) {
-    const Array<String> components = compactSplit(s, ' '); // TODO delimiter
+    Array<String> components;
+    compactSplit(s, DELIMITER, components);
 
     // Iterate to *parent* of leaf of existing prefix tree
     // The leaves store the original representation of the element, preserving
@@ -57,7 +60,8 @@ void PrefixTree::insert(const String& s) {
 }
 
 bool PrefixTree::contains(const String& s) {
-    const Array<String> components = compactSplit(s, ' '); // TODO delimiter
+    Array<String> components;
+    compactSplit(s, DELIMITER, components);
 
     // Iterate to *parent* of leaf of existing prefix tree
     // The leaves store the original representation of the element, preserving
@@ -82,6 +86,7 @@ bool PrefixTree::contains(const String& s) {
     return false;
 }
 
+
 String PrefixTree::getPathToBranch(shared_ptr<PrefixTree>& branchPoint) {
     shared_ptr<PrefixTree>& finger(shared_from_this());
                 
@@ -96,7 +101,9 @@ String PrefixTree::getPathToBranch(shared_ptr<PrefixTree>& branchPoint) {
     }
     
     branchPoint = finger;
-    return compactJoin(pathParts, ' '); // TODO maybe do this in the caller
+    String result;
+    compactJoin(pathParts, DELIMITER, result);
+    return result;
 }
 
 }
