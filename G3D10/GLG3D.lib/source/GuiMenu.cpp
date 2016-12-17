@@ -59,6 +59,12 @@ GuiMenu::GuiMenu(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, Array<Gui
 
 
 void GuiMenu::init(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, const Array<GuiText>& listPtr, const Pointer<int>& indexValue) {
+    if (m_usePrefixTreeMenus) {
+        alwaysAssertM(! m_useStringList, "Cannot create a prefix tree menu from a GuiText array");
+        m_prefixTree = PrefixTree::create(*m_stringListValue);
+        // TODO: instead of making my own GUI, create my immediate child, which is the root menu
+    }
+
     GuiPane* innerPane;
     const int windowHeight = RenderDevice::current->window()->height();
 
@@ -70,8 +76,10 @@ void GuiMenu::init(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, const A
     innerPane->setHeight(0);
     m_labelArray.resize(listPtr.size());
 
+    m_hasChildren.resize(listPtr.size());
     for (int i = 0; i < listPtr.size(); ++i) {
         m_labelArray[i] = innerPane->addLabel(listPtr[i]);
+        m_hasChildren[i] = false;
     }
 
     if (notNull(m_innerScrollPane)) {
@@ -80,14 +88,6 @@ void GuiMenu::init(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, const A
 
     pack();
     m_highlightIndex = *m_indexValue;
-
-    if (m_usePrefixTreeMenus) {
-        if (m_useStringList) {
-            m_prefixTree = PrefixTree::create(*m_stringListValue);
-        } else {
-            m_prefixTree = PrefixTree::create(*m_captionListValue);
-        }
-    }
 }
 
 
