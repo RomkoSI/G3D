@@ -395,6 +395,9 @@
     <ClCompile Include="..\G3D.lib\source\CubeMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\G3D.lib\source\PrefixTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\G3D.lib\include\G3D\AABox.h">
@@ -932,6 +935,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\G3D.lib\include\G3D\CubeMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\G3D.lib\include\G3D\PrefixTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
