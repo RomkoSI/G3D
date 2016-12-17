@@ -48,9 +48,11 @@ protected:
 
     /** Mouse is over this option */
     int                             m_highlightIndex;
+
+    bool                            m_usePrefixTreeMenus;
     
-    GuiMenu(const shared_ptr<GuiTheme>& theme, const Rect2D& rect, Array<GuiText>* listPtr, const Pointer<int>& indexValue);
-    GuiMenu(const shared_ptr<GuiTheme>& theme, const Rect2D& rect, Array<String>* listPtr, const Pointer<int>& indexValue);
+    GuiMenu(const shared_ptr<GuiTheme>& theme, const Rect2D& rect, Array<GuiText>* listPtr, const Pointer<int>& indexValue, bool usePrefixTreeMenus);
+    GuiMenu(const shared_ptr<GuiTheme>& theme, const Rect2D& rect, Array<String>* listPtr, const Pointer<int>& indexValue, bool usePrefixTreeMenus);
 
     /** Returns -1 if none */
     int labelIndexUnderMouse(Vector2 click) const;
@@ -60,21 +62,22 @@ protected:
 
     void init(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, const Array<GuiText>& listPtr, const Pointer<int>& indexValue);
 
-public:
-    /** A submenu. If the child is not null, then this window will not close. */
-    shared_ptr<GuiMenu>             m_child; // TODO make protected, friend GuiPrefixDropdownLsit
-    shared_ptr<GuiMenu>             m_parent;
+    /** Called from render to draw chevrons and highlighting before child content. */
+    virtual void renderDecorations(RenderDevice* rd) const;
 
-    static shared_ptr<GuiMenu> create(const shared_ptr<GuiTheme>& theme, Array<GuiText>* listPtr, const Pointer<int>& indexValue);
+public:
+
+    /** A submenu. If the child is not null, then this window will not close. TODO: improve documentation */
+    shared_ptr<GuiMenu>             m_child; // TODO make protected
+    shared_ptr<GuiMenu>             m_parent; // TODO make protected
+
+    static shared_ptr<GuiMenu> create(const shared_ptr<GuiTheme>& theme, Array<GuiText>* listPtr, const Pointer<int>& indexValue, bool usePrefixTreeMenus = false);
     
-    static shared_ptr<GuiMenu> create(const shared_ptr<GuiTheme>& theme, Array<String>* listPtr, const Pointer<int>& indexValue);
+    static shared_ptr<GuiMenu> create(const shared_ptr<GuiTheme>& theme, Array<String>* listPtr, const Pointer<int>& indexValue, bool usePrefixTreeMenus = false);
 
     virtual bool onEvent(const GEvent& event) override;
 
     virtual void render(RenderDevice* rd) const override;
-
-    /** Called from render to draw chevrons and highlighting before child content. */
-    virtual void renderDecorations(RenderDevice* rd) const;
    
     void hide();
 

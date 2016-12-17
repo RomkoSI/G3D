@@ -18,13 +18,13 @@
 
 namespace G3D {
 
-shared_ptr<GuiMenu> GuiMenu::create(const shared_ptr<GuiTheme>& theme, Array<String>* listPtr, const Pointer<int>& indexValue) {
-    return shared_ptr<GuiMenu>(new GuiMenu(theme, Rect2D::xywh(0, 0, 120, 0), listPtr, indexValue));
+shared_ptr<GuiMenu> GuiMenu::create(const shared_ptr<GuiTheme>& theme, Array<String>* listPtr, const Pointer<int>& indexValue, bool usePrefixTreeMenus) {
+    return createShared<GuiMenu>(theme, Rect2D::xywh(0, 0, 120, 0), listPtr, indexValue, usePrefixTreeMenus);
 }
 
 
-shared_ptr<GuiMenu> GuiMenu::create(const shared_ptr<GuiTheme>& theme, Array<GuiText>* listPtr, const Pointer<int>& indexValue) {
-    return shared_ptr<GuiMenu>(new GuiMenu(theme, Rect2D::xywh(0, 0, 120, 0), listPtr, indexValue));
+shared_ptr<GuiMenu> GuiMenu::create(const shared_ptr<GuiTheme>& theme, Array<GuiText>* listPtr, const Pointer<int>& indexValue, bool usePrefixTreeMenus) {
+    return createShared<GuiMenu>(theme, Rect2D::xywh(0, 0, 120, 0), listPtr, indexValue, usePrefixTreeMenus);
 }
 
 
@@ -32,10 +32,10 @@ static int menuHeight(int numLabels) {
     return (numLabels * GuiPane::CONTROL_HEIGHT) + GuiPane::CONTROL_PADDING;
 }
 
-GuiMenu::GuiMenu(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, Array<String>* listPtr, const Pointer<int>& indexValue) : 
+GuiMenu::GuiMenu(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, Array<String>* listPtr, const Pointer<int>& indexValue, bool usePrefixTreeMenus) : 
     GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_eventSource(NULL), m_stringListValue(listPtr), 
-    m_captionListValue(NULL), m_indexValue(indexValue), m_useStringList(true), m_superior(nullptr), m_child(nullptr),
-    m_innerScrollPane(NULL) {
+    m_captionListValue(nullptr), m_indexValue(indexValue), m_useStringList(true), m_superior(nullptr), m_child(nullptr),
+    m_innerScrollPane(nullptr), m_usePrefixTreeMenus(usePrefixTreeMenus) {
 
     Array<GuiText> guitextList;
     guitextList.resize(listPtr->size());
@@ -48,10 +48,10 @@ GuiMenu::GuiMenu(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, Array<Str
 
 
 GuiMenu::GuiMenu(const shared_ptr<GuiTheme>& skin, const Rect2D& rect, Array<GuiText>* listPtr, 
-                 const Pointer<int>& indexValue) : 
-    GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_stringListValue(NULL), 
+                 const Pointer<int>& indexValue, bool usePrefixTreeMenus) : 
+    GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_stringListValue(nullptr), 
     m_captionListValue(listPtr), m_indexValue(indexValue), m_useStringList(false), m_superior(nullptr), m_child(nullptr),
-    m_innerScrollPane(NULL) {
+    m_innerScrollPane(nullptr), m_usePrefixTreeMenus(usePrefixTreeMenus)  {
 
     init(skin, rect, *listPtr, indexValue);
 }

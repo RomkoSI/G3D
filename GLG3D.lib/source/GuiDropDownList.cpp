@@ -35,9 +35,9 @@ GuiDropDownList::GuiDropDownList
 
 shared_ptr<GuiMenu> GuiDropDownList::menu() { 
     if (isNull(m_menu)) {
-        m_menu = GuiMenu::create(theme(), &m_listValue, m_indexValue);
-
+        m_menu = GuiMenu::create(theme(), &m_listValue, m_indexValue, m_usePrefixTreeMenus);
     }
+
     return m_menu;
 }
 
