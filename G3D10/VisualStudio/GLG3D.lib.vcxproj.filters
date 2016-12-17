@@ -503,9 +503,6 @@
     <ClCompile Include="..\GLG3D.lib\source\BilateralFilterSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GLG3D.lib\source\GuiPrefixDropDownList.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\GLG3D.lib\source\directinput8.h">
@@ -920,9 +917,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\GLG3D.lib\include\GLG3D\BilateralFilter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GLG3D.lib\include\GLG3D\GuiPrefixDropDownList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
