@@ -6,9 +6,34 @@ PrefixTree::PrefixTree(const String& s) : m_value(s) {}
 
 PrefixTree::~PrefixTree() {}
 
+void PrefixTree::rejectEmptyString(Array<String>& elements) {
+    int i = 0;
+    while (i < elements.size()) {
+        if (elements[i].empty()) {
+            elements.remove(i);
+        } else {
+            ++i;
+        }
+    }
+}
+
+
+void PrefixTree::compactSplit(const String& s, char delimiter, Array<String>& result) {
+    stringSplit(s, delimiter, result);
+    rejectEmptyString(result);
+}
+                
+
+void PrefixTree::compactJoin(Array<String>& elements, char delimiter, String& result) {
+    rejectEmptyString(elements);
+    result = stringJoin(elements, delimiter);
+}
+
+
 bool PrefixTree::canHaveChildren() {
     return (m_children.size() > 0) || m_value.empty();
 }
+
 
 const shared_ptr<PrefixTree> PrefixTree::childNodeWithPrefix(const String& s) {
    for (shared_ptr<PrefixTree>& child : m_children) {

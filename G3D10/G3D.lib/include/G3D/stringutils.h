@@ -130,9 +130,14 @@ String toLower(
 /**
  Splits x at each occurance of splitChar.
  */
-G3D::Array<String> stringSplit(
+Array<String> stringSplit(
     const String&          x,
-    char                        splitChar);
+    char                   splitChar);
+
+void stringSplit(
+    const String&          x,
+    char                   splitChar,
+    Array<String>&         out);
 
 /**
  joinChar is not inserted at the beginning or end, just in between

@@ -271,10 +271,19 @@ String toLower(const String& x) {
 
 Array<String> stringSplit(
     const String&          x,
-    char                        splitChar) {
+    char                   splitChar) {
+    Array<String>  out;
+    stringSplit(x, splitChar, out);
+    return out;
+}
 
-    Array<String> out;
-    
+
+void stringSplit(
+    const String&          x,
+    char                   splitChar,
+    Array<String>&         out) {
+
+    out.fastClear();    
     // Pointers to the beginning and end of the substring
     const char* start = x.c_str();
     const char* stop = start;
@@ -286,8 +295,6 @@ Array<String> stringSplit(
 
     // Append the last one
     out.append(String(start));
-    
-    return out;
 }
 
 
