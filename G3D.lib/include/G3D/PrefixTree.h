@@ -14,27 +14,12 @@ protected:
     Array<shared_ptr<PrefixTree>>   m_children;
 
     /** Mutates array, omitting elements that are the empty string */
-    static void rejectEmptyString(Array<String>& elements) {
-        int i = 0;
-        while (i < elements.size()) {
-            if (elements[i].empty()) {
-                elements.remove(i);
-            } else {
-                ++i;
-            }
-        }
-    }
+    static void rejectEmptyString(Array<String>& elements);
 
-    static void compactSplit(const String& s, char delimiter, Array<String>& result) {
-        result = stringSplit(s, delimiter);   
-        rejectEmptyString(result);
-    }
+    static void compactSplit(const String& s, char delimiter, Array<String>& result);
                 
     /** Note: modifies input array */
-    static void compactJoin(Array<String>& elements, char delimiter, String& result) {
-        rejectEmptyString(elements);
-        result = stringJoin(elements, delimiter);
-    }
+    static void compactJoin(Array<String>& elements, char delimiter, String& result);
         
     const shared_ptr<PrefixTree> childNodeWithPrefix(const String& s);
 
