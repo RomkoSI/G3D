@@ -117,7 +117,7 @@ uses:
 ################################################################
 [DEBUG]
 
-compileoptions:
+compileoptions: -D_DEBUG -g -std=c++1y -stdlib=libc++ -D__cdecl= -D__stdcall= -D__fastcall= -Qunused-arguments -std=c++1y -stdlib=libc++ -fasm-blocks -Wno-c++11-extensions -arch x86_64 -msse2 -msse3 -msse4.2 -pipe -I ~/g3d/G3D10/tbb/include/
 
 linkoptions:
 
