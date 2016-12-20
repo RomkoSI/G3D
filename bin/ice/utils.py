@@ -576,7 +576,7 @@ def runWithOutput(prog, args = [], echo = True, env = None):
     # Windows doesn't support spawnvp, so we have to locate the binary
     if windows:
         program = _findWindowsBinary(program)
-        if not program: raise Exception('Cannot find "' + program + '"')
+        if not program: raise Exception('Cannot find "' + str(program) + '"')
 
     newArgs = [program] + args
 
