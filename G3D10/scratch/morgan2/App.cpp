@@ -33,10 +33,10 @@ void App::onInit() {
 
     // Turn on the developer HUD
     createDeveloperHUD();
-    debugWindow->setVisible(true);
+    debugWindow->setVisible(false);
     developerWindow->setVisible(true);
     developerWindow->cameraControlWindow->setVisible(false);
-    showRenderingStats = false;
+    showRenderingStats = true;
 }
 
 
@@ -61,7 +61,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D)
 
     static bool even = true;
     even = !even;
-    rd->setColorClearValue(even ? Color3::yellow() : Color3::blue());
+    rd->setColorClearValue(even ? Color3::white() : Color3::white() * 0.9f);
     rd->clear();
     return;
     Draw::axes(Point3::zero(), rd);
