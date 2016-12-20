@@ -23,10 +23,10 @@ int main(int argc, const char* argv[]) {
     // Some common resolutions:
     // settings.window.width            =  854; settings.window.height       = 480;
     // settings.window.width            = 1024; settings.window.height       = 768;
-    settings.window.width               = 1280; settings.window.height       = 720;
-    //settings.window.width             = 1920; settings.window.height       = 1080;
+    //settings.window.width               = 1280; settings.window.height       = 720;
+    settings.window.width             = 1920; settings.window.height       = 1080;
     // settings.window.width            = OSWindow::primaryDisplayWindowSize().x; settings.window.height = OSWindow::primaryDisplayWindowSize().y;
-    settings.window.fullScreen          = false;
+    settings.window.fullScreen          = true;
     settings.window.resizable           = ! settings.window.fullScreen;
     settings.window.framed              = ! settings.window.fullScreen;
 
@@ -34,7 +34,7 @@ int main(int argc, const char* argv[]) {
     // you *want* to render faster than the display.
     settings.window.asynchronous        = false;
 
-    settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(64, 64);
+    settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(0, 0);
     settings.hdrFramebuffer.colorGuardBandThickness = Vector2int16(0, 0);
     settings.dataDir                    = FileSystem::currentDirectory();
 //    settings.screenshotDirectory        = "../journal/";
