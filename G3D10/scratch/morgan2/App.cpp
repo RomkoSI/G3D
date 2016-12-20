@@ -16,29 +16,31 @@ int main(int argc, const char* argv[]) {
     // Change the window and other startup parameters by modifying the
     // settings class.  For example:
     settings.window.caption             = argv[0];
+
+    // Set enable to catch more OpenGL errors
     // settings.window.debugContext     = true;
 
+    // Some common resolutions:
     // settings.window.width            =  854; settings.window.height       = 480;
     // settings.window.width            = 1024; settings.window.height       = 768;
-     settings.window.width            = 1280; settings.window.height       = 720;
-    //settings.window.width               = 1920; settings.window.height       = 1080;
+    settings.window.width               = 1280; settings.window.height       = 720;
+    //settings.window.width             = 1920; settings.window.height       = 1080;
     // settings.window.width            = OSWindow::primaryDisplayWindowSize().x; settings.window.height = OSWindow::primaryDisplayWindowSize().y;
     settings.window.fullScreen          = false;
     settings.window.resizable           = ! settings.window.fullScreen;
     settings.window.framed              = ! settings.window.fullScreen;
 
-    // Set to true for a significant performance boost if your app can't render at 60fps,
-    // or if you *want* to render faster than the display.
+    // Set to true for a significant performance boost if your app can't render at 60fps, or if
+    // you *want* to render faster than the display.
     settings.window.asynchronous        = false;
 
-    settings.depthGuardBandThickness    = Vector2int16(64, 64);
-    settings.colorGuardBandThickness    = Vector2int16(0, 0);
+    settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(64, 64);
+    settings.hdrFramebuffer.colorGuardBandThickness = Vector2int16(0, 0);
     settings.dataDir                    = FileSystem::currentDirectory();
-//    settings.screenshotDirectory        = "../journal/";
+    settings.screenshotDirectory        = "../journal/";
 
     settings.renderer.deferredShading = true;
-    settings.renderer.orderIndependentTransparency = false;
-
+    settings.renderer.orderIndependentTransparency = true;
 
     return App(settings).run();
 }
@@ -58,17 +60,14 @@ void App::onInit() {
     // Call setScene(shared_ptr<Scene>()) or setScene(MyScene::create()) to replace
     // the default scene here.
     
-    showRenderingStats      = true;
-
-    m_texture = Texture::fromFile(System::findDataFile("image/test-berry.png"));
+    showRenderingStats      = false;
 
     makeGUI();
     // For higher-quality screenshots:
     // developerWindow->videoRecordDialog->setScreenShotFormat("PNG");
     // developerWindow->videoRecordDialog->setCaptureGui(false);
-    developerWindow->cameraControlWindow->moveTo(Point2(developerWindow->cameraControlWindow->rect().x0(), 0));
     loadScene(
-         //"G3D Sponza"
+        //"G3D Sponza"
         "G3D Cornell Box" // Load something simple
         //developerWindow->sceneEditorWindow->selectedSceneName()  // Load the first scene encountered 
         );
@@ -76,8 +75,9 @@ void App::onInit() {
 
 
 void App::makeGUI() {
-    // Initialize the developer HUD (using the existing scene)
+    // Initialize the developer HUD
     createDeveloperHUD();
+
     debugWindow->setVisible(true);
     developerWindow->videoRecordDialog->setEnabled(true);
 
@@ -86,7 +86,7 @@ void App::makeGUI() {
     // Example of how to add debugging controls
     infoPane->addLabel("You can add GUI controls");
     infoPane->addLabel("in App::onInit().");
-    infoPane->addButton("Exit", this, &App::endProgram);
+    infoPane->addButton("Exit", [this]() { m_endProgram = true; });
     infoPane->pack();
 
     // More examples of debugging GUI controls:
@@ -94,12 +94,17 @@ void App::makeGUI() {
     // debugPane->addTextBox("Name", &myName);
     // debugPane->addNumberBox("height", &height, "m", GuiTheme::LINEAR_SLIDER, 1.0f, 2.5f);
     // button = debugPane->addButton("Run Simulator");
+    // debugPane->addButton("Generate Heightfield", [this](){ generateHeightfield(); });
+    // debugPane->addButton("Generate Heightfield", [this](){ makeHeightfield(imageName, scale, "model/heightfield.off"); });
 
     debugWindow->pack();
     debugWindow->setRect(Rect2D::xywh(0, 0, (float)window()->width(), debugWindow->rect().height()));
 }
 
 
+// This default implementation is a direct copy of GApp::onGraphics3D to make it easy
+// for you to modify. If you aren't changing the hardware rendering strategy, you can
+// delete this override entirely.
 void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurfaces) {
     if (!scene()) {
         if ((submitToDisplayMode() == SubmitToDisplayMode::MAXIMIZE_THROUGHPUT) && (!rd->swapBuffersAutomatically())) {
@@ -138,10 +143,6 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
             m_settings.hdrFramebuffer.depthGuardBandThickness - m_settings.hdrFramebuffer.colorGuardBandThickness);
     } rd->popState();
 
-    rd->push2D(m_framebuffer); {
-        Draw::rect2D(rd->viewport(), rd, Color3::white(), m_texture, Sampler::video(), true);
-    } rd->pop2D();
-
     // We're about to render to the actual back buffer, so swap the buffers now.
     // This call also allows the screenshot and video recording to capture the
     // previous frame just before it is displayed.
@@ -154,7 +155,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
     rd->clear();
 
     // Perform gamma correction, bloom, and SSAA, and write to the native window frame buffer
-    m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0));
+    m_film->exposeAndRender(rd, activeCamera()->filmSettings(), m_framebuffer->texture(0), settings().hdrFramebuffer.colorGuardBandThickness.x + settings().hdrFramebuffer.depthGuardBandThickness.x, settings().hdrFramebuffer.depthGuardBandThickness.x);
 }
 
 
@@ -190,6 +191,13 @@ bool App::onEvent(const GEvent& event) {
     // For example,
     // if ((event.type == GEventType::GUI_ACTION) && (event.gui.control == m_button)) { ... return true; }
     // if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == GKey::TAB)) { ... return true; }
+    // if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == 'p')) { ... return true; }
+
+    if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == 'p')) { 
+        shared_ptr<DefaultRenderer> r = dynamic_pointer_cast<DefaultRenderer>(m_renderer);
+        r->setDeferredShading(! r->deferredShading());
+        return true; 
+    }
 
     return false;
 }
@@ -219,9 +227,4 @@ void App::onGraphics2D(RenderDevice* rd, Array<shared_ptr<Surface2D> >& posed2D)
 void App::onCleanup() {
     // Called after the application loop ends.  Place a majority of cleanup code
     // here instead of in the constructor so that exceptions can be caught.
-}
-
-
-void App::endProgram() {
-    m_endProgram = true;
 }
