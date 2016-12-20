@@ -77,5 +77,5 @@ void App::onGraphics2D(RenderDevice* rd, Array<shared_ptr<Surface2D>>& surface2D
     counter = (counter + 1) % 2000;
 
     static shared_ptr<GFont> font = GFont::fromFile(System::findDataFile("dominant.fnt"));
-    font->draw2D(rd, format("%04d", counter), rd->viewport().center(), 200, Color3::black(), Color4::clear(), GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
+    font->draw2D(rd, format("%04d", counter), rd->viewport().center(), 200, Color3::black(), Color4::clear(), GFont::XALIGN_CENTER, GFont::YALIGN_CENTER, GFont::FIXED_SPACING);
 }
