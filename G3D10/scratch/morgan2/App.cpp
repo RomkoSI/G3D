@@ -37,7 +37,7 @@ int main(int argc, const char* argv[]) {
     settings.hdrFramebuffer.depthGuardBandThickness = Vector2int16(64, 64);
     settings.hdrFramebuffer.colorGuardBandThickness = Vector2int16(0, 0);
     settings.dataDir                    = FileSystem::currentDirectory();
-    settings.screenshotDirectory        = "../journal/";
+//    settings.screenshotDirectory        = "../journal/";
 
     settings.renderer.deferredShading = true;
     settings.renderer.orderIndependentTransparency = true;
