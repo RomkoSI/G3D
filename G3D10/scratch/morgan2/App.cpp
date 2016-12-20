@@ -58,10 +58,6 @@ bool App::onEvent(const GEvent& e) {
 
 void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D) {
     rd->swapBuffers();
-
-    static bool even = true;
-    even = !even;
-    rd->setColorClearValue(even ? Color3::white() : Color3::white() * 0.9f);
     rd->clear();
     return;
     Draw::axes(Point3::zero(), rd);
@@ -76,4 +72,10 @@ void App::onGraphics2D(RenderDevice* rd, Array<shared_ptr<Surface2D>>& surface2D
     // Render 2D objects like Widgets.  These do not receive tone mapping, antialiasing, or
     // gamma correction
     Surface2D::sortAndRender(rd, surface2D);
+
+    static int counter = 0;
+    counter = (counter + 1) % 2000;
+
+    static shared_ptr<GFont> font = GFont::fromFile(System::findDataFile("dominant.fnt"));
+    font->draw2D(rd, format("%04d", counter), rd->viewport().center(), 200, Color3::black(), Color4::clear(), GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
 }
