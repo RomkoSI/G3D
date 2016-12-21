@@ -45,7 +45,7 @@ static String maybeUpOneDirectory(const String& directory) {
     }
 }
 
-
+#ifdef G3D_WINDOWS
 /** Read output from the child process's pipe for STDOUT.
  *  Stop when there is no more data.
  */
@@ -111,6 +111,7 @@ void CreateChildProcess(LPWSTR& cmd, HANDLE& err, HANDLE& out, HANDLE& in) {
         CloseHandle(piProcInfo.hThread);
     }
 }
+#endif
 
 static String g3d_exec(const char* cmd) {
 #ifdef SOMETHING_THAT_IS_DEFINITELY_NOT_DEFINED
