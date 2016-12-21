@@ -52,7 +52,7 @@ void PrefixTree::insert(const String& s) {
     // Iterate to *parent* of leaf of existing prefix tree
     // The leaves store the original representation of the element, preserving
     // whitespace, so we should never alter them and instead stop at the parent 
-    shared_ptr<PrefixTree> finger = shared_from_this();
+    shared_ptr<PrefixTree> finger = dynamic_pointer_cast<PrefixTree>(shared_from_this());
     int i = 0;
     while (i < components.size()) {
         // Check if any of the finger's children contain the next component
@@ -91,7 +91,7 @@ bool PrefixTree::contains(const String& s) {
     // Iterate to *parent* of leaf of existing prefix tree
     // The leaves store the original representation of the element, preserving
     // whitespace, so we should never alter them and instead stop at the parent 
-    shared_ptr<PrefixTree>& finger = shared_from_this();
+    shared_ptr<PrefixTree> finger = dynamic_pointer_cast<PrefixTree>(shared_from_this());
     for (const String& component : components) {
         // Check if any of the finger's children contain the next component
         const shared_ptr<PrefixTree>& next = finger->childNodeWithPrefix(component);
@@ -113,7 +113,7 @@ bool PrefixTree::contains(const String& s) {
 
 
 String PrefixTree::getPathToBranch(shared_ptr<PrefixTree>& branchPoint) {
-    shared_ptr<PrefixTree>& finger(shared_from_this());
+    shared_ptr<PrefixTree> finger = dynamic_pointer_cast<PrefixTree>(shared_from_this());
                 
     Array<String> pathParts;
     while (finger->m_children.size() == 1) {
