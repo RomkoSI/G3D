@@ -1,12 +1,14 @@
-#ifndef G3D_PrefixTree_h
-#define G3D_PrefixTree_h
+#pragma once
 
+#include "G3D/platform.h"
 #include "G3D/Array.h"
+#include "G3D/G3DString.h"
 #include "G3D/stringutils.h"
+#include "G3D/ReferenceCount.h"
 #include "GLG3D/GuiText.h"
 
 namespace G3D {
-class PrefixTree : public std::enable_shared_from_this<PrefixTree> {
+class PrefixTree : public ReferenceCountedObject {
 protected:
     /** Number of leaf nodes */
     int                             m_size = 0;
@@ -29,7 +31,7 @@ public:
 
     static const char DELIMITER = ' ';
 
-    PrefixTree(const String& s = DELIMITER);
+    PrefixTree(const String& s = String(DELIMITER));
     virtual ~PrefixTree();
         
     const String& value() const { return m_value; }
@@ -48,12 +50,12 @@ public:
     int size() const { return m_size; }
         
     static shared_ptr<PrefixTree> create(const String& s = DELIMITER) {
-        return std::make_shared<PrefixTree>(s);
+        return createShared<PrefixTree>(s);
     }
 
     template <class T> // Generic to allow both GuiText, String
     static shared_ptr<PrefixTree> create(const Array<T>& elements) {
-        shared_ptr<PrefixTree> tree = PrefixTree::create();
+        const shared_ptr<PrefixTree>& tree = PrefixTree::create();
         for (const String& s : elements) {
             tree->insert(s);
         }
@@ -61,6 +63,3 @@ public:
     }
 };
 }
-
-
-#endif
