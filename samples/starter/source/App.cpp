@@ -55,7 +55,7 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 // automatically caught.
 void App::onInit() {
     GApp::onInit();
-    setFrameDuration(1.0f / 120.0f);
+    setFrameDuration(1.0f / 60.0f);
 
     // Call setScene(shared_ptr<Scene>()) or setScene(MyScene::create()) to replace
     // the default scene here.
