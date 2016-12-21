@@ -49,7 +49,7 @@ public:
     String getPathToBranch(shared_ptr<PrefixTree>& branchPoint);
     int size() const { return m_size; }
         
-    static shared_ptr<PrefixTree> create(const String& s = DELIMITER) {
+    static shared_ptr<PrefixTree> create(const String& s = String(1, DELIMITER)) {
         return createShared<PrefixTree>(s);
     }
 
