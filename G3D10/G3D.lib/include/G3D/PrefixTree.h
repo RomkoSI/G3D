@@ -31,7 +31,7 @@ public:
 
     static const char DELIMITER = ' ';
 
-    PrefixTree(const String& s = String(DELIMITER));
+    PrefixTree(const String& s = String(1, DELIMITER));
     virtual ~PrefixTree();
         
     const String& value() const { return m_value; }
