@@ -164,6 +164,14 @@ public:
         m_buffer[1] = '\0';
     }
 
+    inline SSESmallString(size_t count, const value_type c) : m_data(m_buffer), m_length(count), m_allocated(INTERNAL_SIZE) {
+        // Allocate more than needed for fast append
+        m_allocated = chooseAllocationSize(m_length + 1);
+        m_data = (value_type*)alloc(m_allocated);
+        memset(m_data, c, m_length);
+        m_data[m_length] = '\0';
+    }
+
     SSESmallString(const SSESmallString& s) {
         m_length = s.m_length;
         m_allocated = s.m_allocated;

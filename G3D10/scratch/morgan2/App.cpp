@@ -12,7 +12,8 @@ int main(int argc, const char* argv[]) {
     // settings class.  For example:
     settings.window.width       = 2560; 
     settings.window.height      = 1440;
-    settings.window.asynchronous = false;
+    settings.window.asynchronous = true;
+    settings.window.refreshRate = 144;
     settings.window.framed      = false;
     settings.window.fullScreen  = true;
     settings.hdrFramebuffer.colorGuardBandThickness = Vector2int16(0,0);
