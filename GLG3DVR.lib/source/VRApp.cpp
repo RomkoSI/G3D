@@ -18,22 +18,22 @@ namespace G3D {
 
 /** Called by initOpenVR */
 static String getHMDString(vr::IVRSystem* pHmd, vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop, vr::TrackedPropertyError* peError = nullptr) {
-	uint32_t unRequiredBufferLen = pHmd->GetStringTrackedDeviceProperty(unDevice, prop, nullptr, 0, peError);
-	if (unRequiredBufferLen == 0) {
-	    return "";
+    uint32_t unRequiredBufferLen = pHmd->GetStringTrackedDeviceProperty(unDevice, prop, nullptr, 0, peError);
+    if (unRequiredBufferLen == 0) {
+        return "";
     }
-
-	char* pchBuffer = new char[unRequiredBufferLen];
-	unRequiredBufferLen = pHmd->GetStringTrackedDeviceProperty(unDevice, prop, pchBuffer, unRequiredBufferLen, peError);
-	String sResult = pchBuffer;
-	delete[] pchBuffer;
-
-	return sResult;
+    
+    char* pchBuffer = new char[unRequiredBufferLen];
+    unRequiredBufferLen = pHmd->GetStringTrackedDeviceProperty(unDevice, prop, pchBuffer, unRequiredBufferLen, peError);
+    const String& sResult = pchBuffer;
+    delete[] pchBuffer;
+    
+    return sResult;
 }
 
 
 static float getHMDFloat(vr::IVRSystem* pHmd, vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop, vr::TrackedPropertyError* peError = nullptr) {
-	return pHmd->GetFloatTrackedDeviceProperty(unDevice, prop, peError);
+    return pHmd->GetFloatTrackedDeviceProperty(unDevice, prop, peError);
 }
 
 
@@ -59,9 +59,9 @@ VRApp::VRApp(const GApp::Settings& settings) :
     // Initialize OpenVR
 
     try {
-	    vr::EVRInitError eError = vr::VRInitError_None;
-	    m_hmd = vr::VR_Init(&eError, vr::VRApplication_Scene);
-
+        vr::EVRInitError eError = vr::VRInitError_None;
+        m_hmd = vr::VR_Init(&eError, vr::VRApplication_Scene);
+        
     
         if (isNull(m_hmd) && (! m_vrSettings.emulateHMDIfMissing)) {
             // Initialization failed with no fallback
@@ -76,26 +76,26 @@ VRApp::VRApp(const GApp::Settings& settings) :
         */
 
         if (notNull(m_hmd)) {            
-	        if (eError != vr::VRInitError_None) {
+            if (eError != vr::VRInitError_None) {
                 throw vr::VR_GetVRInitErrorAsEnglishDescription(eError);
-	        }
-
+            }
+            
             // get the proper resolution of the hmd
             m_hmd->GetRecommendedRenderTargetSize(&hmdWidth, &hmdHeight);        
 
-	        const String& driver = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_TrackingSystemName_String);
-	        const String& model  = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_ModelNumber_String);        
-	        const String& serial = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
+            const String& driver = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_TrackingSystemName_String);
+            const String& model  = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_ModelNumber_String);        
+            const String& serial = getHMDString(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
             const float   freq   = getHMDFloat(m_hmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_DisplayFrequency_Float);
             logLazyPrintf("VRApp::m_hmd: %s '%s' #%s (%d x %d @ freq)\n", driver.c_str(), model.c_str(), serial.c_str(), hmdWidth, hmdHeight, freq);
 
             // Initialize the compositor
             vr::IVRCompositor* compositor = vr::VRCompositor();
-	        if (! compositor) {
+            if (! compositor) {
                 vr::VR_Shutdown();
                 m_hmd = nullptr;
                 throw "OpenVR Compositor initialization failed. See log file for details\n";
-	        }
+            }
         } else {
             logLazyPrintf("VRApp using virtual HMD\n");
             hmdWidth  = 1024;// TODO: Default to Vive values
@@ -183,6 +183,7 @@ void VRApp::onInit() {
     sampleTrackingData();
 }
 
+
 static CFrame toCFrame(const vr::HmdMatrix34_t& M) {
     return CFrame(Matrix3(M.m[0][0], M.m[0][1], M.m[0][2],
                           M.m[1][0], M.m[1][1], M.m[1][2],
@@ -204,7 +205,7 @@ static void getEyeTransformations
     float*          ltProjectionMatrixRowMajor4x4, 
     float*          rtProjectionMatrixRowMajor4x4) {
 
-    assert(nearPlaneZ < 0.0f && farPlaneZ < nearPlaneZ);
+    assert((nearPlaneZ < 0.0f) && (farPlaneZ < nearPlaneZ));
 
     vr::VRCompositor()->WaitGetPoses(trackedDevicePose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
 
