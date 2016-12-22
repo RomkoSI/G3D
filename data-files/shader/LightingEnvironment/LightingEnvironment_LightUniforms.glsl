@@ -142,48 +142,49 @@ void computeDirectLighting(Vector3 n, Vector3 glossyN, Vector3 w_o, Vector3 n_fa
 Radiance3 computeDirectLighting(UniversalMaterialSample surfel, Vector3 w_o, float backside) {
     Radiance3 L_scatteredDirect = Radiance3(0);
 #   for (int I = 0; I < NUM_LIGHTS; ++I)
-    do {
+    {
         Vector3 w_i;
         // Radial falloff and spotlight term. Separate glossy and lambertian values are computed
         float attenuation = computeAttenuation(surfel.shadingNormal, light$(I)_position,
             light$(I)_attenuation, light$(I)_softnessConstant, surfel.position, light$(I)_direction, light$(I)_up,
             light$(I)_right, light$(I)_rectangular, light$(I)_radius, w_i);
 
-        // Abort attenuated lights
-        if (attenuation <= attenuationThreshold) continue;
-#       ifdef light$(I)_shadowMap_notNull
-        {
-            vec3 adjustedWSPos = surfel.position + w_o * (1.5 * light$(I)_shadowMap_bias) + surfel.shadingNormal * (backside * 0.5 * light$(I)_shadowMap_bias);
-            vec4 shadowCoord = light$(I)_shadowMap_MVP * vec4(adjustedWSPos, 1.0);
-
-            // Williams Shadow Map case
-
-            // "Normal offset shadow mapping" http://www.dissidentlogic.com/images/NormalOffsetShadows/GDC_Poster_NormalOffset.png
-            // Note that the normal bias must be > shadowMapBias$(I) to prevent self-shadowing; we use 3x here so that most
-            // glancing angles are OK.
-            float visibility = shadowMapVisibility(light$(I)_direction, light$(I)_position, light$(I)_attenuation, shadowCoord, light$(I)_shadowMap_buffer, light$(I)_shadowMap_invSize.xy, false);
-
-            // This line appears to miscompile on Radeon, causing everything to always be in shadow
-            //            if (visibility * attenuation <= attenuationThreshold) continue;
-
-#           ifdef light$(I)_shadowMap_variance_notNull
+        if (attenuation > attenuationThreshold) {
+#           ifdef light$(I)_shadowMap_notNull
             {
-                vec4 cFrameZRow = vec4(light$(I)_direction.xyz, -light$(I)_position.z);
-                float lightSpaceZ = dot(cFrameZRow, vec4(adjustedWSPos, 1.0));
-                lightSpaceZ = -dot(light$(I)_direction.xyz, adjustedWSPos - light$(I)_position.xyz);
-
-                // Variance Shadow Map case
-                visibility = min(visibility, varianceShadowMapVisibility(shadowCoord, lightSpaceZ, light$(I)_shadowMap_variance_buffer, light$(I)_shadowMap_variance_lightBleedReduction));
+                vec3 adjustedWSPos = surfel.position + w_o * (1.5 * light$(I)_shadowMap_bias) + surfel.shadingNormal * (backside * 0.5 * light$(I)_shadowMap_bias);
+                vec4 shadowCoord = light$(I)_shadowMap_MVP * vec4(adjustedWSPos, 1.0);
+                
+                // Williams Shadow Map case
+                
+                // "Normal offset shadow mapping" http://www.dissidentlogic.com/images/NormalOffsetShadows/GDC_Poster_NormalOffset.png
+                // Note that the normal bias must be > shadowMapBias$(I) to prevent self-shadowing; we use 3x here so that most
+                // glancing angles are OK.
+                float visibility = shadowMapVisibility(light$(I)_direction, light$(I)_position, light$(I)_attenuation, shadowCoord, light$(I)_shadowMap_buffer, light$(I)_shadowMap_invSize.xy, false);
+                
+                // This line appears to miscompile on Radeon, causing everything to always be in shadow
+                //            if (visibility * attenuation <= attenuationThreshold) continue;
+                
+#               ifdef light$(I)_shadowMap_variance_notNull
+                {
+                    vec4 cFrameZRow = vec4(light$(I)_direction.xyz, -light$(I)_position.z);
+                    float lightSpaceZ = dot(cFrameZRow, vec4(adjustedWSPos, 1.0));
+                    lightSpaceZ = -dot(light$(I)_direction.xyz, adjustedWSPos - light$(I)_position.xyz);
+                    
+                    // Variance Shadow Map case
+                    visibility = min(visibility, varianceShadowMapVisibility(shadowCoord, lightSpaceZ, light$(I)_shadowMap_variance_buffer, light$(I)_shadowMap_variance_lightBleedReduction));
+                }
+#               endif
+                attenuation *= visibility;
             }
 #           endif
-            attenuation *= visibility;
-            if (attenuation <= attenuationThreshold) continue;
-        }
-#       endif
 
-        // The "attenuation" includes geometric attenuation for angle, i.e., "the cosine" factor
-        L_scatteredDirect += attenuation * light$(I)_color * evaluateUniversalMaterialBSDF(surfel, w_i, w_o); 
-    } while (false); // The do-while loop enables "continue" statements
+            if (attenuation >attenuationThreshold) {
+                // The "attenuation" includes geometric attenuation for angle, i.e., "the cosine" factor
+                L_scatteredDirect += attenuation * light$(I)_color * evaluateUniversalMaterialBSDF(surfel, w_i, w_o); 
+            } // if attenuation > threshold
+        } // if attenuation > threshold
+    }
 #   endfor
 
     return L_scatteredDirect;

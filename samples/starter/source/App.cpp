@@ -66,6 +66,7 @@ void App::onInit() {
     // For higher-quality screenshots:
     // developerWindow->videoRecordDialog->setScreenShotFormat("PNG");
     // developerWindow->videoRecordDialog->setCaptureGui(false);
+
     loadScene(
         //"G3D Sponza"
         "G3D Cornell Box" // Load something simple
@@ -117,6 +118,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& allSurface
         } rd->popState();
         return;
     }
+
 
     GBuffer::Specification gbufferSpec = m_gbufferSpecification;
     extendGBufferSpecification(gbufferSpec);
