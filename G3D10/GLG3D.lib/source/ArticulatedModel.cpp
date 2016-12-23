@@ -41,7 +41,7 @@ void ArticulatedModel::clearCache() {
 
 
 shared_ptr<ArticulatedModel> ArticulatedModel::loadArticulatedModel(const ArticulatedModel::Specification& specification, const String& n) {
-    shared_ptr<ArticulatedModel> a(new ArticulatedModel());
+    shared_ptr<ArticulatedModel> a = createShared<ArticulatedModel>();
 
     if (n.empty()) {
         a->m_name = FilePath::base(specification.filename);
@@ -78,7 +78,7 @@ shared_ptr<ArticulatedModel> ArticulatedModel::create(const ArticulatedModel::Sp
 
 
 shared_ptr<ArticulatedModel> ArticulatedModel::createEmpty(const String& n) {
-    const shared_ptr<ArticulatedModel> a(new ArticulatedModel());
+    const shared_ptr<ArticulatedModel> a = createShared<ArticulatedModel>();
     a->m_name = n;
     return a;
 }

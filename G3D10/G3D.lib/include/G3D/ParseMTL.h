@@ -123,14 +123,13 @@ public:
 
         String          interpolateMode;
 
-    private:
+    protected:
 
         // We default Ks to -1 because we want to default it to 1 if there 
         // is a map_Ks and 0.75f otherwise (which then gets raised to the ninth power by G3D)
         // We thus have to check and properly set the default whenever we finish parsing a material or
         // assign map_Ks
         Material() : Ka(1.0f), Kd(1.0f), Ks(-1.0f), Ke(0.0f), bump(0.0f), Ns(10.0f), d(1.0f), Tf(1.0f), illum(2), Ni(1.0f), interpolateMode("TRILINEAR_MIPMAP") {}
-
     public:
         /** We default Ks to 0.8f if there is no map_Ks. 
         This is non-standard but matches G3D's lighting model better. 
@@ -138,7 +137,7 @@ public:
         Note that we raise Ks to the 9th power when loading into an Articulated Model.
         */
         static shared_ptr<Material> create() {
-            return shared_ptr<Material>(new Material());
+            return createShared<Material>();
         }
     };
     
