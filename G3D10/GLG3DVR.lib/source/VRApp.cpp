@@ -249,8 +249,8 @@ static void getEyeTransformations
     }
     
     // Vive's near plane code is off by a factor of 2 according to G3D
-    const vr::HmdMatrix44_t& ltProj = hmd->GetProjectionMatrix(vr::Eye_Left,  -nearPlaneZ * 2.0f, -farPlaneZ, vr::API_OpenGL);
-    const vr::HmdMatrix44_t& rtProj = hmd->GetProjectionMatrix(vr::Eye_Right, -nearPlaneZ * 2.0f, -farPlaneZ, vr::API_OpenGL);
+    const vr::HmdMatrix44_t& ltProj = hmd->GetProjectionMatrix(vr::Eye_Left,  -nearPlaneZ * 2.0f, -farPlaneZ);
+    const vr::HmdMatrix44_t& rtProj = hmd->GetProjectionMatrix(vr::Eye_Right, -nearPlaneZ * 2.0f, -farPlaneZ);
 
     for (int r = 0; r < 4; ++r) {
         for (int c = 0; c < 4; ++c) {
@@ -598,7 +598,7 @@ void VRApp::submitHMDFrame(RenderDevice* rd) {
     const vr::EColorSpace colorSpace = vr::ColorSpace_Linear;
 
     for (int eye = 0; eye < 2; ++eye) {
-        const vr::Texture_t tex = { reinterpret_cast<void*>(intptr_t(m_hmdDeviceFramebuffer[eye]->texture(0)->openGLID())), vr::API_OpenGL, colorSpace };
+        const vr::Texture_t tex = { reinterpret_cast<void*>(intptr_t(m_hmdDeviceFramebuffer[eye]->texture(0)->openGLID())), vr::TextureType_OpenGL, colorSpace };
         vr::VRCompositor()->Submit(vr::EVREye(eye), &tex);
     }
 
