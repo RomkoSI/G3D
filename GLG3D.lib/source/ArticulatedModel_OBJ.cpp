@@ -3,9 +3,9 @@
 
  \author Morgan McGuire, http://graphics.cs.williams.edu
  \created 2011-07-19
- \edited  2014-10-25
+ \edited  2016-12-23
  
- Copyright 2000-2015, Morgan McGuire.
+ Copyright 2000-2016, Morgan McGuire.
  All rights reserved.
 */
 #include "GLG3D/ArticulatedModel.h"
@@ -16,7 +16,7 @@
 namespace G3D {
 
 static void stripMaterials(ParseOBJ& parseData) {
-    shared_ptr<ParseMTL::Material> defaultMaterial = ParseMTL::Material::create();
+    const shared_ptr<ParseMTL::Material>& defaultMaterial = ParseMTL::Material::create();
 
     // Collapse the groups
     for (ParseOBJ::GroupTable::Iterator git = parseData.groupTable.begin();
@@ -180,13 +180,14 @@ static UniversalMaterial::Specification toMaterialSpecification
         }
 
         switch (m->illum) {
-
+            /*
         case 3: case 4: case 5: case 6: case 7:
             // "ray trace" reflection on
             t.encoding.readMultiplyFirst.a = UniversalBSDF::packedSpecularMirror();
             break;
 
         case 2: case 10:
+        */
         default:
             // [glossy] "hilight" on
 		    // 3DS exponents are always on the low side, so make it disproportionally
